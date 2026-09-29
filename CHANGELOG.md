@@ -182,6 +182,17 @@
   (`src/ui/imagerySplit.js`, `src/maps/imageryComparison.js`), and
   `MapSourceController.subscribe()` reports every settled map switch.
 
+## Unreleased — voice outlines without Overpass
+
+- Voice outlines work again without Overpass. Bundled US Census places and
+  Who's On First neighborhoods (lazy-loaded; `src/data/local_data/`) answer
+  first, then streets, grounds and pointed-at buildings from OpenFreeMap
+  tiles, then Nominatim for one explicit ask at a time, cached and capped per
+  install. Anything else stays a point marked "outline unavailable".
+- New settings: `NOMINATIM_URL` (your own Nominatim instead of the public
+  one; empty disables it), `NOMINATIM_DAILY_CAP` (public requests per day,
+  default 50) and `PHOTON_URL` (browser place search; empty disables it).
+
 ## Unreleased — local receiver feeds
 
 - The Local ADS-B layer also reads local 1090 MHz and 978 MHz UAT decoder
