@@ -26,6 +26,10 @@ import {
 
 const PLACES = new URL('./local_data/us_census_places/', import.meta.url);
 const WOF = new URL('./local_data/wof_neighborhoods/', import.meta.url);
+const WOF_LICENSES = new URL(
+  '../../scripts/wof-open-licenses.json',
+  import.meta.url,
+);
 const readJson = (url) => JSON.parse(readFileSync(url, 'utf8'));
 
 const AUSTIN = { lat: 30.2672, lon: -97.7431 };
@@ -365,15 +369,71 @@ test('places pack: every state file, unique ids, sane and valid rings', () => {
   assert.equal(total, 32_629);
 });
 
-const UNSTATED = /assumed|unknown|unresolved|n\/a/i;
+const WOF_LICENSE_POLICY = readJson(WOF_LICENSES);
+const ALLOWED_WOF_LICENSES = new Set(WOF_LICENSE_POLICY.licenses);
+const licenceAllowed = (value) =>
+  typeof value === 'string' && ALLOWED_WOF_LICENSES.has(value);
 
-test('neighborhood pack ships only sources whose licence is stated', () => {
+test('the WOF licence policy accepts only exact reviewed registry strings', () => {
+  for (const accepted of WOF_LICENSE_POLICY.licenses)
+    assert.equal(licenceAllowed(accepted), true, accepted);
+  for (const rejected of [
+    '',
+    null,
+    0,
+    'Unknown',
+    'Restricted',
+    'CC BY-NC 4.0',
+    'CC BY-SA 4.0',
+    'CC BY 5.0 (unreviewed)',
+    'CC BY Restricted',
+    'CC BY Unknown',
+    'Creative Commons NonCommercial',
+    'ODbL 1.0',
+    'cc by 4.0',
+    'CC BY 4.0 ',
+    ' CC BY 4.0',
+    'CC  BY 4.0',
+    'CC\tBY 4.0',
+  ])
+    assert.equal(licenceAllowed(rejected), false, JSON.stringify(rejected));
+});
+
+test('the Zetashapes raw registry spelling is admitted by pinned provenance', () => {
+  const review = WOF_LICENSE_POLICY.reviewedSources.zs;
+  assert.deepEqual(
+    {
+      name: review.name,
+      registryCommit: review.registryCommit,
+      registrySha256: review.registrySha256,
+      rawLicenseType: review.rawLicenseType,
+      licenseTextSha256: review.licenseTextSha256,
+    },
+    {
+      name: 'Zetashapes',
+      registryCommit: 'e17af153c144fe6e08aa8db2607b4bf8aecd448d',
+      registrySha256:
+        'd8a5dd873d26eee11583de4438185c046dec33848d5bde27047ca4bff44d9c39',
+      rawLicenseType: 'Public domain',
+      licenseTextSha256:
+        '91757f96f74f6dfb4a7206486b78586da0d039e9611e224fc793c7167dcfe615',
+    },
+  );
+  assert.equal(licenceAllowed(review.rawLicenseType), true);
+  assert.match(review.decision, /TIGER\/Line/);
+  assert.match(review.decision, /Flickr/);
+});
+
+test('neighborhood pack ships only explicitly allowed and credited sources', () => {
   const index = readJson(new URL('index.json', WOF));
   const sources = index.meta.sources;
   const credits = readFileSync(new URL('ATTRIBUTION.md', WOF), 'utf8');
   for (const [key, source] of Object.entries(sources)) {
-    assert.ok(source.license, `${key} has a licence`);
-    assert.doesNotMatch(source.license, UNSTATED, key);
+    assert.equal(
+      licenceAllowed(source.license),
+      true,
+      `${key}: ${source.license}`,
+    );
     assert.notEqual(key, 'unknown');
     assert.ok(credits.includes(`\`${key}\``), `${key} credited`);
   }

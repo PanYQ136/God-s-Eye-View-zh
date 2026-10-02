@@ -1,18 +1,24 @@
 import { PbfReader } from 'pbf';
 import { VectorTile } from '@mapbox/vector-tile';
-import { clipTileLine, createOpenFreeMapSource } from './openFreeMap.js';
+import {
+  clipTileLine,
+  createOpenFreeMapSource,
+  registerOpenFreeMapProjection,
+} from './openFreeMap.js';
 import { tileToBBox } from '../data/tomtomTiles.js';
 import {
   approximateDistanceM,
   ringAreaM2,
   closeRing,
 } from './featureGeometry.js';
+import { phaseTiming } from './phaseTiming.js';
 
 /**
  * Street and building outlines from the same OpenFreeMap z14 vector tiles the
  * traffic layer reads. No new tile provider: the source below points at the
- * same immutable tile URLs, so tiles traffic already loaded come from the
- * browser cache. Nothing here is fetched without an explicit ask.
+ * same immutable tile URLs and bounded decoded owner. Traffic prepares the
+ * outline projection in idle time; nothing here starts provider I/O without
+ * an explicit traffic or outline ask.
  */
 
 /** Tile zoom used for outlines (the highest OpenMapTiles zoom with buildings). */
@@ -54,10 +60,17 @@ const GROUNDS_AREA_CLASSES = Object.freeze({
 });
 
 /** Lines of one tile's `transportation_name` layer and polygons of `building`. */
-export function decodeOpenFreeMapOutlineTile(bytes, z, x, y) {
-  const tile = new VectorTile(new PbfReader(bytes));
+export function decodeOpenFreeMapOutlineTile(
+  bytes,
+  z,
+  x,
+  y,
+  parsedTile = null,
+) {
+  const tile = parsedTile || new VectorTile(new PbfReader(bytes));
   const box = tileToBBox(z, x, y);
   const streets = [];
+  const streetsStart = performance.now();
   const names = tile.layers.transportation_name;
   if (names) {
     if (names.length > LAYER_FEATURE_LIMIT)
@@ -85,6 +98,17 @@ export function decodeOpenFreeMapOutlineTile(bytes, z, x, y) {
           });
     }
   }
+  phaseTiming(
+    'street-extract',
+    streetsStart,
+    {
+      tile: `${z}/${x}/${y}`,
+      features: names?.length || 0,
+      streets: streets.length,
+    },
+    'outlines',
+  );
+  const polygonsStart = performance.now();
   const buildings = decodePolygons(
     tile.layers.building,
     z,
@@ -115,8 +139,20 @@ export function decodeOpenFreeMapOutlineTile(bytes, z, x, y) {
       ),
     );
   }
+  phaseTiming(
+    'polygon-extract',
+    polygonsStart,
+    {
+      tile: `${z}/${x}/${y}`,
+      buildings: buildings.length,
+      areas: areas.length,
+    },
+    'outlines',
+  );
   return { streets, buildings, areas };
 }
+
+registerOpenFreeMapProjection('outlines', decodeOpenFreeMapOutlineTile);
 
 /** Tile pixel -> longitude/latitude, exactly as vector-tile's toGeoJSON projects. */
 function pixelToLonLat(px, py, extent, z, x, y) {
@@ -192,7 +228,7 @@ function decodePolygons(layer, z, x, y, keep, describe) {
 /** Construct the outline tile source: same OpenFreeMap tiles, outline decode. */
 export function createOpenFreeMapOutlineSource(options = {}) {
   return createOpenFreeMapSource({
-    decode: decodeOpenFreeMapOutlineTile,
+    projection: 'outlines',
     maxEntries: 32,
     maxCacheBytes: 16 * 1024 * 1024,
     ...options,

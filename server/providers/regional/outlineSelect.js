@@ -192,12 +192,95 @@ const ADMIN_EVIDENCE = Object.freeze({
   },
 });
 
+const KNOWN_ADMIN_TYPES = new Set(
+  Object.values(ADMIN_EVIDENCE).flatMap((evidence) => evidence.types),
+);
+
+/**
+ * Nominatim address types whose meaning is stable enough for the area consumer's
+ * country/admin1/admin2 contract. `region`, `district` and numeric admin levels
+ * vary by country, so they remain unverified instead of being guessed.
+ */
+const VERIFIED_ADMIN_LEVEL = Object.freeze({
+  country: 'country',
+  state: 'admin1',
+  province: 'admin1',
+  county: 'admin2',
+  state_district: 'admin2',
+});
+
+const EXPLICIT_NAME_LEVEL = Object.freeze({
+  country: 'country',
+  nation: 'country',
+  province: 'admin1',
+  state: 'admin1',
+  region: 'admin1',
+  oblast: 'admin1',
+  prefecture: 'admin1',
+  canton: 'admin1',
+  governorate: 'admin1',
+  county: 'admin2',
+  district: 'admin2',
+  department: 'admin2',
+  zone: 'retired',
+});
+
+function explicitNameEvidence(value) {
+  const normalized = String(value || '')
+    .normalize('NFKC')
+    .toLocaleLowerCase()
+    .replace(/[^\p{L}\p{M}\p{N}]+/gu, ' ')
+    .trim();
+  const prefix = normalized.match(
+    /^(country|nation|province|state|region|zone|oblast|prefecture|canton|governorate|county|district|department)\s+of\b/,
+  )?.[1];
+  const suffix = normalized.match(
+    /\b(country|nation|province|state|region|zone|oblast|prefecture|canton|governorate|county|district|department)$/,
+  )?.[1];
+  const levels = new Set(
+    [prefix, suffix]
+      .filter(Boolean)
+      .map((type) => EXPLICIT_NAME_LEVEL[type])
+      .filter(Boolean),
+  );
+  if (levels.size > 1) return { contradictory: true, level: null };
+  return { contradictory: false, level: levels.values().next().value || null };
+}
+
+/**
+ * Verified administrative identity carried by the selected result itself.
+ * Never infer it from the request, desired kind, rank, or a separate geocoder
+ * anchor. A retired name is preserved without a level so downstream policy can
+ * reject it explicitly; every other contradiction stays wholly unverified.
+ */
+function selectedAdminIdentity(kind, row) {
+  if (kind !== 'admin') return null;
+  const adminLevel =
+    VERIFIED_ADMIN_LEVEL[String(row?.addresstype || '').toLowerCase()];
+  const authoritativeAdminArea = String(row?.name || '').trim();
+  if (!adminLevel || !authoritativeAdminArea) return null;
+  // Validate the complete authoritative name. `adminArea` is truncated only
+  // for display after every prefix/suffix signal has been considered.
+  const { contradictory, level: nameLevel } = explicitNameEvidence(
+    authoritativeAdminArea,
+  );
+  if (contradictory) return null;
+  const adminArea = authoritativeAdminArea.slice(0, 160);
+  if (nameLevel === 'retired') return { adminArea };
+  if (nameLevel && nameLevel !== adminLevel) return null;
+  return { adminArea, adminLevel };
+}
+
 /** Whether an administrative boundary is at the level the ask names. */
 export function adminLevelFits(kind, row) {
   const evidence = ADMIN_EVIDENCE[kind];
   if (!evidence) return true;
   const type = String(row?.addresstype || '').toLowerCase();
   if (type && evidence.types.includes(type)) return true;
+  // A recognized type is direct evidence. Rank is only a fallback when the
+  // upstream answer omits the type or supplies a value we do not understand;
+  // the overlapping county/city rank bands must not override `county`.
+  if (KNOWN_ADMIN_TYPES.has(type)) return false;
   const rank = Number(row?.place_rank);
   if (Number.isFinite(rank))
     return rank >= evidence.ranks[0] && rank <= evidence.ranks[1];
@@ -452,6 +535,7 @@ export function selectOutlineResult(rows, { kind, query }) {
       skipped.push(`${label}: too large`);
       continue;
     }
+    const adminIdentity = selectedAdminIdentity(kind, row);
     const lat = Number(row.lat);
     const lon = Number(row.lon);
     return {
@@ -464,6 +548,7 @@ export function selectOutlineResult(rows, { kind, query }) {
           row.osm_type && row.osm_id != null
             ? `${row.osm_type}/${row.osm_id}`
             : null,
+        ...(adminIdentity || {}),
         center: finiteLat(lat) && finiteLon(lon) ? { lat, lon } : null,
         polygons,
       },

@@ -6,7 +6,9 @@
 // request reaches any Overpass endpoint.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { Readable } from 'node:stream';
 import {
   createOutlineRungs,
@@ -20,7 +22,10 @@ import { createNominatimOutlineClient } from '../sources/nominatimOutlines.js';
 import { createApplicationRequestServices } from '../services/requests.js';
 import { overpassProxy } from '../../server/providers/overpass.js';
 import { geocodeProxy } from '../../server/providers/regional/place.js';
-import { createNominatimGate } from '../../server/providers/regional/nominatimGate.js';
+import {
+  createGateStateStore,
+  createNominatimGate,
+} from '../../server/providers/regional/nominatimGate.js';
 
 const TILES = [6745, 6746].map((y) =>
   decodeOpenFreeMapOutlineTile(
@@ -332,6 +337,8 @@ test('default settings: outline, street and building asks send nothing to Overpa
   t.mock.method(globalThis, 'fetch', async (url) => assert.fail(`unexpected network request ${url}`));
 
   const upstream = [];
+  const stateDir = mkdtempSync(path.join(os.tmpdir(), 'gev-outline-rungs-'));
+  t.after(() => rmSync(stateDir, { recursive: true, force: true }));
   const gate = createNominatimGate({
     settings: { endpoint: 'https://nominatim.openstreetmap.org/search', isPublic: true, dailyCap: 50 },
     fetchImpl: async (url) => {
@@ -339,6 +346,7 @@ test('default settings: outline, street and building asks send nothing to Overpa
       const q = new URL(url).searchParams.get('q');
       return Response.json(NOMINATIM_ROWS[q] || []);
     },
+    usage: createGateStateStore({ file: path.join(stateDir, 'state.json') }),
     sleep: async () => {},
   });
   const handlers = routes(overpassProxy(), geocodeProxy({ gate }));

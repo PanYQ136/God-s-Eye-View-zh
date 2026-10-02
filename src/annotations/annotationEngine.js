@@ -11,6 +11,7 @@ import {
   sampleGroundHeight,
 } from './annotationResolver.js';
 import { ringCentroid } from './drawMode.js';
+import { phaseTiming } from '../sources/phaseTiming.js';
 
 // Dev convenience: expose the app's Cesium instance for console/preview probing
 // (single shared module instance — avoids dual-Cesium state bugs when testing).
@@ -679,6 +680,7 @@ export function createAnnotationEngine({
       if (!annotations.has(anno.id)) return; // mark replaced/removed while resolving
       anno.pendingOutline = false;
       anno.outlineUnavailable = isUnavailableCapability(fp);
+      const installStart = performance.now();
       if (anno.outlineUnavailable) renderer.update(anno);
       if (fp && !anno.outlineUnavailable) {
         anno.ring = fp.ring;
@@ -726,6 +728,17 @@ export function createAnnotationEngine({
         }
       }
       renderer.sync(annotations);
+      if (fp && !anno.outlineUnavailable)
+        phaseTiming(
+          'install',
+          installStart,
+          {
+            kind: anno.footprintKind || null,
+            parts: anno.polygons?.length || (anno.ring ? 1 : 0),
+            points: anno.ring?.length || 0,
+          },
+          'outlines',
+        );
       // Final outcome → the voice layer (place names ride as structured DATA fields).
       // 'failed' covers both the definitive no-polygon and an exhausted transient
       // retry — either way the mark honestly stays a point.

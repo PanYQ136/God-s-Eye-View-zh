@@ -3,7 +3,8 @@
 
 Reads the pinned Who's On First neighbourhood, macrohood and microhood
 archives and the WOF sources registry, keeps current polygon records whose
-geometry source has a stated licence, simplifies them to about 15 m, and
+geometry source matches the reviewed open-licence allowlist, simplifies them
+to about 15 m, and
 writes src/data/local_data/wof_neighborhoods/:
 
   index.json      format, licences per source, tile list with boxes
@@ -25,7 +26,6 @@ import collections
 import hashlib
 import json
 import math
-import re
 import subprocess
 import tarfile
 from pathlib import Path
@@ -65,8 +65,9 @@ TOLERANCE_M = 15
 PRECISION = 5
 TILE_MAX_BYTES = 200_000
 TILE_MAX_DEPTH = 16
-# A geometry source is kept only when the registry states its licence.
-UNSTATED = re.compile(r'assumed|unknown|unresolved|n/a', re.I)
+LICENSE_POLICY = json.loads((ROOT / 'scripts/wof-open-licenses.json').read_text())
+ALLOWED_LICENSES = frozenset(LICENSE_POLICY['licenses'])
+REVIEWED_SOURCES = LICENSE_POLICY.get('reviewedSources', {})
 FIELDS = ['id', 'name', 'country', 'type', 'bbox', 'aliases', 'source', 'rings', 'label']
 
 
@@ -149,9 +150,34 @@ def source_table(spec):
     return lookup
 
 
-def stated(key, source):
-    licence = (source or {}).get('license_type') or ''
-    return key != 'unknown' and bool(source) and bool(licence) and not UNSTATED.search(licence)
+def verify_source_reviews(lookup):
+    """Pin exceptional source decisions to the exact reviewed registry evidence."""
+    registry_commit = SOURCES['url'].split('/')[-3]
+    for key, review in REVIEWED_SOURCES.items():
+        source = lookup.get(key)
+        if not source:
+            raise ValueError(f'{key}: reviewed source is absent from the pinned registry')
+        if review.get('registryCommit') != registry_commit:
+            raise ValueError(f'{key}: review does not match the pinned registry commit')
+        if review.get('registrySha256') != SOURCES['sha256']:
+            raise ValueError(f'{key}: review does not match the pinned registry SHA-256')
+        if review.get('rawLicenseType') != source.get('license_type'):
+            raise ValueError(f'{key}: reviewed raw licence no longer matches the registry')
+        text = source.get('license_text') or ''
+        if review.get('licenseTextSha256') != hashlib.sha256(text.encode()).hexdigest():
+            raise ValueError(f'{key}: reviewed licence text no longer matches the registry')
+        if review['rawLicenseType'] not in ALLOWED_LICENSES:
+            raise ValueError(f'{key}: reviewed raw licence is not admitted by policy')
+
+
+def licence_allowed(value):
+    """Only exact raw registry strings reviewed in the policy are accepted."""
+    return isinstance(value, str) and value in ALLOWED_LICENSES
+
+
+def source_allowed(key, source):
+    return (key != 'unknown' and bool(source) and
+            licence_allowed(source.get('license_type')))
 
 
 def build_records(archives, lookup):
@@ -166,7 +192,7 @@ def build_records(archives, lookup):
         if not keep(properties):
             continue
         key = properties.get('src:geom', 'unknown')
-        if not stated(key, lookup.get(key)):
+        if not source_allowed(key, lookup.get(key)):
             excluded[key] += 1
             continue
         name = properties['wof:name']
@@ -278,6 +304,7 @@ def main():
     }
     spec = json.loads(fetch(args.cache, 'sources-spec-latest.json', SOURCES['url'], SOURCES['sha256']).read_text())
     lookup = source_table(spec)
+    verify_source_reviews(lookup)
     features, excluded = build_records(archives, lookup)
     if len({f[0] for f in features}) != len(features):
         raise ValueError('duplicate WOF id')
@@ -336,7 +363,7 @@ def main():
         differ = sorted(
             name for name in shipped | set(out)
             if not (PACK / name).exists() or name not in out
-            or (PACK / name).read_text(encoding='utf-8') != out[name]
+            or (PACK / name).read_bytes() != out[name].encode('utf-8')
         )
         if differ:
             raise SystemExit(f'rebuild differs from the shipped pack: {differ[:10]}')
@@ -348,7 +375,7 @@ def main():
     for name, text in out.items():
         (PACK / name).write_text(text, encoding='utf-8')
     print(f'wof_neighborhoods: {len(features)} records in {len(tile_list)} tiles; '
-          f'excluded {sum(excluded.values())} with an unstated licence: {dict(excluded)}', flush=True)
+          f'excluded {sum(excluded.values())} with an unapproved licence: {dict(excluded)}', flush=True)
 
 
 if __name__ == '__main__':

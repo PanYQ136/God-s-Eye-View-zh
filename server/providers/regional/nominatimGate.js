@@ -1,13 +1,16 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { DatabaseSync } from 'node:sqlite';
 import { readResponseJsonCapped } from '../common/http.js';
 
 /**
  * One gate for every request this server sends to a Nominatim instance.
  *
- * Place search and voice outlines share it, so the public instance sees one
- * application: one request at a time, at least 1.1 s apart, a short queue, a
- * daily ceiling per install, and a pause after the server says to stop.
+ * Place search and voice outlines share it. Public requests reserve one start
+ * at a time across processes sharing this installation's state file, remain at
+ * least 1.1 s apart, use a short queue and daily ceiling, and pause after the
+ * server says to stop. Independent installations do not share one app-wide
+ * limiter; each must identify itself and enforce the public policy locally.
  */
 
 /** The public instance. Only this host is subject to the public-use limits. */
@@ -108,13 +111,110 @@ function gateError(code, message, extra = {}) {
   return Object.assign(new Error(message), { code, ...extra });
 }
 
+const HTTP_MONTHS = Object.freeze([
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+]);
+const HTTP_WEEKDAYS = Object.freeze([
+  'Sun',
+  'Mon',
+  'Tue',
+  'Wed',
+  'Thu',
+  'Fri',
+  'Sat',
+]);
+const HTTP_WEEKDAYS_LONG = Object.freeze([
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+]);
+
+/** Strict RFC 9110 HTTP-date, including the two obsolete recipient formats. */
+function parseHttpDate(raw, now) {
+  let match = raw.match(
+    /^(Sun|Mon|Tue|Wed|Thu|Fri|Sat), (\d{2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (\d{4}) (\d{2}):(\d{2}):(\d{2}) GMT$/,
+  );
+  let weekday, day, month, year, hour, minute, second;
+  if (match) {
+    [, weekday, day, month, year, hour, minute, second] = match;
+    weekday = HTTP_WEEKDAYS.indexOf(weekday);
+  } else {
+    match = raw.match(
+      /^(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday), (\d{2})-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-(\d{2}) (\d{2}):(\d{2}):(\d{2}) GMT$/,
+    );
+    if (match) {
+      [, weekday, day, month, year, hour, minute, second] = match;
+      weekday = HTTP_WEEKDAYS_LONG.indexOf(weekday);
+      const currentYear = new Date(now).getUTCFullYear();
+      if (!Number.isFinite(currentYear)) return null;
+      year = Math.floor(currentYear / 100) * 100 + Number(year);
+      if (year > currentYear + 50) year -= 100;
+    } else {
+      match = raw.match(
+        /^(Sun|Mon|Tue|Wed|Thu|Fri|Sat) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) ([ \d]\d) (\d{2}):(\d{2}):(\d{2}) (\d{4})$/,
+      );
+      if (!match) return null;
+      [, weekday, month, day, hour, minute, second, year] = match;
+      weekday = HTTP_WEEKDAYS.indexOf(weekday);
+    }
+  }
+  day = Number(day);
+  month = HTTP_MONTHS.indexOf(month);
+  year = Number(year);
+  hour = Number(hour);
+  minute = Number(minute);
+  second = Number(second);
+  if (
+    weekday < 0 ||
+    month < 0 ||
+    year < 1601 ||
+    hour > 23 ||
+    minute > 59 ||
+    second > 59
+  )
+    return null;
+  const at = Date.UTC(year, month, day, hour, minute, second);
+  const date = new Date(at);
+  return date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month &&
+    date.getUTCDate() === day &&
+    date.getUTCHours() === hour &&
+    date.getUTCMinutes() === minute &&
+    date.getUTCSeconds() === second &&
+    date.getUTCDay() === weekday
+    ? at
+    : null;
+}
+
 /** Seconds or an HTTP date → milliseconds from now, or null. */
 export function parseRetryAfter(value, now = Date.now()) {
-  if (value == null || value === '') return null;
-  const seconds = Number(value);
-  if (Number.isFinite(seconds)) return Math.max(0, seconds * 1000);
-  const at = Date.parse(String(value));
-  return Number.isFinite(at) ? Math.max(0, at - now) : null;
+  if (value == null) return null;
+  const raw = String(value).trim();
+  if (!raw) return null;
+  if (/^\d+$/.test(raw)) {
+    const seconds = Number(raw);
+    const milliseconds = seconds * 1000;
+    return Number.isSafeInteger(milliseconds) ? milliseconds : null;
+  }
+  // Numeric-looking but invalid delay-seconds must not be reinterpreted as a date.
+  if (/^[+-]?(?:\d|\.\d)/.test(raw)) return null;
+  const at = parseHttpDate(raw, now);
+  return at === null ? null : Math.max(0, at - now);
 }
 
 /** UTC calendar day, the unit of the daily cap. */
@@ -122,36 +222,92 @@ function utcDay(ms) {
   return new Date(ms).toISOString().slice(0, 10);
 }
 
-const sleepSync = (ms) =>
-  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
-
 /**
  * Public-service state shared by every process using the same file: today's
- * request count and any pause the server asked for.
+ * request count, the next reserved start, and any pause the server asked for.
  *
- * Every change is a read-modify-write under an exclusive lock directory, and
- * the file is replaced atomically, so two dev servers sharing a checkout add
- * to one count instead of overwriting each other. Memory keeps the highest
- * values this process has seen, so a failed or unreadable file never lowers
- * the count or shortens a pause; a persistence failure is reported once and
- * in `status()`.
+ * Every change is a read-modify-write under an OS-owned SQLite transaction,
+ * and the JSON file is replaced atomically, so two dev servers sharing a
+ * checkout add to one count instead of overwriting each other. A process exit
+ * releases only that process's transaction; there is no stale path to delete
+ * and therefore no stale reclaimer that can remove a successor's live lock.
+ * Memory keeps the highest values this process has seen, so a failed or
+ * unreadable file never lowers the count or shortens a pause; a persistence
+ * failure is reported once and in `status()`.
  */
 export function createGateStateStore({
   file = null,
-  lockStaleMs = 5000,
   lockWaitMs = 500,
   onError = (error) =>
     console.warn(
       `[Nominatim] could not persist usage state: ${error?.message || error}`,
     ),
 } = {}) {
-  let memory = { day: '', count: 0, pausedUntil: 0 };
+  let memory = { day: '', count: 0, pausedUntil: 0, nextStartAt: 0 };
   let lastError = null;
 
   const report = (error) => {
     if (!lastError) onError(error);
     lastError = error;
   };
+
+  const pauseMarkerPrefix = file ? `${path.basename(file)}.pause.` : null;
+
+  /**
+   * A refusal must remain visible even while another process owns the SQLite
+   * transaction. Immutable marker names make that write atomic and monotonic:
+   * concurrent writers cannot shorten one another's pause, and the next lock
+   * owner folds every marker into the normal JSON state.
+   */
+  function pendingPauses({ strict = false } = {}) {
+    if (!file) return [];
+    let names;
+    try {
+      names = fs.readdirSync(path.dirname(file));
+    } catch (error) {
+      if (error?.code === 'ENOENT') return [];
+      report(error);
+      if (strict) throw error;
+      return [];
+    }
+    const pauses = [];
+    for (const name of names) {
+      if (!name.startsWith(pauseMarkerPrefix)) continue;
+      const encoded = name.slice(pauseMarkerPrefix.length).split('.', 1)[0];
+      if (!/^\d+$/.test(encoded)) continue;
+      const pausedUntil = Number(encoded);
+      if (!Number.isSafeInteger(pausedUntil)) {
+        const error = new Error('invalid durable Nominatim pause marker');
+        report(error);
+        if (strict) throw error;
+        continue;
+      }
+      pauses.push({
+        path: path.join(path.dirname(file), name),
+        pausedUntil,
+      });
+    }
+    return pauses;
+  }
+
+  function markPause(at) {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    const pausedUntil = Math.ceil(at);
+    const marker = `${file}.pause.${pausedUntil}.${process.pid}.${process.hrtime.bigint()}`;
+    fs.writeFileSync(marker, '', { flag: 'wx' });
+    return pausedUntil;
+  }
+
+  function clearPersistedPauses(pausedUntil) {
+    for (const marker of pendingPauses()) {
+      if (marker.pausedUntil > pausedUntil) continue;
+      try {
+        fs.unlinkSync(marker.path);
+      } catch (error) {
+        if (error?.code !== 'ENOENT') report(error);
+      }
+    }
+  }
 
   const merge = (a, b) => ({
     day: a.day >= b.day ? a.day : b.day,
@@ -162,21 +318,58 @@ export function createGateStateStore({
           ? a.count
           : b.count,
     pausedUntil: Math.max(a.pausedUntil || 0, b.pausedUntil || 0),
+    nextStartAt: Math.max(a.nextStartAt || 0, b.nextStartAt || 0),
   });
 
-  function readDisk() {
-    if (!file) return null;
+  const parseState = (parsed) => {
+    const validDay =
+      parsed?.day === '' ||
+      (typeof parsed?.day === 'string' &&
+        /^\d{4}-\d{2}-\d{2}$/.test(parsed.day) &&
+        new Date(`${parsed.day}T00:00:00.000Z`)
+          .toISOString()
+          .startsWith(parsed.day));
+    const validCount =
+      Number.isInteger(parsed?.count) &&
+      parsed.count >= 0 &&
+      (parsed.day !== '' || parsed.count === 0);
+    const validPausedUntil =
+      Number.isFinite(parsed?.pausedUntil) && parsed.pausedUntil >= 0;
+    // nextStartAt was added after the original state format. Its absence is
+    // the one supported migration; a present value must still be trustworthy.
+    const validNextStartAt =
+      parsed?.nextStartAt === undefined ||
+      (Number.isFinite(parsed.nextStartAt) && parsed.nextStartAt >= 0);
+    if (
+      !parsed ||
+      Array.isArray(parsed) ||
+      typeof parsed !== 'object' ||
+      !validDay ||
+      !validCount ||
+      !validPausedUntil ||
+      !validNextStartAt
+    )
+      throw new Error('invalid durable Nominatim usage state');
+    return {
+      day: parsed.day,
+      count: parsed.count,
+      pausedUntil: parsed.pausedUntil,
+      nextStartAt: parsed.nextStartAt ?? 0,
+    };
+  };
+
+  function readDisk({ strict = false } = {}) {
+    if (!file) {
+      if (strict)
+        throw new Error('no durable Nominatim usage state is configured');
+      return null;
+    }
     try {
-      const parsed = JSON.parse(fs.readFileSync(file, 'utf8'));
-      return {
-        day: typeof parsed?.day === 'string' ? parsed.day : '',
-        count: Number.isFinite(parsed?.count) ? Math.max(0, parsed.count) : 0,
-        pausedUntil: Number.isFinite(parsed?.pausedUntil)
-          ? parsed.pausedUntil
-          : 0,
-      };
+      return parseState(JSON.parse(fs.readFileSync(file, 'utf8')));
     } catch (error) {
-      if (error?.code !== 'ENOENT') report(error);
+      if (error?.code === 'ENOENT') return null;
+      report(error);
+      if (strict) throw error;
       return null;
     }
   }
@@ -184,34 +377,61 @@ export function createGateStateStore({
   function current() {
     const disk = readDisk();
     if (disk) memory = merge(memory, disk);
+    const pending = pendingPauses();
+    if (pending.length)
+      memory = merge(memory, {
+        ...memory,
+        pausedUntil: Math.max(...pending.map((item) => item.pausedUntil)),
+      });
     return memory;
   }
 
   function withLock(work) {
-    const lock = `${file}.lock`;
-    const deadline = Date.now() + lockWaitMs;
     fs.mkdirSync(path.dirname(file), { recursive: true });
-    for (;;) {
-      try {
-        fs.mkdirSync(lock);
-        break;
-      } catch (error) {
-        if (error?.code !== 'EEXIST') throw error;
+    const waitMs = Number.isFinite(lockWaitMs)
+      ? Math.max(0, Math.floor(lockWaitMs))
+      : 500;
+    const database = new DatabaseSync(`${file}.lock.sqlite`, {
+      timeout: waitMs,
+    });
+    let transactionOpen = false;
+    try {
+      database.exec('BEGIN IMMEDIATE');
+      transactionOpen = true;
+      const result = work();
+      database.exec('COMMIT');
+      transactionOpen = false;
+      return result;
+    } catch (error) {
+      if (transactionOpen) {
         try {
-          if (Date.now() - fs.statSync(lock).mtimeMs > lockStaleMs)
-            fs.rmSync(lock, { recursive: true, force: true });
+          database.exec('ROLLBACK');
         } catch {
-          // Another process released it meanwhile.
+          // Closing the connection below still releases this owner's lock.
         }
-        if (Date.now() > deadline)
-          throw new Error('usage state is locked by another process');
-        sleepSync(5);
+      }
+      throw error;
+    } finally {
+      try {
+        database.close();
+      } catch {
+        // The transaction has already been committed or rolled back. Closing
+        // is best effort during exceptional teardown and never removes a lock.
       }
     }
+  }
+
+  function writeDisk(next) {
+    const temp = `${file}.${process.pid}.${process.hrtime.bigint()}.tmp`;
     try {
-      return work();
+      fs.writeFileSync(temp, JSON.stringify(next));
+      fs.renameSync(temp, file);
     } finally {
-      fs.rmSync(lock, { recursive: true, force: true });
+      try {
+        fs.unlinkSync(temp);
+      } catch (error) {
+        if (error?.code !== 'ENOENT') report(error);
+      }
     }
   }
 
@@ -224,10 +444,9 @@ export function createGateStateStore({
     try {
       withLock(() => {
         const next = merge(memory, change(current()));
-        const temp = `${file}.${process.pid}.${Date.now()}.tmp`;
-        fs.writeFileSync(temp, JSON.stringify(next));
-        fs.renameSync(temp, file);
+        writeDisk(next);
         memory = next;
+        clearPersistedPauses(next.pausedUntil);
         lastError = null;
       });
     } catch (error) {
@@ -247,16 +466,80 @@ export function createGateStateStore({
         day,
         count: state.day === day ? state.count + 1 : 1,
         pausedUntil: state.pausedUntil,
+        nextStartAt: state.nextStartAt,
       })).count;
+    },
+    reserve(day, { now, dailyCap, minSpacingMs, latestStartAt = Infinity }) {
+      if (!file) {
+        const error = new Error(
+          'no durable Nominatim usage state is configured',
+        );
+        report(error);
+        return { status: 'unavailable', error };
+      }
+      try {
+        let result;
+        withLock(() => {
+          const disk = readDisk({ strict: true });
+          if (disk) memory = merge(memory, disk);
+          const pending = pendingPauses({ strict: true });
+          if (pending.length)
+            memory = merge(memory, {
+              ...memory,
+              pausedUntil: Math.max(...pending.map((item) => item.pausedUntil)),
+            });
+          const state = memory;
+          if ((state.pausedUntil || 0) > now) {
+            result = {
+              status: 'paused',
+              retryAfterMs: state.pausedUntil - now,
+            };
+            return;
+          }
+          const count = state.day === day ? state.count : 0;
+          if (count >= dailyCap) {
+            result = { status: 'cap' };
+            return;
+          }
+          const startAt = Math.max(now, state.nextStartAt || 0);
+          if (startAt > latestStartAt) {
+            result = { status: 'abandoned' };
+            return;
+          }
+          const next = {
+            day,
+            count: count + 1,
+            pausedUntil: state.pausedUntil || 0,
+            nextStartAt: startAt + minSpacingMs,
+          };
+          writeDisk(next);
+          memory = next;
+          clearPersistedPauses(next.pausedUntil);
+          lastError = null;
+          result = { status: 'reserved', startAt, count: next.count };
+        });
+        return result;
+      } catch (error) {
+        report(error);
+        return { status: 'unavailable', error };
+      }
     },
     pausedUntil() {
       return current().pausedUntil || 0;
     },
     pauseUntil(at) {
+      if (file) {
+        try {
+          at = markPause(at);
+        } catch (error) {
+          report(error);
+        }
+      }
       update((state) => ({ ...state, pausedUntil: at }));
     },
     status: () => ({
       file,
+      durable: Boolean(file),
       persisted: Boolean(file) && !lastError,
       error: lastError ? String(lastError.message || lastError) : null,
     }),
@@ -289,9 +572,8 @@ export function createNominatimGate({
   timeoutMs = 9000,
 } = {}) {
   let queue = Promise.resolve();
-  let lastStartedAt = -Infinity;
   let pending = 0;
-  let pausedUntil = 0;
+  const pausedUntilByEndpoint = new Map();
   let upstreamRequests = 0;
   let usageStore = usage;
 
@@ -304,14 +586,18 @@ export function createNominatimGate({
    */
   function pause(ms, config) {
     const until = now() + Math.max(0, ms);
-    if (until > pausedUntil) pausedUntil = until;
-    if (config?.isPublic) usageStore.pauseUntil(pausedUntil);
+    const key = String(config?.endpoint || '');
+    if (until > (pausedUntilByEndpoint.get(key) || 0))
+      pausedUntilByEndpoint.set(key, until);
+    if (config?.isPublic) usageStore.pauseUntil(until);
   }
 
   function pauseEnd(config) {
+    const endpointPause =
+      pausedUntilByEndpoint.get(String(config?.endpoint || '')) || 0;
     return config?.isPublic
-      ? Math.max(pausedUntil, usageStore.pausedUntil())
-      : pausedUntil;
+      ? Math.max(endpointPause, usageStore.pausedUntil())
+      : endpointPause;
   }
 
   function pausedError(config) {
@@ -324,19 +610,12 @@ export function createNominatimGate({
     if (!config.endpoint)
       return gateError('NOMINATIM_DISABLED', 'Place service is not configured');
     if (now() < pauseEnd(config)) return pausedError(config);
-    if (config.isPublic && usageStore.count(utcDay(now())) >= config.dailyCap)
-      return gateError(
-        'NOMINATIM_DAILY_CAP',
-        'Daily place lookup allowance is used',
-      );
     return null;
   }
 
   /** One upstream request; classifies refusals and pauses the gate. */
   async function send(url, config, maxBytes, signal) {
-    if (config.isPublic) usageStore.increment(utcDay(now()));
     upstreamRequests += 1;
-    lastStartedAt = now();
     const controller = new AbortController();
     const onAbort = () => controller.abort();
     signal?.addEventListener('abort', onAbort, { once: true });
@@ -405,16 +684,45 @@ export function createNominatimGate({
     }
   }
 
-  /** Wait for the spacing slot, then check the request is still wanted. */
+  /** Atomically reserve the public slot, then wait until it may start. */
   async function takeTurn(config, queuedAt, signal) {
-    const spacing = config.isPublic ? minSpacingMs : 0;
-    const waitMs = Math.max(0, spacing - (now() - lastStartedAt));
+    if (signal?.aborted || now() - queuedAt > maxWaitMs)
+      throw gateError('NOMINATIM_ABANDONED', 'Place search was abandoned');
+    const refused = admissionError(config);
+    if (refused) throw refused;
+    // An operator-selected endpoint is not governed by the public instance's
+    // shared budget, pacing, or durable-state requirement.
+    if (!config.isPublic) return;
+    const reserved = usageStore.reserve(utcDay(now()), {
+      now: now(),
+      dailyCap: config.dailyCap,
+      minSpacingMs,
+      latestStartAt: queuedAt + maxWaitMs,
+    });
+    if (reserved.status === 'unavailable')
+      throw gateError(
+        'NOMINATIM_STATE_UNAVAILABLE',
+        'Public place service usage state is unavailable',
+        { cause: reserved.error },
+      );
+    if (reserved.status === 'cap')
+      throw gateError(
+        'NOMINATIM_DAILY_CAP',
+        'Daily place lookup allowance is used',
+      );
+    if (reserved.status === 'paused')
+      throw gateError('NOMINATIM_PAUSED', 'Place service is pausing', {
+        retryAfterMs: reserved.retryAfterMs,
+      });
+    if (reserved.status === 'abandoned')
+      throw gateError('NOMINATIM_ABANDONED', 'Place search was abandoned');
+    const waitMs = Math.max(0, reserved.startAt - now());
     if (waitMs) await sleep(waitMs);
     if (signal?.aborted || now() - queuedAt > maxWaitMs)
       throw gateError('NOMINATIM_ABANDONED', 'Place search was abandoned');
-    // An outage or refusal that happened while this waited stops it here.
-    const refused = admissionError(config);
-    if (refused) throw refused;
+    // A refusal from another process after this reservation still stops it.
+    // The reserved daily slot remains spent; it cannot safely be reassigned.
+    if (now() < pauseEnd(config)) throw pausedError(config);
   }
 
   /**
@@ -465,7 +773,7 @@ export function createNominatimGate({
   return {
     requestJson,
     settings: current,
-    /** Share the daily count and pause through a file (composition chooses it). */
+    /** Share public admission, daily count and pauses through one install's file. */
     persistUsage(file) {
       usageStore = createGateStateStore({ file });
     },
