@@ -129,9 +129,17 @@ export function createApplicationViewer({ container, creditContainer }) {
       : apple
         ? 0
         : 4;
-  const pdb = typeof gfx.pdb === 'boolean' ? gfx.pdb : !apple;
+  // GEV perf 2026-10-24: 默认关闭 preserveDrawingBuffer —— 它每帧强制整帧 framebuffer
+  // 拷贝（viewer.js 注释自认），而本应用所有 toDataURL 均在离屏 2D canvas，无 Cesium 画布
+  // 截图/录屏依赖，故默认 false 纯赚。用户如需可在画面设置面板开启。
+  const pdb = typeof gfx.pdb === 'boolean' ? gfx.pdb : false;
   const tileMSE = typeof gfx.tileMSE === 'number' ? gfx.tileMSE : apple ? 4 : 2;
-  const fps = typeof gfx.fps === 'number' ? gfx.fps : apple ? 30 : 60;
+  /*
+   * fps: 0 / 负数 / NaN = "不限帧率"，Cesium 只接受 undefined（会抛
+   * "targetFrameRate must be greater than 0, or undefined"，整个 viewer 构造失败）。
+   */
+  const fpsRaw = Number(gfx.fps);
+  const fps = Number.isFinite(fpsRaw) && fpsRaw > 0 ? Math.min(fpsRaw, 240) : undefined;
   const gpuPref =
     gfx.gpuPref === 'high-performance' ||
     gfx.gpuPref === 'low-power' ||
@@ -172,7 +180,8 @@ export function createApplicationViewer({ container, creditContainer }) {
     },
   });
   try {
-    viewer.targetFrameRate = fps;
+    // undefined = 交给浏览器垂直同步；绝不能赋 0
+    viewer.targetFrameRate = fps > 0 ? fps : undefined;
     // ── GEV 高清增强包 · 1080p 锐利 ─────────────────────────────
     // 按设备像素比满分辨率渲染：1080p(DPR=1)→1.0、Retina(DPR=2)→2.0（封顶 2），
     // 并把地球瓦片屏幕误差收紧到 2 → 地形/贴图/图标更锐、更清。若中端机变卡，
@@ -184,6 +193,38 @@ export function createApplicationViewer({ container, creditContainer }) {
       : Math.min(Math.max(window.devicePixelRatio || 1, 1), 2);
     viewer.scene.globe.maximumScreenSpaceError = tileMSE;
     window.__gevViewer = viewer;
+    /* ── 渲染循环护栏 ────────────────────────────────────────────
+     * Cesium 在 canvas 宽/高为 0 时（窗口最小化、切到隐藏模式、容器瞬间
+     * display:none、尺寸重算的那一帧）会在 render() 里抛
+     *   DeveloperError: Expected width to be greater than 0, actual value was 0
+     * 一旦抛出，Cesium 认为渲染出错并**永久停掉渲染循环**，页面就只剩这个红框。
+     * 这里在 scene.render 外面包一层：0 尺寸直接跳过这一帧（并尝试 resize 恢复），
+     * 只有真正的其他异常才继续抛。
+     */
+    try {
+      const scene = viewer.scene;
+      const origRender = scene.render.bind(scene);
+      scene.render = function guardedRender() {
+        const cv = scene.canvas;
+        if (!cv) return undefined;
+        const w = cv.clientWidth || 0;
+        const h = cv.clientHeight || 0;
+        if (w <= 0 || h <= 0) {
+          // 尺寸恢复后必须重新算一次视图，否则会停在旧分辨率
+          try {
+            if (cv.clientWidth > 0 && cv.clientHeight > 0) viewer.resize();
+          } catch (e) {}
+          return undefined;
+        }
+        try {
+          return origRender();
+        } catch (e) {
+          const msg = String((e && e.message) || e || '');
+          if (msg.indexOf('greater than 0') >= 0) return undefined; // 尺寸抖动导致，跳过即可
+          throw e;
+        }
+      };
+    } catch (e) {}
     // Before any tile builds a draw command: Cesium's per-vertex model
     // atmosphere fails to LINK on Apple's Metal backend and kills the
     // render loop. See app/atmosphereCompat.js.

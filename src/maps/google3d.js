@@ -85,10 +85,19 @@ export function createGoogleDirectTileset(Cesium, key) {
   key = clean(key);
   if (!key) throw new Error('Google 3D requires an explicit browser key');
   // Tiles keep drawing their own texture while draped weather loads.
+  // GEV perf 2026-10-24: direct 路由此前没设显存/缓存（用 Cesium 默认 256/512MB），
+  // 与 ion 路由对齐到 1536MB 缓存 + 1400MB 上限，减少 3D 飞越时的瓦片卸载/重载抖动。
   return Cesium.createGooglePhotorealistic3DTileset(
     { key, onlyUsingWithGoogleGeocoder: true },
     { asynchronouslyLoadImagery: true },
-  );
+  ).then((tileset) => {
+    try {
+      tileset.cacheBytes = 1536 * 1024 * 1024;
+      tileset.maximumCacheOverflowBytes = 1024 * 1024 * 1024;
+      tileset.maximumMemoryUsage = 1400;
+    } catch (e) {}
+    return tileset;
+  });
 }
 
 export async function createGoogleIonTileset(

@@ -50,7 +50,7 @@ import { PostProcessStage, Cartesian2 } from 'cesium';
         fxaa: true,
         sharpen: 40,
         msaa: 4,
-        pdb: true,
+        pdb: false,
         tileMSE: 2,
         fps: 60,
         gpuPref: 'high-performance',
@@ -158,7 +158,7 @@ import { PostProcessStage, Cartesian2 } from 'cesium';
         v.scene.globe.maximumScreenSpaceError = clamp(st.cfg.tileMSE, 1, 12);
     } catch (e) {}
     try {
-      if (v.targetFrameRate != null) v.targetFrameRate = st.cfg.fps;
+      v.targetFrameRate = safeFps(st.cfg.fps);
     } catch (e) {}
     const stage = ensureStage();
     if (stage) {
@@ -530,9 +530,15 @@ import { PostProcessStage, Cartesian2 } from 'cesium';
         v.scene.globe.maximumScreenSpaceError = clamp(st.cfg.tileMSE, 1, 12);
     } catch (e) {}
     try {
-      if (v.targetFrameRate != null && v.targetFrameRate !== st.cfg.fps)
-        v.targetFrameRate = st.cfg.fps;
+      const want = safeFps(st.cfg.fps);
+      if (v.targetFrameRate !== want) v.targetFrameRate = want;
     } catch (e) {}
+  }
+
+  // Cesium 只接受 >0 或 undefined；0 表示"不限帧率" → 归一成 undefined
+  function safeFps(f) {
+    const n = Number(f);
+    return Number.isFinite(n) && n > 0 ? Math.min(n, 240) : undefined;
   }
 
   function boot(viewer) {
@@ -540,6 +546,15 @@ import { PostProcessStage, Cartesian2 } from 'cesium';
     try {
       const s = localStorage.getItem(LS_KEY);
       if (s) Object.assign(st.cfg, JSON.parse(s));
+    } catch (e) {}
+    // GEV perf 2026-10-24: 一次性把历史默认 pdb:true 迁移为 false（每帧整帧拷贝、无画布截图依赖）。
+    // 迁移后写回 localStorage，下次重载 viewer 即以 false 建上下文；用户日后在面板的显式选择不再被覆盖。
+    try {
+      if (st.cfg.pdbMigrated !== true) {
+        st.cfg.pdb = false;
+        st.cfg.pdbMigrated = true;
+        localStorage.setItem(LS_KEY, JSON.stringify(st.cfg));
+      }
     } catch (e) {}
     buildUi();
     apply();
