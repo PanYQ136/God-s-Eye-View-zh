@@ -79,7 +79,7 @@ export function roadRequestError(status) {
 
 /** Supply road responses, flow availability and one decoded flow cache. */
 export function createTrafficSource({
-  fetchImpl = (...args) => globalThis.fetch(...args),
+  fetchImpl = (...args) => (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
 } = {}) {
   const flow = createFlowTileSource({ fetchImpl });
   return {

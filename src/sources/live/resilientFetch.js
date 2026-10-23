@@ -53,3 +53,10 @@ export function makeResilientFetch({
     throw lastErr || new Error('resilientFetch exhausted');
   };
 }
+
+// 全局注册一次：各图层 source 的默认 fetchImpl 用
+// `(globalThis.__gevResilientFetch || globalThis.fetch)` 即可自动获得超时+重试，
+// 无需逐文件改 import（未加载到本模块时优雅回退原生 fetch）。
+if (typeof globalThis !== 'undefined' && !globalThis.__gevResilientFetch) {
+  globalThis.__gevResilientFetch = makeResilientFetch();
+}

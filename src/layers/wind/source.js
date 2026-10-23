@@ -2,7 +2,7 @@ import { readWindBody } from '../../sources/windBody.js';
 
 /** Create a bounded, cancellable source for the same-origin wind provider. */
 export function createWindSource({
-  fetchImpl = (...args) => globalThis.fetch(...args),
+  fetchImpl = (...args) => (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
   timeoutMs = 45_000,
 } = {}) {
   return {

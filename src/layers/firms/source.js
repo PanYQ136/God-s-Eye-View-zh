@@ -1,6 +1,6 @@
 /** Construct the existing live-fire endpoint without making a request. */
 export function createFirmsSource({
-  fetchImpl = (...args) => globalThis.fetch(...args),
+  fetchImpl = (...args) => (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
 } = {}) {
   return {
     async getSnapshot({ signal } = {}) {
