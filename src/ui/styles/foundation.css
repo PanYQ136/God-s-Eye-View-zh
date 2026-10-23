@@ -30,12 +30,50 @@
   --display-panel-expanded-width: 272px;
   --cockpit-radio-collapsed-width: 148px;
   --cockpit-radio-expanded-width: 232px;
+
+  /* ── z-index 层级区间（严格分层，杜绝互相遮挡；本轮回归约定）──────────────
+     底层地图 < HUD/一级菜单 < 面板/侧栏 < 指令坞/托盘 < 二级弹窗 < 三级浮窗/遮罩 < Toast < 开发浮标 */
+  --z-map: 0;
+  --z-world-overlay: 10;
+  --z-hud: 100;          /* 顶栏/状态/左右面板栈/场景/图层基座 */
+  --z-panel: 110;        /* 侧栏 / 展开面板 */
+  --z-dock: 145;         /* 底部指令坞 */
+  --z-popup: 200;        /* 二级弹窗：设置/下拉/详情 */
+  --z-overlay: 300;      /* 三级浮窗 / 模态遮罩 */
+  --z-toast: 1000;       /* 通知 */
+  --z-devtools: 2147483000; /* 性能/画面浮标（最顶） */
+
+  /* ── 设计令牌（Round2 美化基座；来源：设计Skills清单 + UI动效整合文档）──
+     间距 8pt 网格 / 圆角 / 阴影层级 / 字号阶 / 动效节奏 */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-6: 24px; --space-8: 32px;
+  --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-pill: 999px;
+  --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.28);
+  --shadow-2: 0 6px 20px rgba(0, 0, 0, 0.34);
+  --shadow-3: 0 16px 48px rgba(0, 0, 0, 0.42);
+  --text-2xs: 10px; --text-xs: 11px; --text-sm: 12px; --text-md: 14px; --text-lg: 18px; --text-xl: 24px;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-spring: cubic-bezier(0.2, 0.75, 0.25, 1);
+  --dur-1: 150ms; --dur-2: 220ms; --dur-3: 300ms;
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+/* ── Round2 排版微调（依《UI动效·小红书整合》「排版」规则；安全、可见）──
+   数字等宽对齐(tabular-nums) + 标题字距收紧；只改字体特性，不动布局结构 */
+[class*="data-count"],
+[class*="readout"],
+[class*="metric"],
+[class*="value"],
+.frame-rate-readout,
+.cockpit-number {
+  font-variant-numeric: tabular-nums;
+}
+.data-layer-group-heading {
+  letter-spacing: -0.01em;
 }
 
 /* Keyboard focus is an app-wide state and must survive selected/active button
