@@ -16,6 +16,21 @@
 
 ---
 
+## 2026-10-24 10:40 数据源新鲜度核验 + 图层图标核查修复
+
+**Part A · 数据源健康（权威 `/api/sources/health`：28层/40通道 okChannels32 · switched2 · down1）**
+- ✅ 22/26 数据层正常拉取最新：flights(-2s/300架)、satellites(TLE 2.67MB)、ais-live(6.6MB实时)、wind(23s/ECMWF)、fire-perimeters(-13s)、traffic/launches/cctv(900)/radio(750)/radar/clouds 等。
+- ⚠ earthquakes：USGS 主 502 → **EMSC 备交付 400 条**（有数据）；cyclones：NHC 502 → GDACS，`/api/cyclones` **0 风暴+unavailable**。
+- ❌ **militaryFlights DOWN**：adsb.lol 502/429（腾讯云直连不通，无备用）。
+- ⚠ fires：FIRMS **0 fires+stale(4.7d)**、EONET 备 502；alpr/installations：Overpass CH 主通、FR 403/DE 502。
+- 以上均为**上游可用性**、非客户端代码缺陷；修复需改源选择=业务逻辑，按约束**未改**，如实记录（见 `docs/audit-web-datasources-icons-20261024.md`）。
+
+**Part B · 图层图标一一对应（26 层，实机枚举）**
+- 修复 3 类异常：① `◉` 三层共用 → cyclones→🌀、radio→📻（radar 保留 ◉ 现唯一）；② `🛰️`/`🛰` 变体不一致+两卫星层混淆 → recent-imagery→🗺️；③ `🌬` 缺变体选择符 → 🌬️。
+- 核实 `layer.icon` 仅 `layerPanel.js:226` 面板标签用、**不参与渲染**。
+- 实机 reload 复核：26 层图标全唯一，**无缺失/多余/重复/错配**。
+- build 51s 通过；提交 `30e6ddc`(icons) + 文档。
+
 ## 2026-10-24 10:05 第二轮模块 2–5 落地 + 完整回归
 
 **M2 玻璃无障碍回退**：`@media (prefers-reduced-transparency: reduce)` 时全局禁用 `backdrop-filter`（省 GPU + 文档要求的回退）。核实：全站**无「动画化 backdrop-filter」**（唯一 `transition: filter` 是 provider-settings 的 `filter:brightness` 悬停，合规）。
