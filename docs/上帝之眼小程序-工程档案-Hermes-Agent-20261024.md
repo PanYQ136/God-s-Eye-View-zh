@@ -921,7 +921,7 @@ Start-Process -FilePath 'C:\Program Files\nodejs\node.exe' `
 
 ## 16. 附录
 
-### 15.1 提交与版本
+### 16.1 提交与版本
 
 | 项 | 值 |
 |---|---|
@@ -931,7 +931,7 @@ Start-Process -FilePath 'C:\Program Files\nodejs\node.exe' `
 | 体验版 | 1.0.0 / `async_4751052686148698112` |
 | 云端版本 | `gev-api-012`（线上）、`gev-api-013`（风场优化后） |
 
-### 15.2 关键常量
+### 16.2 关键常量
 
 | 常量 | 值 | 用途 |
 |---|---|---|
@@ -943,7 +943,7 @@ Start-Process -FilePath 'C:\Program Files\nodejs\node.exe' `
 | 风场 | `TICK_MS=100`、`CYCLE_MS=1600`、三色 `#5FD3E8` / `#F0CD3C` / `#FF5656`（<4.5 / 4.5–11 / ≥11 m/s） | 动画与配色 |
 | 图标压缩 | `{"dark":(4,64),"tint":(4,64),"tint_d":(4,64),"tint_s":(4,64),"maki":(8,48),"ui":(8,48),"wx":(4,64),"icons":(4,64),"tabs":(4,64)}` | （色数, 最大边长） |
 
-### 15.3 路径清单
+### 16.3 路径清单
 
 | 用途 | 路径 |
 |---|---|
@@ -955,7 +955,7 @@ Start-Process -FilePath 'C:\Program Files\nodejs\node.exe' `
 | 移出的开发产物 | `D:\Hermes\gods-eye-miniprogram-dev`（`.claude` / `.agents`） |
 | 图标 base64 源字典 | `C:\Users\13680\AppData\Local\hermes\cache\scratch\iconpack.json` |
 
-### 15.4 术语
+### 16.4 术语
 
 | 术语 | 含义 |
 |---|---|
