@@ -33,7 +33,8 @@ const CHANNELS = {
     { id: 'adsblol', label: 'adsb.lol', url: 'https://api.adsb.lol/v2/point/0/0/10', kind: 'json', note: '备用：社区源，军机覆盖好' },
   ],
   militaryFlights: [
-    { id: 'adsblol-mil', label: 'adsb.lol 军机', url: `${LOCAL}/api/adsblol/mil`, kind: 'json', local: true, timeout: PROBE_TIMEOUT_HEAVY, note: '经本地 /api/adsblol/mil 代理（直连 adsb.lol 从腾讯云不通）' },
+    { id: 'adsblol-mil', label: 'adsb.lol 军机', url: `${LOCAL}/api/adsblol/mil`, kind: 'json', local: true, timeout: PROBE_TIMEOUT_HEAVY, note: '主通道：本地 /api/adsblol/mil 代理（内部 adsb.lol→adsb.fi 自动兜底）' },
+    { id: 'adsbfi-mil', label: 'adsb.fi 军机', url: 'https://opendata.adsb.fi/api/v2/mil', kind: 'json', note: '备用：adsb.fi 军机快照（readsB 同构，实测 200/~155 架），adsb.lol 限流时自动切此' },
   ],
   vessels: [
     { id: 'ais-live', label: 'AISStream', url: `${LOCAL}/api/ais-live?limit=1`, kind: 'json', local: true, note: '唯一上游是 AISStream WebSocket 快照；公开 AIS 源基本都要 key，暂无可直连备用源' },
