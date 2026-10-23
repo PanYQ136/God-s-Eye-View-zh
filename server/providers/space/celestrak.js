@@ -62,10 +62,13 @@ export function celestrakProxy() {
    */
   function tleUpstreamUrls(group) {
     const slug = encodeURIComponent(group);
+    // 顺序按「中国大陆实测可达性」排：celestrak.org 在大陆经常整段超时，
+    // GitHub raw 镜像与 retlector 反而 0.5~2.2s 就能拿到同样分组，
+    // 所以镜像优先、官方垫底，避免每次都白等 20s 超时再回退。
     return [
-      celestrakTleUrl(group).toString(),
       `https://raw.githubusercontent.com/satvisorcom/satvisor-data/master/celestrak/tle/${slug}.tle`,
       `https://retlector.eu/${slug}/tle`,
+      celestrakTleUrl(group).toString(),
     ];
   }
 
