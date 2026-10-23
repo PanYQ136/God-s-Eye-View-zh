@@ -87,7 +87,7 @@ export function createWindLayer({
   const layer = {
     id: 'wind',
     name: 'Wind',
-    icon: '🌬',
+    icon: '🌬️',
     source: 'GFS / ECMWF IFS · FORECAST',
     updateInterval: 3600_000,
     init(nextViewer) {
