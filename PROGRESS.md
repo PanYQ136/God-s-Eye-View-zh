@@ -16,6 +16,13 @@
 
 ---
 
+## 2026-10-24 12:30 补强：NO_PROXY 直连修复主源 + elastic 铺开全层源
+
+**根因**：cyclones/earthquakes/fires/satellites 的"down"多是 **7890 代理拒连**（nhc/usgs/eonet/celestrak 直连 200、走代理 ECONNRESET；ll2 反之须走代理），非上游挂。
+- `start-dev.cmd` NO_PROXY 加 nhc/usgs/eonet/celestrak 直连（LL2 保留代理）→ 重启实测：cyclones 0→1风暴、earthquakes→USGS242、fires→83285实时、satellites直连；**health down 1→0 / switched 2→0 / okChannels 32→38**。`0a46df7`
+- 故**不需** GDACS/EONET 适配器（主源直连即正解；cyclones GDACS 因客户端 schema 严格无法接）。
+- **elastic fetch 铺开 19 个层源**：全局 `__gevResilientFetch`+优雅回退，各层同源取数获超时+429/5xx重试+退避；层测 635/635、build 54s 过。`7387625`
+
 ## 2026-10-24 11:50 提交遗留 WIP + 实时源弹性取数 + 多源/渲染核验
 
 **① 遗留文件提交**：`20f0a7a`（start-dev NO_PROXY 绕过 flight 源 / warmup 预热插件 / cctv·cyclones·local·transit·ais-live·celestrak·launch-library provider 增强 / README），node --check 全过。
