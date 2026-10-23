@@ -16,6 +16,22 @@
 
 ---
 
+## 2026-10-24 09:20 第一轮布局回归（清白）+ 第二轮设计令牌基座
+
+**第一轮：全站布局回归（CDP 实测，5 分辨率 1024/1280/1366/1487/1600）**
+- `overflow = 0`（无溢出/错位）；**无真实面板互相遮挡**。
+- 唯一"重叠"是 `.gev-screen-whiteboard`（z90、`pointer-events:none`、背景全透明 = 屏幕空间注释层）被所有面板（z100+）压在下面 → **层级正确，不挡交互、不遮挡**。
+- 重复 z：100（title-bar/style-indicator/top-center-actions/left-panel-stack 各占不同区域，空间不重叠）、151（lang/locate）→ 无可见冲突。
+- **结论：本轮 GPU 优化改动（gev-perf/gev-graphics/viewer/css blur）未引入任何 z-index/布局 BUG；现有布局在 1024–1600 全绿。**
+- 硬约束落地：`foundation.css :root` 定义 **z-index 层级区间令牌**（`--z-map/world-overlay/hud/panel/dock/popup/overlay/toast/devtools`）作为分层契约（底层地图 < HUD < 面板 < 坞 < 二级弹窗 < 三级浮窗 < Toast < 开发浮标）。
+
+**第二轮：设计令牌基座（严格依两份 MD）**
+- 设计令牌：8pt 间距（`--space-*`）、圆角（`--radius-*`）、阴影层级（`--shadow-1..3`）、字号阶（`--text-*`）、动效节奏（`--ease-out/spring`、`--dur-1..3`）。
+- 排版微调（《UI动效整合》「排版」规则）：数字 `tabular-nums` 等宽 + 标题字距收紧 `-0.01em`（只改字体特性，不动布局）。
+- `vite build` 31s 通过；提交 `fd43570`。
+
+**后续（逐组件、依文档 Feel/transitions.dev/refactoring-ui 规则）**：统一玻璃层级、微交互（press/hover）、间距节奏、空态美化、渐进模糊等——分批应用并实时截图核对，避免大改破坏已验证布局。
+
 ## 2026-10-24 08:40 复核结论：G1/G16/G18 已在代码中优化 + 实机复现受环境限制
 
 **实机复现尝试**：CDP 启用重图层（Wind/卫星/军机/船舶/交通/电台）。结果：flights 源 STALE 仅 25 架（OpenSky 在此环境受限），无法复现"数千航班 +57fps"负载；远程 Chrome 部分读数受窗口遮挡节流干扰（rafFps 掉到 14），**绝对 FPS 不可作 billboard 阈值标定依据**。
