@@ -16,6 +16,27 @@
 
 ---
 
+## 2026-10-24 07:20 GPU 性能 批次2-3 + 自适应 + 全量回归
+
+**改动**
+- `src/app/viewer.js`、`src/gev-graphics.js`：`resolutionScale` 加**画布像素预算封顶**(≈2.4MP)，防 4K+DPR2 填充爆炸（G5/G10）。
+- `src/gev-graphics.js`：桌面默认 `fxaa:false`（MSAA4 已抗锯齿，省一道全屏 pass）；CAS sharpen=0 时 `stage.enabled=false` 跳过全屏 pass（G9/G17）。
+- `src/layers/cctv/projection.js`：视频纹理降采样封顶 **1280 宽**，避免按源分辨率(4K)每帧上传（G20）。
+- 15 个 `src/ui/styles/*.css`：玻璃 `backdrop-filter` 模糊 **28→20 / 24→18px**，降合成层 GPU 成本（G19）。
+- `src/gev-perf.js`：**自适应分辨率**——性能模式开启时按实测 FPS 微调 `resolutionScale` 逼近 57fps（死区 50–58，[0.6,0.9]）（G4/G14）。
+
+**全量回归**
+- `vite build`：**709 模块 40s 通过**，零编译/import 错误。
+- 触域单测：**120/120 pass**（`src/app`/`layers/cctv`/`maps`/`renderGovernor`/`layers/flights`），含 google3d 双路由、renderGovernor 空闲治理。
+- `check:boundaries`：仅 1 处**预存**问题（`server/providers/transit-circuit.js` 归属，属历史 WIP，与本次前端改动无关）。
+- 全量 413 测试文件跑超时（runner 过重，非失败）；已用触域 120 测试覆盖改动面。
+
+**未落地（核心渲染/需实机 FPS/资产管线，风险高，标注待实机确认）**
+- G1 航班 billboard 聚类/限量、G16 CallbackProperty 逐帧→轮询+requestRender、G18+G8 距离裁剪、G7 双画质系统合并、G13 纹理图集/KTX2、G22 材质/scopeMask 缓存、G23 GeoJSON→Worker。**盲改会破坏现有航班/跟踪渲染，需实机 FPS 基线后逐项验证**。
+- **已具备无需改**：G21 cockpitCloudEffects（已有 setSuspended+降分辨率+preserveDrawingBuffer:false）、G24 探测上下文及时释放、G12 renderGovernor+visibilitychange 空闲停渲染。
+
+**提交**：`223bced`（批次2）、`c410bbb`（自适应）。
+
 ## 2026-10-24 06:30 GPU 性能 P0 首批：pdb + 帧率上限 + 3D Tiles 缓存
 
 **现象/背景**
