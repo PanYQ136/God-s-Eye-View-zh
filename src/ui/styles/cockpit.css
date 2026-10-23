@@ -1288,8 +1288,8 @@ body.cockpit-mode #view-switcher button {
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(24px) saturate(1.4);
-  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
   max-height: var(
     --cockpit-utility-expanded-max-height,
     var(--cockpit-utility-max-height, min(44vh, 430px))
@@ -1327,8 +1327,8 @@ body.cockpit-mode #view-switcher button {
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.42),
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(24px) saturate(1.4);
-  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
   color: var(--text-dim);
   font: 8px/1.1 var(--font-mono);
   letter-spacing: 1.4px;

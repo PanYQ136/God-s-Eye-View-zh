@@ -188,9 +188,22 @@ export function createApplicationViewer({ container, creditContainer }) {
     // 把 resolutionScale 改回 1 或 0.9、maximumScreenSpaceError 调回 3 即可。
     // iOS: keep the drawing buffer small (cap DPR at 1, then 0.75 → a light
     // framebuffer). Desktop keeps the crisp DPR2 render.
-    viewer.resolutionScale = apple
-      ? Math.min(Math.max(window.devicePixelRatio || 1, 1), 1) * 0.75
-      : Math.min(Math.max(window.devicePixelRatio || 1, 1), 2);
+    // GEV perf 2026-10-24 (G10): 画布像素预算封顶，防 4K+DPR2 填充爆炸。
+    // 1080p 保持原生清晰；超大画布自动按 sqrt(预算/面积) 降采样。
+    {
+      const dpr = Math.min(Math.max(window.devicePixelRatio || 1, 1), 2);
+      let scale = apple ? 0.75 : dpr;
+      try {
+        const cv = viewer.canvas;
+        const cw = (cv && cv.clientWidth) || 0;
+        const ch = (cv && cv.clientHeight) || 0;
+        const budgetPx = 2.4e6; // ≈2.4MP 画布预算
+        if (cw > 0 && ch > 0 && cw * ch * scale * scale > budgetPx) {
+          scale = Math.max(0.6, Math.sqrt(budgetPx / (cw * ch)));
+        }
+      } catch (e) {}
+      viewer.resolutionScale = scale;
+    }
     viewer.scene.globe.maximumScreenSpaceError = tileMSE;
     window.__gevViewer = viewer;
     /* ── 渲染循环护栏 ────────────────────────────────────────────
