@@ -16,6 +16,19 @@
 
 ---
 
+## 2026-10-24 08:10 实机 CDP 测量 + 修复 G7 watchdog 冲突（关键）
+
+**测量手段**：系统 Chrome + 独立 user-data-dir + CDP 9222，加 `--disable-backgrounding-occluded-windows --disable-renderer-backgrounding --disable-background-timer-throttling` + `Page.bringToFront` + 焦点模拟（否则后台节流会把 FPS 压到 5fps 的假象）。脚本 `gevmeasure.mjs`（scratch）。renderer 实测 = `ANGLE (NVIDIA RTX 3060 Laptop, D3D11)` 真硬件。
+
+**发现真 bug（G7）**：`gev-graphics` 的 `watchdog`（每 1.5s）把 `resolutionScale/targetFrameRate/globeMSE` 从 cfg 强行改回，**持续冲掉 gev-perf 性能模式与 G14 自适应**（实测 res 停在 1.2 原生而非设定 0.85）。这解释了为何先前 G3/G14 看似"无效"。
+
+**修复**：`watchdog()` 开头 `if (localStorage.getItem('gev.perfMode')==='1') return;` —— 性能模式激活时由 gev-perf 独占运行时画质，watchdog 让位。
+
+**修复后实测（reload）**：`rafFps 74`（页面节奏健康）、**相机移动真实渲染 53.3fps @ res 1.25 原生分辨率**、`reqMode:true / docHidden:false / loop:true`。首次 5fps 读数已确认为浏览器后台节流假象，非渲染问题。
+
+**提交** `6be0028`；`vite build` 51s 通过。
+**说明**：本 profile 默认场景 flights 层关闭（ents 0, prims 0），G1/G16/G18（航班 billboard/CallbackProperty）需启用重图层才能实测，留待后续开启复现后逐项验证。
+
 ## 2026-10-24 07:20 GPU 性能 批次2-3 + 自适应 + 全量回归
 
 **改动**
