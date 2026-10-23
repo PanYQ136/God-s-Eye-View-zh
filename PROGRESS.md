@@ -16,6 +16,15 @@
 
 ---
 
+## 2026-10-24 11:15 军机源自动切换备用（down 1→0）
+
+**用户授权「可换备用源就自动换」。** 实测本机 `adsb.fi/v2/mil`=200/155架 可达（adsb.lol 429、adsb.one/airplanes.live 不可达）。
+- `adsb-lol.js` `/api/adsblol/mil`：主 adsb.lol → **备 adsb.fi** 按序兜底（readsB 同构 `{ac:[…]}`，客户端契约/渲染不变）。
+- `mini-sources.js`：militaryFlights 加 adsb.fi 备用通道。
+- 重启 dev server（0.0.0.0:4173，PID 53620）后实测：`/api/adsblol/mil` = `200/upstream=adsb.fi/ac=158`；`/api/sources/health` **down 1→0、okChannels 32→35、militaryFlights 2/2**；fires/cyclones 亦恢复 2/2（上游瞬时自愈）。
+- build 26s 通过；提交 `3e4cb8b`。文档 `docs/audit-web-datasources-icons-20261024.md` 更新。
+- 其余无可用备源的层（vessels 唯一 AISStream）保留现状，不做假切换；不改渲染/性能/数据契约。
+
 ## 2026-10-24 10:40 数据源新鲜度核验 + 图层图标核查修复
 
 **Part A · 数据源健康（权威 `/api/sources/health`：28层/40通道 okChannels32 · switched2 · down1）**
