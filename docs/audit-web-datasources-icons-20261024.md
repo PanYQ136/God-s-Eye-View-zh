@@ -62,3 +62,17 @@ satellites🛰️ · flights✈️ · military🎖️ · local-adsb📡 · vesse
 ## 验证
 - `vite build` 通过（51s）。
 - 实机 `Page.reload` 后 dump：26 层图标与上表一致，修复生效。
+
+## 修复实施 · 自动换备用源（用户授权后）
+
+**militaryFlights（原本 DOWN）→ 已加自动兜底**
+- `server/providers/aircraft/adsb-lol.js`：`/api/adsblol/mil` 由「仅 adsb.lol」改为**主 `adsb.lol/v2/mil` → 备 `opendata.adsb.fi/api/v2/mil` 按序尝试**（两者均 readsB 同构 `{ac:[…]}`，客户端契约不变、零渲染改动）。主源 429/5xx/异常自动切备源。
+- `server/providers/mini-sources.js`：`militaryFlights` 增加 `adsb.fi` 备用通道（健康可见）。
+- **实测**：adsb.lol 429 时 `/api/adsblol/mil` → `200, X-ADS-B-Upstream: adsb.fi, ac=158`（158 架军机）。
+- 重启 dev server 后 `/api/sources/health`：**down 1 → 0**，okChannels 32 → 35，militaryFlights **2/2 ok**。
+
+**其余层现状（重启后复测）**：fires 2/2、cyclones 2/2 均已恢复（此前 502/EONET 为上游瞬时抖动，已自愈）；earthquakes 仍 USGS→EMSC 数据级容灾正常；alpr/installations 主 Overpass CH 正常（FR/DE 公共镜像限流为上游常态，有主通道可用）。
+
+**无可用备源、保留记录**：vessels（AISStream 唯一）、cyclones/fires 当前双通道均 ok 属正常；无代码可换源的层不做假切换。
+
+> 说明：本轮为服务端「源选择/故障切换」改动（业务层容灾），**未改客户端渲染、性能或数据契约**。
