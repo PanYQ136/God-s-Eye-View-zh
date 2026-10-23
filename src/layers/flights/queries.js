@@ -82,8 +82,13 @@ export function createQueries({
    * @returns {string} Trimmed string, or '' if falsy.
    */
 
+  // 上游 OpenSky 对未广播呼号的飞机把 callsign 填成 8 个 @ / ? / 空白 / U+FFFD 占位；
+  // 与小程序端 _isGarbageVal 同规则：整串仅由这些字符组成(≥2)即视为无值，让标签链
+  // callsign → registration → icao24 自然回退，避免驾驶舱/标签显示 "@@@@@@@@"。
   function _toCleanText(value) {
-    return String(value || '').trim();
+    const s = String(value == null ? '' : value).trim();
+    if (s.length >= 2 && /^[@?？\s\uFFFD]+$/.test(s)) return '';
+    return s;
   }
 
   /**
