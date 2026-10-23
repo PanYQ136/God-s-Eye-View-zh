@@ -153,6 +153,20 @@
       if (dt >= 900) {
         const fps = Math.round((st.frames * 1000) / dt);
         if (el) el.textContent = 'FPS ' + fps;
+        // GEV (G4/G14): 自适应分辨率——性能模式开启时按实测 FPS 微调 resolutionScale 逼近 57fps。
+        // 50–58 为死区（不抖），越界才按 0.05/0.03 步长在 [0.6, 0.9] 内调整。
+        try {
+          if (st.on && st.viewer) {
+            const v = st.viewer;
+            let r = v.resolutionScale || 0.85;
+            if (fps > 0 && fps < 50 && r > 0.6) r = Math.max(0.6, r - 0.05);
+            else if (fps > 58 && r < 0.9) r = Math.min(0.9, r + 0.03);
+            if (Math.abs(r - (v.resolutionScale || 0.85)) > 0.001) {
+              v.resolutionScale = r;
+              try { v.scene.requestRender && v.scene.requestRender(); } catch (e) {}
+            }
+          }
+        } catch (e) {}
         st.frames = 0;
         st.t0 = now;
       }
