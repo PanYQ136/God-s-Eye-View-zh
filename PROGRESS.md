@@ -16,6 +16,20 @@
 
 ---
 
+## 2026-10-24 10:05 第二轮模块 2–5 落地 + 完整回归
+
+**M2 玻璃无障碍回退**：`@media (prefers-reduced-transparency: reduce)` 时全局禁用 `backdrop-filter`（省 GPU + 文档要求的回退）。核实：全站**无「动画化 backdrop-filter」**（唯一 `transition: filter` 是 provider-settings 的 `filter:brightness` 悬停，合规）。
+**M4 空态统一**：4 个"真空态"（`space-mission-roster-empty` / `mission-table-empty` / `ri-strip-empty` / `scene-shot-empty`）统一 颜色/等宽/行距 1.5/居中。（`feed-fallback`/`feed-unavailable` 实为源降级徽标，**非空态，已排除**。）
+**M5 渐进模糊底**：`.data-toggle-list`（主图层列表）底部 20px `mask-image` 渐隐（GPU 合成、不重排布局）。
+**M3 间距**：评估后**不做全局 8pt 重排**——会移动已验证布局、波及大量组件，违反「不破坏功能/性能」硬约束；改以设计令牌在新增规则内统一。
+
+**完整回归（CDP 实测，5 分辨率 1024/1280/1366/1487/1600）**：
+- `overflow = []`（全尺寸无溢出/错位）。
+- 唯一"重叠"= 各面板对 `.gev-screen-whiteboard`（z90、透明、`pointer-events:none` 注释层）→ 面板 z>90 正确压在注释层上方，**无真实遮挡**。
+- **console 错误 0 / 未捕获异常 0**；canvas 正常渲染 1487×788；`loading-screen` 正确 `hidden`（opacity 0 / visibility hidden / pe none）；**M5 mask 已生效**。
+- 观察项（**非本轮 CSS 引起**）：`/api/*` 上游 10×`502`（provider 健康，历史已知）；vite 1×`504 Outdated Optimize Dep`（改文件后瞬态，reload 自愈）。
+- `vite build` 34s 通过；提交 `78b06c5`。
+
 ## 2026-10-24 09:20 第一轮布局回归（清白）+ 第二轮设计令牌基座
 
 **第一轮：全站布局回归（CDP 实测，5 分辨率 1024/1280/1366/1487/1600）**
