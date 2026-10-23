@@ -53,7 +53,7 @@
     const s = v.scene;
     if (!st.saved) snapshot();
     if (on) {
-      v.resolutionScale = 0.7;
+      v.resolutionScale = 0.85;
       if (s.globe) s.globe.maximumScreenSpaceError = 6;
       st.saved.tilesets.forEach((t) => {
         try {
@@ -64,7 +64,9 @@
         for (let i = 0; i < s.postProcessStages.length; i++)
           s.postProcessStages.get(i).enabled = false;
       } catch (e) {}
-      if (v.targetFrameRate) v.targetFrameRate = 30;
+      // GEV perf 2026-10-24: 性能模式不再把帧率硬锁 30（30fps 对地图明显不流畅），
+      // 放宽到 60；分辨率 0.7→0.85 兼顾清晰与负载。
+      if (v.targetFrameRate) v.targetFrameRate = 60;
     } else {
       v.resolutionScale = st.saved.res;
       if (s.globe) s.globe.maximumScreenSpaceError = st.saved.globeMSE;
