@@ -710,3 +710,36 @@ body:has(.data-toggle-row[data-layer-id='alpr-cameras'] .data-toggle-btn.active)
   text-shadow: 0 0 20px var(--accent-glow);
   transition: var(--transition-smooth);
 }
+
+/* ══ Round2 精修（M2/M4/M5；严格依《设计Skills清单》refactoring-ui + 《UI动效整合》规则）══ */
+
+/* M2 玻璃无障碍回退 + 省 GPU：系统开启「降低透明度」时禁用 backdrop-filter，改实色面板。
+   文档要求：玻璃必须提供 prefers-reduced-transparency 回退。仅在用户开启该设置时生效。 */
+@media (prefers-reduced-transparency: reduce) {
+  *,
+  *::before,
+  *::after {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+/* M4 空态统一（仅"真空态占位"，不含 feed-fallback 降级徽标）：居中、柔和、等宽、行距 1.5 */
+.space-mission-roster-empty,
+.mission-table-empty,
+.ri-strip-empty,
+.scene-shot-empty {
+  color: rgba(190, 230, 230, 0.5);
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: var(--text-xs, 11px);
+  line-height: 1.5;
+  letter-spacing: 0.06em;
+  text-align: center;
+  text-transform: none;
+}
+
+/* M5 渐进模糊底：主图层列表底部渐隐（近似"渐进模糊"，mask 由 GPU 合成，不触发布局重排）。 */
+.data-toggle-list {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent 100%);
+}
