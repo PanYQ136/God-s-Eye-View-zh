@@ -12,8 +12,11 @@ import {
   readsbIdentities,
 } from './aircraft.js';
 import { normalizeVesselTrack, vesselSnapshot } from './vessels.js';
+import { makeResilientFetch } from './resilientFetch.js';
 
-const defaultFetch = (...args) => globalThis.fetch(...args);
+// 默认取数带超时+重试+退避：主源瞬时超时/429/5xx 自动恢复，无感知、不阻塞。
+// 调用方仍可传自定义 fetchImpl（测试/覆盖）。
+const defaultFetch = makeResilientFetch();
 const header = (response, name) => response.headers?.get?.(name);
 
 function openSkyError(response) {
