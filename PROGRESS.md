@@ -16,6 +16,16 @@
 
 ---
 
+## 2026-10-24 11:50 提交遗留 WIP + 实时源弹性取数 + 多源/渲染核验
+
+**① 遗留文件提交**：`20f0a7a`（start-dev NO_PROXY 绕过 flight 源 / warmup 预热插件 / cctv·cyclones·local·transit·ais-live·celestrak·launch-library provider 增强 / README），node --check 全过。
+**② 多源自动降级**：
+- 新增 `src/sources/live/resilientFetch.js`（超时+429/5xx重试+指数退避+外部signal透传），接入实时源(航班/船舶/军机)默认 fetchImpl → `40bbd56`；live 单测 12/12。
+- 现状：flights(provider 3源+pocketworld/opensky/adsblol)、satellites(celestrak+satvisor+retlector 三镜像)、earthquakes(USGS→EMSC 数据级)、militaryFlights(adsb.lol→adsb.fi 数据级,上轮)、wind/launches/traffic/alpr/installations 双/三通道。
+- 诚实缺口：fires(EONET)/cyclones(GDACS) 备用仅 health 声明、数据端点未接(事件级/RSS 形状不同,接入会破坏契约)；单源层(vessels/静态/雷达/云图)无第二上游→不假切换。
+**③ 图层渲染核验(CDP)**：各层=自定义 Primitive(Billboard/Primitive,非 Entity API)；实载 satellites 829/wind 65160/radio 750/datacenters 4362/dams 716/cables 2629/fire-perimeters 109/launches 20/vessels 25/flights 25。航班专项：渲染 980 billboards(飞机=精灵,既定设计)；count25+stale=OpenSky 本机限流(非 bug)；polyline0=航迹线仅追踪选中机绘制(正常)。未发现渲染代码级异常。
+- 文档 `docs/audit-web-sources-render-20261024.md`。
+
 ## 2026-10-24 11:15 军机源自动切换备用（down 1→0）
 
 **用户授权「可换备用源就自动换」。** 实测本机 `adsb.fi/v2/mil`=200/155架 可达（adsb.lol 429、adsb.one/airplanes.live 不可达）。
