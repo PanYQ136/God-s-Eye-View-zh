@@ -16,6 +16,28 @@
 
 ---
 
+## 2026-10-24 06:30 GPU 性能 P0 首批：pdb + 帧率上限 + 3D Tiles 缓存
+
+**现象/背景**
+GPU/渲染审计（`docs/audit-web-gpu-20261024.md` G1–G24）后落地第一批 P0。默认体验：画面偏糊(res 0.7)、锁 30fps、每帧额外整帧 framebuffer 拷贝；Google 3D direct 路由用 Cesium 默认小缓存(256/512MB)。
+
+**根因**
+- `gev-graphics` 桌面 `pdb:true` → `preserveDrawingBuffer` 每帧强制整帧拷贝（本应用所有 `toDataURL` 均在离屏 2D canvas，无 Cesium 画布截图/录屏依赖，纯浪费）。
+- `gev-perf` 默认「性能模式」把 `targetFrameRate` 硬锁 **30**、`resolutionScale` 压到 **0.7**。
+- `createGoogleDirectTileset` 未设显存/缓存，与 ion 路由(1536MB)不一致。
+
+**改动**
+- `src/app/viewer.js`：pdb 兜底 `!apple`→`false`。
+- `src/gev-graphics.js`：桌面 DEFAULTS `pdb:false` + boot 内一次性迁移 `pdbMigrated`（把历史存储 true 迁移为 false 并写回，仅一次，之后尊重面板选择）。
+- `src/gev-perf.js`：性能模式 `res 0.7→0.85`、`targetFrameRate 30→60`。
+- `src/maps/google3d.js`：direct 路由 `tileset.cacheBytes=1536MB / maximumCacheOverflowBytes=1GB / maximumMemoryUsage=1400`。
+
+**验证**
+- `node --check` 4 文件通过；`src/maps/*.test.mjs` **34/34 pass**。
+- 重启本地 4173（PID 11904）后端健康（`/api/cyclones` 200）。
+- 运行时 FPS 需重载后按 `` ` `` 看标题栏 FPS 徽标（本机 RTX3060）。提交 `8ae1a19`。
+- 后续待做（需实测/更谨慎）：G1/G18 航班 billboard 聚类+距离裁剪、G16 CallbackProperty 逐帧→轮询+requestRender、G4 GPU 帧时测量→自适应分辨率。
+
 ## 2026-10-24 05:10 对齐小程序后端加固 + 航班占位呼号净化
 
 **现象/背景**
