@@ -400,7 +400,7 @@ export function createWeatherShell({
   onChange = () => {},
   timeoutMs = 25_000,
   now = () => performance.now(),
-  fetchImpl = (...args) => globalThis.fetch(...args),
+  fetchImpl = (...args) => (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
   decodeImage,
   createCanvas = () => document.createElement('canvas'),
   cacheBytes = WEATHER_SHELL_CACHE_BYTES,

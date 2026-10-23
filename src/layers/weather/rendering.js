@@ -530,7 +530,7 @@ export function createWeatherRendering({
   onChange = () => {},
   timeoutMs = 25_000,
   now = () => performance.now(),
-  fetchImpl = (...args) => globalThis.fetch(...args),
+  fetchImpl = (...args) => (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
   decodeImage,
   createCanvas = () => document.createElement('canvas'),
   createShell = createWeatherShell,
