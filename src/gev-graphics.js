@@ -47,7 +47,7 @@ import { PostProcessStage, Cartesian2 } from 'cesium';
       }
     : {
         res: -1,
-        fxaa: true,
+        fxaa: false,
         sharpen: 40,
         msaa: 4,
         pdb: false,
@@ -98,7 +98,19 @@ import { PostProcessStage, Cartesian2 } from 'cesium';
     if (APPLE) return Math.min(Math.max(dpr, 1), 1); // 手机不乘满 DPR(3)，否则爆内存
     return Math.min(Math.max(dpr, 1), 2);
   };
-  const effRes = (res) => clamp(baseScale() * (res < 0 ? 1 : res), 0.4, 3.0);
+  const effRes = (res) => {
+    let s = baseScale() * (res < 0 ? 1 : res);
+    // GEV perf (G5/G10): 画布像素预算封顶，防 4K+DPR2 填充爆炸。
+    try {
+      const cv = st.viewer && st.viewer.canvas;
+      const cw = (cv && cv.clientWidth) || 0;
+      const ch = (cv && cv.clientHeight) || 0;
+      if (cw > 0 && ch > 0 && cw * ch * s * s > 2.4e6) {
+        s = Math.sqrt(2.4e6 / (cw * ch));
+      }
+    } catch (e) {}
+    return clamp(s, 0.4, 3.0);
+  };
   const fxaaStage = (v) => {
     try {
       return v.scene.postProcessStages.fxaa;
@@ -163,7 +175,10 @@ import { PostProcessStage, Cartesian2 } from 'cesium';
     const stage = ensureStage();
     if (stage) {
       try {
-        stage.uniforms.u_amount = clamp(st.cfg.sharpen, 0, 100) / 100;
+        const amt = clamp(st.cfg.sharpen, 0, 100) / 100;
+        stage.uniforms.u_amount = amt;
+        // GEV perf (G9): sharpen 为 0 时整段全屏 pass 直接跳过（不再空跑着色器）。
+        stage.enabled = amt > 0.001;
         const cv = v.canvas;
         if (cv)
           stage.uniforms.u_step = new Cartesian2(

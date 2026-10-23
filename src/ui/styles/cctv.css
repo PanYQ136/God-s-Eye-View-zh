@@ -37,8 +37,8 @@
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 212, 255, 0.46) rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(24px) saturate(1.4);
-  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.5),
     0 0 0 1px rgba(255, 255, 255, 0.03) inset,
