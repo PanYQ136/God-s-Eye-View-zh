@@ -2,6 +2,8 @@ import { openSkyProxy } from './aircraft/opensky.js';
 import { celestrakProxy, rocketLaunchesProxy } from './space.js';
 import { tomtomProxy } from './traffic.js';
 import { firmsProxy } from './firms.js';
+import { earthquakesProxy } from './earthquakes.js';
+import { imageryProxy } from './imagery.js';
 import { terrainHeightsProxy } from './terrain.js';
 import { adsbdbProxy } from './aircraft/enrichment.js';
 import { overpassProxy } from './overpass.js';
@@ -26,14 +28,59 @@ import { weatherProxy } from './weather.js';
 import { firePerimetersProxy } from './firePerimeters.js';
 import { cycloneProxy } from './cyclones.js';
 import { windProxy } from './wind.js';
+import { infraStaticProxy } from './infra-static.js';
+import { trafficFlowProxy } from './traffic-flow.js';
+import { miniFlightsProxy } from './mini-flights.js';
+import { miniGeocodeProxy } from './mini-geocode.js';
+import { miniSourcesProxy } from './mini-sources.js';
+import { cnLiveProxy } from './cn-live.js';
+import { gzipRes } from './send-json.js';
 
 /** Construct the local provider plugins in their established order. */
+/**
+ * 让所有 provider 的 JSON 响应自动 gzip：把补丁挂到「第一个 provider 的
+ * configureServer 之前」，这样它是 connect 栈里的第一层，能拿到完整的 res 和 req.url。
+ * （各自用 middlewares.use 注册会排到最后，那时 provider 的 mount 已经把 /api 前缀剥掉了。）
+ */
+function withGzipPatch(plugin) {
+  /*
+   * ⛔ 已停用（2026-10-20）。
+   * 无差别劫持 res.writeHead/res.end 会毁掉一部分响应：实测 /api/setup/status
+   * 在带 Accept-Encoding: gzip 时，客户端收到的**连状态行都没有**，
+   * 只有裸 JSON —— 浏览器 ERR_INVALID_HTTP_RESPONSE，整站打不开，curl 却看着正常。
+   * 现在压缩只在 sendJson() 里显式做（自己控制头，不碰别人的 res）。
+   * 保留函数是为了留一条明确的“不要这么干”的记录。
+   */
+  if (true) return plugin;
+  if (!plugin || typeof plugin.configureServer !== 'function') return plugin;
+  const orig = plugin.configureServer;
+  plugin.configureServer = function (server) {
+    server.middlewares.use((req, res, next) => {
+      /*
+       * 只接管 /api/。
+       * 教训：无差别接管所有响应会把 Vite 的 HTML/CSS/JS 搞坏 ——
+       * 浏览器直接 ERR_INVALID_HTTP_RESPONSE（curl 却看起来正常），整站打不开。
+       * 静态资源和 vite 中间件一律不碰。
+       */
+      const u = String(req.url || '');
+      if (u === '/api' || u.indexOf('/api/') === 0) {
+        try { gzipRes(req, res); } catch (e) { /* 不影响主流程 */ }
+      }
+      next();
+    });
+    return orig.call(this, server);
+  };
+  return plugin;
+}
+
 function localProviderPlugins() {
-  return [
-    openSkyProxy(),
+  return [withGzipPatch(
+    openSkyProxy()),
     celestrakProxy(),
     tomtomProxy(),
     firmsProxy(),
+    earthquakesProxy(),
+    imageryProxy(),
     rocketLaunchesProxy(),
     terrainHeightsProxy(),
     adsbdbProxy(),
@@ -54,6 +101,12 @@ function localProviderPlugins() {
     openAiRealtimeProxy(),
     googlePlacesContextProxy(),
     windProxy(),
+    infraStaticProxy(),
+    trafficFlowProxy(),
+    miniFlightsProxy(),
+    miniGeocodeProxy(),
+    cnLiveProxy(),
+    miniSourcesProxy(),
     weatherProxy(),
     cycloneProxy(),
     firePerimetersProxy(),

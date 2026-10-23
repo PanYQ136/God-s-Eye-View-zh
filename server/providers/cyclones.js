@@ -253,6 +253,7 @@ export function cycloneProxy({
   now = () => Date.now(),
   timeoutMs = 12_000,
 } = {}) {
+  const CACHE_TTL_MS = 30 * 60_000;   // 气旋通告 6 小时一次，30 分钟足够新鲜
   let cache = null;
   let operation = null;
   let attemptedAt = -Infinity;
@@ -319,7 +320,23 @@ export function cycloneProxy({
   }
   async function acquire(signal) {
     signal.throwIfAborted();
-    if (cache && now() - cache.fetchedAt < 300_000) return cache;
+    if (cache && now() - cache.fetchedAt < CACHE_TTL_MS) return cache;
+    // stale-while-revalidate：缓存过期但还有旧数据时，先返回旧数据，后台去 NHC 拉新的。
+    // NHC 在大陆出口要 6s+，等它等于让用户白屏 6 秒。
+    if (cache && !operation && now() - attemptedAt >= 60_000) {
+      attemptedAt = now();
+      const controller = new AbortController();
+      const owned = { controller, waiters: 0 };
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      owned.promise = refresh(controller.signal)
+        .catch(() => {})
+        .finally(() => {
+          clearTimeout(timer);
+          if (operation === owned) operation = null;
+        });
+      operation = owned;
+      return cache;
+    }
     if (operation?.controller.signal.aborted) operation = null;
     if (!operation) {
       if (now() - attemptedAt < 60_000) throw new Error('cyclone_retry_later');
