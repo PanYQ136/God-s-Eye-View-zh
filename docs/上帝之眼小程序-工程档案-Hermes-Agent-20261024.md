@@ -755,7 +755,7 @@ tcb fn invoke godsEyeProxy --params '{"path":"/api/cyclones"}'
 
 1. **改代码先出 diff**：说明改哪个文件、为什么、怎么验；不做「看着写了其实没生效」的静默替换——每次 patch 先 assert 定位串命中。
 2. **写操作二次确认**：上传体验版、删项目、云数据库写、云存储删除。
-3. **日志三段式**：`PROGRESS.md` 固定「时间 + 现象 + 根因 + 改动 + 验证」，同步副本到 `C:\Users\13680\Desktop\.MD\`。
+3. **日志三段式**：`PROGRESS.md` 固定「时间 + 现象 + 根因 + 改动 + 验证」，同步副本到 `C:\Users\13680\Desktop\.MD\docs\logs\`（索引见 `[DocsAgent]-文档索引.md`）。
 4. **不可信信号清单**：`compile_wxss` 全 fail、`getCurrentPages().length===1`、`simulator_refresh` 成功、`automation_page_action callMethod` 的 objectId。
 5. **验证分层**：静态（node --check / 编译）→ 运行时（evaluate 断言）→ 视觉（截图 + 直连视觉模型）→ 真机（只能用户确认）。
 6. **凭据处理**：一律从 `.env` 读，不落文档、不进通知。
@@ -951,7 +951,7 @@ Start-Process -FilePath 'C:\Program Files\nodejs\node.exe' `
 | 网页版源 | `D:\Hermes\gods-eye-view` |
 | 云托管源 | `D:\Hermes\gev-cloudrun` |
 | 云函数部署副本 | `D:\Hermes\gev-proxy-deploy` |
-| 开发日志 | `PROGRESS.md` + `C:\Users\13680\Desktop\.MD\上帝之眼-小程序改动日志.md` |
+| 开发日志 | `PROGRESS.md` + `C:\Users\13680\Desktop\.MD\docs\logs\[ProjectLogAgent]-上帝之眼小程序-改动日志.md` |
 | 移出的开发产物 | `D:\Hermes\gods-eye-miniprogram-dev`（`.claude` / `.agents`） |
 | 图标 base64 源字典 | `C:\Users\13680\AppData\Local\hermes\cache\scratch\iconpack.json` |
 
