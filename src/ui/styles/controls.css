@@ -209,7 +209,7 @@
 }
 
 .style-btn:active {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.98);
 }
 
 .style-btn.active {
@@ -227,6 +227,38 @@
 
 .style-btn.active .btn-label {
   color: var(--text-primary);
+}
+
+/* ── Round2 控件微交互统一（transitions.dev / emil 原则：press 用 transform:scale，
+   不触发布局位移；token 计时；reduced-motion 回退）── */
+.cockpit-utility-control,
+.pp-toggle-btn,
+.search-toggle-btn,
+.cockpit-mode-chip,
+.bhote-event-icon-btn {
+  transition:
+    transform var(--dur-1) var(--ease-out),
+    background-color var(--dur-2) var(--ease-out),
+    border-color var(--dur-2) var(--ease-out),
+    box-shadow var(--dur-2) var(--ease-out),
+    color var(--dur-2) var(--ease-out);
+}
+.cockpit-utility-control:active,
+.pp-toggle-btn:active,
+.search-toggle-btn:active,
+.cockpit-mode-chip:active,
+.bhote-event-icon-btn:active {
+  transform: scale(0.97);
+}
+@media (prefers-reduced-motion: reduce) {
+  .style-btn:active,
+  .cockpit-utility-control:active,
+  .pp-toggle-btn:active,
+  .search-toggle-btn:active,
+  .cockpit-mode-chip:active,
+  .bhote-event-icon-btn:active {
+    transform: none;
+  }
 }
 
 .btn-icon {
