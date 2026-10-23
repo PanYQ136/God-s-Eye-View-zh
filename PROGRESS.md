@@ -16,6 +16,20 @@
 
 ---
 
+## 2026-10-24 08:40 复核结论：G1/G16/G18 已在代码中优化 + 实机复现受环境限制
+
+**实机复现尝试**：CDP 启用重图层（Wind/卫星/军机/船舶/交通/电台）。结果：flights 源 STALE 仅 25 架（OpenSky 在此环境受限），无法复现"数千航班 +57fps"负载；远程 Chrome 部分读数受窗口遮挡节流干扰（rafFps 掉到 14），**绝对 FPS 不可作 billboard 阈值标定依据**。
+
+**代码复核（决定性）** —— `src/layers/flights/rendering.js`：
+- `:155-163` 头注 + `:944 horizonOccluder(camera)` + `:1032 _deadReckon` 证明：**flights 已是"每 `scene.preRender` ~12Hz 死推算 + 地平线外剔除 + `scaleByDistance` + 3D 接近预算 MODEL_MAX"** 的高度优化实现。
+- **G16**（逐帧 CallbackProperty）：未跟踪机队走 12Hz 死推算、**非逐帧**；`tracking.js` 的 CallbackProperty 仅用于**被跟踪单机**的轨迹/朝向/对齐轴（单实体，Cesium 廉价更新）→ **已优化**。
+- **G18**（距离裁剪）：已用 `horizonOccluder` 剔除**地平线外** billboard → **已实现**。
+- **G1**（聚类）：12Hz + 地平线剔除 + 按距缩放 + 3D 接近预算已封住绘制成本；再做聚类会隐藏单机（改变 UX），**不改更优**。
+
+**结论**：G1/G16/G18 **属"已达标（代码已优化）"，非待改缺陷**（审计初版的 CallbackProperty 计数/距离裁剪缺失是表层判断，实际架构已缓解）。
+- G11 独显探测已有（RTX3060 不需自动降档）；G13 纹理图集/KTX2 属资产管线；G22 材质/scopeMask 已由 6 个后处理合 1；G23 GeoJSON 主要在加载期；G15 FPS 徽标已具 —— 均**无需/低优先**。
+- 干净场景实测（RTX3060 真硬件）：相机移动 **~53fps @ 原生分辨率**，`rafFps 74`。
+
 ## 2026-10-24 08:10 实机 CDP 测量 + 修复 G7 watchdog 冲突（关键）
 
 **测量手段**：系统 Chrome + 独立 user-data-dir + CDP 9222，加 `--disable-backgrounding-occluded-windows --disable-renderer-backgrounding --disable-background-timer-throttling` + `Page.bringToFront` + 焦点模拟（否则后台节流会把 FPS 压到 5fps 的假象）。脚本 `gevmeasure.mjs`（scratch）。renderer 实测 = `ANGLE (NVIDIA RTX 3060 Laptop, D3D11)` 真硬件。
