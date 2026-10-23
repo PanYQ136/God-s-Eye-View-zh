@@ -51,3 +51,20 @@
 ## 提交
 - 遗留 WIP 提交 `20f0a7a`
 - 实时源 elastic fetch `40bbd56`（live 单测 12/12、build 45s 通过）
+
+## 补强（"继续补"追加，2026-10-24 12:30）
+
+**根因突破：主源"down"多为 7890 代理拒连，非上游真挂**
+- 实测矩阵（直连 vs 7890 代理）：`nhc.noaa.gov / earthquake.usgs.gov / eonet.gsfc.nasa.gov / celestrak.org` **直连 200、走代理 ECONNRESET**；`ll.thespacedevs.com` 反之（必须走代理）。
+- 修 `start-dev.cmd` 的 **NO_PROXY** 加 nhc/usgs/eonet/celestrak 直连（LL2 保留代理），undici env-proxy 验证 NO_PROXY 生效。
+- **重启后实测**：cyclones **0→1 风暴**、earthquakes **→USGS 242 条**、fires **→83285 fires 实时(stale=false)**、satellites **celestrak 直连**。
+- **`/api/sources/health`：down 1→0、switched 2→0、okChannels 32→38/41**。
+- 因此**不再需要** GDACS/EONET 形状适配器（主源已直连可用，本就是对的做法）；cyclones GDACS 因客户端 schema 严格（仅 al/ep/cp + NHC advisory）本就无法接，维持 health 声明。
+
+**elastic fetch 铺开到全部层源**
+- `src/sources/live/resilientFetch.js` 全局注册 `__gevResilientFetch`（未加载时优雅回退原生 fetch）。
+- 19 个图层 `source.js` 默认 fetchImpl → `(globalThis.__gevResilientFetch || globalThis.fetch)`，各层同源 `/api` 取数均获超时+429/5xx 重试+退避。
+- 层测 **635/635 通过**、build 54s 通过。
+
+**提交**：`0a46df7`（NO_PROXY）、`7387625`（elastic 铺开）
+
