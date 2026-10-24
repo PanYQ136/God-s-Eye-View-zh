@@ -1,0 +1,22 @@
+/* ═══════════════════════════════════════════════════════════════
+   GEV 修复覆盖层 (Hermes UI 巡检修复) — 最后加载，覆盖前面所有样式
+   回滚：删除 index.html 中 <link href="/gev-fix.css"> 这一行即可完全还原。
+   仅做「可读性 / 尺寸」微调，不改布局骨架、不动逻辑。每条含原因。
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── P1-3 / P2 可读性：数据面板微字偏小(9px) ── */
+.data-toggle-meta { font-size: 10.5px !important; line-height: 1.3; }
+.data-toggle-btn  { font-size: 10px !important; }
+.data-layer-group-heading { font-size: 11px !important; }
+#data-panel .panel-title { font-size: 11px !important; }
+
+/* ── P2 可读性：位置弹层城市胶囊 8.96px 偏小 ── */
+.location-pill { font-size: 10.5px !important; }
+.location-mini-city { font-size: 10.5px !important; }
+.location-mini-poi  { font-size: 10px !important; }
+
+/* ── P2：顶部液态玻璃按钮 44×44 大于其余 36×36，统一为 36 对齐基线 ── */
+#lg-glass-trigger { width: 36px !important; height: 36px !important; }
+
+/* ── P2：命令坞中间语音模块高 66px，比左右托盘(62px)外凸，收敛到 62 对齐 ── */
+#gev-voice-button { height: 62px !important; align-self: center; }
