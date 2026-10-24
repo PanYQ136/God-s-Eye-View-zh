@@ -321,8 +321,13 @@ const SKIP_TAGS = new Set([
   'CANVAS',
 ]);
 
+function isIconEl(el) {
+  return !!(el && el.classList && (el.classList.contains('material-symbols') || el.classList.contains('material-symbols-outlined') || el.classList.contains('material-icons') || el.classList.contains('pp-icon')));
+}
+
 let enabled = true;
-const seen = new WeakSet();
+let seen = new WeakSet();
+const originals = new Map();
 
 function tr(value) {
   if (!value) return null;
@@ -351,17 +356,32 @@ function translateNode(node) {
     const parent = node.parentElement;
     if (!parent || SKIP_TAGS.has(parent.tagName)) return;
     if (parent.isContentEditable) return;
-    const out = tr(node.nodeValue);
-    if (out !== null) node.nodeValue = out;
+    if (isIconEl(parent)) return;
+    const orig = node.nodeValue;
+    const out = tr(orig);
+    if (out !== null && out !== orig) {
+      if (!originals.has(node)) originals.set(node, {});
+      const rec = originals.get(node);
+      if (rec.t === undefined) rec.t = orig;
+      node.nodeValue = out;
+    }
     return;
   }
   if (node.nodeType !== 1) return;
   if (SKIP_TAGS.has(node.tagName)) return;
   if (node.isContentEditable) return;
+  if (isIconEl(node)) return;
   for (const a of ATTRS) {
     if (node.hasAttribute(a)) {
-      const out = tr(node.getAttribute(a));
-      if (out !== null) node.setAttribute(a, out);
+      const av = node.getAttribute(a);
+      const out = tr(av);
+      if (out !== null && out !== av) {
+        if (!originals.has(node)) originals.set(node, {});
+        const rec = originals.get(node);
+        if (!rec.a) rec.a = {};
+        if (!(a in rec.a)) rec.a[a] = av;
+        node.setAttribute(a, out);
+      }
     }
   }
   for (const child of node.childNodes) translateNode(child);
@@ -416,7 +436,21 @@ const observer = new MutationObserver((records) => {
 function setEnabled(on) {
   enabled = on;
   document.body.classList.toggle('gev-zh', on);
-  if (on) translateTree();
+  if (on) {
+    seen = new WeakSet();
+    translateTree();
+  } else {
+    // 还原英文：把缓存的所有译文恢复为原始英文
+    for (const [node, rec] of originals) {
+      try {
+        if (rec.t !== undefined && node.nodeValue !== rec.t) node.nodeValue = rec.t;
+        if (rec.a) for (const k in rec.a) { if (node.getAttribute && node.getAttribute(k) !== rec.a[k]) node.setAttribute(k, rec.a[k]); }
+      } catch (e) { /* detached node */ }
+    }
+    originals.clear();
+    seen = new WeakSet();
+    document.documentElement.lang = 'en';
+  }
   const pill = document.getElementById('gev-lang-toggle');
   if (pill) pill.dataset.on = on ? '1' : '0';
 }
