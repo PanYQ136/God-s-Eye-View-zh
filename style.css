@@ -23,3 +23,5 @@
 
 @import './src/ui/styles/weather.css';
 @import './src/ui/styles/cyber.css';
+/* Apple Liquid Glass 组件（按钮/菜单）；删掉本行即完全还原 */
+@import './src/ui/styles/lg-glass.css';

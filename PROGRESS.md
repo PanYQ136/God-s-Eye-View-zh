@@ -411,3 +411,29 @@ Win11 就地升级把 Tailscale 状态弄坏：`C:\ProgramData\Tailscale\` 无 `
 **改动**：该目录重组为 `docs/{specs,logs,ops,prompts}` + `assets`，全部文件按 `[Agent]-主题-日期.md` 重命名（正文零改动）。本仓库的网页端日志镜像改为 `C:\Users\13680\Desktop\.MD\docs\logs\[ProjectLogAgent]-上帝之眼Web端-改动日志.md`，本文件头部已同步；工程档案副本改为 `docs\logs\[ArchiveAgent]-…md`。
 
 **验证**：源仓库 `PROGRESS.md` 与镜像逐字节一致；目录索引 `[DocsAgent]-文档索引.md` 列出全部 21 份文档及原名映射。
+
+---
+
+## 2026-10-24 16:05 Apple Liquid Glass 组件接入（玻璃按钮 44×44 + 玻璃菜单 320×N）
+
+**现象/需求**：按《官方LiquidGlass-CSS与上帝之眼适配任务包-合并版-20261024.md》，把 Apple 官方 Liquid Glass 材质做成按钮与菜单组件接入网页端，参数照抄、不遮挡、不抢层级。
+
+**改动**：
+- 新增 `src/ui/styles/lg-glass.css`（官方材质：blur(22px) saturate(1.9)、双层填充、3 内阴影 + 4 投影，按 `--lg-scale` 等比缩放；Dark/Clear 为默认、`.lg-glass--light` 为 Light 变体；hover 白度 +.08、按下 scale(.97) + 指尖辉光 .45；`@supports` / reduced-transparency / reduced-motion 降级）。
+- 新增 `src/ui/lgGlass.js`（挂载按钮到 `#top-center-actions`、菜单浮层 + 透明遮罩、Esc/遮罩关闭、明暗切换；暴露 `window.__gevLiquidGlass` 供 CDP 核验）。
+- `style.css` 末尾 +1 行 `@import`；`index.html` 末尾 +1 行 `<script>`（均带「删掉本行即还原」注释）。
+- 未改 `foundation.css` 层级/令牌，未改 `status.css`（顶栏按钮 ID 选择器优先级问题在组件文件内用同等上下文覆盖解决）。
+
+**z-index**：按钮继承 `--z-hud:100`；遮罩 199；菜单 `var(--z-popup)=200`；地图层无任何滤镜。
+
+**验证**（headed Chrome 155 + CDP，1600×900，http://127.0.0.1:4173/）：
+- 按钮 computed：44×44 / radius 12px / border 0 / backdrop `blur(22px) saturate(1.9)` / box-shadow 7 层
+- 菜单 computed：320px / radius 16px / z 200 / backdrop 同上；`overflowX=0`
+- control-panel 100、command-dock 145、toast 原值不变；菜单与图层面板同屏无遮挡
+- 全程 `errPanel: 0`（无 Cesium 报错）；`npm run build` 通过；`applicationHtml` / `browserModuleBoundary` 测试通过
+- 截图：`docs/screenshots/lg-glass/headed-0{1..4}-*.png`
+- 详见 `docs/lg-glass-改动清单.md`
+
+**已知**：headless Chrome（`--disable-gpu`）下打开菜单会触发 Cesium `width > 0` 报错（软件渲染 + backdrop-filter 重绘导致画布瞬时 0 尺寸），headed 无此问题，核验须用 headed。
+
+> 复验（提交时独立 CDP + GLM-4V 视觉）：按钮/菜单 computed `blur(22px) saturate(1.9)`、`border 0`、菜单 `z-index:200`、遮罩 `199`、command-dock `145`/left-panel-stack `100` 未变；深/浅按钮+菜单+叠加面板截图 `docs/lg-glass-shots/`（已入库）；全分辨率 headed 图 `docs/screenshots/lg-glass/`（本地，gitignore）。
