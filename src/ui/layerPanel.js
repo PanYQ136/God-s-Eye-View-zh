@@ -205,7 +205,7 @@ export class LayerPanel {
       const group =
         PANEL_ORDER[PANEL_POSITIONS.get(layer.id)]?.label ?? 'Other layers';
       if (group && group !== previousGroup) {
-        const heading = document.createElement('h3');
+        const heading = document.createElement('h2');
         heading.className = 'data-layer-group-heading';
         heading.textContent = group;
         this._toggleContainer.appendChild(heading);

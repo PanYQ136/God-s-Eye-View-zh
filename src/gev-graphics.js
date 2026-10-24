@@ -283,7 +283,7 @@ import { PostProcessStage, Cartesian2 } from 'cesium';
 
     const p = el('div');
     p.id = 'gev-gfx-panel';
-    p.appendChild(el('h4', null, '⚙ 画面设置'));
+    p.appendChild(el('h3', null, '⚙ 画面设置'));
     p.appendChild(el('div', 'note', 'GPU: ' + gpuInfo()));
     const mkRow = (lbl) => {
       const r = el('div', 'row');

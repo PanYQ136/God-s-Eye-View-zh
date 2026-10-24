@@ -72,7 +72,7 @@ export function createWeatherPanel({
   const observedGroup = document.createElement('section');
   observedGroup.className = 'weather-observed-group';
   observedGroup.setAttribute('aria-label', 'Observed history');
-  const heading = document.createElement('h3');
+  const heading = document.createElement('h2');
   heading.className = 'panel-title';
   heading.textContent = 'Observed history';
   const scope = document.createElement('div');

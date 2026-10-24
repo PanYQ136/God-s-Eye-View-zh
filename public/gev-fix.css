@@ -85,3 +85,47 @@ span.indicator-label { color: #aab2bc !important; }
 p.radio-privacy { font-size: 11px !important; }
 #sdr-radio-card p { font-size: 11px !important; }
 #cctv-summary { font-size: 11px !important; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   全量清理批次（2026-10-25）— 低→高风险：字距 / 小字号 / 卡片扁平化 / 字号下限 / 临界对比
+   依据：未解决清单 A~E（impeccable detect 复检 197 命中）
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* —— 低风险：B-2 字距过宽 —— */
+#scene-panel .scene-shot-label { letter-spacing: 0.02em !important; }
+#cctv-summary { letter-spacing: 0.03em !important; }
+
+/* —— 低风险：C 小字号 tiny-text —— */
+#context-mode-standby > span { font-size: 11px !important; }
+p.first-run-note { font-size: 11px !important; color: #b8c2cc !important; }
+
+/* —— 低风险：E 临界低对比 near-miss(4.46/4.49:1) —— */
+#gev-voice-control #gev-voice-detail { color: #9aa6ad !important; }
+
+/* —— 中风险：B-1 场景列表卡片套卡片 → 扁平化(去内层卡片, 留分隔线) —— */
+#scene-panel .scene-shot-row { background: transparent !important; border: none !important; box-shadow: none !important; border-radius: 0 !important; border-bottom: 1px solid rgba(255,255,255,0.06) !important; }
+
+/* —— 中风险：A 功能字号下限 → 11px（按面板整块 scoped，避免撑破其它区域） —— */
+/* 场景面板 */
+#scene-panel .scene-shot-label,
+#scene-panel .scene-shot-btn,
+#scene-panel .panel-title,
+#scene-panel .scene-btn { font-size: 11px !important; }
+/* 显示/检测面板 */
+#pp-toggles .pp-label,
+#pp-toggles .pp-header-label,
+#pp-toggles .pp-slider-mini-label,
+#pp-toggles .pp-slider-value { font-size: 11px !important; }
+/* CCTV 监控面板 */
+#cctv-panel .scene-btn,
+#cctv-panel #cctv-source-badge,
+#cctv-panel #cctv-meta,
+#cctv-panel #cctv-quality-chip { font-size: 11px !important; }
+/* 面板标题 / 当前风格标签 */
+#control-panel-toggle .panel-title { font-size: 11px !important; }
+span.indicator-label { font-size: 11px !important; }
+/* 语音模块：微缩模块，谨慎提到 10px（≥11 会撑破 86px 模块，见报告说明） */
+#gev-voice-control .gev-voice-tier-btn,
+#gev-voice-control .gev-voice-cost-value,
+#gev-voice-control .gev-mic-label { font-size: 10px !important; }
+#gev-voice-control #gev-voice-detail { font-size: 10px !important; }
