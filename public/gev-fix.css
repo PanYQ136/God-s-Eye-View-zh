@@ -129,3 +129,34 @@ span.indicator-label { font-size: 11px !important; }
 #gev-voice-control .gev-voice-cost-value,
 #gev-voice-control .gev-mic-label { font-size: 10px !important; }
 #gev-voice-control #gev-voice-detail { font-size: 10px !important; }
+
+/* —— 扩展：电台/SDR/监控校准/全局上下文/显示分段 字号下限 + 5处临界对比 + 剩余卡片扁平化 —— */
+#pp-toggles .pp-mode-btn { font-size: 11px !important; }
+#scene-panel #scene-status { font-size: 11px !important; }
+#cctv-panel .panel-title, #cctv-panel .cctv-summary-label,
+#cctv-panel .cctv-cal-value, #cctv-panel .cctv-calibration-header { font-size: 11px !important; }
+.global-context-panel-inner .panel-title,
+#global-context-flights-btn span, #global-context-missions-btn span { font-size: 11px !important; }
+#context-mode-standby strong { font-size: 11px !important; }
+.radio-panel-inner .panel-title, #radio-enable-btn, .radio-filter-label, #radio-station-meta,
+#radio-prev-btn, #radio-play-btn, #radio-next-btn, #radio-stop-btn, .radio-volume-row span,
+#radio-volume-value, #radio-playback-state, .radio-links a { font-size: 11px !important; }
+.sdr-radio-heading strong, #sdr-connection-state, #sdr-connect-btn, #sdr-locate-btn,
+#sdr-change-device-btn, #sdr-mode-fm-btn, #sdr-mode-adsb-btn, .sdr-gain-row label,
+.sdr-frequency-row label, #sdr-tune-btn, #sdr-seek-back-btn, #sdr-seek-forward-btn,
+#sdr-radio-card .radio-volume-row span, #sdr-volume-value, #sdr-status { font-size: 11px !important; }
+/* 5 处临界低对比收尾 */
+#gev-voice-tier { color: #0d1015 !important; }
+#gev-voice-cost-value { color: #9aa6ad !important; }
+#sharpen-toggle .pp-label { color: #000000 !important; }
+#context-mode-standby > span { color: #9aa6ad !important; }
+p.radio-privacy { color: #9aa6ad !important; }
+/* 剩余「卡片套卡片」扁平化 */
+.cctv-calibration-block { background: transparent !important; border: none !important; box-shadow: none !important; }
+
+/* —— 微调收尾批：位置胶囊 / 开关 off 态 / 电台 meta 对比 / 芯片标签字号 —— */
+.location-pill { font-size: 11px !important; color: #aeb6bf !important; }
+#detection-allocation-weighted { color: #aeb6bf !important; }
+label.radio-filter-label, #radio-station-meta, .radio-volume-row > span { color: #aeb6bf !important; }
+#key-setup-chip > span:nth-of-type(2) { font-size: 11px !important; }
+#gev-lang-toggle > span, span.gev-locate-text { font-size: 11px !important; }
