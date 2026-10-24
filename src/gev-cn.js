@@ -436,6 +436,7 @@ const observer = new MutationObserver((records) => {
 function setEnabled(on) {
   enabled = on;
   document.body.classList.toggle('gev-zh', on);
+  document.dispatchEvent(new CustomEvent('gev-lang-change', { detail: { zh: on } }));
   if (on) {
     seen = new WeakSet();
     translateTree();
@@ -492,6 +493,7 @@ function mount() {
     toggle: () => setEnabled(!enabled),
     dict: DICT,
   };
+  document.dispatchEvent(new CustomEvent('gev-lang-change', { detail: { zh: enabled } }));
 }
 
 // 翻译原生 prompt / confirm 文案（非侵入包装，用于场景新建/删除确认）
