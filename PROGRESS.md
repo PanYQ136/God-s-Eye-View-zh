@@ -16,6 +16,13 @@
 
 ---
 
+## 2026-10-24 14:00 外网访问：生产端点就绪 + Tailscale 复发 NoState + 项目全局 Skill
+
+- **生产外网端点** `start-prod.cmd`（vite preview `0.0.0.0:4174`，服务 dist + 全 /api，provider 均实现 configurePreviewServer）。实测 `/`200、`/api/cyclones`1风暴、`/api/sources/health` down0，`127.0.0.1:4174` 与 `192.168.110.126:4174` 均可达。
+- **Tailscale 本次卡 NoState**（Win11 升级 29683 破坏服务，tailscaled 日志 0 字节/服务方式启动即崩；前台能初始化但 CLI 连不上）——**历史复发**（见 2026-10-20）。已恢复服务原状；彻底恢复需重启系统 + SSO 授权（详见 `docs/REMOTE-ACCESS.md`）。
+- **`start-tunnel.cmd`**：Tailscale 恢复后一键 `tailscale serve/funnel 4174`。穿透为同源相对 `/api`，功能与直连一致。
+- **项目全局 Skill** `gods-eye-view`（software-development 类）：沉淀双端架构/数据源降级·NO_PROXY/渲染·GPU/UI 令牌/交互/已知BUG目录/验证流/远程访问/小程序，后续迭代直接调用。
+
 ## 2026-10-24 13:10 全量 NO_PROXY 扫描 + flights 溯源 + EONET 火点兜底
 
 **全量 NO_PROXY 扫描**（70 个上游 host 直连 vs 7890 代理逐一实测分类）：
