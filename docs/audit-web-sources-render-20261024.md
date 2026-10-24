@@ -68,3 +68,12 @@
 
 **提交**：`0a46df7`（NO_PROXY）、`7387625`（elastic 铺开）
 
+## 全量 NO_PROXY 扫描扩容（2026-10-24 13:10）
+
+70 个上游 host 直连 vs 代理逐一实测：
+- **新加 12 个直连 host**：CCTV（livetraffic/txdot/austintexas/calgary/digitraffic/nsw/deldot/tfl/tie）+ **NASA GIBS wvs.earthdata**（云图/闪电/近期影像）+ **FIRMS** + **nowCoast**。`b1dca1c`
+- 13 个"直连失败+代理可达"（ll2/adsbdb/radio/geocode/google/raw.github/seismicportal）保持代理不动。
+- 效果：CCTV 650 源、clouds/lightning 200、firms 直连 829 实时。
+- **flights** `/api/opensky`=9954 架(pocketworld-global)，非"25 stale"。
+- **fires EONET 兜底**：FIRMS 0/全失败时用 EONET 事件点补位（字段对齐契约）。`4105ec4`
+

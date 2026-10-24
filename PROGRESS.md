@@ -16,6 +16,19 @@
 
 ---
 
+## 2026-10-24 13:10 全量 NO_PROXY 扫描 + flights 溯源 + EONET 火点兜底
+
+**全量 NO_PROXY 扫描**（70 个上游 host 直连 vs 7890 代理逐一实测分类）：
+- **12 个新 host 直连可达+代理失败 → 加 NO_PROXY**：CCTV 相机源（`data.livetraffic.com/its.txdot.gov/data.austintexas.gov/weathercam.digitraffic.fi/webcams.transport.nsw.gov.au/trafficcam.calgary.ca/api.tfl.gov.uk/tie.digitraffic.fi/video.deldot.gov`）+ **NASA GIBS `wvs.earthdata.nasa.gov`**（云图/闪电/近期影像）+ **FIRMS** + **nowCoast**。
+- **13 个直连失败+代理可达 → 保持走代理不动**（ll2/adsbdb/radio/geocode/google maps/raw.github/seismicportal 等）。
+- 效果：CCTV 650 源、clouds/lightning manifest 200（GIBS 直连）、firms 直连 **829 条实时**。
+
+**flights 溯源**：`/api/opensky` 现返回 **9954 架（pocketworld-global）**，早前"25 架 stale OpenSky"是修复前残留；flights 数据充足。
+
+**fires EONET 兜底**：`server/providers/firms.js` 加 `fetchEonetFires()`，仅当 FIRMS 返回 0/全失败时用 EONET wildfire 事件点补位（字段对齐 `parseFirmsCsv` 契约 {lat,lon,frp,confidence,brightness,brightnessTi5,daynight,acqDate,acqTime,satellite,instrument}，时间戳用当前 UTC 过 `filterTrailing24h`）。EONET 已列 NO_PROXY 直连。
+
+**提交**：`b1dca1c`（12 host）、`4105ec4`（EONET 兜底）。最终 `down 0`。
+
 ## 2026-10-24 12:30 补强：NO_PROXY 直连修复主源 + elastic 铺开全层源
 
 **根因**：cyclones/earthquakes/fires/satellites 的"down"多是 **7890 代理拒连**（nhc/usgs/eonet/celestrak 直连 200、走代理 ECONNRESET；ll2 反之须走代理），非上游挂。
