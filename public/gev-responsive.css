@@ -86,12 +86,22 @@ html #gev-dossier { max-width: min(340px, calc(100vw - 24px)); }
   #right-context-rail { width: calc(50vw - 62px); }
 }
 
-/* ═══ 桌面 / 平板横置（宽 >720 且非矮横屏）═══
-   GEV 控件行移到标题栏下方，避免与左下角「目标档案」面板 / 底部版权重叠 */
-@media (min-width: 721px) and (min-height: 561px) {
-  html #gev-locate-btn  { top: 104px; left: 36px;  right: auto; bottom: auto; }
-  html #gev-perf-wrap   { top: 104px; left: 112px; right: auto; bottom: auto; }
-  html #gev-lang-toggle { top: 104px; left: 268px; right: auto; bottom: auto; }
+/* ═══ 桌面宽屏(≥1124)：GEV 控件行 → 命令坞上方中央「状态带」 ═══
+   根因修复：原 top:104 正压 #data-panel(top:101)，导致 中/EN、定位、性能 按钮与
+   数据图层重叠（长期未解——它们此前在 左下档案框 与 左上数据图层 之间来回撞）。
+   现移到两侧面板之间、命令坞(y≈796)之上的空旷带，水平居中、随宽自适应。 */
+@media (min-width: 1124px) and (min-height: 561px) {
+  html #gev-locate-btn  { left: 50%; right: auto; top: auto; bottom: 128px; margin-left: -150px; }
+  html #gev-perf-wrap   { left: 50%; right: auto; top: auto; bottom: 124px; margin-left: -80px; }
+  html #gev-lang-toggle { left: 50%; right: auto; top: auto; bottom: 128px; margin-left: 78px; }
+}
+
+/* ═══ 中宽桌面(721–1123 且非矮横屏)：控件行 → 顶栏右侧、右 rail(top:101)之上空档 ═══
+   置于标题栏右侧，纵向在右栏之上，同样不压数据图层/标题。 */
+@media (min-width: 721px) and (max-width: 1123px) and (min-height: 561px) {
+  html #gev-locate-btn  { top: 60px; right: 250px; left: auto; bottom: auto; }
+  html #gev-perf-wrap   { top: 58px; right: 96px;  left: auto; bottom: auto; }
+  html #gev-lang-toggle { top: 60px; right: 20px;  left: auto; bottom: auto; }
 }
 
 /* ── 触摸设备：加大点击目标（≥40px）───────────────────────────── */

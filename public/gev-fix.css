@@ -47,3 +47,41 @@
 #right-context-rail .pp-slider-row { min-height: 30px !important; padding-top: 3px !important; padding-bottom: 3px !important; }
 #right-context-rail .pp-slider-mini-label,
 #right-context-rail .pp-slider-value { padding-left: 2px; padding-right: 2px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Impeccable 设计审查修复批次（2026-10-25）— 对比度 / 字号下限 / 暗光辉
+   依据：impeccable detect --cdp 365 命中（low-contrast 62 / undersized 234 等）
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* C-2 数据源 meta 对比度 2.4:1(#4d4e54/#0b0b13) → 提亮到 AA；字号 10.5→11 下限 */
+.data-toggle-meta { color: #9aa3ad !important; font-size: 11px !important; }
+/* C-2b 数据层开关按钮文字本身 2.4:1(#54555b/#15151c) → 提亮 */
+.data-toggle-btn { color: #9aa3ad !important; }
+.data-toggle-btn.active, .data-toggle-btn.on { color: #e8f4ff !important; }
+
+/* C-1 显示面板开关标签在渐变底上 2.1:1(#b0b1b4/#77777b) → 深色实心高对比
+   仅作用于开关按钮内的 .pp-label，不动深色面板上的其它 label */
+.pp-toggle-btn .pp-label,
+#hud-toggle .pp-label, #models3d-toggle .pp-label, #scope-toggle .pp-label,
+#draw-toggle .pp-label, #celestial-toggle .pp-label, #clean-view-toggle .pp-label,
+#bloom-toggle .pp-label, #sharpen-toggle .pp-label { color: #0d1015 !important; font-weight: 600 !important; text-shadow: none !important; }
+
+/* C-3 场景 meta 对比度 2.4:1 + 字距 0.10em 过宽 + 卡片嵌套 → 提亮 + 收字距 + 11px */
+.scene-shot-meta { color: #9aa3ad !important; letter-spacing: 0.02em !important; font-size: 11px !important; }
+
+/* C-4 当前风格指示标签 2.4:1 → 提亮 */
+span.indicator-label { color: #aab2bc !important; }
+
+/* R 关键功能字提到 11px 下限 */
+#data-panel .panel-title { font-size: 11px !important; }
+.location-toolbar-label { font-size: 11px !important; }
+.gl-label { font-size: 11px !important; }
+
+/* D-3 dark-glow：零偏移青色发光 → 改实心投影（保留可读不刺眼） */
+#active-style-name { text-shadow: 0 1px 3px rgba(0,0,0,.9) !important; }
+#detection-toggle > span.pp-icon { text-shadow: none !important; }
+
+/* D-6 tiny-text：电台/上下文/监控正文 7–10px → 11px */
+p.radio-privacy { font-size: 11px !important; }
+#sdr-radio-card p { font-size: 11px !important; }
+#cctv-summary { font-size: 11px !important; }
