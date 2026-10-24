@@ -20,3 +20,15 @@
 
 /* ── P2：命令坞中间语音模块高 66px，比左右托盘(62px)外凸，收敛到 62 对齐 ── */
 #gev-voice-button { height: 62px !important; align-self: center; }
+
+/* ── N-5：视觉预设调色板 12 按钮宽度不均(31~55px)，改 flex 等分整齐 ── */
+/* 源规则 #command-dock .style-btn 用了 ID 选择器，故须同级 ID 提高特异性才能压过 */
+#command-dock .button-grid { display: flex !important; gap: 4px !important; }
+#command-dock .button-grid .style-btn { flex: 1 1 0 !important; min-width: 0 !important; width: auto !important; max-width: none !important; }
+
+/* ── N-6：近期影像面板 chips 字号 8px→9.5px（仅限该面板） ── */
+#recent-imagery-panel .data-toggle-chip { font-size: 9.5px !important; }
+
+/* ── N-7：标题栏可读性——主标题加强阴影；副标题提亮+强阴影（原先融入卫星纹理） ── */
+#title-bar h1 { text-shadow: 0 1px 3px rgba(0,0,0,.9), 0 0 10px rgba(0,0,0,.7); }
+#title-bar .subtitle { color: rgba(214,232,246,.92) !important; text-shadow: 0 1px 4px rgba(0,0,0,.95), 0 0 6px rgba(0,0,0,.8) !important; }

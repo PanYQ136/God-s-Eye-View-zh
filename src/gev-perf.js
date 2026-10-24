@@ -17,6 +17,15 @@
     frames: 0,
     t0: 0,
   };
+  // N-1: 按钮文案随语言(body.gev-zh 由 gev-cn.js 控制)切换，监听切换事件
+  function syncBtn() {
+    const btn = document.getElementById('gev-perf-btn');
+    if (!btn) return;
+    const zh = document.body.classList.contains('gev-zh');
+    btn.textContent = st.on ? (zh ? '性能 · 开' : 'PERF · ON') : (zh ? '性能模式' : 'PERF MODE');
+    btn.title = st.on ? (zh ? '点击恢复画质' : 'Click to restore quality') : (zh ? '点击降低负载、提高帧率' : 'Reduce load · raise FPS');
+  }
+  document.addEventListener('gev-lang-change', syncBtn);
 
   function findTilesets(scene) {
     const out = [];
@@ -90,11 +99,8 @@
       localStorage.setItem(LS_KEY, on ? '1' : '0');
     } catch (e) {}
     const btn = document.getElementById('gev-perf-btn');
-    if (btn) {
-      btn.classList.toggle('on', on);
-      btn.textContent = on ? '性能 · 开' : '性能模式';
-      btn.title = on ? '点击恢复画质' : '点击降低负载、提高帧率';
-    }
+    if (btn) btn.classList.toggle('on', on);
+    syncBtn();
     // 立刻刷新一帧，切换当场可见
     try {
       v.scene.requestRenderMode = false;
@@ -142,6 +148,7 @@
     wrap.appendChild(fps);
     wrap.appendChild(btn);
     document.body.appendChild(wrap);
+    syncBtn();
   }
 
   function tickFps() {
