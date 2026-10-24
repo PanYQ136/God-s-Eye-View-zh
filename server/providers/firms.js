@@ -91,6 +91,38 @@ export function firmsProxy() {
   }
 
   /**
+   * EONET (NASA) wildfire fallback — 用事件级火点，仅在 FIRMS 返回 0/全失败时补位。
+   * EONET 直连可达（已列 NO_PROXY，不走代理）。字段对齐 parseFirmsCsv 契约，
+   * 时间戳用「当前 UTC」以保证通过 filterTrailing24h。
+   */
+  async function fetchEonetFires() {
+    const url =
+      'https://eonet.gsfc.nasa.gov/api/v3/events?category=wildfires&status=open&days=2&limit=500';
+    const res = await fetch(url, { signal: AbortSignal.timeout(30_000) });
+    if (!res.ok) throw new Error(`EONET HTTP ${res.status}`);
+    const data = await res.json();
+    const now = new Date();
+    const p = (n) => String(n).padStart(2, '0');
+    const acqDate = `${now.getUTCFullYear()}-${p(now.getUTCMonth() + 1)}-${p(now.getUTCDate())}`;
+    const acqTime = `${p(now.getUTCHours())}${p(now.getUTCMinutes())}`;
+    const out = [];
+    for (const ev of data?.events || []) {
+      const geoms = ev?.geometry || [];
+      const g = geoms[geoms.length - 1];
+      const c = g?.coordinates;
+      if (!Array.isArray(c) || c.length < 2) continue;
+      const [lon, lat] = c;
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+      out.push({
+        lat, lon, frp: 0, confidence: 'n', brightness: 0, brightnessTi5: 0,
+        daynight: 'D', acqDate, acqTime, satellite: 'EONET', instrument: 'EONET',
+        _src: 'EONET',
+      });
+    }
+    return out;
+  }
+
+  /**
    * Refresh all sources sequentially (quota courtesy — never in parallel).
    * Partial success (≥1 source ok) still produces a cacheable entry with the
    * failed sources marked ok:false; total failure throws so the caller can
@@ -131,6 +163,18 @@ export function firmsProxy() {
           err?.message || err,
         );
         sources.push({ source, count: 0, ok: false });
+      }
+    }
+    if (fires.length === 0) {
+      try {
+        const eonet = await fetchEonetFires();
+        if (eonet.length) {
+          for (const r of eonet) fires.push(r);
+          sources.push({ source: 'EONET', count: eonet.length, ok: true });
+          console.log(`[firms-proxy] EONET fallback ${eonet.length} 事件点`);
+        }
+      } catch (err) {
+        console.warn('[firms-proxy] EONET fallback failed:', err?.message || err);
       }
     }
     if (!sources.some((s) => s.ok)) throw new Error('all FIRMS sources failed');
