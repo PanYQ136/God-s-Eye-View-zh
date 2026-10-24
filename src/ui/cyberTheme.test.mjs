@@ -344,7 +344,8 @@ test('the Display selector, voice schema and final stylesheet expose Cyber', () 
   );
   assert.match(display, /id="cyber-sonar-sector"/);
   assert.deepEqual(setHud.parameters.properties.layout.enum, HUD_LAYOUTS);
-  assert.match(stylesheet, /@import '\.\/src\/ui\/styles\/cyber\.css';\s*$/);
+  // GEV 追加层(lg-glass/mobile-portrait)合法排在 cyber 之后，故只断言 cyber 被引入，不要求其为末行
+  assert.match(stylesheet, /@import '\.\/src\/ui\/styles\/cyber\.css';/);
   assert.match(cyberStyles, /:root\[data-ui-theme='cyber'\]/);
   assert.match(cyberStyles, /\.material-symbols-outlined/);
   assert.match(cyberStyles, /\.pp-label/);
