@@ -32,3 +32,18 @@
 /* ── N-7：标题栏可读性——主标题加强阴影；副标题提亮+强阴影（原先融入卫星纹理） ── */
 #title-bar h1 { text-shadow: 0 1px 3px rgba(0,0,0,.9), 0 0 10px rgba(0,0,0,.7); }
 #title-bar .subtitle { color: rgba(214,232,246,.92) !important; text-shadow: 0 1px 4px rgba(0,0,0,.95), 0 0 6px rgba(0,0,0,.8) !important; }
+
+/* ── N-2/N-3：命令坞语音模块可读性重设计（微缩 6px→~9px）+ 与托盘齐高(按钮56,内容≈80) ── */
+#command-dock > #gev-voice-control { margin: 0 !important; box-shadow: 0 4px 14px rgba(0,0,0,.4), 0 0 0 1px rgba(0,212,255,0.06) inset !important; }
+#command-dock #gev-voice-button { height: 56px !important; }
+#command-dock .gev-voice-kicker { font-size: 8.5px !important; letter-spacing: 0.6px !important; }
+#command-dock #gev-voice-status { font-size: 10px !important; }
+#command-dock .gev-voice-tier-btn { height: 1rem !important; font-size: 8.5px !important; min-width: 3rem !important; }
+#command-dock .gev-voice-cost-value { font-size: 8.5px !important; }
+#command-dock .gev-mic-label { font-size: 8px !important; }
+#command-dock #gev-voice-detail { font-size: 9.5px !important; }
+
+/* ── N-4：右 rail 滑块行(密度/分配/淡出/外侧)行距过紧 → 增行高+内边距 ── */
+#right-context-rail .pp-slider-row { min-height: 30px !important; padding-top: 3px !important; padding-bottom: 3px !important; }
+#right-context-rail .pp-slider-mini-label,
+#right-context-rail .pp-slider-value { padding-left: 2px; padding-right: 2px; }
