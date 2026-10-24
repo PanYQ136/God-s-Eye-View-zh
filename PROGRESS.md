@@ -443,3 +443,17 @@ Win11 就地升级把 Tailscale 状态弄坏：`C:\ProgramData\Tailscale\` 无 `
 - 玻璃扩到指令坞(dock-tray-toggle×2 + voice + tier)+右栏(pp-toggle-btn×10 + pp-collapse-btn)，新增 .lg-glass-skin(官方材质等比缩放/token圆角/不改尺寸交互)，MutationObserver 持续补挂。
 - 全站层级实测：打开态全屏遮挡0/同z重叠0；z分区严格。5分辨率溢出0、坞/右栏视口内、无越界高z。
 - 视觉复核(GLM-4V)：坞/右栏/菜单磨砂统一无破相。截图 docs/lg-glass-shots/。
+
+## 2026-10-24 手机竖屏适配(v2)
+- 现象: 手机竖屏 left-panel-stack/right-context-rail 被撑成近全宽竖向堆叠, 挤没地图且互相重叠。
+- 方案: 新增 mobile-portrait.css(@media max-width:760px, 纯作用域) + mobile-ui.js(独立). 两堆叠改两侧抽屉: 默认移出屏幕(op0/translateX off), 底部两个悬浮FAB(图层/工具)滑出; 打开用内联!important强制(绕开层叠); 互斥; 点地图外收起; 坞贴底避让safe-area; 顶部避让刘海。
+- 入口: index.html +1 script; style.css 末尾 +1 @import。回滚删两行。
+- 坑: (orientation:portrait)在CDP模拟不匹配→改纯max-width:760px; Vite对新@import文件HMR不热加→需整页刷新; 低内存(3.74G)构建OOM→dev 4173直连免构建。
+- 验证: computed实测 关闭态op0/x-388/溢出0, 直接内联op1/transform单位矩阵/display flex/z130, FAB×2; 桌面fresh无FAB无mobile类。
+
+## 2026-10-24 外网访问：natfrp 内网穿透（手机看网页）
+- 目标：手机/外网访问本机网页。Tailscale（DERP 中继被墙）、免费隧道（localhost.run/serveo/bore 全 403/超时）、Cloudflare 均不可用 → 改用 natfrp（樱花frp）。
+- 方案：frpc 0.51.0-sakura-15.1（`D:\Hermes\natfrp`）+ 日本1节点(node72 frp-fly.com) TCP 隧道 `gevprod`(id 29654099) → 本机 4174（PROD dist）。公网 `http://frp-fly.com:11269/`（备用 `http://202.182.125.24:11269/`）。
+- 关键根因：① 内地节点禁 HTTP-over-TCP（返 501/403），HTTP 应用必须用非内地节点；② 非内地节点中日直连时数据端口 :8088 `i/o timeout`、大文件约 1/3 截断。改法：frpc 走 Clash 代理出网（`run_frpc_proxy.cmd`，`ALL_PROXY=127.0.0.1:7890`）→ 拨号超时归零、页面命中 8/10 全 200、延迟 0.6–1.9s；并把 dev(4173) 改 PROD 打包(`vite build`→4174)减少请求往返。
+- 自启：`GodsEye_natfrp_frpc`(登录→start_frpc.vbs→run_frpc_proxy.cmd) + `GodsEye_ProdServer`(登录→start_prod.vbs→start-prod.cmd 起 4174)。节点/实测/切换清单见 `docs/natfrp-外网节点清单.md`。
+- 验证：health down0/ok36/41；大文件仍偶截断靠浏览器 gzip+重试，未达 100% 稳定，用户接受先用（真正稳定后续可换国内 HTTP 穿透/备案域名）。
