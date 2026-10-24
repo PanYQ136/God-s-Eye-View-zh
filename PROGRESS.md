@@ -29,6 +29,8 @@
 
 **提交**：`b1dca1c`（12 host）、`4105ec4`（EONET 兜底）。最终 `down 0`。
 
+**固化工具** `tools/net_route_audit.mjs`：自动抽取 server 上游 host → 双通道（直连/代理）实测 → 归类 ADD/KEEP_PROXY/BOTH_OK/BOTH_ERR；`--sync` 只增不删地把 ADD 组并入 `start-dev.cmd` NO_PROXY。复用：加新数据源后 `node tools/net_route_audit.mjs --sync` 一键判定该直连还是代理。实测再救回 `inciweb.wildfire.gov`（火场边界 rows=104）、`tmc.deldot.gov`（DOT 相机）。`a627a33`
+
 ## 2026-10-24 12:30 补强：NO_PROXY 直连修复主源 + elastic 铺开全层源
 
 **根因**：cyclones/earthquakes/fires/satellites 的"down"多是 **7890 代理拒连**（nhc/usgs/eonet/celestrak 直连 200、走代理 ECONNRESET；ll2 反之须走代理），非上游挂。
