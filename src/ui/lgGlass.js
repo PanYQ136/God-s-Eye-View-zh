@@ -80,21 +80,22 @@ function positionMenu() {
   menuEl.style.top = `${Math.round(top)}px`;
 }
 
+function onDocPointerDown(e) {
+  if (!state.open) return;
+  if (menuEl && menuEl.contains(e.target)) return;
+  if (triggerEl && triggerEl.contains(e.target)) return;
+  closeMenu();
+}
+
 function openMenu() {
   if (!menuEl || state.open) return;
   state.open = true;
   menuEl.dataset.open = 'true';
   triggerEl.setAttribute('aria-expanded', 'true');
   positionMenu();
-  if (!backdropEl) {
-    backdropEl = document.createElement('button');
-    backdropEl.id = BACKDROP_ID;
-    backdropEl.type = 'button';
-    backdropEl.className = 'lg-glass-backdrop';
-    backdropEl.setAttribute('aria-label', '关闭菜单');
-    backdropEl.addEventListener('click', closeMenu);
-    document.body.appendChild(backdropEl);
-  }
+  // 不使用全屏遮罩（避免整屏 pointer-events 遮挡地图/Cesium 交互）；
+  // 改用 document 捕获监听，点菜单/按钮外即关闭——零全屏元素。
+  document.addEventListener('pointerdown', onDocPointerDown, true);
 }
 
 function closeMenu() {
@@ -102,10 +103,7 @@ function closeMenu() {
   state.open = false;
   menuEl.dataset.open = 'false';
   triggerEl.setAttribute('aria-expanded', 'false');
-  if (backdropEl) {
-    backdropEl.remove();
-    backdropEl = null;
-  }
+  document.removeEventListener('pointerdown', onDocPointerDown, true);
 }
 
 function toggleMenu() {
@@ -121,6 +119,22 @@ function applyTheme(theme) {
 
 function toggleTheme() {
   applyTheme(state.theme === 'light' ? 'dark' : 'light');
+}
+
+const SKIN_SELECTORS = [
+  '#command-dock .dock-tray-toggle',
+  '#command-dock #gev-voice-button',
+  '#command-dock .gev-voice-tier-btn',
+  '#command-dock #control-panel-toggle',
+  '#right-context-rail .pp-collapse-btn',
+  '#right-context-rail .pp-toggle-btn',
+];
+function skinDockRail() {
+  for (const sel of SKIN_SELECTORS) {
+    document.querySelectorAll(sel).forEach((el) => {
+      if (!el.classList.contains('lg-glass-skin')) el.classList.add('lg-glass-skin');
+    });
+  }
 }
 
 function mount() {
@@ -152,6 +166,18 @@ function mount() {
   document.body.appendChild(menuEl);
   applyTheme(state.theme);
 
+  // 指令坞 / 右栏按钮玻璃化（含动态渲染/展开后新出现的按钮）
+  skinDockRail();
+  [400, 1200, 3000].forEach((t) => setTimeout(skinDockRail, t));
+  try {
+    let st = null;
+    const scheduleSkin = () => {
+      if (st) return;
+      st = setTimeout(() => { st = null; skinDockRail(); }, 200);
+    };
+    new MutationObserver(scheduleSkin).observe(document.body, { childList: true, subtree: true });
+  } catch { /* ignore */ }
+
   const onKey = (e) => {
     if (e.key === 'Escape' && state.open) closeMenu();
   };
@@ -170,6 +196,7 @@ if (typeof window !== 'undefined') {
     close: closeMenu,
     toggle: toggleMenu,
     setTheme: applyTheme,
+    skin: skinDockRail,
     get state() {
       return { ...state };
     },

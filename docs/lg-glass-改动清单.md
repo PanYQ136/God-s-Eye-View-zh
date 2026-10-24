@@ -121,3 +121,18 @@
 ## 6. 回滚
 
 删除 index.html 的 `<script src="/src/ui/lgGlass.js">` 一行 + style.css 的 `@import lg-glass.css` 一行，即完全还原（组件为纯新增，不侵入既有链路）。
+
+---
+
+## 扩展（第二批）：指令坞 / 右栏玻璃化 + 全屏穿透消除 + 全站层级复测
+时间：2026-10-24
+
+1. **全屏穿透修复**：玻璃菜单原有全屏 `lg-glass-backdrop`(z199, pointer-events:auto) 会整屏挡住地图/Cesium 拾取。改为 **document capture `pointerdown` 监听**，点菜单/触发按钮外即关闭 → **零全屏元素**。实测开菜单时全屏 `pointer-events!=none` 元素仅 `cesiumContainer`(地图本体)。
+2. **玻璃扩展到指令坞与右栏按钮**：新增 `.lg-glass-skin`（官方 Dark/Clear 材质按 `--lg-scale` 等比缩放、圆角用 token；`!important` 仅限 skin 内覆盖表面，**不改尺寸/定位/交互行为**）。
+   - 指令坞：`.dock-tray-toggle`(位置/视觉预设) + `#gev-voice-button`(ON/OFF) + `.gev-voice-tier-btn`(标准) = 4 枚
+   - 右栏：`.pp-toggle-btn`(HUD/密集/3D/取景/绘制/天球/清爽/泛光/锐化/画面设置 共 10) + `.pp-collapse-btn` = 11 枚
+   - **MutationObserver**（childList+subtree，200ms 去抖）对动态渲染/展开后新出现的按钮持续补挂；`window.__gevLiquidGlass.skin()` 可手动触发。
+3. **全站层级实测**（1600×900，菜单开 + 右栏展开）：全屏遮挡 **0**、同 z 交互重叠 **0**；分区严格 map<world<hud100<panel110<dock145<popup200<toast1000<devtools。
+4. **5 分辨率回归**（2560/1920/1600/1366/1280）：横向溢出 **0**、指令坞与右栏均视口内、无越界高 z 元素。
+5. **视觉复核**（GLM-4V）：坞/右栏/菜单均「磨砂统一、无错位/重叠/截断、协调美观」。
+截图：`docs/lg-glass-shots/{dock-glass,rail-glass-expanded,menu-dark-v2}.png`

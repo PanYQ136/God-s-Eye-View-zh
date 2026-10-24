@@ -245,11 +245,59 @@
 @media (prefers-reduced-motion: reduce) {
   .lg-glass,
   .lg-glass-menu,
+  .lg-glass-skin,
   .lg-glass::after,
   .lg-glass::before {
     transition: none;
   }
-  .lg-glass:active {
+  .lg-glass:active,
+  .lg-glass-skin:active {
     transform: none;
+  }
+}
+
+/* ═══ 扩展：指令坞(--z-dock:145) / 右栏(--z-panel:110) 按钮玻璃化 ═══
+   官方 Dark/Clear 材质按 --lg-scale 等比缩放（照抄数值，仅缩放 px）。
+   仅覆盖表面（背景/磨砂/描边/圆角），不改尺寸、定位、flex、交互行为。 */
+#command-dock .lg-glass-skin,
+#right-context-rail .lg-glass-skin {
+  --lg-scale: 0.28;
+  position: relative;
+  border: 0 !important;
+  border-radius: var(--radius-md) !important;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.35)),
+    linear-gradient(rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.14)) !important;
+  backdrop-filter: blur(22px) saturate(1.9);
+  -webkit-backdrop-filter: blur(22px) saturate(1.9);
+  box-shadow:
+    inset 0 calc(40px * var(--lg-scale)) calc(10px * var(--lg-scale)) calc(-40px * var(--lg-scale)) rgba(40, 40, 40, 0.4),
+    inset 0 calc(-40px * var(--lg-scale)) calc(10px * var(--lg-scale)) calc(-40px * var(--lg-scale)) rgba(40, 40, 40, 0.4),
+    inset 0 calc(40px * var(--lg-scale)) calc(30px * var(--lg-scale)) calc(-40px * var(--lg-scale)) rgba(230, 230, 230, 0.4),
+    0 1px 5px rgba(0, 0, 0, 0.28) !important;
+  transition: background var(--dur-1) var(--ease-out), transform var(--dur-1) var(--ease-out);
+}
+#command-dock .lg-glass-skin:hover,
+#right-context-rail .lg-glass-skin:hover {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.43), rgba(255, 255, 255, 0.43)),
+    linear-gradient(rgba(255, 255, 255, 0.20), rgba(255, 255, 255, 0.20)) !important;
+}
+#command-dock .lg-glass-skin:active,
+#right-context-rail .lg-glass-skin:active { transform: scale(0.97); }
+#command-dock .lg-glass-skin.is-active,
+#command-dock .lg-glass-skin[aria-pressed="true"],
+#right-context-rail .lg-glass-skin.active {
+  background:
+    linear-gradient(rgba(0, 212, 255, 0.30), rgba(0, 212, 255, 0.30)),
+    linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12)) !important;
+}
+@media (prefers-reduced-transparency: reduce) {
+  #command-dock .lg-glass-skin,
+  #right-context-rail .lg-glass-skin {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(20, 22, 30, 0.94) !important;
+    box-shadow: none !important;
   }
 }

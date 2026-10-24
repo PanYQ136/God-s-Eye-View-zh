@@ -437,3 +437,9 @@ Win11 就地升级把 Tailscale 状态弄坏：`C:\ProgramData\Tailscale\` 无 `
 **已知**：headless Chrome（`--disable-gpu`）下打开菜单会触发 Cesium `width > 0` 报错（软件渲染 + backdrop-filter 重绘导致画布瞬时 0 尺寸），headed 无此问题，核验须用 headed。
 
 > 复验（提交时独立 CDP + GLM-4V 视觉）：按钮/菜单 computed `blur(22px) saturate(1.9)`、`border 0`、菜单 `z-index:200`、遮罩 `199`、command-dock `145`/left-panel-stack `100` 未变；深/浅按钮+菜单+叠加面板截图 `docs/lg-glass-shots/`（已入库）；全分辨率 headed 图 `docs/screenshots/lg-glass/`（本地，gitignore）。
+
+## 2026-10-24 Liquid Glass 第二批扩展 + 全站层级复测
+- 全屏穿透修复：玻璃菜单去掉全屏 backdrop(z199 pe:auto)，改 document capture pointerdown 监听点外关闭 → 零全屏元素。
+- 玻璃扩到指令坞(dock-tray-toggle×2 + voice + tier)+右栏(pp-toggle-btn×10 + pp-collapse-btn)，新增 .lg-glass-skin(官方材质等比缩放/token圆角/不改尺寸交互)，MutationObserver 持续补挂。
+- 全站层级实测：打开态全屏遮挡0/同z重叠0；z分区严格。5分辨率溢出0、坞/右栏视口内、无越界高z。
+- 视觉复核(GLM-4V)：坞/右栏/菜单磨砂统一无破相。截图 docs/lg-glass-shots/。
