@@ -1,0 +1,30 @@
+/* GEV 面板窗口（拖拽/缩放）样式 gev-panel-win.css
+   删除 index.html 中本行 <link> 即回滚样式（脚本单独一行控制功能）。
+   设计：容器本身不额外加圆角/阴影/边框，保持内部卡片原有玻璃观感（避免"多余外框"）；
+        仅在悬停/拖动时给淡色虚提示，右下角提供缩放手柄。 */
+.gev-win {
+  outline: 0 solid transparent;
+  transition: outline-color .18s ease;
+  will-change: left, top, width, height;
+}
+.gev-win:hover { outline: 1px dashed rgba(0, 212, 255, .26); outline-offset: 2px; }
+.gev-win > * { min-height: 0; }
+
+/* 右下角缩放手柄 */
+.gev-win-resize {
+  position: absolute; right: 1px; bottom: 1px; width: 18px; height: 18px;
+  cursor: nwse-resize; z-index: 6; touch-action: none; border-radius: 0 0 12px 0;
+}
+.gev-win-resize::after {
+  content: ''; position: absolute; right: 4px; bottom: 4px; width: 9px; height: 9px;
+  border-right: 2px solid rgba(0, 212, 255, .5); border-bottom: 2px solid rgba(0, 212, 255, .5);
+  border-bottom-right-radius: 3px;
+}
+.gev-win:hover .gev-win-resize::after { border-color: rgba(0, 212, 255, .85); }
+
+/* 交互态 */
+.gev-win-dragging { user-select: none; cursor: move; }
+.gev-win-dragging, .gev-win-resizing { outline: 1px dashed rgba(0, 212, 255, .8) !important; outline-offset: 2px; }
+.gev-win-resizing { cursor: nwse-resize; }
+
+#gev-pw-reset:hover { border-color: #00d4ff !important; color: #fff !important; }
