@@ -160,3 +160,8 @@ p.radio-privacy { color: #9aa6ad !important; }
 label.radio-filter-label, #radio-station-meta, .radio-volume-row > span { color: #aeb6bf !important; }
 #key-setup-chip > span:nth-of-type(2) { font-size: 11px !important; }
 #gev-lang-toggle > span, span.gev-locate-text { font-size: 11px !important; }
+
+/* —— 结构/布局级收尾（已获授权改布局，保功能）：nested-cards 扁平化 + tiny-text 提到 12px —— */
+#pp-toggles > .compact.pp-header-row, #pp-toggles .pp-header-row { background: transparent !important; box-shadow: none !important; border-left: none !important; }
+#sdr-radio-card { background: transparent !important; box-shadow: none !important; border: none !important; border-radius: 0 !important; }
+#cctv-summary, #context-mode-standby > span, p.radio-privacy, #sdr-radio-card > p { font-size: 12px !important; }
