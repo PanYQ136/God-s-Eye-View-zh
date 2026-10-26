@@ -10,6 +10,12 @@
  */
 export const ARRIVAL_OBSERVATION_MS = 500;
 
+/** A measured rotation error at or above this fails the arrival check. */
+export const ARRIVAL_MAX_ERROR_DEG = 10;
+
+/** Attempts allowed when every earlier one timed out without a wrong angle. */
+export const ARRIVAL_MAX_ATTEMPTS = 2;
+
 /**
  * Observe the first completed moveEnd frame and the first subsequent reveal.
  * The settle deadline starts when moveEnd is forced, before its rotation
@@ -45,10 +51,13 @@ export function observeArrivalRotation({
       cleanup();
       resolve(result);
     };
+    // A reveal timeout keeps the settle angle it already measured, so a wrong
+    // settle frame is still visible to the caller and cannot be retried away.
     const expired = () => ({
       error: `arrival ${moveEnd ? 'reveal' : 'moveEnd'} observation exceeded ${ARRIVAL_OBSERVATION_MS} ms`,
       elapsedMs: now() - startedAt,
       moveEndMs,
+      ...(moveEnd ? { dMoveEnd: moveEnd.rotationError } : {}),
       flipFrame: -1,
     });
     const armDeadline = () => {
@@ -105,6 +114,41 @@ export function observeArrivalRotation({
   });
 }
 
+/**
+ * Whether an observation measured a rotation error over the threshold on any
+ * frame it captured, including the settle frame of a reveal that then timed
+ * out. Such an observation is a demonstrated failure, never inconclusive.
+ */
+export function arrivalAngleViolated(observation) {
+  const limit = (ARRIVAL_MAX_ERROR_DEG * Math.PI) / 180;
+  return [observation?.dMoveEnd, observation?.dReveal].some(
+    (error) => Number.isFinite(error) && error >= limit,
+  );
+}
+
+/**
+ * Observe arrival rotation, retrying only an inconclusive timeout. A wall-clock
+ * timeout means the frame landed where the idle refresh could already have
+ * repaired it, so it earns another attempt; an observation that measured a
+ * wrong angle (or succeeded) is final, so a later clean attempt can never
+ * replace it. `prepare` runs before every attempt; the result carries
+ * `attempts`.
+ */
+export async function observeArrivalRotationWithRetry({
+  prepare = async () => {},
+  observe = observeArrivalRotation,
+  maxAttempts = ARRIVAL_MAX_ATTEMPTS,
+  ...options
+}) {
+  let observed;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    await prepare();
+    observed = { ...(await observe(options)), attempts: attempt };
+    if (!observed.error || arrivalAngleViolated(observed)) break;
+  }
+  return observed;
+}
+
 /** Test the captured frames without retrying a bad first observation. */
 export function arrivalRotationPassed(observation) {
   return (
@@ -113,7 +157,8 @@ export function arrivalRotationPassed(observation) {
     observation.shown === true &&
     observation.moveEndMs < ARRIVAL_OBSERVATION_MS &&
     observation.revealMs < ARRIVAL_OBSERVATION_MS &&
-    (observation.dMoveEnd * 180) / Math.PI < 10 &&
-    (observation.dReveal * 180) / Math.PI < 10
+    Number.isFinite(observation.dMoveEnd) &&
+    Number.isFinite(observation.dReveal) &&
+    !arrivalAngleViolated(observation)
   );
 }

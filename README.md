@@ -197,7 +197,7 @@ env UID=1026 GID=100 docker compose up -d
 
 Keep the `env`: bash treats `UID` as read-only, so a plain `UID=1026` in front of a command is silently ignored. If the container can't write the checkout, it says so at start. Docker Desktop on macOS and Windows maps ownership for you.
 
-Behind a reverse proxy, put your keys in `.env` or pass them as environment variables - Provider Settings refuses proxied requests on purpose - and add the hostname you serve it on, for example `GEV_ALLOWED_HOSTS=globe.example.lan` (see [Sharing an instance](#-sharing-an-instance)).
+Behind a reverse proxy, put your keys in `.env` or pass them as environment variables - Provider Settings refuses proxied requests on purpose - and add the hostname you serve it on, for example `GEV_ALLOWED_HOSTS=globe.example.lan` (see [Sharing an instance](#-sharing-an-instance)). If the proxy runs on the same machine, make it send a forwarding header such as `X-Forwarded-For` (Caddy does by default; nginx needs `proxy_set_header`), so its users are rate-limited apart from your own browser.
 
 </details>
 

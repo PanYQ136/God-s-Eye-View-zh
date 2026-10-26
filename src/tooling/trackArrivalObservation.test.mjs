@@ -2,18 +2,20 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   ARRIVAL_OBSERVATION_MS,
+  arrivalAngleViolated,
   arrivalRotationPassed,
   observeArrivalRotation,
+  observeArrivalRotationWithRetry,
 } from './trackArrivalObservation.mjs';
 
-function fixture() {
+function fixture(start = observeArrivalRotation) {
   let time = 0;
   let state = { shown: true, rotationError: 0 };
   const listeners = new Set();
   const timers = new Map();
   let renders = 0;
   let moveEnds = 0;
-  const observation = observeArrivalRotation({
+  const observation = start({
     scene: {
       postRender: {
         addEventListener(listener) {
@@ -175,4 +177,90 @@ test('missing moveEnd frames fail without waiting for a render callback', async 
   assert.equal(arrivalRotationPassed(result), false);
   assert.equal(f.resources.listeners, 0);
   assert.equal(f.resources.timers, 0);
+});
+
+// Let a retry's next attempt register its postRender listener.
+const settle = () => new Promise((resolve) => setImmediate(resolve));
+
+function retryFixture() {
+  const counts = { prepares: 0 };
+  const f = fixture((options) =>
+    observeArrivalRotationWithRetry({
+      ...options,
+      async prepare() {
+        counts.prepares++;
+      },
+    }),
+  );
+  f.counts = counts;
+  return f;
+}
+
+test('a wrong settle angle followed by a reveal timeout is final, not retried into a pass', async () => {
+  const f = retryFixture();
+  await settle();
+  // 0.5 rad ≈ 29°: a real threshold violation on the settle frame.
+  f.frame(8, { shown: true, rotationError: 0.5 });
+  f.expire(508); // the reveal never comes inside its budget
+  await settle();
+  // An otherwise clean second attempt, which must never be started.
+  f.frame(516, { shown: true, rotationError: 0 });
+  f.frame(524, { shown: true, rotationError: 0 });
+  const result = await f.observation;
+  assert.match(result.error, /reveal.*500 ms/);
+  assert.equal(result.dMoveEnd, 0.5, 'the measured settle angle is kept');
+  assert.equal(arrivalAngleViolated(result), true);
+  assert.equal(result.attempts, 1);
+  assert.equal(f.counts.prepares, 1);
+  assert.equal(f.resources.moveEnds, 1);
+  assert.equal(arrivalRotationPassed(result), false);
+  assert.equal(f.resources.listeners, 0);
+  assert.equal(f.resources.timers, 0);
+});
+
+test('an inconclusive reveal timeout after a correct settle earns one more attempt', async () => {
+  const f = retryFixture();
+  await settle();
+  f.frame(8, { shown: true, rotationError: 0 });
+  f.expire(508);
+  await settle();
+  f.frame(516, { shown: true, rotationError: 0 });
+  f.frame(596, { shown: true, rotationError: 0 });
+  const result = await f.observation;
+  assert.equal(result.attempts, 2);
+  assert.equal(f.counts.prepares, 2);
+  assert.equal(f.resources.moveEnds, 2);
+  assert.equal(arrivalRotationPassed(result), true);
+});
+
+test('timeouts stop after the attempt limit and still fail', async () => {
+  const f = retryFixture();
+  await settle();
+  f.expire(500);
+  await settle();
+  f.expire(1000);
+  const result = await f.observation;
+  assert.match(result.error, /moveEnd.*500 ms/);
+  assert.equal(result.attempts, 2);
+  assert.equal(arrivalRotationPassed(result), false);
+  assert.equal(f.resources.listeners, 0);
+  assert.equal(f.resources.timers, 0);
+});
+
+test('a missing or non-finite angle never passes', () => {
+  const clean = {
+    shown: true,
+    moveEndMs: 8,
+    revealMs: 80,
+    dMoveEnd: 0,
+    dReveal: 0,
+  };
+  assert.equal(arrivalRotationPassed(clean), true);
+  for (const field of ['dMoveEnd', 'dReveal']) {
+    assert.equal(arrivalRotationPassed({ ...clean, [field]: NaN }), false);
+    assert.equal(
+      arrivalRotationPassed({ ...clean, [field]: undefined }),
+      false,
+    );
+  }
 });

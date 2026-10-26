@@ -4,6 +4,7 @@ import {
   clientNetworkKey,
   isLoopbackPeer,
 } from './common/rate-limit.js';
+import { hasProxySignals } from '../../src/localRequestGate.mjs';
 import { readRequestBodyCapped } from './common/request.js';
 import { admitSameSiteKeyless } from './common/same-site.js';
 import {
@@ -34,12 +35,17 @@ const _overpassInFlight = new Map();
 let _overpassConcurrent = 0;
 
 // Bound body-reading and validation work, including malformed requests and
-// cache hits, before a byte is read. Non-loopback peers share one global
-// window so address rotation cannot mint admission without bound (IPv6 peers
-// are keyed by /64 for the same reason); loopback — the owner's own browser
-// and the repo QA harnesses — has its own per-peer window outside that global,
-// so a few busy LAN peers cannot lock the owner out of the map. Keep the
-// tighter upstream budget below independent of this gate.
+// cache hits, before a byte is read. Remote peers share one global window so
+// address rotation cannot mint admission without bound (IPv6 peers are keyed
+// by /64 for the same reason). A direct loopback request — the owner's own
+// browser and the repo QA harnesses, with no forwarding headers — has its own
+// per-peer window outside that global, so busy LAN peers cannot lock the owner
+// out of the map. A request relayed by a reverse proxy on this machine also
+// arrives from loopback, but it is remote traffic: it is admitted from the
+// remote pool under its own socket-keyed bucket, never from the owner's. The
+// forwarded client address is not trusted as identity. Only admission is
+// isolated: the upstream budget below (90/min per key, 300/min globally) is
+// shared, so an owner request that misses cache can still be refused there.
 const OVERPASS_ADMISSION_WINDOW = { windowMs: 60_000, max: 300 };
 const _overpassLoopbackAdmission = makeRateLimiter(OVERPASS_ADMISSION_WINDOW);
 const _overpassPeerAdmission = makeRateLimiter({
@@ -54,17 +60,30 @@ const _overpassRateLimiter = makeRateLimiter({
 });
 
 /**
- * Spend one admission slot for this request's peer; false when it is over its
- * window (or, for a non-loopback peer, when the shared global window is full).
+ * Classify a request for admission. Direct loopback — a loopback socket with
+ * no forwarding header — is the owner's own pool; everything else, including a
+ * loopback socket that carries forwarding headers (a local reverse proxy), is
+ * remote. A proxied request keeps its socket identity under a `proxied:`
+ * prefix, so it never shares a bucket with the owner's direct requests.
  * @param {import('http').IncomingMessage} req
- * @param {string} peer - `clientNetworkKey(req)`.
+ * @returns {{direct: boolean, key: string}}
+ */
+function overpassAdmissionClass(req) {
+  const peer = clientNetworkKey(req);
+  if (!isLoopbackPeer(clientKey(req))) return { direct: false, key: peer };
+  if (hasProxySignals(req.headers || {}))
+    return { direct: false, key: `proxied:${peer}` };
+  return { direct: true, key: peer };
+}
+
+/**
+ * Spend one admission slot for this request; false when its bucket is over its
+ * window (or, for remote traffic, when the shared global window is full).
+ * @param {{direct: boolean, key: string}} admission - `overpassAdmissionClass(req)`.
  * @returns {boolean}
  */
-function admitOverpassRequest(req, peer) {
-  const admit = isLoopbackPeer(clientKey(req))
-    ? _overpassLoopbackAdmission
-    : _overpassPeerAdmission;
-  return admit(peer);
+function admitOverpassRequest({ direct, key }) {
+  return (direct ? _overpassLoopbackAdmission : _overpassPeerAdmission)(key);
 }
 
 /**
@@ -133,8 +152,8 @@ function overpassProxy({ routing = {} } = {}) {
         // adds — the layers that depend on Overpass must keep working for an
         // instance deployed the way the README documents.
         if (admitSameSiteKeyless(req, res)) return;
-        const peer = clientNetworkKey(req);
-        if (!admitOverpassRequest(req, peer)) {
+        const admission = overpassAdmissionClass(req);
+        if (!admitOverpassRequest(admission)) {
           res.writeHead(429, {
             'Content-Type': 'application/json',
             'Cache-Control': 'no-store',
@@ -193,7 +212,7 @@ function overpassProxy({ routing = {} } = {}) {
           // requests; boundary-class queries keep their month-long TTL.
           readDisk: () =>
             readOverpassDisk(cacheKey, overpassDiskTtlMs(cacheKey)),
-          allowUpstream: () => _overpassRateLimiter(peer),
+          allowUpstream: () => _overpassRateLimiter(admission.key),
         });
         if (preflight.source === 'RATE_LIMITED') {
           res.writeHead(429, {

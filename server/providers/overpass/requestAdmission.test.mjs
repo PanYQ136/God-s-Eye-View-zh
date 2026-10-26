@@ -320,3 +320,71 @@ test('cache hits spend admission budget but not the 90/min upstream budget', asy
   assert.equal(exhausted.statusCode, 429, 'hits spent the admission window');
   assert.equal(exhausted.reads, 0);
 });
+
+test('a local reverse proxy cannot spend the direct-loopback reserve; owner cache hits survive it', async (t) => {
+  let now = Date.now() + 14_400_000;
+  t.mock.method(Date, 'now', () => now);
+  const prior = process.env.OVERPASS_UPSTREAMS;
+  process.env.OVERPASS_UPSTREAMS = 'https://overpass.example/api/interpreter';
+  const hit = 'node(around:20,3,3);out;';
+  const hitKey = `data=${encodeURIComponent(hit)}`;
+  t.after(() => {
+    if (prior === undefined) delete process.env.OVERPASS_UPSTREAMS;
+    else process.env.OVERPASS_UPSTREAMS = prior;
+    _overpassCache.delete(hitKey);
+  });
+  t.mock.method(globalThis, 'fetch', () =>
+    assert.fail('unexpected upstream fetch'),
+  );
+  _overpassCache.set(hitKey, {
+    status: 200,
+    body: '{"elements":[]}',
+    contentType: 'application/json',
+    endpoint: 'https://overpass.example/api/interpreter',
+    cachedAt: now,
+  });
+  const route = handler();
+  // The proxy connects over loopback; a rotating forwarded client address
+  // must not mint fresh buckets, so all 300 land in one socket-keyed bucket.
+  const proxied = (i) => ({
+    peer: '127.0.0.1',
+    headers: { 'x-forwarded-for': `203.0.113.${i % 250}` },
+    body: form(hit),
+  });
+  for (let i = 0; i < 300; i++) {
+    assert.equal((await call(route, proxied(i))).statusCode, 200);
+  }
+  const refused = await call(route, { ...proxied(300), forbidRead: true });
+  assert.equal(refused.statusCode, 429, 'the proxy bucket is exhausted');
+  assert.equal(refused.reads, 0);
+  for (const peer of ['127.0.0.1', '::1']) {
+    const owner = await call(route, { peer, body: form(hit) });
+    assert.equal(owner.statusCode, 200, `direct ${peer} is still admitted`);
+    assert.equal(owner.headers['x-overpass-cache'], 'HIT');
+  }
+  now += 60_001;
+  assert.equal((await call(route, proxied(0))).statusCode, 200);
+});
+
+test('proxied loopback traffic draws on the shared remote global window', async (t) => {
+  let now = Date.now() + 18_000_000;
+  t.mock.method(Date, 'now', () => now);
+  t.mock.method(globalThis, 'fetch', () =>
+    assert.fail('unexpected upstream fetch'),
+  );
+  const route = handler();
+  for (const peer of ['10.0.0.1', '10.0.0.2']) {
+    for (let i = 0; i < 300; i++) {
+      assert.equal((await call(route, { peer })).statusCode, 400, peer);
+    }
+  }
+  for (let i = 0; i < 300; i++) {
+    assert.equal(
+      (await call(route, { headers: { via: '1.1 proxy' } })).statusCode,
+      400,
+    );
+  }
+  const starved = await call(route, { peer: '10.0.0.3', forbidRead: true });
+  assert.equal(starved.statusCode, 429, 'proxied requests counted globally');
+  assert.equal((await call(route, {})).statusCode, 400, 'owner unaffected');
+});

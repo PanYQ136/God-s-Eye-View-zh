@@ -2708,7 +2708,7 @@ async function main() {
       const v = window.__godsEyeView.viewer;
       const dm = window.__godsEyeView.dataManager;
       const { screenProjectedRotation } = await import(`${window.__gevQaSourceBase || '/src'}/data/iconOrientation.js`);
-      const { observeArrivalRotation } = await import(`${window.__gevQaSourceBase || '/src'}/tooling/trackArrivalObservation.mjs`);
+      const { observeArrivalRotationWithRetry } = await import(`${window.__gevQaSourceBase || '/src'}/tooling/trackArrivalObservation.mjs`);
       // 3D models OFF for this phase: a model-handed-off billboard is hidden
       // and skips rotation updates entirely — the probes need live billboards
       // (this is also the app's default state the field report came from).
@@ -2774,39 +2774,39 @@ async function main() {
         // A wall-clock timeout is inconclusive, not a wrong angle: the frame
         // landed where the 1 s idle refresh could already have repaired it
         // (seen once on headless SwiftShader: a 926 ms first frame). Such an
-        // observation gets one more attempt; a wrong first angle never does.
-        let observed;
-        for (let attempt = 1; attempt <= 2; attempt++) {
-          // Freshen both layers' rotation passes right before the probe, so the
-          // settle frame is measured against a pass that just ran rather than
-          // one left over from the previous probe — with the camera idle, a
-          // layer otherwise runs a pass only every ROTATION_REFRESH_MS.
-          v.camera.moveEnd.raiseEvent();
-          await nextFrames(1);
-          observed = await observeArrivalRotation({
-            scene: v.scene,
-            startMoveEnd() {
-              // Only moveEnd can repair the tampered angle at the idle pose.
-              bb.rotation = r0 + 1.5;
-              v.camera.moveEnd.raiseEvent();
-            },
-            startReveal() {
-              // Hide immediately after the confirmed settle frame. The next
-              // eligible fleet tick must reveal AND re-aim in that same tick.
-              bb.rotation = r0 + 1.5;
-              bb.show = false;
-            },
-            read() {
-              return {
-                shown: bb.show,
-                rotationError: angDiff(bb.rotation,
-                  screenProjectedRotation(v.scene, bb.position, course, null)),
-              };
-            },
-          });
-          observed.attempts = attempt;
-          if (!observed.error) break;
-        }
+        // observation gets one more attempt; one that measured a wrong angle —
+        // a wrong first reveal, or a wrong settle frame before a reveal
+        // timeout — never does.
+        const observed = await observeArrivalRotationWithRetry({
+          async prepare() {
+            // Freshen both layers' rotation passes right before the probe, so
+            // the settle frame is measured against a pass that just ran rather
+            // than one left over from the previous probe — with the camera
+            // idle, a layer otherwise runs a pass only every
+            // ROTATION_REFRESH_MS.
+            v.camera.moveEnd.raiseEvent();
+            await nextFrames(1);
+          },
+          scene: v.scene,
+          startMoveEnd() {
+            // Only moveEnd can repair the tampered angle at the idle pose.
+            bb.rotation = r0 + 1.5;
+            v.camera.moveEnd.raiseEvent();
+          },
+          startReveal() {
+            // Hide immediately after the confirmed settle frame. The next
+            // eligible fleet tick must reveal AND re-aim in that same tick.
+            bb.rotation = r0 + 1.5;
+            bb.show = false;
+          },
+          read() {
+            return {
+              shown: bb.show,
+              rotationError: angDiff(bb.rotation,
+                screenProjectedRotation(v.scene, bb.position, course, null)),
+            };
+          },
+        });
         return { r0, ...observed, hasModel };
       };
       const flightCourse = window.__SYNTH.flights.find((f) => f.icao === 'aaa002')?.track ?? 0;
@@ -2816,7 +2816,7 @@ async function main() {
         military: await probe('bbb101', militaryCourse),
       };
     });
-    const fmtArr = (a) => (!a ? `no result (${arrival?.error || 'phase error'})` : a.error ? `${a.error}; elapsed=${Number(a.elapsedMs).toFixed(1)} ms attempts=${a.attempts}`
+    const fmtArr = (a) => (!a ? `no result (${arrival?.error || 'phase error'})` : a.error ? `${a.error}; ${Number.isFinite(a.dMoveEnd) ? `settle-err=${(a.dMoveEnd * 180 / Math.PI).toFixed(1)}° ` : ''}elapsed=${Number(a.elapsedMs).toFixed(1)} ms attempts=${a.attempts}`
       : `settle-err=${(a.dMoveEnd * 180 / Math.PI).toFixed(1)}° reveal-err=${(a.dReveal * 180 / Math.PI).toFixed(1)}° shown=${a.shown} flipFrame=${a.flipFrame} settle=${a.moveEndMs.toFixed(1)} ms reveal=${a.revealMs.toFixed(1)} ms total=${a.elapsedMs.toFixed(1)} ms attempts=${a.attempts} hasModel=${a.hasModel}`);
     const TAMPER_DEG = 1.5 * 180 / Math.PI; // ≈ 86° — an uncorrected nose stays this far off
     record(`arrival: moveEnd + first reveal both re-aim before idle refresh, flights (tamper was ${TAMPER_DEG.toFixed(0)}°)`,
