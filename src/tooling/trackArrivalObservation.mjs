@@ -51,13 +51,21 @@ export function observeArrivalRotation({
       cleanup();
       resolve(result);
     };
-    // A reveal timeout keeps the settle angle it already measured, so a wrong
-    // settle frame is still visible to the caller and cannot be retried away.
-    const expired = () => ({
+    // A timeout keeps every angle it measured: the settle angle before a
+    // reveal timeout, and the angle on a late frame itself (a late frame is
+    // read first; the idle refresh can only repair an angle, so a wrong one
+    // seen late was wrong on time too). `arrivalAngleViolated` then makes the
+    // timeout final instead of retryable.
+    const expired = (late = null) => ({
       error: `arrival ${moveEnd ? 'reveal' : 'moveEnd'} observation exceeded ${ARRIVAL_OBSERVATION_MS} ms`,
       elapsedMs: now() - startedAt,
       moveEndMs,
-      ...(moveEnd ? { dMoveEnd: moveEnd.rotationError } : {}),
+      ...(moveEnd
+        ? { dMoveEnd: moveEnd.rotationError }
+        : late
+          ? { dMoveEnd: late.rotationError }
+          : {}),
+      ...(moveEnd && late?.shown ? { dReveal: late.rotationError } : {}),
       flipFrame: -1,
     });
     const armDeadline = () => {
@@ -69,11 +77,11 @@ export function observeArrivalRotation({
       try {
         const at = now();
         const elapsedMs = at - startedAt;
+        const sample = read();
         if (at - phaseStartedAt >= ARRIVAL_OBSERVATION_MS) {
-          finish(expired());
+          finish(expired(sample));
           return;
         }
-        const sample = read();
         if (moveEnd === null) {
           moveEnd = sample;
           moveEndMs = elapsedMs;

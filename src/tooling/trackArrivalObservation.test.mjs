@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import * as arrivalModule from './trackArrivalObservation.mjs';
 import {
   ARRIVAL_OBSERVATION_MS,
   arrivalAngleViolated,
@@ -182,11 +184,12 @@ test('missing moveEnd frames fail without waiting for a render callback', async 
 // Let a retry's next attempt register its postRender listener.
 const settle = () => new Promise((resolve) => setImmediate(resolve));
 
-function retryFixture() {
+function retryFixture(extra = {}) {
   const counts = { prepares: 0 };
   const f = fixture((options) =>
     observeArrivalRotationWithRetry({
       ...options,
+      ...extra,
       async prepare() {
         counts.prepares++;
       },
@@ -263,4 +266,93 @@ test('a missing or non-finite angle never passes', () => {
       false,
     );
   }
+});
+
+test('a wrong angle on a late reveal frame is final, not retried into a pass', async () => {
+  const f = retryFixture();
+  await settle();
+  f.frame(100, { shown: true, rotationError: 0 });
+  // Shown at 600 ms (500 ms after settle) still wearing the tampered nose.
+  f.frame(600, { shown: true, rotationError: 1.5 });
+  await settle();
+  f.frame(608, { shown: true, rotationError: 0 });
+  f.frame(688, { shown: true, rotationError: 0 });
+  const result = await f.observation;
+  assert.match(result.error, /reveal.*500 ms/);
+  assert.equal(result.dReveal, 1.5);
+  assert.equal(result.attempts, 1);
+  assert.equal(f.resources.moveEnds, 1);
+  assert.equal(arrivalRotationPassed(result), false);
+});
+
+test('a wrong angle on a late settle frame is final, not retried into a pass', async () => {
+  const f = retryFixture();
+  await settle();
+  f.frame(926, { shown: true, rotationError: 1.5 });
+  await settle();
+  f.frame(934, { shown: true, rotationError: 0 });
+  f.frame(1014, { shown: true, rotationError: 0 });
+  const result = await f.observation;
+  assert.match(result.error, /moveEnd.*500 ms/);
+  assert.equal(result.dMoveEnd, 1.5);
+  assert.equal(result.attempts, 1);
+  assert.equal(arrivalRotationPassed(result), false);
+});
+
+test('a late frame with correct angles stays an inconclusive, retryable timeout', async () => {
+  const f = retryFixture();
+  await settle();
+  f.frame(926, { shown: true, rotationError: 0 });
+  await settle();
+  f.frame(934, { shown: true, rotationError: 0 });
+  f.frame(1014, { shown: true, rotationError: 0 });
+  const result = await f.observation;
+  assert.equal(result.attempts, 2);
+  assert.equal(arrivalRotationPassed(result), true);
+});
+
+test('a wrong first reveal on time is final: no retry', async () => {
+  const f = retryFixture();
+  await settle();
+  f.frame(8, { shown: true, rotationError: 0 });
+  f.frame(88, { shown: true, rotationError: 1.5 });
+  const result = await f.observation;
+  assert.equal(result.error, undefined);
+  assert.equal(result.attempts, 1);
+  assert.equal(f.resources.moveEnds, 1);
+  assert.equal(arrivalRotationPassed(result), false);
+});
+
+test('maxAttempts bounds inconclusive retries', async () => {
+  const f = retryFixture({ maxAttempts: 3 });
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    await settle();
+    f.expire(attempt * 500);
+  }
+  const result = await f.observation;
+  assert.equal(result.attempts, 3);
+  assert.equal(f.counts.prepares, 3);
+  assert.equal(arrivalRotationPassed(result), false);
+});
+
+test('the 10° limit is inclusive', () => {
+  const limit = Math.PI / 18;
+  assert.equal(arrivalAngleViolated({ dMoveEnd: limit }), true);
+  assert.equal(arrivalAngleViolated({ dReveal: limit * 0.999 }), false);
+});
+
+test('every name the track harness imports from this module is exported', () => {
+  const harness = readFileSync(
+    new URL('../../scripts/track-regression.mjs', import.meta.url),
+    'utf8',
+  );
+  const names = [
+    ...harness.matchAll(
+      /(?:import|const)\s*\{([^}]+)\}\s*(?:from\s*|=\s*await import\()[^;]*trackArrivalObservation\.mjs/g,
+    ),
+  ].flatMap((match) => match[1].split(',').map((name) => name.trim()));
+  assert.ok(names.includes('arrivalRotationPassed'));
+  assert.ok(names.includes('observeArrivalRotationWithRetry'));
+  for (const name of names)
+    assert.equal(typeof arrivalModule[name], 'function', name);
 });

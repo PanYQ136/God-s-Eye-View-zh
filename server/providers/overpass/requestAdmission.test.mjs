@@ -8,6 +8,17 @@ import { sanitizeOverpassBody } from './query.js';
 
 const form = (query) => `data=${encodeURIComponent(query)}`;
 
+// The limiters are module-level, so every test that spends admission mocks a
+// clock a full day past the previous one in execution order: no test can see
+// another's window, whatever order (or randomization) they run in.
+let clockBase = Date.now() + 86_400_000;
+function freshClock(t) {
+  clockBase += 86_400_000;
+  const clock = { now: clockBase };
+  t.mock.method(Date, 'now', () => clock.now);
+  return clock;
+}
+
 test('bracket validation rejects malformed filters without trusting their contents as bounds', () => {
   for (const query of [
     'node[',
@@ -152,7 +163,8 @@ for (const hook of ['configureServer', 'configurePreviewServer']) {
   });
 }
 
-test('same-origin, LAN, proxied and non-browser requests still reach validation; GET status stays available', async () => {
+test('same-origin, LAN, proxied and non-browser requests still reach validation; GET status stays available', async (t) => {
+  freshClock(t);
   const route = handler();
   for (const headers of [
     {},
@@ -185,8 +197,7 @@ test('same-origin, LAN, proxied and non-browser requests still reach validation;
 });
 
 test('invalid requests spend admission quota before parsing, including on an unconfigured server', async (t) => {
-  let now = Date.now() + 120000;
-  t.mock.method(Date, 'now', () => now);
+  const clock = freshClock(t);
   t.mock.method(globalThis, 'fetch', () =>
     assert.fail('unexpected upstream fetch'),
   );
@@ -200,16 +211,12 @@ test('invalid requests spend admission quota before parsing, including on an unc
   assert.equal(denied.reads, 0);
   assert.equal(denied.headers['retry-after'], '60');
   assert.equal((await call(route, { peer: 'other-peer' })).statusCode, 400);
-  now += 60001;
+  clock.now += 60_001;
   assert.equal((await call(route, { peer })).statusCode, 400);
 });
 
-// Each limiter test mocks Date.now well past the previous test's window so the
-// module-level limiters start from an empty window.
-
 test('the 900/min global window spans non-loopback peers only; loopback keeps its own window', async (t) => {
-  let now = Date.now() + 3_600_000;
-  t.mock.method(Date, 'now', () => now);
+  const clock = freshClock(t);
   t.mock.method(globalThis, 'fetch', () =>
     assert.fail('unexpected upstream fetch'),
   );
@@ -227,13 +234,12 @@ test('the 900/min global window spans non-loopback peers only; loopback keeps it
     assert.equal(owner.statusCode, 400, `${peer} is admitted past the global`);
     assert.equal(owner.reads, 1);
   }
-  now += 60_001;
+  clock.now += 60_001;
   assert.equal((await call(route, { peer: '10.0.0.4' })).statusCode, 400);
 });
 
 test('IPv6 peers share a /64 admission bucket and IPv4-mapped peers fold to IPv4', async (t) => {
-  let now = Date.now() + 7_200_000;
-  t.mock.method(Date, 'now', () => now);
+  const clock = freshClock(t);
   t.mock.method(globalThis, 'fetch', () =>
     assert.fail('unexpected upstream fetch'),
   );
@@ -262,13 +268,12 @@ test('IPv6 peers share a /64 admission bucket and IPv4-mapped peers fold to IPv4
   }
   const unmapped = await call(route, { peer: '10.1.1.1', forbidRead: true });
   assert.equal(unmapped.statusCode, 429, 'mapped and bare IPv4 share a bucket');
-  now += 60_001;
+  clock.now += 60_001;
   assert.equal((await call(route, { peer: '10.1.1.1' })).statusCode, 400);
 });
 
 test('cache hits spend admission budget but not the 90/min upstream budget', async (t) => {
-  let now = Date.now() + 10_800_000;
-  t.mock.method(Date, 'now', () => now);
+  const clock = freshClock(t);
   const prior = process.env.OVERPASS_UPSTREAMS;
   process.env.OVERPASS_UPSTREAMS = 'https://overpass.example/api/interpreter';
   t.after(() => {
@@ -289,7 +294,7 @@ test('cache hits spend admission budget but not the 90/min upstream budget', asy
     body: '{"elements":[]}',
     contentType: 'application/json',
     endpoint: 'https://overpass.example/api/interpreter',
-    cachedAt: now,
+    cachedAt: clock.now,
   });
   const route = handler();
   const peer = '10.7.7.7';
@@ -322,8 +327,7 @@ test('cache hits spend admission budget but not the 90/min upstream budget', asy
 });
 
 test('a local reverse proxy cannot spend the direct-loopback reserve; owner cache hits survive it', async (t) => {
-  let now = Date.now() + 14_400_000;
-  t.mock.method(Date, 'now', () => now);
+  const clock = freshClock(t);
   const prior = process.env.OVERPASS_UPSTREAMS;
   process.env.OVERPASS_UPSTREAMS = 'https://overpass.example/api/interpreter';
   const hit = 'node(around:20,3,3);out;';
@@ -341,34 +345,35 @@ test('a local reverse proxy cannot spend the direct-loopback reserve; owner cach
     body: '{"elements":[]}',
     contentType: 'application/json',
     endpoint: 'https://overpass.example/api/interpreter',
-    cachedAt: now,
+    cachedAt: clock.now,
   });
   const route = handler();
   // The proxy connects over loopback; a rotating forwarded client address
   // must not mint fresh buckets, so all 300 land in one socket-keyed bucket.
-  const proxied = (i) => ({
-    peer: '127.0.0.1',
-    headers: { 'x-forwarded-for': `203.0.113.${i % 250}` },
-    body: form(hit),
-  });
-  for (let i = 0; i < 300; i++) {
-    assert.equal((await call(route, proxied(i))).statusCode, 200);
+  for (const proxyPeer of ['127.0.0.1', '::1', '::ffff:127.0.0.1']) {
+    const proxied = (i) => ({
+      peer: proxyPeer,
+      headers: { 'x-forwarded-for': `203.0.113.${i % 250}` },
+      body: form(hit),
+    });
+    for (let i = 0; i < 300; i++) {
+      assert.equal((await call(route, proxied(i))).statusCode, 200, proxyPeer);
+    }
+    const refused = await call(route, { ...proxied(300), forbidRead: true });
+    assert.equal(refused.statusCode, 429, `${proxyPeer} proxy bucket is full`);
+    assert.equal(refused.reads, 0);
+    for (const peer of ['127.0.0.1', '::1']) {
+      const owner = await call(route, { peer, body: form(hit) });
+      assert.equal(owner.statusCode, 200, `direct ${peer} is still admitted`);
+      assert.equal(owner.headers['x-overpass-cache'], 'HIT');
+    }
+    clock.now += 60_001;
+    assert.equal((await call(route, proxied(0))).statusCode, 200);
   }
-  const refused = await call(route, { ...proxied(300), forbidRead: true });
-  assert.equal(refused.statusCode, 429, 'the proxy bucket is exhausted');
-  assert.equal(refused.reads, 0);
-  for (const peer of ['127.0.0.1', '::1']) {
-    const owner = await call(route, { peer, body: form(hit) });
-    assert.equal(owner.statusCode, 200, `direct ${peer} is still admitted`);
-    assert.equal(owner.headers['x-overpass-cache'], 'HIT');
-  }
-  now += 60_001;
-  assert.equal((await call(route, proxied(0))).statusCode, 200);
 });
 
 test('proxied loopback traffic draws on the shared remote global window', async (t) => {
-  let now = Date.now() + 18_000_000;
-  t.mock.method(Date, 'now', () => now);
+  const clock = freshClock(t);
   t.mock.method(globalThis, 'fetch', () =>
     assert.fail('unexpected upstream fetch'),
   );
@@ -387,4 +392,35 @@ test('proxied loopback traffic draws on the shared remote global window', async 
   const starved = await call(route, { peer: '10.0.0.3', forbidRead: true });
   assert.equal(starved.statusCode, 429, 'proxied requests counted globally');
   assert.equal((await call(route, {})).statusCode, 400, 'owner unaffected');
+});
+
+test("a local proxy has its own upstream bucket, so its misses cannot spend the owner's", async (t) => {
+  freshClock(t);
+  const prior = process.env.OVERPASS_UPSTREAMS;
+  process.env.OVERPASS_UPSTREAMS = 'https://overpass.example/api/interpreter';
+  t.after(() => {
+    if (prior === undefined) delete process.env.OVERPASS_UPSTREAMS;
+    else process.env.OVERPASS_UPSTREAMS = prior;
+  });
+  // Not data: nothing is cached, so every request below is a miss.
+  t.mock.method(
+    globalThis,
+    'fetch',
+    async () => new Response('upstream unavailable', { status: 503 }),
+  );
+  const route = handler();
+  const miss = form('node(around:20,4,4);out;');
+  // The upstream limiter's own refusal is the only miss without this header.
+  const passedLimiter = (response) =>
+    response.headers['x-overpass-cache'] !== undefined;
+  const proxied = { peer: '127.0.0.1', headers: { via: '1.1 proxy' } };
+  for (let i = 0; i < 90; i++) {
+    const response = await call(route, { ...proxied, body: miss });
+    assert.equal(passedLimiter(response), true, `proxied miss ${i}`);
+  }
+  const spent = await call(route, { ...proxied, body: miss });
+  assert.equal(spent.statusCode, 429);
+  assert.equal(passedLimiter(spent), false, 'the proxy bucket is spent');
+  const owner = await call(route, { peer: '127.0.0.1', body: miss });
+  assert.equal(passedLimiter(owner), true, 'the owner keeps its own bucket');
 });

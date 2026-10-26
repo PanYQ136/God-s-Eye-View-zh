@@ -7,7 +7,7 @@
   exhaust the owner's admission. The upstream budget stays shared, so an owner
   cache miss can still be rate-limited (asturksever, #1308).
 - Give the tracking arrival check a wall-clock budget per observed frame and
-  retry only an inconclusive timeout: a measured wrong settle angle is kept
-  through a reveal timeout and fails without retry, so slow software-rendered
+  retry only an inconclusive timeout: a timeout keeps every angle it
+  measured, including a late frame's, and a wrong one fails without retry, so slow software-rendered
   frames no longer fail the check and a real violation is never retried into a
   pass (asturksever, #1308).
