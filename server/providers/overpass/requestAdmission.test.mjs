@@ -10,7 +10,9 @@ const form = (query) => `data=${encodeURIComponent(query)}`;
 
 // The limiters are module-level, so every test that spends admission mocks a
 // clock a full day past the previous one in execution order: no test can see
-// another's window, whatever order (or randomization) they run in.
+// another's window, whatever order (or randomization) they run in. A new
+// test that reaches admission must call it too: earlier tests leave
+// timestamps days ahead of the real clock, and those still count.
 let clockBase = Date.now() + 86_400_000;
 function freshClock(t) {
   clockBase += 86_400_000;

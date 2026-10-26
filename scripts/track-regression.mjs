@@ -94,7 +94,7 @@
 
 import fs from 'node:fs';
 import puppeteer from 'puppeteer';
-import { arrivalRotationPassed } from '../src/tooling/trackArrivalObservation.mjs';
+import { arrivalAngleViolated, arrivalRotationPassed } from '../src/tooling/trackArrivalObservation.mjs';
 import { classifyAircraft, CLASS_SCALE_3D, CLASS_MODEL_REAL } from '../src/data/aircraftClass.js';
 import { ensureGeoidReady, geoidHeight } from '../src/data/geoid.js';
 
@@ -2816,7 +2816,7 @@ async function main() {
         military: await probe('bbb101', militaryCourse),
       };
     });
-    const fmtArr = (a) => (!a ? `no result (${arrival?.error || 'phase error'})` : a.error ? `${a.error}; ${Number.isFinite(a.dMoveEnd) ? `settle-err=${(a.dMoveEnd * 180 / Math.PI).toFixed(1)}° ` : ''}elapsed=${Number(a.elapsedMs).toFixed(1)} ms attempts=${a.attempts}`
+    const fmtArr = (a) => (!a ? `no result (${arrival?.error || 'phase error'})` : a.error ? `${a.error}; ${arrivalAngleViolated(a) ? 'angle violation (not retried); ' : ''}${Number.isFinite(a.dMoveEnd) ? `settle-err=${(a.dMoveEnd * 180 / Math.PI).toFixed(1)}° ` : ''}${Number.isFinite(a.dReveal) ? `reveal-err=${(a.dReveal * 180 / Math.PI).toFixed(1)}° ` : ''}elapsed=${Number(a.elapsedMs).toFixed(1)} ms attempts=${a.attempts}`
       : `settle-err=${(a.dMoveEnd * 180 / Math.PI).toFixed(1)}° reveal-err=${(a.dReveal * 180 / Math.PI).toFixed(1)}° shown=${a.shown} flipFrame=${a.flipFrame} settle=${a.moveEndMs.toFixed(1)} ms reveal=${a.revealMs.toFixed(1)} ms total=${a.elapsedMs.toFixed(1)} ms attempts=${a.attempts} hasModel=${a.hasModel}`);
     const TAMPER_DEG = 1.5 * 180 / Math.PI; // ≈ 86° — an uncorrected nose stays this far off
     record(`arrival: moveEnd + first reveal both re-aim before idle refresh, flights (tamper was ${TAMPER_DEG.toFixed(0)}°)`,

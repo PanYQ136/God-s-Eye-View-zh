@@ -299,6 +299,22 @@ test('a wrong angle on a late settle frame is final, not retried into a pass', a
   assert.equal(arrivalRotationPassed(result), false);
 });
 
+test('a late hidden reveal frame records no angle and stays retryable', async () => {
+  const f = retryFixture();
+  await settle();
+  f.frame(8, { shown: true, rotationError: 0 });
+  // Still hidden, still tampered: not a measured reveal angle.
+  f.frame(600, { shown: false });
+  const first = f.observation;
+  await settle();
+  f.frame(608, { shown: true, rotationError: 0 });
+  f.frame(688, { shown: true, rotationError: 0 });
+  const result = await first;
+  assert.equal(result.attempts, 2);
+  assert.equal(result.dReveal, 0);
+  assert.equal(arrivalRotationPassed(result), true);
+});
+
 test('a late frame with correct angles stays an inconclusive, retryable timeout', async () => {
   const f = retryFixture();
   await settle();
