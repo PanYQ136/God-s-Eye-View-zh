@@ -22,7 +22,14 @@
   },
   "viewer": {
     "exports": ["./application/viewer"],
-    "modules": ["src/app/viewer.js", "src/app/atmosphereCompat.js"],
+    "modules": [
+      "src/app/viewer.js",
+      "src/app/atmosphereCompat.js",
+      "src/sky/starrySky.js",
+      "src/sky/stars.js",
+      "src/data/bundledJson.js",
+      "src/renderGovernor.js"
+    ],
     "external": ["cesium"]
   },
   "vite-build": {
@@ -96,6 +103,9 @@
     "modules": [
       "server/providers/space.js",
       "server/providers/space/celestrak.js",
+      "server/providers/common/same-site.js",
+      "src/localRequestGate.mjs",
+      "server/providers/space/cooldown.js",
       "server/providers/space/launch-library.js",
       "server/providers/common/http.js",
       "src/data/spaceProviderRequests.js",
@@ -187,6 +197,8 @@
     "exports": ["./server/providers/cctv"],
     "modules": [
       "server/providers/cctv.js",
+      "server/providers/common/same-site.js",
+      "src/localRequestGate.mjs",
       "server/providers/cctv/cap.js",
       "server/providers/cctv/groundHeights.js",
       "server/providers/cctv/catalog.js",
@@ -428,7 +440,8 @@
       "src/i18n/index.js",
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
-      "src/i18n/locales/ru.json"
+      "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json"
     ],
     "external": []
   },
@@ -453,7 +466,8 @@
       "src/i18n/index.js",
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
-      "src/i18n/locales/ru.json"
+      "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json"
     ],
     "external": ["cesium"]
   },
@@ -469,7 +483,8 @@
       "src/i18n/index.js",
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
-      "src/i18n/locales/ru.json"
+      "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json"
     ],
     "external": []
   },
@@ -498,6 +513,7 @@
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
       "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json",
       "src/ui/unitLabels.js",
       "src/ui/keyGuidance.js",
       "src/ui/statusText.js",
@@ -517,7 +533,8 @@
       "src/i18n/index.js",
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
-      "src/i18n/locales/ru.json"
+      "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json"
     ],
     "external": []
   },
@@ -532,7 +549,8 @@
       "src/i18n/index.js",
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
-      "src/i18n/locales/ru.json"
+      "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json"
     ],
     "external": []
   },
@@ -551,6 +569,7 @@
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
       "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json",
       "src/ui/unitLabels.js",
       "src/ui/statusBadge.js"
     ],
@@ -576,6 +595,7 @@
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
       "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json",
       "src/ui/layerNames.js"
     ],
     "external": []
@@ -609,6 +629,7 @@
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
       "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json",
       "src/ui/unitLabels.js"
     ],
     "external": ["cesium"]
@@ -624,6 +645,7 @@
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
       "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json",
       "src/ui/unitLabels.js"
     ],
     "external": []
@@ -632,6 +654,8 @@
     "exports": ["./ui/shell"],
     "modules": [
       "src/i18n/marker.js",
+      "src/ui/mobileShell.js",
+      "src/exclusiveSurfaces.js",
       "src/ui/placeNames.js",
       "src/hudLayouts.js",
       "src/hudLayoutPolicy.js",
@@ -776,11 +800,13 @@
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
       "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json",
       "src/ui/unitLabels.js",
       "src/ui/keyGuidance.js",
       "src/ui/layerNames.js",
       "src/ui/statusText.js",
-      "src/ui/statusBadge.js"
+      "src/ui/statusBadge.js",
+      "src/scopeMaskPolicy.js"
     ],
     "external": ["cesium"]
   },
@@ -895,6 +921,7 @@
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
       "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json",
       "src/ui/unitLabels.js"
     ],
     "external": ["cesium"]
@@ -931,6 +958,7 @@
       "src/data/layerState.js",
       "src/data/layerStateTokenReservations.json",
       "src/data/modelVisualAnchor.js",
+      "src/data/aircraftModelLighting.js",
       "src/data/motionModel.js",
       "src/data/renderAltitude.js",
       "src/data/routePlausible.js",
@@ -960,6 +988,7 @@
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
       "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json",
       "src/ui/unitLabels.js"
     ],
     "external": ["cesium"]
@@ -982,6 +1011,7 @@
       "src/data/layerState.js",
       "src/data/layerStateTokenReservations.json",
       "src/data/modelVisualAnchor.js",
+      "src/data/aircraftModelLighting.js",
       "src/data/motionModel.js",
       "src/data/renderAltitude.js",
       "src/data/trackedModelRegime.js",
@@ -1005,7 +1035,8 @@
       "src/i18n/index.js",
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
-      "src/i18n/locales/ru.json"
+      "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json"
     ],
     "external": ["cesium"]
   },
@@ -1026,6 +1057,7 @@
       "src/data/layerStateCoordinator.js",
       "src/data/layerStateTokenReservations.json",
       "src/data/modelVisualAnchor.js",
+      "src/data/aircraftModelLighting.js",
       "src/data/motionModel.js",
       "src/data/renderAltitude.js",
       "src/data/routePlausible.js",
@@ -1065,7 +1097,8 @@
       "src/i18n/index.js",
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
-      "src/i18n/locales/ru.json"
+      "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json"
     ],
     "external": ["cesium"]
   },
@@ -1094,6 +1127,7 @@
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
       "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json",
       "src/ui/unitLabels.js",
       "src/layers/recentImagery/display.js"
     ],
@@ -1122,14 +1156,14 @@
       "src/i18n/index.js",
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
-      "src/i18n/locales/ru.json"
+      "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json"
     ],
     "external": ["cesium"]
   },
   "satellites-layer": {
     "exports": ["./layers/satellites"],
     "modules": [
-      "src/data/issPass.js",
       "src/data/satelliteClass.js",
       "src/data/satellitePass.js",
       "src/sources/tle.js",
@@ -1153,6 +1187,7 @@
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
       "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json",
       "src/ui/unitLabels.js"
     ],
     "external": ["cesium", "satellite.js"]
@@ -1184,7 +1219,8 @@
       "src/i18n/index.js",
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
-      "src/i18n/locales/ru.json"
+      "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json"
     ],
     "external": ["cesium"]
   },
@@ -1226,6 +1262,7 @@
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
       "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json",
       "src/layers/installations/classLabel.js"
     ],
     "external": ["cesium", "@mapbox/vector-tile", "pbf"]
@@ -1250,6 +1287,7 @@
       "src/layers/awareness/navigation.js",
       "src/layers/awareness/panel.js",
       "src/layers/awareness/policy.js",
+      "src/layers/awareness/presentation.js",
       "src/layers/awareness/queries.js",
       "src/layers/awareness/rendering.js",
       "src/layers/awareness/state.js",
@@ -1260,6 +1298,7 @@
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
       "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json",
       "src/ui/unitLabels.js"
     ],
     "external": ["cesium"]
@@ -1308,7 +1347,8 @@
       "src/i18n/index.js",
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
-      "src/i18n/locales/ru.json"
+      "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json"
     ],
     "external": ["cesium", "pbf", "@mapbox/vector-tile"]
   },
@@ -1336,7 +1376,8 @@
       "src/i18n/index.js",
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
-      "src/i18n/locales/ru.json"
+      "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json"
     ],
     "external": ["cesium"]
   },
@@ -1383,7 +1424,8 @@
       "src/i18n/index.js",
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
-      "src/i18n/locales/ru.json"
+      "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json"
     ],
     "external": ["hls.js", "cesium"]
   },
@@ -1392,7 +1434,9 @@
       "./layers/street-level",
       "./layers/street-level/mapillary",
       "./layers/street-level/mapillary/source",
-      "./layers/street-level/google"
+      "./layers/street-level/google",
+      "./layers/street-level/kartaview",
+      "./layers/street-level/panoramax"
     ],
     "modules": [
       "src/layers/streetLevel/index.js",
@@ -1444,6 +1488,7 @@
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
       "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json",
       "src/layers/streetLevel/providers/mapillary/policy.js"
     ],
     "external": ["cesium", "pbf", "@mapbox/vector-tile", "mapillary-js"]
@@ -1471,7 +1516,8 @@
       "src/i18n/index.js",
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
-      "src/i18n/locales/ru.json"
+      "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json"
     ],
     "external": ["cesium", "@mapbox/vector-tile", "pbf"]
   },
@@ -1510,7 +1556,8 @@
       "src/i18n/index.js",
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
-      "src/i18n/locales/ru.json"
+      "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json"
     ],
     "external": ["cesium"]
   },
@@ -1531,7 +1578,8 @@
       "src/i18n/index.js",
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
-      "src/i18n/locales/ru.json"
+      "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json"
     ],
     "external": ["cesium"]
   },
@@ -1586,7 +1634,8 @@
       "src/i18n/index.js",
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
-      "src/i18n/locales/ru.json"
+      "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json"
     ],
     "external": ["cesium"]
   },
@@ -1642,6 +1691,7 @@
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
       "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json",
       "src/ui/statusText.js",
       "src/voice/providerCommands.js",
       "src/voice/providerCapabilities.js",
@@ -1730,6 +1780,8 @@
       "src/app/surfaceServices.js",
       "src/app/tools.js",
       "src/app/viewer.js",
+      "src/sky/starrySky.js",
+      "src/sky/stars.js",
       "src/app/atmosphereCompat.js",
       "src/bloom.js",
       "src/camera.js",
@@ -1801,17 +1853,14 @@
       "src/data/iconOrientation.js",
       "src/data/infrastructure.js",
       "src/data/installationFeedback.js",
-      "src/data/issPass.js",
       "src/data/labelArbiter.js",
       "src/data/idSwitches.js",
       "src/data/layerState.js",
       "src/data/layerStateCoordinator.js",
       "src/data/layerStateTokenReservations.json",
       "src/data/lifecycle.js",
-      "src/data/localGeojson.js",
       "src/data/localGeojsonCore.js",
       "src/data/localGeojsonLod.js",
-      "src/data/localLayers.js",
       "src/data/local_data/natural_earth/marine.json",
       "src/data/local_data/natural_earth/regions.json",
       "src/data/local_data/neighborhoods/san-francisco.json",
@@ -1825,6 +1874,7 @@
       "src/data/militaryInstallations.js",
       "src/data/militaryRegistry.js",
       "src/data/modelVisualAnchor.js",
+      "src/data/aircraftModelLighting.js",
       "src/data/motionModel.js",
       "src/data/naturalEarthRegions.js",
       "src/data/adminBoundaries.js",
@@ -1865,6 +1915,7 @@
       "src/data/vesselLabels.js",
       "src/data/vesselTypes.js",
       "src/firstRunExperience.js",
+      "src/exclusiveSurfaces.js",
       "src/hud.js",
       "src/hudLocality.js",
       "src/hudLocalityFormat.js",
@@ -1892,6 +1943,7 @@
       "src/layers/awareness/navigation.js",
       "src/layers/awareness/panel.js",
       "src/layers/awareness/policy.js",
+      "src/layers/awareness/presentation.js",
       "src/layers/awareness/queries.js",
       "src/layers/awareness/rendering.js",
       "src/layers/awareness/state.js",
@@ -2152,6 +2204,8 @@
       "src/styles/surveillance.js",
       "src/styles/thermal.js",
       "src/ui/applicationShell.js",
+      "src/ui/mobileShell.js",
+      "src/exclusiveSurfaces.js",
       "src/ui/localePicker.js",
       "src/ui/cyberSonarControls.js",
       "src/ui/locationNavigation.js",
@@ -2501,6 +2555,7 @@
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
       "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json",
       "src/ui/unitLabels.js",
       "src/layers/recentImagery/display.js",
       "src/ui/keyGuidance.js",
@@ -2519,7 +2574,9 @@
       "src/voice/geminiSession.js",
       "src/voice/geminiAudio.js",
       "src/voice/geminiCaptureWorklet.js",
-      "src/ui/statusBadge.js"
+      "src/ui/statusBadge.js",
+      "src/sceneCommandRelease.js",
+      "src/scopeMaskPolicy.js"
     ],
     "external": [
       "hls.js",
@@ -2614,13 +2671,11 @@
       "src/data/iconOrientation.js",
       "src/data/infrastructure.js",
       "src/data/installationFeedback.js",
-      "src/data/issPass.js",
       "src/data/satellitePass.js",
       "src/data/labelArbiter.js",
       "src/data/idSwitches.js",
       "src/data/layerState.js",
       "src/data/layerStateTokenReservations.json",
-      "src/data/localGeojson.js",
       "src/data/localGeojsonCore.js",
       "src/data/localGeojsonLod.js",
       "src/data/local_data/natural_earth/marine.json",
@@ -2630,6 +2685,7 @@
       "src/data/installationNames.js",
       "src/data/militaryInstallationData.js",
       "src/data/modelVisualAnchor.js",
+      "src/data/aircraftModelLighting.js",
       "src/data/motionModel.js",
       "src/data/naturalEarthRegions.js",
       "src/data/adminBoundaries.js",
@@ -2679,6 +2735,7 @@
       "src/layers/awareness/navigation.js",
       "src/layers/awareness/panel.js",
       "src/layers/awareness/policy.js",
+      "src/layers/awareness/presentation.js",
       "src/layers/awareness/queries.js",
       "src/layers/awareness/rendering.js",
       "src/layers/awareness/state.js",
@@ -3076,6 +3133,7 @@
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
       "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json",
       "src/ui/unitLabels.js",
       "src/layers/recentImagery/display.js",
       "src/layers/installations/classLabel.js",
@@ -3182,6 +3240,7 @@
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
       "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json",
       "src/i18n/index.js"
     ],
     "external": ["cesium"]
@@ -3202,7 +3261,8 @@
       "src/i18n/index.js",
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
-      "src/i18n/locales/ru.json"
+      "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json"
     ],
     "external": []
   },
@@ -3236,7 +3296,10 @@
       "src/i18n/index.js",
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
-      "src/i18n/locales/ru.json"
+      "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json",
+      "src/scopeMaskPolicy.js",
+      "src/ui/displayControls.js"
     ],
     "external": ["cesium"]
   },
@@ -3259,7 +3322,8 @@
       "src/i18n/index.js",
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
-      "src/i18n/locales/ru.json"
+      "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json"
     ],
     "external": []
   },
@@ -3350,6 +3414,7 @@
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
       "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json",
       "src/ui/unitLabels.js"
     ],
     "external": ["cesium"]
@@ -3404,6 +3469,7 @@
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
       "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json",
       "src/ui/statusText.js",
       "src/voice/providerCapabilities.js"
     ],
@@ -3596,7 +3662,6 @@
     "exports": ["./layers/transit/standalone"],
     "modules": [
       "src/cyberSonar.js",
-      "src/app/sourceSlot.js",
       "src/celestialRing.js",
       "src/data/approxDistance.js",
       "src/data/cameraSensitivity.js",
@@ -3614,6 +3679,7 @@
       "src/data/labelArbiter.js",
       "src/data/meshFloorSampler.js",
       "src/data/pickRegistry.js",
+      "src/data/scenePick.js",
       "src/data/spriteOrder.js",
       "src/data/terrainHeights.js",
       "src/data/transit.js",
@@ -3656,7 +3722,8 @@
       "src/i18n/index.js",
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
-      "src/i18n/locales/ru.json"
+      "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json"
     ],
     "external": ["cesium", "egm96-universal", "pbf"]
   },
@@ -3698,7 +3765,8 @@
       "src/i18n/index.js",
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
-      "src/i18n/locales/ru.json"
+      "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json"
     ],
     "external": ["cesium", "pbf"]
   },
@@ -3750,7 +3818,8 @@
       "src/i18n/index.js",
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
-      "src/i18n/locales/ru.json"
+      "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json"
     ],
     "external": ["cesium"]
   },
@@ -3766,6 +3835,7 @@
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
       "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json",
       "src/ui/statusText.js",
       "src/ui/layerNames.js"
     ],
@@ -3958,6 +4028,7 @@
       "src/i18n/locale.js",
       "src/i18n/locales/es.json",
       "src/i18n/locales/ru.json",
+      "src/i18n/locales/zh-CN.json",
       "src/ui/statusText.js",
       "src/ui/layerNames.js"
     ],
