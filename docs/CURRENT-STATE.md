@@ -2058,9 +2058,12 @@ accessible name remains "Don't show this again". Control behavior is unchanged.
 
 Every FIRMS detection is colored by fire radiative power on a six-stop cold →
 hot ramp: blue from 0 MW, teal from 5, lime from 20, amber from 50, orange from
-100 and red from 300 MW (`FRP_RAMP` in `src/data/firmsIntensity.js`). Heat
-cells, glow sprites and card accents read the same ramp; confidence and
-brightness do not affect the color.
+100 and red from 300 MW (`FRP_RAMP` in `src/data/firmsIntensity.js`). Glow
+sprites and fire-card accents read that ramp; confidence and brightness do
+not affect the color. Aggregated heat cells (far zoom) instead take the warm
+end of the ramp — lime, amber or red — from their heat-normalized score
+(density, night share and strongest FRP), so a region reads as one field
+rather than a per-cell mosaic; the cell card's accent matches its fill.
 
 The Active Fires row carries a "Fire intensity (FRP)" slider on a log scale
 whose track is painted with the ramp and ticked at the same six values (its

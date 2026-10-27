@@ -144,7 +144,7 @@ export function createRendering({
       const score = components.model.heatScore(cell);
       const normalized = Math.min(1, Math.sqrt(score / maxScore));
       const alpha = 0.16 + normalized * 0.5;
-      const color = components.model.heatColor(cell.maxFrp, alpha);
+      const color = components.model.heatColor(normalized, alpha);
       const centerLon = cell.lonCell + lod.gridDegrees / 2;
       const centerLat = cell.latCell + lod.gridDegrees / 2;
       const position = Cesium.Cartesian3.fromDegrees(centerLon, centerLat, 0);
@@ -170,12 +170,13 @@ export function createRendering({
       });
 
       // Cells arrive heat-sorted, so candidate order doubles as label priority.
+      // Accent is resolved here because `normalized` only exists in this walk.
       layerState._labelCandidates.push({
         position,
         cullPosition: components.model.cellCullPosition(centerLon, centerLat),
         fire: null,
         cell,
-        accent: components.model.cellAccent(cell.maxFrp),
+        accent: components.model.cellAccent(normalized),
       });
     }
 
