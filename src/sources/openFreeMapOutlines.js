@@ -12,6 +12,7 @@ import {
   closeRing,
 } from './featureGeometry.js';
 import { phaseTiming } from './phaseTiming.js';
+import { normalizePlaceName } from '../data/placeBoundaries.js';
 
 /**
  * Street and building outlines from the same OpenFreeMap z14 vector tiles the
@@ -209,15 +210,41 @@ function decodePolygons(layer, z, x, y, keep, describe) {
         : geometry.type === 'MultiPolygon'
           ? geometry.coordinates
           : [];
+    // Preserve one feature's complete topology, including features without an
+    // id. A cut or malformed part makes every part incomplete, not a smaller
+    // exact building that happens to contain the pointer.
+    const incomplete =
+      !polygons.length ||
+      polygons.some(
+        (rings) =>
+          !Array.isArray(rings) ||
+          !rings.length ||
+          rings.some(
+            (ring) =>
+              !Array.isArray(ring) ||
+              ring.length < 4 ||
+              ring.some(
+                (point) =>
+                  !Array.isArray(point) ||
+                  point.length < 2 ||
+                  !Number.isFinite(point[0]) ||
+                  !Number.isFinite(point[1]),
+              ),
+          ),
+      );
+    const clipped =
+      incomplete || polygons.some((rings) => rings[0].some(onCut));
     for (let part = 0; part < polygons.length; part++) {
       const rings = polygons[part];
       if (!Array.isArray(rings?.[0]) || rings[0].length < 4) continue;
       out.push({
         rings,
+        featureParts: polygons,
         id: feature.id ?? null,
         part,
         tile: `${z}/${x}/${y}`,
-        clipped: rings[0].some(onCut),
+        clipped,
+        incomplete,
         ...describe(props),
       });
     }
@@ -443,7 +470,8 @@ function distanceToLineM(lon, lat, ring) {
  * The building at a point: the smallest footprint containing it, else the
  * nearest within `maxDistanceM`, else null.
  *
- * @returns {null | {ring: Array<[number, number]>, rings: Array<Array<[number, number]>>, heightM: number|null, contains: boolean}}
+ * The selected part remains primary; `polygons` carries every part and hole
+ * of the same complete feature, regardless of whether it has an id.
  */
 export function buildingFromTiles(
   tiles,
@@ -454,6 +482,22 @@ export function buildingFromTiles(
   let nearest = null;
   for (const tile of tiles || []) {
     for (const building of tile?.buildings || []) {
+      if (building.incomplete) {
+        const outer = building.rings?.[0];
+        if (
+          Array.isArray(outer) &&
+          outer.length >= 4 &&
+          outer.every(
+            (point) =>
+              Array.isArray(point) &&
+              Number.isFinite(point[0]) &&
+              Number.isFinite(point[1]),
+          ) &&
+          insideRing(lon, lat, outer)
+        )
+          fragmentContains = true;
+        continue;
+      }
       if (insidePolygon(lon, lat, building.rings)) {
         // A fragment cut at a tile edge is never the whole footprint.
         if (building.clipped) {
@@ -477,12 +521,16 @@ export function buildingFromTiles(
   const pick =
     containing?.building || (fragmentContains ? null : nearest?.building);
   if (!pick) return null;
-  const rings = pick.rings.map((ring) =>
-    closeRing(ring.map((p) => [p[0], p[1]])),
-  );
+  const parts = pick.featureParts || [pick.rings];
+  const polygons = [
+    pick.rings,
+    ...parts.filter((part) => part !== pick.rings),
+  ].map((part) => part.map((ring) => closeRing(ring.map((p) => [p[0], p[1]]))));
+  const rings = polygons[0];
   return {
     ring: rings[0],
     rings,
+    polygons,
     heightM: pick.heightM,
     contains: Boolean(containing),
   };
@@ -490,28 +538,49 @@ export function buildingFromTiles(
 
 /**
  * The open area enclosing grounds at a point: the smallest park, landuse or
- * park-like cover polygon that contains it and is at least grounds-sized.
- * Tiles carry no names for these, so this is only used after a named lookup
- * found nothing better.
+ * park-like cover feature that contains it and is at least grounds-sized.
+ * Containment alone is not identity: only a matching named feature can be an
+ * exact answer to the requested grounds, and holes are not filled grounds.
  */
 export function enclosingAreaFromTiles(
   tiles,
-  { lat, lon, minAreaM2 = 20_000, maxAreaM2 = 60e6 },
+  { lat, lon, name, minAreaM2 = 20_000, maxAreaM2 = 60e6 },
 ) {
+  const query = normalizePlaceName(name);
+  if (!query) return null;
   let best = null;
   for (const tile of tiles || []) {
     for (const area of tile?.areas || []) {
-      // Grounds ENCLOSE: the outer boundary counts, since a hole in grounds is
-      // typically the building the ask is about (the Capitol inside its lawn).
-      if (area.clipped || !insideRing(lon, lat, area.rings[0])) continue;
-      const size = ringAreaM2(area.rings[0]);
+      if (
+        area.clipped ||
+        normalizePlaceName(area.name) !== query ||
+        !insidePolygon(lon, lat, area.rings)
+      )
+        continue;
+      const size = (area.featureParts || [area.rings]).reduce(
+        (sum, [outer, ...holes]) =>
+          sum +
+          ringAreaM2(outer) -
+          holes.reduce((n, hole) => n + ringAreaM2(hole), 0),
+        0,
+      );
       if (size < minAreaM2 || size > maxAreaM2) continue;
       if (!best || size < best.size) best = { area, size };
     }
   }
   if (!best) return null;
-  const rings = best.area.rings.map((ring) =>
-    closeRing(ring.map((p) => [p[0], p[1]])),
-  );
-  return { ring: rings[0], rings, class: best.area.class, areaM2: best.size };
+  const parts = best.area.featureParts || [best.area.rings];
+  const polygons = [
+    best.area.rings,
+    ...parts.filter((part) => part !== best.area.rings),
+  ].map((part) => part.map((ring) => closeRing(ring.map((p) => [p[0], p[1]]))));
+  const rings = polygons[0];
+  return {
+    ring: rings[0],
+    rings,
+    polygons,
+    name: best.area.name,
+    class: best.area.class,
+    areaM2: best.size,
+  };
 }

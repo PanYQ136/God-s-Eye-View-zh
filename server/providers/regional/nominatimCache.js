@@ -15,7 +15,7 @@ export const NOMINATIM_CACHE_TTL_MS = Object.freeze({
 });
 
 /**
- * Comparable form of a place name: Unicode-normalized (NFKC), accents
+ * Comparable form of a place name: Unicode-normalized (NFKC), Latin accents
  * removed, case folded, punctuation and symbols collapsed to single spaces,
  * and a leading article dropped. Non-Latin scripts are kept as they are:
  * "東京" stays "東京", while "São Paulo", "sao paulo" and "SÃO PAULO!" meet.
@@ -26,7 +26,7 @@ export const NOMINATIM_CACHE_TTL_MS = Object.freeze({
 export function normalizePlaceName(value) {
   return String(value ?? '')
     .normalize('NFKD')
-    .replace(/\p{M}+/gu, '')
+    .replace(/(\p{Script=Latin})\p{M}+/gu, '$1')
     .normalize('NFKC')
     .toLocaleLowerCase('en-US')
     .replace(/[\p{P}\p{S}\p{Z}\s]+/gu, ' ')
@@ -55,11 +55,11 @@ export function createNominatimCache({
   let writesSinceSweep = 0;
   let sweeping = null;
 
+  const digestFor = (key) =>
+    crypto.createHash('sha256').update(key).digest('hex');
+
   const fileFor = (key) =>
-    path.join(
-      dir,
-      `${crypto.createHash('sha256').update(key).digest('hex').slice(0, 40)}.json`,
-    );
+    path.join(dir, `${digestFor(key).slice(0, 40)}.json`);
 
   function remember(key, entry) {
     memory.delete(key);
@@ -80,7 +80,8 @@ export function createNominatimCache({
     if (!dir) return null;
     try {
       const entry = JSON.parse(await fs.readFile(fileFor(key), 'utf8'));
-      if (entry?.key !== key || !(entry.expiresAt > now())) return null;
+      if (entry?.keyDigest !== digestFor(key) || !(entry.expiresAt > now()))
+        return null;
       remember(key, entry);
       return entry;
     } catch {
@@ -89,19 +90,29 @@ export function createNominatimCache({
   }
 
   async function set(key, payload, ttlMs) {
-    const entry = { key, payload, storedAt: now(), expiresAt: now() + ttlMs };
+    const entry = {
+      keyDigest: digestFor(key),
+      payload,
+      storedAt: now(),
+      expiresAt: now() + ttlMs,
+    };
     remember(key, entry);
     if (!dir) return;
     const body = JSON.stringify(entry);
     if (Buffer.byteLength(body) > maxEntryBytes) return;
+    let temp = null;
     try {
-      await fs.mkdir(dir, { recursive: true });
+      await fs.mkdir(dir, { recursive: true, mode: 0o700 });
+      await fs.chmod(dir, 0o700);
       const file = fileFor(key);
-      const temp = `${file}.${process.pid}.tmp`;
-      await fs.writeFile(temp, body);
+      temp = `${file}.${process.pid}.${crypto.randomBytes(6).toString('hex')}.tmp`;
+      await fs.writeFile(temp, body, { mode: 0o600, flag: 'wx' });
       await fs.rename(temp, file);
+      temp = null;
     } catch {
       return;
+    } finally {
+      if (temp) await fs.rm(temp, { force: true }).catch(() => {});
     }
     writesSinceSweep += 1;
     if (writesSinceSweep >= sweepEvery) {
@@ -167,5 +178,5 @@ export function createNominatimCache({
     return sweeping;
   }
 
-  return { get, set, sweep, memorySize: () => memory.size };
+  return { get, set, sweep };
 }

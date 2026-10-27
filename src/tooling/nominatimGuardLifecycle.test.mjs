@@ -24,7 +24,11 @@ import {
   geocodeProxy,
 } from '../../server/providers/regional/place.js';
 
-const PUBLIC = { endpoint: PUBLIC_NOMINATIM_SEARCH, isPublic: true, dailyCap: 50 };
+const PUBLIC = {
+  endpoint: PUBLIC_NOMINATIM_SEARCH,
+  isPublic: true,
+  dailyCap: 50,
+};
 const LOCAL = { ...PUBLIC, isPublic: false };
 const tempDir = (t) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gev-nominatim-'));
@@ -63,7 +67,13 @@ function mount(options) {
       };
       Promise.resolve(
         handler(
-          { method: 'GET', url, headers: {}, socket: { remoteAddress: `10.9.${Math.random()}` }, on() {} },
+          {
+            method: 'GET',
+            url,
+            headers: {},
+            socket: { remoteAddress: `10.9.${Math.random()}` },
+            on() {},
+          },
           res,
         ),
       ).catch(reject);
@@ -88,20 +98,33 @@ test('the daily count survives cache sweeps and a restart of the real compositio
   assert.ok(fs.existsSync(path.join(storageDir, 'state.json')));
 
   // Restart: a new gate composed on the same directory, which sweeps at start.
-  const second = createNominatimGate({ settings: { ...PUBLIC, dailyCap: 4 }, fetchImpl, ...quick });
+  const second = createNominatimGate({
+    settings: { ...PUBLIC, dailyCap: 4 },
+    fetchImpl,
+    ...quick,
+  });
   const again = mount({ storageDir, gate: second });
   await new Promise((resolve) => setTimeout(resolve, 50));
   assert.equal(second.stats().usedToday, 3, 'the count came back');
   assert.equal((await again('/?q=place-new')).status, 200);
   const capped = await again('/?q=place-over');
-  assert.equal(capped.status, 429, 'the cap still counts yesterday-restart usage');
+  assert.equal(
+    capped.status,
+    429,
+    'the cap still counts yesterday-restart usage',
+  );
   assert.equal(capped.body.code, 'NOMINATIM_DAILY_CAP');
 });
 
 test('a sweep removes expired and corrupt entries, never ones it could not read', async (t) => {
   const dir = tempDir(t);
   const file = (n) => path.join(dir, `${String(n).repeat(40)}.json`);
-  const live = { key: 'k', payload: null, storedAt: 1, expiresAt: Date.now() + 60_000 };
+  const live = {
+    key: 'k',
+    payload: null,
+    storedAt: 1,
+    expiresAt: Date.now() + 60_000,
+  };
   fs.writeFileSync(file(1), JSON.stringify(live));
   fs.writeFileSync(file(2), JSON.stringify({ ...live, expiresAt: 1 }));
   fs.writeFileSync(file(3), '{not json');
@@ -112,15 +135,24 @@ test('a sweep removes expired and corrupt entries, never ones it could not read'
     throw Object.assign(new Error('EMFILE'), { code: 'EMFILE' });
   });
   await cache.sweep();
-  assert.deepEqual([1, 2, 3].map((n) => fs.existsSync(file(n))), [true, true, true]);
+  assert.deepEqual(
+    [1, 2, 3].map((n) => fs.existsSync(file(n))),
+    [true, true, true],
+  );
   readFile.mock.restore();
   await cache.sweep();
-  assert.deepEqual([1, 2, 3].map((n) => fs.existsSync(file(n))), [true, false, false]);
+  assert.deepEqual(
+    [1, 2, 3].map((n) => fs.existsSync(file(n))),
+    [true, false, false],
+  );
 });
 
 test('processes sharing state reserve public spacing and cap atomically', async (t) => {
   const dir = tempDir(t);
-  const module = new URL('../../server/providers/regional/nominatimGate.js', import.meta.url).href;
+  const module = new URL(
+    '../../server/providers/regional/nominatimGate.js',
+    import.meta.url,
+  ).href;
   const run = (file, dailyCap) => {
     const script = `
     const { createGateStateStore } = await import(${JSON.stringify(module)});
@@ -133,7 +165,11 @@ test('processes sharing state reserve public spacing and cap atomically', async 
     })));
   `;
     return new Promise((resolve, reject) => {
-      const child = spawn(process.execPath, ['--input-type=module', '-e', script]);
+      const child = spawn(process.execPath, [
+        '--input-type=module',
+        '-e',
+        script,
+      ]);
       let stdout = '';
       let stderr = '';
       child.stdout.on('data', (chunk) => (stdout += chunk));
@@ -160,15 +196,21 @@ test('processes sharing state reserve public spacing and cap atomically', async 
     reservations.map((result) => result.startAt).sort((a, b) => a - b),
     [1000, 2100, 3200],
   );
-  assert.equal(createGateStateStore({ file: spacedFile }).count('2026-09-29'), 3);
+  assert.equal(
+    createGateStateStore({ file: spacedFile }).count('2026-09-29'),
+    3,
+  );
 
   const cappedFile = path.join(dir, 'capped.json');
   const capped = await Promise.all([run(cappedFile, 1), run(cappedFile, 1)]);
-  assert.deepEqual(
-    capped.map((result) => result.status).sort(),
-    ['cap', 'reserved'],
+  assert.deepEqual(capped.map((result) => result.status).sort(), [
+    'cap',
+    'reserved',
+  ]);
+  assert.equal(
+    createGateStateStore({ file: cappedFile }).count('2026-09-29'),
+    1,
   );
-  assert.equal(createGateStateStore({ file: cappedFile }).count('2026-09-29'), 1);
 });
 
 test('independent public gates sharing state enforce spacing and cap', async (t) => {
@@ -209,7 +251,10 @@ test('independent public gates sharing state enforce spacing and cap', async (t)
     createNominatimSearchProvider({ gate: capGate() })('three', null),
     createNominatimSearchProvider({ gate: capGate() })('four', null),
   ]);
-  assert.equal(results.filter((result) => result.status === 'fulfilled').length, 1);
+  assert.equal(
+    results.filter((result) => result.status === 'fulfilled').length,
+    1,
+  );
   assert.equal(
     results.find((result) => result.status === 'rejected').reason.code,
     'NOMINATIM_DAILY_CAP',
@@ -283,14 +328,18 @@ test('a long Retry-After is honoured in full and survives a restart', async (t) 
   const now = () => clock;
   const refused = createNominatimGate({
     settings: PUBLIC,
-    fetchImpl: async () => new Response('', { status: 429, headers: { 'Retry-After': '86400' } }),
+    fetchImpl: async () =>
+      new Response('', { status: 429, headers: { 'Retry-After': '86400' } }),
     usage: createGateStateStore({ file }),
     now,
     ...quick,
   });
-  await assert.rejects(createNominatimSearchProvider({ gate: refused })('x', null), {
-    code: 'NOMINATIM_REFUSED',
-  });
+  await assert.rejects(
+    createNominatimSearchProvider({ gate: refused })('x', null),
+    {
+      code: 'NOMINATIM_REFUSED',
+    },
+  );
   const calls = [];
   const restarted = createNominatimGate({
     settings: PUBLIC,
@@ -359,7 +408,8 @@ test('a stalled body times out instead of holding the shared queue', async () =>
   let n = 0;
   const gate = createNominatimGate({
     settings: { ...PUBLIC, isPublic: false },
-    fetchImpl: async (_url, { signal }) => (++n <= 2 ? stalled(signal) : json([])),
+    fetchImpl: async (_url, { signal }) =>
+      ++n <= 2 ? stalled(signal) : json([]),
     timeoutMs: 150,
   });
   const search = createNominatimSearchProvider({ gate });
@@ -375,7 +425,19 @@ test('cache keys are request-equivalent: a miss for "Paris???" never answers "Pa
     settings: LOCAL,
     fetchImpl: async (url) => {
       calls.push(new URL(url).searchParams.get('q'));
-      return json(calls.length === 1 ? [] : [{ lat: '48.85', lon: '2.35', display_name: 'Paris, France', name: 'Paris', addresstype: 'city' }]);
+      return json(
+        calls.length === 1
+          ? []
+          : [
+              {
+                lat: '48.85',
+                lon: '2.35',
+                display_name: 'Paris, France',
+                name: 'Paris',
+                addresstype: 'city',
+              },
+            ],
+      );
     },
     ...quick,
   });
@@ -400,10 +462,17 @@ test('a malformed answer is a failure, not a cached "no result"', async () => {
   });
   const outline = createNominatimOutlineProvider({ gate });
   const search = createNominatimSearchProvider({ gate });
-  await assert.rejects(outline({ query: 'Zilker Park', kind: 'landmark' }), { code: 'NOMINATIM_MALFORMED' });
-  await assert.rejects(search('Zilker Park', null), { code: 'NOMINATIM_MALFORMED' });
+  await assert.rejects(outline({ query: 'Zilker Park', kind: 'landmark' }), {
+    code: 'NOMINATIM_MALFORMED',
+  });
+  await assert.rejects(search('Zilker Park', null), {
+    code: 'NOMINATIM_MALFORMED',
+  });
   shape = [];
-  assert.equal((await outline({ query: 'Zilker Park', kind: 'landmark' })).status, 'ZERO_RESULTS');
+  assert.equal(
+    (await outline({ query: 'Zilker Park', kind: 'landmark' })).status,
+    'ZERO_RESULTS',
+  );
   assert.equal(calls, 3, 'the malformed answers were not cached');
 });
 
@@ -418,14 +487,22 @@ test('cache entries are namespaced by endpoint', async () => {
         return json([]);
       },
     });
-  await createNominatimSearchProvider({ gate: gateFor('https://a.example.test/search'), cache })('x', null);
-  await createNominatimSearchProvider({ gate: gateFor('https://b.example.test/search'), cache })('x', null);
+  await createNominatimSearchProvider({
+    gate: gateFor('https://a.example.test/search'),
+    cache,
+  })('x', null);
+  await createNominatimSearchProvider({
+    gate: gateFor('https://b.example.test/search'),
+    cache,
+  })('x', null);
   assert.deepEqual(hits, ['a.example.test', 'b.example.test']);
 });
 
 test('public-host detection ignores a trailing DNS dot', () => {
   assert.equal(
-    resolveNominatimSettings({ NOMINATIM_URL: 'https://nominatim.openstreetmap.org./search' }).isPublic,
+    resolveNominatimSettings({
+      NOMINATIM_URL: 'https://nominatim.openstreetmap.org./search',
+    }).isPublic,
     true,
   );
 });
@@ -451,11 +528,29 @@ const boundary = (extra) => ({
 });
 
 test('administrative boundaries must be at the asked level', () => {
-  const county = boundary({ name: 'Travis County', addresstype: 'county', place_rank: 12 });
-  const city = boundary({ name: 'Austin', addresstype: 'city', place_rank: 16 });
-  const state = boundary({ name: 'Texas', addresstype: 'state', place_rank: 8 });
-  assert.equal(selectOutlineResult([state], { kind: 'city', query: 'Texas' }).outline, null);
-  assert.equal(selectOutlineResult([city], { kind: 'admin', query: 'Austin' }).outline, null);
+  const county = boundary({
+    name: 'Travis County',
+    addresstype: 'county',
+    place_rank: 12,
+  });
+  const city = boundary({
+    name: 'Austin',
+    addresstype: 'city',
+    place_rank: 16,
+  });
+  const state = boundary({
+    name: 'Texas',
+    addresstype: 'state',
+    place_rank: 8,
+  });
+  assert.equal(
+    selectOutlineResult([state], { kind: 'city', query: 'Texas' }).outline,
+    null,
+  );
+  assert.equal(
+    selectOutlineResult([city], { kind: 'admin', query: 'Austin' }).outline,
+    null,
+  );
   assert.equal(
     selectOutlineResult(
       [boundary({ name: 'Travis', addresstype: 'county', place_rank: 12 })],
@@ -470,30 +565,66 @@ test('administrative boundaries must be at the asked level', () => {
     ).outline,
     null,
   );
-  assert.equal(selectOutlineResult([state], { kind: 'neighborhood', query: 'Texas' }).outline, null);
-  assert.ok(selectOutlineResult([county], { kind: 'admin', query: 'Travis County' }).outline);
-  assert.ok(selectOutlineResult([boundary({ name: 'Somewhere', place_rank: 16 })], { kind: 'city', query: 'Somewhere' }).outline);
+  assert.equal(
+    selectOutlineResult([state], { kind: 'neighborhood', query: 'Texas' })
+      .outline,
+    null,
+  );
   assert.ok(
-    selectOutlineResult(
-      [boundary({ name: 'Somewhere', addresstype: 'locality', place_rank: 16 })],
-      { kind: 'city', query: 'Somewhere' },
-    ).outline,
+    selectOutlineResult([county], { kind: 'admin', query: 'Travis County' })
+      .outline,
   );
   assert.equal(
-    selectOutlineResult([boundary({ name: 'Somewhere' })], { kind: 'city', query: 'Somewhere' }).outline,
+    selectOutlineResult([boundary({ name: 'Somewhere', place_rank: 16 })], {
+      kind: 'city',
+      query: 'Somewhere',
+    }).outline,
+    null,
+    'rank alone is not administrative identity',
+  );
+  assert.equal(
+    selectOutlineResult(
+      [
+        boundary({
+          name: 'Somewhere',
+          addresstype: 'locality',
+          place_rank: 16,
+        }),
+      ],
+      { kind: 'city', query: 'Somewhere' },
+    ).outline,
+    null,
+    'rank cannot replace an unrecognized address type',
+  );
+  assert.equal(
+    selectOutlineResult([boundary({ name: 'Somewhere' })], {
+      kind: 'city',
+      query: 'Somewhere',
+    }).outline,
     null,
     'no level evidence at all',
   );
   // An unsuitable early boundary does not block a suitable later one.
-  const picked = selectOutlineResult([state, boundary({ name: 'Texas', addresstype: 'city', osm_type: 'relation', osm_id: 9 })], {
-    kind: 'city',
-    query: 'Texas',
-  });
+  const picked = selectOutlineResult(
+    [
+      state,
+      boundary({
+        name: 'Texas',
+        addresstype: 'city',
+        osm_type: 'relation',
+        osm_id: 9,
+      }),
+    ],
+    {
+      kind: 'city',
+      query: 'Texas',
+    },
+  );
   assert.equal(picked.outline.osm, 'relation/9');
 });
 
-test('admin identity comes only from unambiguous evidence on the selected row', () => {
-  for (const [name, addresstype, adminLevel] of [
+test('outline selection does not publish child-owned admin geometry hooks', () => {
+  for (const [name, addresstype] of [
     ['Nepal', 'country', 'country'],
     ['Bagmati Province', 'province', 'admin1'],
     ['Province of Bagmati', 'province', 'admin1'],
@@ -502,18 +633,21 @@ test('admin identity comes only from unambiguous evidence on the selected row', 
     ['County of Travis', 'county', 'admin2'],
     ['Kathmandu District', 'state_district', 'admin2'],
   ]) {
-    const { outline } = selectOutlineResult(
-      [boundary({ name, addresstype })],
-      { kind: 'admin', query: name },
-    );
-    assert.equal(outline.adminArea, name);
-    assert.equal(outline.adminLevel, adminLevel);
+    const { outline } = selectOutlineResult([boundary({ name, addresstype })], {
+      kind: 'admin',
+      query: name,
+    });
+    assert.equal('adminArea' in outline, false);
+    assert.equal('adminLevel' in outline, false);
   }
 
   for (const row of [
     boundary({ name: 'Northern Region', addresstype: 'region', place_rank: 8 }),
-    boundary({ name: 'Central District', addresstype: 'district', place_rank: 10 }),
-    boundary({ name: 'Mystery Province', place_rank: 8 }),
+    boundary({
+      name: 'Central District',
+      addresstype: 'district',
+      place_rank: 10,
+    }),
     boundary({ name: 'Example State', addresstype: 'county' }),
     boundary({ name: 'County of Example', addresstype: 'state' }),
     boundary({ name: 'Province of Example', addresstype: 'county' }),
@@ -530,29 +664,41 @@ test('admin identity comes only from unambiguous evidence on the selected row', 
     assert.equal(outline.adminLevel, undefined, row.name);
   }
 
+  assert.equal(
+    selectOutlineResult(
+      [boundary({ name: 'Mystery Province', place_rank: 8 })],
+      {
+        kind: 'admin',
+        query: 'Mystery Province',
+      },
+    ).outline,
+    null,
+    'rank-only metadata never creates an exact administrative outline',
+  );
+
   const retired = selectOutlineResult(
     [boundary({ name: 'Bagmati Zone', addresstype: 'state' })],
     { kind: 'admin', query: 'Bagmati Zone' },
   ).outline;
-  assert.equal(retired.adminArea, 'Bagmati Zone');
-  assert.equal(retired.adminLevel, undefined);
+  assert.equal('adminArea' in retired, false);
+  assert.equal('adminLevel' in retired, false);
 
   const retiredPrefix = selectOutlineResult(
     [boundary({ name: 'Zone of Bagmati', addresstype: 'state' })],
     { kind: 'admin', query: 'Zone of Bagmati' },
   ).outline;
-  assert.equal(retiredPrefix.adminArea, 'Zone of Bagmati');
-  assert.equal(retiredPrefix.adminLevel, undefined);
+  assert.equal('adminArea' in retiredPrefix, false);
+  assert.equal('adminLevel' in retiredPrefix, false);
 });
 
-test('admin identity validates the full name before display truncation', () => {
+test('long admin names do not publish child-owned geometry hooks', () => {
   const longValidName = `Province of ${'Example '.repeat(24)}`.trim();
   const valid = selectOutlineResult(
     [boundary({ name: longValidName, addresstype: 'province' })],
     { kind: 'admin', query: longValidName },
   ).outline;
-  assert.equal(valid.adminArea, longValidName.slice(0, 160));
-  assert.equal(valid.adminLevel, 'admin1');
+  assert.equal('adminArea' in valid, false);
+  assert.equal('adminLevel' in valid, false);
 
   const longContradictoryName = `${'Very Long Administrative Name '.repeat(7)}County`;
   assert.ok(longContradictoryName.length > 160);
@@ -565,9 +711,15 @@ test('admin identity validates the full name before display truncation', () => {
   assert.equal(contradictory.adminLevel, undefined);
 });
 
-test('non-administrative outline kinds never manufacture admin identity', () => {
+test('non-administrative outline kinds do not publish admin geometry hooks', () => {
   const city = selectOutlineResult(
-    [boundary({ name: 'County of Austin', addresstype: 'city', place_rank: 16 })],
+    [
+      boundary({
+        name: 'County of Austin',
+        addresstype: 'city',
+        place_rank: 16,
+      }),
+    ],
     { kind: 'city', query: 'County of Austin' },
   ).outline;
   const park = selectOutlineResult(
@@ -590,25 +742,91 @@ test('non-administrative outline kinds never manufacture admin identity', () => 
 });
 
 test('building asks need building evidence', () => {
-  const park = { category: 'tourism', type: 'theme_park', name: 'Big Top', lat: '1', lon: '1', geojson: { type: 'Polygon', coordinates: square(1, 1, 0.0001) } };
+  const park = {
+    category: 'tourism',
+    type: 'theme_park',
+    name: 'Big Top',
+    lat: '1',
+    lon: '1',
+    geojson: { type: 'Polygon', coordinates: square(1, 1, 0.0001) },
+  };
   const camp = { ...park, type: 'camp_site' };
   const campus = { ...park, category: 'amenity', type: 'university' };
   for (const row of [park, camp, campus])
-    assert.equal(selectOutlineResult([row], { kind: 'building', query: 'Big Top' }).outline, null, row.type);
-  const hugeOffice = { ...park, category: 'office', type: 'government', geojson: { type: 'Polygon', coordinates: square(1, 1, 0.01) } };
-  assert.equal(selectOutlineResult([hugeOffice], { kind: 'building', query: 'Big Top' }).outline, null);
-  const office = { ...hugeOffice, geojson: { type: 'Polygon', coordinates: square(1, 1, 0.001) } };
-  assert.ok(selectOutlineResult([office], { kind: 'building', query: 'Big Top' }).outline);
+    assert.equal(
+      selectOutlineResult([row], { kind: 'building', query: 'Big Top' })
+        .outline,
+      null,
+      row.type,
+    );
+  const hugeOffice = {
+    ...park,
+    category: 'office',
+    type: 'government',
+    geojson: { type: 'Polygon', coordinates: square(1, 1, 0.01) },
+  };
+  assert.equal(
+    selectOutlineResult([hugeOffice], { kind: 'building', query: 'Big Top' })
+      .outline,
+    null,
+  );
+  const office = {
+    ...hugeOffice,
+    geojson: { type: 'Polygon', coordinates: square(1, 1, 0.001) },
+  };
+  assert.ok(
+    selectOutlineResult([office], { kind: 'building', query: 'Big Top' })
+      .outline,
+  );
   const hall = { ...hugeOffice, category: 'building', type: 'yes' };
-  assert.ok(selectOutlineResult([hall], { kind: 'building', query: 'Big Top' }).outline);
+  assert.ok(
+    selectOutlineResult([hall], { kind: 'building', query: 'Big Top' }).outline,
+  );
 });
 
 test('names match on whole words', () => {
-  const row = (name) => ({ category: 'leisure', type: 'park', name, lat: '1', lon: '1', geojson: { type: 'Polygon', coordinates: square(1, 1, 0.01) } });
-  assert.equal(selectOutlineResult([row('Yorkshire Park')], { kind: 'landmark', query: 'York' }).outline, null);
-  assert.ok(selectOutlineResult([row('York Park')], { kind: 'landmark', query: 'York' }).outline);
-  assert.ok(selectOutlineResult([row('Zilker Metropolitan Park')], { kind: 'landmark', query: 'Zilker Park' }).outline);
+  const row = (name) => ({
+    category: 'leisure',
+    type: 'park',
+    name,
+    lat: '1',
+    lon: '1',
+    geojson: { type: 'Polygon', coordinates: square(1, 1, 0.01) },
+  });
+  assert.equal(
+    selectOutlineResult([row('Yorkshire Park')], {
+      kind: 'landmark',
+      query: 'York',
+    }).outline,
+    null,
+  );
   assert.ok(
-    selectOutlineResult([{ ...row('新宿御苑'), namedetails: { name: '新宿御苑' } }], { kind: 'landmark', query: '新宿御苑' }).outline,
+    selectOutlineResult([row('York Park')], { kind: 'landmark', query: 'York' })
+      .outline,
+  );
+  assert.ok(
+    selectOutlineResult([row('Zilker Metropolitan Park')], {
+      kind: 'landmark',
+      query: 'Zilker Park',
+    }).outline,
+  );
+  assert.ok(
+    selectOutlineResult(
+      [{ ...row('新宿御苑'), namedetails: { name: '新宿御苑' } }],
+      { kind: 'landmark', query: '新宿御苑' },
+    ).outline,
+  );
+  assert.equal(
+    selectOutlineResult([row('कुल मंदिर')], {
+      kind: 'landmark',
+      query: 'काली मंदिर',
+    }).outline,
+    null,
+  );
+  assert.ok(
+    selectOutlineResult([row('काली मंदिर')], {
+      kind: 'landmark',
+      query: 'काली मंदिर',
+    }).outline,
   );
 });

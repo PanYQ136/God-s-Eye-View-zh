@@ -2,6 +2,11 @@ import { phaseTiming } from './phaseTiming.js';
 import { tilesForBounds } from '../data/tomtomTiles.js';
 import { readResponseBytesCapped, readResponseJsonCapped } from './httpBody.js';
 
+// Marks text for i18n extraction; the UI translates these failures where it
+// shows them (layer row, loading chip). Kept local because AI tool services
+// import this module outside the browser.
+const msg = (text) => text;
+
 /** Validate a non-dateline geographic viewport before selecting a bounded grid. */
 export function validTileBounds(box) {
   return (
@@ -17,9 +22,43 @@ export function validTileBounds(box) {
 }
 
 /**
+ * The origin a configured TileJSON is served from, or undefined when there is
+ * no absolute URL to read one off. Deriving `allowedOrigin` from it means
+ * repointing `tileJsonUrl` at a mirror cannot silently keep loading tiles from
+ * the old host: the origin check below then names the mismatch instead of
+ * passing it (#933).
+ */
+function tileJsonOrigin(tileJsonUrl) {
+  if (typeof tileJsonUrl !== 'string') return undefined;
+  try {
+    return new URL(tileJsonUrl).origin;
+  } catch {
+    return undefined;
+  }
+}
+
+const DECODER_IDS = new WeakMap();
+let nextDecoderId = 1;
+
+// Shared completion must not run every consumer's selection in one task.
+const nextTask = () =>
+  globalThis.scheduler?.yield
+    ? globalThis.scheduler.yield()
+    : new Promise((resolve) => setTimeout(resolve, 0));
+
+function sharedDecoderKey(decode) {
+  let id = DECODER_IDS.get(decode);
+  if (!id) {
+    id = nextDecoderId++;
+    DECODER_IDS.set(decode, id);
+  }
+  return id;
+}
+
+/**
  * Bounded decoded ownership shared by compatible vector-tile consumers.
- * Entries are keyed by the immutable tile template plus XYZ identity; callers
- * still keep their own consumer-shaped caches and request lifetimes.
+ * Entries are keyed by decoder identity, immutable tile template and XYZ;
+ * callers still keep their own consumer-shaped caches and request lifetimes.
  */
 export function createSharedDecodedTileCache({
   maxEntries = 192,
@@ -29,6 +68,7 @@ export function createSharedDecodedTileCache({
   const flights = new Map();
   let cacheBytes = 0;
   let generation = 0;
+
   const release = (entry) => {
     if (!entry || entry.released) return;
     entry.released = true;
@@ -44,8 +84,7 @@ export function createSharedDecodedTileCache({
   };
   const evict = () => {
     while (cache.size > maxEntries || cacheBytes > maxCacheBytes) {
-      const oldest = cache.keys().next().value;
-      remove(oldest);
+      remove(cache.keys().next().value);
     }
   };
   const resize = (key, value, entry, size) => {
@@ -92,6 +131,7 @@ export function createSharedDecodedTileCache({
       }
     });
   };
+
   return {
     get(key) {
       const hit = cache.get(key);
@@ -145,7 +185,7 @@ export function createSharedDecodedTileCache({
 export function createVectorTileSource({
   tileJsonUrl,
   template,
-  allowedOrigin,
+  allowedOrigin = tileJsonOrigin(tileJsonUrl),
   decode,
   fetchImpl = (...args) => globalThis.fetch(...args),
   maxTiles = 16,
@@ -171,8 +211,6 @@ export function createVectorTileSource({
   let fetched = 0;
   let activeWorkers = 0;
   const waiters = [];
-  const consumerValue = (value) =>
-    sharedDecodedCache ? structuredClone(value) : value;
 
   async function request(url, parentSignal, read, trackAsSource = true) {
     const controller = new AbortController();
@@ -183,7 +221,10 @@ export function createVectorTileSource({
     const timer = setTimeout(
       () =>
         controller.abort(
-          new DOMException('Vector tile request timed out', 'TimeoutError'),
+          new DOMException(
+            msg('Vector tile request timed out'),
+            'TimeoutError',
+          ),
         ),
       12_000,
     );
@@ -200,8 +241,9 @@ export function createVectorTileSource({
         throw Object.assign(
           new Error(
             status === null
-              ? 'Vector tiles unavailable'
-              : `Vector tiles unavailable (HTTP ${status})`,
+              ? msg('Vector tiles unavailable')
+              : // Shown through the 'Vector tiles unavailable (HTTP {status})' key.
+                `Vector tiles unavailable (HTTP ${status})`,
           ),
           { status },
         );
@@ -285,7 +327,9 @@ export function createVectorTileSource({
           if (flight.controller.signal.aborted || error.name === 'AbortError')
             throw error;
           metadataError = Object.assign(
-            new Error('Vector tile metadata unavailable', { cause: error }),
+            new Error(msg('Vector tile metadata unavailable'), {
+              cause: error,
+            }),
             {
               status: error.status ?? null,
               name: error.name === 'TimeoutError' ? 'TimeoutError' : 'Error',
@@ -361,7 +405,7 @@ export function createVectorTileSource({
       const abort = () => reject(signal.reason);
       signal?.addEventListener('abort', abort, { once: true });
       flight.promise
-        .then((value) => resolve(consumerValue(value)), reject)
+        .then(resolve, reject)
         .finally(() => signal?.removeEventListener('abort', abort));
     }).finally(() => {
       if (--flight.users === 0 && flights.get(key) === flight) {
@@ -373,34 +417,19 @@ export function createVectorTileSource({
 
   async function getTile(tile, meta, signal, epoch) {
     signal?.throwIfAborted();
+    if (epoch !== generation)
+      throw new DOMException('Source cleared', 'AbortError');
     const key = `${meta.template}:${tile.z}/${tile.x}/${tile.y}`;
+    const sharedKey = `${sharedDecoderKey(decode)}:${key}`;
     const hit = cache.get(key);
     if (hit && now() - hit.at < ttlMs) {
       cache.delete(key);
       cache.set(key, hit);
-      return consumerValue(hit.value);
+      return hit.value;
     }
     if (hit) {
       cache.delete(key);
       cacheBytes -= hit.size;
-    }
-    const shared = sharedDecodedCache?.get(key);
-    if (shared) {
-      // A shared decode is authoritative cache state. Give each consumer its
-      // own value so traffic, outlines, or a future caller cannot mutate the
-      // cached object (including nested coordinate arrays) for everyone else.
-      const value = structuredClone(selectDecoded(shared.value, tile));
-      const size = shared.size;
-      if (epoch === generation && size <= maxCacheBytes) {
-        cache.set(key, { at: now(), value, size });
-        cacheBytes += size;
-        while (cache.size > maxEntries || cacheBytes > maxCacheBytes) {
-          const oldest = cache.keys().next().value;
-          cacheBytes -= cache.get(oldest).size;
-          cache.delete(oldest);
-        }
-      }
-      return consumerValue(value);
     }
     const loadDecoded = async (ownedSignal, sharedOwnership = false) => {
       await acquire(ownedSignal);
@@ -453,15 +482,23 @@ export function createVectorTileSource({
       flights.set(key, flight);
       flight.promise = (async () => {
         const decodedEntry = sharedDecodedCache
-          ? await sharedDecodedCache.load(key, ownedSignal, (sharedSignal) =>
-              loadDecoded(sharedSignal, true),
+          ? await sharedDecodedCache.load(
+              sharedKey,
+              ownedSignal,
+              (sharedSignal) => loadDecoded(sharedSignal, true),
             )
           : await loadDecoded(ownedSignal);
         ownedSignal.throwIfAborted();
+        if (sharedDecodedCache) {
+          await nextTask();
+          ownedSignal.throwIfAborted();
+          if (epoch !== generation)
+            throw new DOMException('Source cleared', 'AbortError');
+        }
         const selected = selectDecoded(decodedEntry.value, tile);
+        // Shared entries stay authoritative; consumers own their nested arrays.
         const value = sharedDecodedCache ? structuredClone(selected) : selected;
-        const currentShared = sharedDecodedCache?.get(key);
-        const size = currentShared?.size ?? decodedEntry.size;
+        const size = decodedEntry.size;
         if (epoch === generation && size <= maxCacheBytes) {
           if (cache.has(key)) cacheBytes -= cache.get(key).size;
           cache.delete(key);
@@ -525,10 +562,13 @@ export function createVectorTileSource({
       const limited = candidates.length > maxTiles;
       // Refuse over-wide views instead of silently sampling a northwest strip.
       if (limited)
-        throw Object.assign(new Error('Zoom in for vector tile coverage'), {
-          retryable: false,
-          code: 'TILE_VIEW_TOO_WIDE',
-        });
+        throw Object.assign(
+          new Error(msg('Zoom in for vector tile coverage')),
+          {
+            retryable: false,
+            code: 'TILE_VIEW_TOO_WIDE',
+          },
+        );
       let index = 0;
       const results = new Array(candidates.length);
       await Promise.all(

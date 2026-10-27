@@ -201,18 +201,22 @@ test('outline upgrade preserves the existing SVG group identity', (t) => {
   renderer.destroy();
 });
 
-test('annotation fade consumes the actual tracked host paint rectangle after layout', (t) => {
+test("annotation fade consumes the actual tracked host paint rectangle after layout", (t) => {
   const originalDocument = globalThis.document;
   const originalRequestAnimationFrame = globalThis.requestAnimationFrame;
   const originalProjection = Cesium.SceneTransforms.worldToWindowCoordinates;
   globalThis.document = fakeDocument();
-  globalThis.requestAnimationFrame = (callback) => { callback(); return 1; };
+  globalThis.requestAnimationFrame = (callback) => {
+    callback();
+    return 1;
+  };
   Cesium.SceneTransforms.worldToWindowCoordinates = () => ({ x: 0, y: 0 });
   t.after(() => {
     Cesium.SceneTransforms.worldToWindowCoordinates = originalProjection;
     if (originalDocument === undefined) delete globalThis.document;
     else globalThis.document = originalDocument;
-    if (originalRequestAnimationFrame === undefined) delete globalThis.requestAnimationFrame;
+    if (originalRequestAnimationFrame === undefined)
+      delete globalThis.requestAnimationFrame;
     else globalThis.requestAnimationFrame = originalRequestAnimationFrame;
   });
 
@@ -221,7 +225,11 @@ test('annotation fade consumes the actual tracked host paint rectangle after lay
     Cesium.Cartesian3.negate(positionWC, new Cesium.Cartesian3()),
     new Cesium.Cartesian3(),
   );
-  const camera = { positionWC, directionWC, positionCartographic: { height: 1000 } };
+  const camera = {
+    positionWC,
+    directionWC,
+    positionCartographic: { height: 1000 },
+  };
   const scene = {
     camera,
     canvas: { clientWidth: 800, clientHeight: 600, width: 800, height: 600 },
@@ -232,7 +240,7 @@ test('annotation fade consumes the actual tracked host paint rectangle after lay
   const renderer = createScreenAnnotationRenderer(
     { scene, camera, trackedEntity: null },
     {
-      activeTrackedReadoutId: () => 'installations:test',
+      activeTrackedReadoutId: () => "installations:test",
       overlayPaintRect(sourceId, entryId) {
         paintRectCalls.push({ sourceId, entryId });
         return { x: -10, y: -10, w: 120, h: 80 };
@@ -240,22 +248,104 @@ test('annotation fade consumes the actual tracked host paint rectangle after lay
     },
   );
   renderer.add({
-    id: 'anno-overlap',
-    type: 'label',
-    color: 'primary',
-    label: 'OVERLAP',
+    id: "anno-overlap",
+    type: "label",
+    color: "primary",
+    label: "OVERLAP",
     alpha: 1,
     anchor: { lon: 0, lat: 0, height: 0 },
   });
   const { group } = findAnnotationGroup(globalThis.document);
   assert.deepEqual(paintRectCalls.at(-1), {
-    sourceId: 'tracked',
-    entryId: 'installations:test',
+    sourceId: "tracked",
+    entryId: "installations:test",
   });
   assert.ok(
-    Number(group.getAttribute('opacity')) < 1,
-    'final annotation bbox fades against the complete painted card rectangle',
+    Number(group.getAttribute("opacity")) < 1,
+    "final annotation bbox fades against the complete painted card rectangle",
   );
+  const outer = [
+    [0, 0],
+    [0.001, 0],
+    [0.001, 0.001],
+    [0, 0.001],
+    [0, 0],
+  ];
+  const hole = [
+    [0.0002, 0.0002],
+    [0.0004, 0.0002],
+    [0.0004, 0.0004],
+    [0.0002, 0.0004],
+    [0.0002, 0.0002],
+  ];
+  const island = outer.map(([lon, lat]) => [lon + 0.002, lat]);
+  const multipart = {
+    id: "anno-multipart-screen",
+    label: "Multipart",
+    type: "area",
+    color: "primary",
+    alpha: 1,
+    anchor: { lon: 0, lat: 0, height: 0 },
+    ring: outer,
+    polygons: [[outer, hole], [island]],
+    synthesized: false,
+  };
+  renderer.add(multipart);
+  const area = globalThis.document.body.querySelector(".gev-anno-area");
+  assert.equal(area.tagName, "path");
+  assert.equal(area.getAttribute("fill-rule"), "evenodd");
+  assert.equal(
+    (area.getAttribute("d").match(/M /g) || []).length,
+    3,
+    "screen fill retains both parts and the hole",
+  );
+
+  multipart.polygons = [
+    [island.map(([lon, lat]) => [lon + 180, lat])],
+    [outer, hole],
+  ];
+  renderer.sync();
+  assert.equal(
+    (area.getAttribute("d").match(/M /g) || []).length,
+    2,
+    "an island behind the globe cannot hide the visible part and its hole",
+  );
+  assert.notEqual(area.parentNode.style.display, "none");
+  assert.doesNotMatch(
+    area.parentNode
+      .querySelector(".gev-anno-callout")
+      .getAttribute("transform"),
+    /NaN/,
+  );
+  multipart.polygons = [[outer, hole]];
+  Cesium.SceneTransforms.worldToWindowCoordinates = (_scene, world) => {
+    const lon = Cesium.Math.toDegrees(
+      Cesium.Cartographic.fromCartesian(world).longitude,
+    );
+    return { x: lon > 0.0009 ? 2401 : 0, y: 0 };
+  };
+  renderer.sync();
+  assert.equal(
+    (area.getAttribute("d").match(/M /g) || []).length,
+    2,
+    "finite offscreen shell coordinates cannot hide a visible holed part",
+  );
+  assert.notEqual(area.parentNode.style.display, "none");
+  multipart.polygons = [[outer, hole], [island]];
+  Cesium.SceneTransforms.worldToWindowCoordinates = (_scene, world) => {
+    const lon = Cesium.Math.toDegrees(
+      Cesium.Cartographic.fromCartesian(world).longitude,
+    );
+    return Math.abs(lon - 0.0002) < 1e-7 ? undefined : { x: 0, y: 0 };
+  };
+  renderer.sync();
+  assert.equal(
+    (area.getAttribute("d").match(/M /g) || []).length,
+    1,
+    "an unprojectable hole omits its entire part, not the independently visible island",
+  );
+  assert.notEqual(area.parentNode.style.display, "none");
+
   renderer.destroy();
 });
 

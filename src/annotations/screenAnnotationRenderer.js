@@ -4,6 +4,12 @@ import {
   getActiveTrackedReadoutId,
   TRACKED_OVERLAY_SOURCE_ID,
 } from '../data/trackedReadout.js';
+import { t } from '../i18n/index.js';
+
+/** A label whose detailed outline could not be resolved. */
+function outlineUnavailableLabel(label) {
+  return t('{label} · Detailed outline unavailable', { label: label || '' });
+}
 
 /**
  * Screen-space annotation renderer (Direction B — the "whiteboard" aesthetic).
@@ -151,9 +157,10 @@ export function createScreenAnnotationRenderer(
     if (anno.type === 'area' && anno.ring && anno.ring.length >= 3) {
       // Synthesized (buffered/approximate) areas render DASHED + fainter, with no
       // "draw-on" gesture, so they never masquerade as an authoritative boundary.
-      parts.poly = svgEl('polygon', {
+      parts.poly = svgEl('path', {
         class: anno.synthesized ? 'gev-anno-area' : 'gev-anno-area gev-draw',
         fill: c,
+        'fill-rule': 'evenodd',
         stroke: c,
         'fill-opacity': anno.synthesized ? '0.08' : '0.14',
         'stroke-width': '2.5',
@@ -163,7 +170,7 @@ export function createScreenAnnotationRenderer(
       group.appendChild(parts.poly);
       parts.label = makeCallout(
         anno.outlineUnavailable
-          ? `${anno.label || ''} · Detailed outline unavailable`
+          ? outlineUnavailableLabel(anno.label)
           : anno.label,
         c,
       );
@@ -181,7 +188,7 @@ export function createScreenAnnotationRenderer(
       group.appendChild(parts.path);
       parts.label = makeCallout(
         anno.outlineUnavailable
-          ? `${anno.label || ''} · Detailed outline unavailable`
+          ? outlineUnavailableLabel(anno.label)
           : anno.label,
         c,
       );
@@ -215,7 +222,7 @@ export function createScreenAnnotationRenderer(
       });
       parts.label = makeCallout(
         anno.outlineUnavailable
-          ? `${anno.label || ''} · Detailed outline unavailable`
+          ? outlineUnavailableLabel(anno.label)
           : anno.label,
         c,
       );
@@ -259,7 +266,7 @@ export function createScreenAnnotationRenderer(
       group.appendChild(parts.leader);
       parts.label = makeCallout(
         anno.outlineUnavailable
-          ? `${anno.label || ''} · Detailed outline unavailable`
+          ? outlineUnavailableLabel(anno.label)
           : anno.label,
         c,
       );
@@ -322,7 +329,7 @@ export function createScreenAnnotationRenderer(
     }
     rec.anno = anno;
     if (anno.outlineUnavailable && rec.parts.label) {
-      rec.parts.label.text.textContent = `${anno.label || ''} · Detailed outline unavailable`;
+      rec.parts.label.text.textContent = outlineUnavailableLabel(anno.label);
       sizeCallout(rec.parts.label);
     }
 
@@ -352,7 +359,7 @@ export function createScreenAnnotationRenderer(
     // Area-type updates route through the hybrid proxy only.
   }
 
-  function project(lon, lat) {
+  function project(lon, lat, allowOffscreen = false) {
     // Anchor at the real surface height (cached + validated), so marks sit on
     // the ground/building instead of at sea level. The settle-once cache keeps
     // it stable (no per-frame jitter that earlier broke nearby projections).
@@ -376,7 +383,11 @@ export function createScreenAnnotationRenderer(
     // Reject absurd off-screen projections (anchor not in view).
     const w = scene.canvas.clientWidth || scene.canvas.width;
     const h = scene.canvas.clientHeight || scene.canvas.height;
-    if (win.x < -w || win.x > 2 * w || win.y < -h || win.y > 2 * h) return null;
+    if (
+      !allowOffscreen &&
+      (win.x < -w || win.x > 2 * w || win.y < -h || win.y > 2 * h)
+    )
+      return null;
     return { x: win.x, y: win.y };
   }
 
@@ -481,20 +492,40 @@ export function createScreenAnnotationRenderer(
       group.setAttribute('opacity', String(anno.alpha ?? 1));
 
       if (anno.type === 'area' && parts.poly) {
-        const pts = [];
+        const paths = [];
         let cx = 0;
         let cy = 0;
         let n = 0;
-        for (const [lon, lat] of anno.ring) {
-          const p = project(lon, lat);
-          if (!p) continue;
-          pts.push(`${p.x.toFixed(1)},${p.y.toFixed(1)}`);
-          cx += p.x;
-          cy += p.y;
-          n++;
+        const polygons = anno.polygons?.length ? anno.polygons : [[anno.ring]];
+        for (const polygon of polygons) {
+          const projectedRings = polygon.map((ring) =>
+            ring.map(([lon, lat]) => project(lon, lat, polygon.length > 1)),
+          );
+          // Keep the historical visible-outer projection, but never fill over
+          // an unprojectable hole or hide another independently visible part.
+          const outer = projectedRings[0].filter(Boolean);
+          const holes = projectedRings.slice(1);
+          if (
+            outer.length < 3 ||
+            (holes.length && projectedRings[0].some((p) => !p)) ||
+            holes.some((ring) => ring.length < 3 || ring.some((p) => !p))
+          )
+            continue;
+          for (const projected of [outer, ...holes]) {
+            paths.push(
+              `M ${projected.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L ')} Z`,
+            );
+          }
+          if (!n) {
+            for (const p of outer) {
+              cx += p.x;
+              cy += p.y;
+              n++;
+            }
+          }
         }
-        if (pts.length >= 3) {
-          parts.poly.setAttribute('points', pts.join(' '));
+        if (paths.length) {
+          parts.poly.setAttribute('d', paths.join(' '));
           group.style.display = '';
           if (parts.label)
             positionCallout(parts.label, cx / n, cy / n - 6, true);

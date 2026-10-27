@@ -30,7 +30,10 @@ import {
 const TILES = [6745, 6746].map((y) =>
   decodeOpenFreeMapOutlineTile(
     readFileSync(
-      new URL(`../data/fixtures/ofm-outlines-austin-14-3743-${y}.pbf`, import.meta.url),
+      new URL(
+        `../data/fixtures/ofm-outlines-austin-14-3743-${y}.pbf`,
+        import.meta.url,
+      ),
     ),
     14,
     3743,
@@ -79,12 +82,21 @@ function ladder(baseAnswer) {
     },
     finish: (fp, scope) => {
       calls.finished.push(scope);
-      return { ring: fp.ring, polygons: fp.polygons, footprintKind: fp.kind, synthesized: false };
+      return {
+        ring: fp.ring,
+        polygons: fp.polygons,
+        footprintKind: fp.kind,
+        synthesized: false,
+      };
     },
   };
 }
 
-const UNAVAILABLE = { unavailable: true, retryable: false, code: 'OVERPASS_NOT_CONFIGURED' };
+const UNAVAILABLE = {
+  unavailable: true,
+  retryable: false,
+  code: 'OVERPASS_NOT_CONFIGURED',
+};
 const ctx = (overrides) => ({
   scope: 'auto',
   target: 'X',
@@ -107,7 +119,10 @@ test('ask wording helpers', () => {
   assert.equal(nominatimKindFor({ scope: 'city' }), 'city');
   assert.equal(nominatimKindFor({ scope: 'state' }), 'admin');
   assert.equal(nominatimKindFor({ scope: 'compound' }), 'landmark');
-  assert.equal(nominatimKindFor({ scope: 'building', groundsLike: true }), 'landmark');
+  assert.equal(
+    nominatimKindFor({ scope: 'building', groundsLike: true }),
+    'landmark',
+  );
   assert.equal(nominatimKindFor({ scope: 'neighborhood' }), null);
   assert.equal(nominatimKindFor({ scope: 'street' }), null);
   assert.equal(nominatimKindFor({ scope: 'compound', pointLike: true }), null);
@@ -119,12 +134,17 @@ test('a street comes from tiles before the configured ladder, as merged ribbons'
   const credits = [];
   const run = ladder(UNAVAILABLE);
   const result = await createOutlineRungs({ tiles, nominatim }).resolve(
-    ctx({ scope: 'street', target: 'Congress Avenue', matchName: 'Congress Avenue', credit: (k) => credits.push(k) }),
+    ctx({
+      scope: 'street',
+      target: 'Congress Avenue',
+      matchName: 'Congress Avenue',
+      credit: (k) => credits.push(k),
+    }),
     run,
   );
   assert.ok(result.ring.length > 6);
   assert.equal(result.polygons.length, 1);
-  assert.equal(result.outlineSource, 'openfreemap');
+  assert.equal('outlineSource' in result, false);
   assert.equal(run.calls.base, 0, 'the ladder is not consulted');
   assert.deepEqual(run.calls.finished, ['street']);
   assert.deepEqual(credits, ['tiles']);
@@ -134,8 +154,15 @@ test('a street comes from tiles before the configured ladder, as merged ribbons'
 
 test('a street the tiles do not name falls through to the ladder', async () => {
   const run = ladder(UNAVAILABLE);
-  const result = await createOutlineRungs({ tiles: fixtureTiles(), nominatim: fakeNominatim(null) }).resolve(
-    ctx({ scope: 'street', target: 'Lombard Street', matchName: 'Lombard Street' }),
+  const result = await createOutlineRungs({
+    tiles: fixtureTiles(),
+    nominatim: fakeNominatim(null),
+  }).resolve(
+    ctx({
+      scope: 'street',
+      target: 'Lombard Street',
+      matchName: 'Lombard Street',
+    }),
     run,
   );
   assert.equal(result, UNAVAILABLE);
@@ -145,24 +172,61 @@ test('a street the tiles do not name falls through to the ladder', async () => {
 test('"circle this building" picks the tile building at the point first', async () => {
   const nominatim = fakeNominatim(null);
   const run = ladder(UNAVAILABLE);
-  const result = await createOutlineRungs({ tiles: fixtureTiles(), nominatim }).resolve(
+  const result = await createOutlineRungs({
+    tiles: fixtureTiles(),
+    nominatim,
+  }).resolve(
     ctx({ scope: 'building', target: 'this building', fromName: false }),
     run,
   );
   assert.equal(result.footprintKind, 'building');
   assert.equal(run.calls.base, 0);
   assert.equal(nominatim.asks.length, 0);
+  const primary = [square(CAPITOL.lat, CAPITOL.lon, 0.0002)];
+  const other = [square(CAPITOL.lat + 0.001, CAPITOL.lon, 0.0002)];
+  const multipart = await createOutlineRungs({
+    tiles: {
+      fetchBounds: async () => ({
+        tiles: [
+          {
+            buildings: [
+              {
+                rings: primary,
+                featureParts: [primary, other],
+                clipped: false,
+                heightM: 20,
+              },
+            ],
+          },
+        ],
+      }),
+    },
+    nominatim,
+  }).resolve(
+    ctx({ scope: 'building', target: 'this building', fromName: false }),
+    ladder(UNAVAILABLE),
+  );
+  assert.deepEqual(
+    multipart.polygons,
+    [primary, other],
+    'the building rung retains all feature parts',
+  );
 });
 
 test('a named building asks Nominatim, then falls back to the tile building', async () => {
   const nominatim = fakeNominatim(null);
-  const result = await createOutlineRungs({ tiles: fixtureTiles(), nominatim }).resolve(
+  const result = await createOutlineRungs({
+    tiles: fixtureTiles(),
+    nominatim,
+  }).resolve(
     ctx({ scope: 'building', target: 'Texas State Capitol' }),
     ladder(UNAVAILABLE),
   );
-  assert.deepEqual(nominatim.asks.map((a) => a.kind), ['building']);
+  assert.deepEqual(
+    nominatim.asks.map((a) => a.kind),
+    ['building'],
+  );
   assert.equal(result.footprintKind, 'building');
-  assert.equal(result.outlineSource, 'openfreemap');
 });
 
 test('a city with no configured Overpass is outlined by Nominatim', async () => {
@@ -170,43 +234,155 @@ test('a city with no configured Overpass is outlined by Nominatim', async () => 
   const nominatim = fakeNominatim({ polygons: [[ring]], class: 'boundary' });
   const credits = [];
   const run = ladder(UNAVAILABLE);
-  const result = await createOutlineRungs({ tiles: fixtureTiles(), nominatim }).resolve(
-    ctx({ scope: 'city', target: 'Toulouse, France', matchName: 'Toulouse', credit: (k) => credits.push(k) }),
+  const result = await createOutlineRungs({
+    tiles: fixtureTiles(),
+    nominatim,
+  }).resolve(
+    ctx({
+      scope: 'city',
+      target: 'Toulouse, France',
+      matchName: 'Toulouse',
+      lat: 43.6,
+      lon: 1.44,
+      credit: (k) => credits.push(k),
+    }),
     run,
   );
   assert.deepEqual(result.ring, ring);
-  assert.equal(result.outlineSource, 'nominatim');
-  assert.deepEqual(nominatim.asks[0], { query: 'Toulouse', kind: 'city', lat: CAPITOL.lat, lon: CAPITOL.lon });
-  assert.deepEqual(run.calls.finished, ['city'], 'scope caps and drift bound still apply');
+  assert.deepEqual(nominatim.asks[0], {
+    query: 'Toulouse',
+    kind: 'city',
+    lat: CAPITOL.lat,
+    lon: CAPITOL.lon,
+  });
+  assert.deepEqual(
+    run.calls.finished,
+    ['city'],
+    'scope caps and drift bound still apply',
+  );
   assert.deepEqual(credits, ['osm']);
+});
+
+test('an empty Nominatim polygon list falls back without throwing', async () => {
+  const nominatim = fakeNominatim({ polygons: [], class: 'boundary' });
+  const result = await createOutlineRungs({
+    tiles: fixtureTiles(),
+    nominatim,
+  }).resolve(
+    ctx({ scope: 'city', target: 'Nowhere', matchName: 'Nowhere' }),
+    ladder(UNAVAILABLE),
+  );
+  assert.equal(result, UNAVAILABLE);
+});
+
+test('named outlines must contain the resolved anchor outside holes', async () => {
+  const anchor = { lat: 0, lon: 0 };
+  for (const context of [
+    { scope: 'city' },
+    { scope: 'state' },
+    { scope: 'building' },
+    { scope: 'compound' },
+    { scope: 'building', groundsLike: true },
+  ]) {
+    for (const polygons of [
+      [[square(0, 0.04, 0.01)]],
+      [[square(0, 0, 0.05), square(0, 0, 0.01)]],
+    ]) {
+      const nominatim = fakeNominatim({ polygons, class: 'boundary' });
+      const run = ladder(UNAVAILABLE);
+      const credits = [];
+      const result = await createOutlineRungs({
+        tiles: { fetchBounds: async () => ({ tiles: [] }) },
+        nominatim,
+      }).resolve(
+        ctx({
+          ...anchor,
+          ...context,
+          target: 'Gateville',
+          matchName: 'Gateville',
+          view: { lat: 0, lon: 0.04, radiusKm: 1 },
+          credit: (kind) => credits.push(kind),
+        }),
+        run,
+      );
+      assert.equal(
+        result,
+        UNAVAILABLE,
+        `${JSON.stringify(context)}: reject geometry outside the anchor`,
+      );
+      assert.equal(nominatim.asks.length, 1);
+      assert.deepEqual(
+        run.calls.finished,
+        [],
+        'rejected boundary never reaches installation',
+      );
+      assert.deepEqual(
+        credits,
+        [],
+        'rejected boundary earns no outline credit',
+      );
+    }
+  }
+  const ring = square(0, 0, 0.01);
+  const valid = await createOutlineRungs({
+    tiles: { fetchBounds: async () => ({ tiles: [] }) },
+    nominatim: fakeNominatim({ polygons: [[ring]], class: 'building' }),
+  }).resolve(
+    ctx({ ...anchor, scope: 'building', target: 'Gateville' }),
+    ladder(UNAVAILABLE),
+  );
+  assert.deepEqual(
+    valid.ring,
+    ring,
+    'the containing named building remains valid',
+  );
 });
 
 test('a multi-part city leads with the part holding the anchor, not the largest', async () => {
   const sea = square(33.5, 139.5, 0.8); // larger, far from the anchor
+  const outer = square(CAPITOL.lat, CAPITOL.lon, 0.4);
+  const hole = square(CAPITOL.lat, CAPITOL.lon, 0.3);
   const land = square(CAPITOL.lat, CAPITOL.lon, 0.2);
-  const nominatim = fakeNominatim({ polygons: [[sea], [land]], class: 'boundary' });
-  const result = await createOutlineRungs({ tiles: fixtureTiles(), nominatim }).resolve(
+  const nominatim = fakeNominatim({
+    polygons: [[sea], [outer, hole], [land]],
+    class: 'boundary',
+  });
+  const result = await createOutlineRungs({
+    tiles: fixtureTiles(),
+    nominatim,
+  }).resolve(
     ctx({ scope: 'city', target: 'Tokyo', matchName: 'Tokyo' }),
     ladder(UNAVAILABLE),
   );
-  assert.deepEqual(result.ring, land, 'the main ring (centroid, scope cap) is the anchored part');
-  assert.equal(result.polygons.length, 2, 'every part is still drawn');
+  assert.deepEqual(
+    result.ring,
+    land,
+    'the main ring (centroid, scope cap) is the anchored part',
+  );
+  assert.deepEqual(
+    result.polygons,
+    [[land], [sea], [outer, hole]],
+    'every part and hole is retained',
+  );
 });
 
 test('a real outline from the ladder (bundled or operator Overpass) is kept', async () => {
   const nominatim = fakeNominatim(null);
   const outline = { ring: square(0, 0, 1), synthesized: false };
-  const result = await createOutlineRungs({ tiles: fixtureTiles(), nominatim }).resolve(
-    ctx({ scope: 'city', target: 'Austin' }),
-    ladder(outline),
-  );
+  const result = await createOutlineRungs({
+    tiles: fixtureTiles(),
+    nominatim,
+  }).resolve(ctx({ scope: 'city', target: 'Austin' }), ladder(outline));
   assert.equal(result, outline);
   assert.equal(nominatim.asks.length, 0);
 });
 
 test('a transient ladder failure stays retryable without spending a lookup', async () => {
   const nominatim = fakeNominatim(null);
-  const result = await createOutlineRungs({ tiles: fixtureTiles(), nominatim }).resolve(
+  const result = await createOutlineRungs({
+    tiles: fixtureTiles(),
+    nominatim,
+  }).resolve(
     ctx({ scope: 'compound', target: 'Zilker Park' }),
     ladder(undefined),
   );
@@ -215,39 +391,123 @@ test('a transient ladder failure stays retryable without spending a lookup', asy
 });
 
 test('no Nominatim outline leaves the honest point; busy stays retryable', async () => {
-  const rungs = (answer) => createOutlineRungs({ tiles: fixtureTiles(), nominatim: fakeNominatim(answer) });
-  assert.equal(await rungs(null).resolve(ctx({ scope: 'compound', target: 'Nowhere Park' }), ladder(UNAVAILABLE)), UNAVAILABLE);
+  const rungs = (answer) =>
+    createOutlineRungs({
+      tiles: fixtureTiles(),
+      nominatim: fakeNominatim(answer),
+    });
+  assert.equal(
+    await rungs(null).resolve(
+      ctx({ scope: 'compound', target: 'Nowhere Park' }),
+      ladder(UNAVAILABLE),
+    ),
+    UNAVAILABLE,
+  );
   const busy = { rateLimited: true, retryAfterMs: 5000 };
-  assert.equal(await rungs(busy).resolve(ctx({ scope: 'compound', target: 'Zilker Park' }), ladder(UNAVAILABLE)), busy);
+  assert.equal(
+    await rungs(busy).resolve(
+      ctx({ scope: 'compound', target: 'Zilker Park' }),
+      ladder(UNAVAILABLE),
+    ),
+    busy,
+  );
   // After an operator's definitive miss, a busy Nominatim does not invite retries.
-  assert.equal(await rungs(busy).resolve(ctx({ scope: 'compound', target: 'Zilker Park' }), ladder(null)), null);
+  assert.equal(
+    await rungs(busy).resolve(
+      ctx({ scope: 'compound', target: 'Zilker Park' }),
+      ladder(null),
+    ),
+    null,
+  );
 });
 
 test('grounds: a building-sized answer is not the grounds; a real enclosure is', async () => {
-  const dome = { polygons: [[square(30.2747, -97.7403, 0.0003)]], class: 'office' };
-  const grounds = { polygons: [[square(30.2747, -97.7403, 0.002)]], class: 'leisure' };
-  // The dome is refused; the open area enclosing the point stands in.
-  const small = await createOutlineRungs({ tiles: fixtureTiles(), nominatim: fakeNominatim(dome) }).resolve(
-    ctx({ scope: 'building', target: 'Texas Capitol grounds', groundsLike: true }),
+  const dome = {
+    polygons: [[square(30.2747, -97.7403, 0.0003)]],
+    class: 'office',
+  };
+  const grounds = {
+    polygons: [[square(30.2747, -97.7403, 0.002)]],
+    class: 'leisure',
+  };
+  // The dome is refused; an unlabeled enclosure cannot stand in as exact grounds.
+  const small = await createOutlineRungs({
+    tiles: fixtureTiles(),
+    nominatim: fakeNominatim(dome),
+  }).resolve(
+    ctx({
+      scope: 'building',
+      target: 'Texas Capitol grounds',
+      groundsLike: true,
+    }),
     ladder(UNAVAILABLE),
   );
-  assert.equal(small.outlineSource, 'openfreemap');
-  assert.equal(small.footprintKind, 'area');
+  assert.equal(small, UNAVAILABLE);
+  const namedRing = square(CAPITOL.lat, CAPITOL.lon, 0.002);
+  const named = await createOutlineRungs({
+    tiles: {
+      fetchBounds: async () => ({
+        tiles: [
+          {
+            areas: [
+              {
+                name: 'Texas Capitol',
+                rings: [namedRing],
+                class: 'park',
+                clipped: false,
+              },
+            ],
+          },
+        ],
+      }),
+    },
+    nominatim: fakeNominatim(dome),
+  }).resolve(
+    ctx({
+      scope: 'building',
+      target: 'Texas Capitol grounds',
+      groundsLike: true,
+    }),
+    ladder(UNAVAILABLE),
+  );
+  assert.equal(
+    named.footprintKind,
+    'area',
+    'genuine matching named tile grounds remain supported',
+  );
+  assert.deepEqual(named.polygons, [[namedRing]]);
   // Without enclosing tile cover, the honest point remains.
   const bare = await createOutlineRungs({
     tiles: { fetchBounds: async () => ({ tiles: [] }) },
     nominatim: fakeNominatim(dome),
-  }).resolve(ctx({ scope: 'building', target: 'Texas Capitol grounds', groundsLike: true }), ladder(UNAVAILABLE));
+  }).resolve(
+    ctx({
+      scope: 'building',
+      target: 'Texas Capitol grounds',
+      groundsLike: true,
+    }),
+    ladder(UNAVAILABLE),
+  );
   assert.equal(bare, UNAVAILABLE);
   const nominatim = fakeNominatim(grounds);
   const run = ladder(UNAVAILABLE);
-  const big = await createOutlineRungs({ tiles: fixtureTiles(), nominatim }).resolve(
-    ctx({ scope: 'building', target: 'the Texas Capitol grounds', groundsLike: true }),
+  const big = await createOutlineRungs({
+    tiles: fixtureTiles(),
+    nominatim,
+  }).resolve(
+    ctx({
+      scope: 'building',
+      target: 'the Texas Capitol grounds',
+      groundsLike: true,
+    }),
     run,
   );
   assert.equal(big.footprintKind, 'area');
   assert.deepEqual(run.calls.finished, ['compound']);
-  assert.deepEqual(nominatim.asks.map((a) => [a.query, a.kind]), [['Texas Capitol', 'landmark']]);
+  assert.deepEqual(
+    nominatim.asks.map((a) => [a.query, a.kind]),
+    [['Texas Capitol', 'landmark']],
+  );
 });
 
 test('point-like, around and neighbourhood asks never reach Nominatim', async () => {
@@ -257,7 +517,10 @@ test('point-like, around and neighbourhood asks never reach Nominatim', async ()
     { scope: 'neighborhood', target: 'Mission District' },
   ]) {
     const nominatim = fakeNominatim(null);
-    await createOutlineRungs({ tiles: fixtureTiles(), nominatim }).resolve(ctx(extra), ladder(UNAVAILABLE));
+    await createOutlineRungs({ tiles: fixtureTiles(), nominatim }).resolve(
+      ctx(extra),
+      ladder(UNAVAILABLE),
+    );
     assert.equal(nominatim.asks.length, 0, JSON.stringify(extra));
   }
 });
@@ -267,14 +530,19 @@ test('point-like, around and neighbourhood asks never reach Nominatim', async ()
 function routes(...plugins) {
   const found = new Map();
   for (const plugin of plugins)
-    plugin.configureServer({ middlewares: { use: (path, handler) => found.set(path, handler) } });
+    plugin.configureServer({
+      middlewares: { use: (path, handler) => found.set(path, handler) },
+    });
   return found;
 }
 
 async function call(handlers, url, init = {}) {
   const parsed = new URL(url, 'http://localhost');
   const mount = [...handlers.keys()]
-    .filter((path) => parsed.pathname === path || parsed.pathname.startsWith(`${path}/`))
+    .filter(
+      (path) =>
+        parsed.pathname === path || parsed.pathname.startsWith(`${path}/`),
+    )
     .sort((a, b) => b.length - a.length)[0];
   if (!mount) return new Response('{}', { status: 404 });
   const req = Readable.from(init.body ? [Buffer.from(init.body)] : []);
@@ -309,22 +577,72 @@ async function call(handlers, url, init = {}) {
 
 const NOMINATIM_ROWS = {
   Toulouse: [
-    { category: 'place', type: 'city', name: 'Toulouse', lat: '43.6', lon: '1.44', geojson: { type: 'Point', coordinates: [1.44, 43.6] } },
-    { category: 'boundary', type: 'administrative', addresstype: 'city', name: 'Toulouse', lat: '43.6', lon: '1.44', osm_type: 'relation', osm_id: 35738, geojson: { type: 'Polygon', coordinates: [square(43.6, 1.44, 0.05)] } },
+    {
+      category: 'place',
+      type: 'city',
+      name: 'Toulouse',
+      lat: '43.6',
+      lon: '1.44',
+      geojson: { type: 'Point', coordinates: [1.44, 43.6] },
+    },
+    {
+      category: 'boundary',
+      type: 'administrative',
+      addresstype: 'city',
+      name: 'Toulouse',
+      lat: '43.6',
+      lon: '1.44',
+      osm_type: 'relation',
+      osm_id: 35738,
+      geojson: { type: 'Polygon', coordinates: [square(43.6, 1.44, 0.05)] },
+    },
   ],
   'Central Park': [
-    { category: 'leisure', type: 'park', name: 'Central Park', lat: '40.78', lon: '-73.965', osm_type: 'relation', osm_id: 8, geojson: { type: 'Polygon', coordinates: [square(40.78, -73.965, 0.01)] } },
+    {
+      category: 'leisure',
+      type: 'park',
+      name: 'Central Park',
+      lat: '40.78',
+      lon: '-73.965',
+      osm_type: 'relation',
+      osm_id: 8,
+      geojson: { type: 'Polygon', coordinates: [square(40.78, -73.965, 0.01)] },
+    },
   ],
 };
 
 const PLACES = {
-  Toulouse: { lat: 43.6, lng: 1.44, name: 'Toulouse', label: 'Toulouse, France', types: ['locality', 'political'] },
-  'Central Park': { lat: 40.78, lng: -73.965, name: 'Central Park', label: 'Central Park, New York', types: ['park'] },
-  'Congress Avenue': { lat: 30.268, lng: -97.7427, name: 'Congress Avenue', label: 'Congress Ave, Austin', types: ['route'] },
+  Toulouse: {
+    lat: 43.6,
+    lng: 1.44,
+    name: 'Toulouse',
+    label: 'Toulouse, France',
+    types: ['locality', 'political'],
+  },
+  'Central Park': {
+    lat: 40.78,
+    lng: -73.965,
+    name: 'Central Park',
+    label: 'Central Park, New York',
+    types: ['park'],
+  },
+  'Congress Avenue': {
+    lat: 30.268,
+    lng: -97.7427,
+    name: 'Congress Avenue',
+    label: 'Congress Ave, Austin',
+    types: ['route'],
+  },
 };
 
 const viewerAt = (lat, lon, height = 4000) => ({
-  camera: { positionCartographic: { latitude: (lat * Math.PI) / 180, longitude: (lon * Math.PI) / 180, height } },
+  camera: {
+    positionCartographic: {
+      latitude: (lat * Math.PI) / 180,
+      longitude: (lon * Math.PI) / 180,
+      height,
+    },
+  },
 });
 
 test('default settings: outline, street and building asks send nothing to Overpass', async (t) => {
@@ -334,13 +652,19 @@ test('default settings: outline, street and building asks send nothing to Overpa
     if (prior !== undefined) process.env.OVERPASS_UPSTREAMS = prior;
   });
   // Any request that escapes the injected transports fails the test.
-  t.mock.method(globalThis, 'fetch', async (url) => assert.fail(`unexpected network request ${url}`));
+  t.mock.method(globalThis, 'fetch', async (url) =>
+    assert.fail(`unexpected network request ${url}`),
+  );
 
   const upstream = [];
   const stateDir = mkdtempSync(path.join(os.tmpdir(), 'gev-outline-rungs-'));
   t.after(() => rmSync(stateDir, { recursive: true, force: true }));
   const gate = createNominatimGate({
-    settings: { endpoint: 'https://nominatim.openstreetmap.org/search', isPublic: true, dailyCap: 50 },
+    settings: {
+      endpoint: 'https://nominatim.openstreetmap.org/search',
+      isPublic: true,
+      dailyCap: 50,
+    },
     fetchImpl: async (url) => {
       upstream.push(String(url));
       const q = new URL(url).searchParams.get('q');
@@ -363,21 +687,32 @@ test('default settings: outline, street and building asks send nothing to Overpa
       nominatim: createNominatimOutlineClient({ fetchImpl: transport }),
     }),
   });
-  const placeSearch = { geocode: async (q) => ({ place: PLACES[q] || null, answered: true }) };
+  const placeSearch = {
+    geocode: async (q) => ({ place: PLACES[q] || null, answered: true }),
+  };
   const resolve = async (viewer, args) => {
-    const result = await resolver.resolveAnnotationTarget({ viewer, placeSearch, footprint: true, deferFootprint: true, ...args });
+    const result = await resolver.resolveAnnotationTarget({
+      viewer,
+      placeSearch,
+      footprint: true,
+      deferFootprint: true,
+      ...args,
+    });
     return { result, outline: await result.resolveOutline() };
   };
 
-  const paris = await resolve(viewerAt(43.6, 1.44, 40_000), { target: 'Toulouse' });
+  const paris = await resolve(viewerAt(43.6, 1.44, 40_000), {
+    target: 'Toulouse',
+  });
   assert.ok(paris.outline?.ring?.length >= 4, 'city outlined');
-  assert.equal(paris.outline.outlineSource, 'nominatim');
 
-  const park = await resolve(viewerAt(40.78, -73.965), { target: 'Central Park' });
-  assert.equal(park.outline?.outlineSource, 'nominatim');
+  const park = await resolve(viewerAt(40.78, -73.965), {
+    target: 'Central Park',
+  });
 
-  const street = await resolve(viewerAt(30.27, -97.742), { target: 'Congress Avenue' });
-  assert.equal(street.outline?.outlineSource, 'openfreemap');
+  const street = await resolve(viewerAt(30.27, -97.742), {
+    target: 'Congress Avenue',
+  });
 
   const building = await resolve(viewerAt(30.2747, -97.7403, 800), {
     latitude: CAPITOL.lat,
@@ -386,37 +721,55 @@ test('default settings: outline, street and building asks send nothing to Overpa
     target: 'this building',
   });
   assert.equal(building.outline?.footprintKind, 'building');
-  assert.equal(building.outline?.outlineSource, 'openfreemap');
 
-  assert.ok(upstream.every((url) => url.startsWith('https://nominatim.openstreetmap.org/search?')));
-  assert.equal(upstream.length, 2, 'one upstream request per explicit ask that needed one');
+  assert.ok(
+    upstream.every((url) =>
+      url.startsWith('https://nominatim.openstreetmap.org/search?'),
+    ),
+  );
+  assert.equal(
+    upstream.length,
+    2,
+    'one upstream request per explicit ask that needed one',
+  );
   assert.ok(!upstream.some((url) => /overpass/i.test(url)));
   // The only Overpass traffic is the local capability probe, answered locally.
   assert.ok(
-    local.filter((line) => line.includes('/api/overpass')).every((line) => line === 'GET /api/overpass/status'),
+    local
+      .filter((line) => line.includes('/api/overpass'))
+      .every((line) => line === 'GET /api/overpass/status'),
     local.join('\n'),
   );
 });
 
 test('a cancelled ask stops between rungs and never reaches Nominatim', async () => {
-  const nominatim = fakeNominatim({ polygons: [[square(43.6, 1.44, 0.05)]], class: 'boundary' });
+  const nominatim = fakeNominatim({
+    polygons: [[square(43.6, 1.44, 0.05)]],
+    class: 'boundary',
+  });
   const rungs = createOutlineRungs({ tiles: fixtureTiles(), nominatim });
   // Cancelled while the configured ladder ran.
   const controller = new AbortController();
   await assert.rejects(
-    rungs.resolve(ctx({ scope: 'city', target: 'Toulouse', signal: controller.signal }), {
-      base: async () => {
-        controller.abort();
-        return UNAVAILABLE;
+    rungs.resolve(
+      ctx({ scope: 'city', target: 'Toulouse', signal: controller.signal }),
+      {
+        base: async () => {
+          controller.abort();
+          return UNAVAILABLE;
+        },
+        finish: (fp) => fp,
       },
-      finish: (fp) => fp,
-    }),
+    ),
     { name: 'AbortError' },
   );
   // Cancelled before it started: not even the ladder runs.
   const run = ladder(UNAVAILABLE);
   await assert.rejects(
-    rungs.resolve(ctx({ scope: 'city', target: 'Toulouse', signal: AbortSignal.abort() }), run),
+    rungs.resolve(
+      ctx({ scope: 'city', target: 'Toulouse', signal: AbortSignal.abort() }),
+      run,
+    ),
     { name: 'AbortError' },
   );
   assert.equal(run.calls.base, 0);

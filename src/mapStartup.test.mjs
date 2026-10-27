@@ -1,5 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
+import { createGoogleTokenSource } from './maps/googleTokens.js';
 import {
   loadPhotorealisticTileset,
   selectMapStartupRoute,
@@ -15,7 +18,16 @@ function fakeCesium(outcomes = []) {
   return {
     calls,
     Ion: { defaultAccessToken: undefined },
-    GoogleMaps: { defaultApiKey: undefined },
+    GoogleMaps: {
+      defaultApiKey: undefined,
+      mapTilesApiEndpoint: 'https://tile.googleapis.com/',
+      getDefaultCredit: () => undefined,
+    },
+    Resource: class {
+      constructor(options) {
+        Object.assign(this, options);
+      }
+    },
     async createGooglePhotorealistic3DTileset(options) {
       calls.push({ options, googleKey: options.key });
       return next();
@@ -29,6 +41,7 @@ function fakeCesium(outcomes = []) {
       async fromUrl(resource, options) {
         calls.push({
           options,
+          resource,
           ionToken: resource.accessToken,
           assetId: resource.assetId,
         });
@@ -37,6 +50,78 @@ function fakeCesium(outcomes = []) {
     },
   };
 }
+
+async function standaloneStartup(Cesium, credentials, fetchImpl) {
+  // Exercise the actual assembly; replace browser-only imports at its scene seam.
+  const source = readFileSync(
+    new URL('./standalone/application.js', import.meta.url),
+    'utf8',
+  )
+    .replace(/^import .*;\n/gm, '')
+    .replace(/^export /gm, '');
+  const context = vm.createContext({
+    document: {
+      getElementById: () => ({ querySelector: () => ({}) }),
+    },
+    resolveLocale: () => 'en',
+    setLocale() {},
+    applyDocumentLanguage() {},
+    applyDocumentTranslations() {},
+    CITY_POIS: [],
+    createApplication: (options) => options,
+    createStandalonePlaceSearch: () => ({}),
+    createStandaloneCatalog: () => ({}),
+    createGoogleTokenSource: () => createGoogleTokenSource({ fetchImpl }),
+    selectMapStartupRoute,
+    // The real scene forwards these credentials to this same loader.
+    createStandaloneScene: async (options) => ({
+      ...(await loadPhotorealisticTileset(Cesium, options)),
+      operations: {},
+    }),
+  });
+  vm.runInContext(source, context);
+  const app = context.createStandaloneApplication(credentials);
+  return app.createScene({ signal: new AbortController().signal });
+}
+
+test('standalone ion configuration does not probe the optional server token route', async () => {
+  const tileset = { id: 'ion' };
+  const Cesium = fakeCesium([tileset]);
+  const requests = [];
+  const result = await standaloneStartup(
+    Cesium,
+    { cesiumToken: 'ion-fixture' },
+    async (url) => {
+      requests.push(url);
+      return { ok: false };
+    },
+  );
+  assert.equal(result.route, 'google-ion');
+  assert.equal(result.tileset, tileset);
+  assert.deepEqual(requests, []);
+  assert.deepEqual(result.errors, []);
+  assert.equal(Cesium.calls[0].assetId, 2275207);
+});
+
+test('standalone without configured credentials does not probe an unsupported token route', async () => {
+  const Cesium = fakeCesium();
+  const requests = [];
+  const result = await standaloneStartup(Cesium, {}, async (url) => {
+    requests.push(url);
+    return {
+      ok: true,
+      json: async () => ({
+        accessToken: 'server-fixture',
+        expiresAt: Date.now() + 120_000,
+      }),
+    };
+  });
+  assert.equal(result.route, 'osm');
+  assert.equal(result.tileset, null);
+  assert.deepEqual(requests, []);
+  assert.deepEqual(Cesium.calls, []);
+  assert.deepEqual(result.errors, []);
+});
 
 test('map startup route reflects the best configured provider', () => {
   assert.equal(
@@ -139,4 +224,70 @@ test('independent source configurations never mutate shared SDK credentials', as
   assert.equal(Cesium.calls[1].ionToken, 'source-b');
   assert.equal(Cesium.Ion.defaultAccessToken, 'untouched-ion');
   assert.equal(Cesium.GoogleMaps.defaultApiKey, 'untouched-google');
+});
+
+function tokenSource(...issued) {
+  const requests = [];
+  return {
+    requests,
+    async token(options = {}) {
+      requests.push(options);
+      return issued.shift() ?? null;
+    },
+  };
+}
+
+test('without a key, server tokens load Google 3D directly', async () => {
+  const tileset = { id: 'token' };
+  const Cesium = fakeCesium([tileset]);
+  const result = await loadPhotorealisticTileset(Cesium, {
+    googleTokens: tokenSource('short-lived'),
+    cesiumToken: 'ion-secret',
+  });
+  assert.equal(result.tileset, tileset);
+  assert.equal(result.route, 'google-token');
+  const { resource, options } = Cesium.calls[0];
+  assert.equal(
+    resource.url,
+    'https://tile.googleapis.com/v1/3dtiles/root.json',
+  );
+  assert.equal(resource.headers.Authorization, 'Bearer short-lived');
+  assert.equal(resource.queryParameters, undefined);
+  assert.equal(options.enableCollision, true);
+});
+
+test('a tile refused for an expired token retries once with a renewed one', async () => {
+  const Cesium = fakeCesium([{ id: 'token' }]);
+  const tokens = tokenSource('first', 'second');
+  await loadPhotorealisticTileset(Cesium, { googleTokens: tokens });
+  const { resource } = Cesium.calls[0];
+  const tile = { headers: { ...resource.headers } };
+  assert.equal(await resource.retryCallback(tile, { statusCode: 401 }), true);
+  assert.equal(tile.headers.Authorization, 'Bearer second');
+  assert.deepEqual(tokens.requests.at(-1), { replacing: 'first' });
+  assert.equal(resource.retryAttempts, 1);
+  assert.equal(await resource.retryCallback(tile, { statusCode: 500 }), false);
+});
+
+test('a key takes precedence over server tokens', async () => {
+  const Cesium = fakeCesium([{ id: 'direct' }]);
+  const tokens = tokenSource('short-lived');
+  const result = await loadPhotorealisticTileset(Cesium, {
+    googleApiKey: 'google-secret',
+    googleTokens: tokens,
+  });
+  assert.equal(result.route, 'google-direct');
+  assert.equal(tokens.requests.length, 0);
+});
+
+test('a server without tokens falls back to ion', async () => {
+  const tileset = { id: 'ion' };
+  const Cesium = fakeCesium([tileset]);
+  const result = await loadPhotorealisticTileset(Cesium, {
+    googleTokens: tokenSource(),
+    cesiumToken: 'ion-secret',
+  });
+  assert.equal(result.route, 'google-ion');
+  assert.equal(result.errors.length, 1);
+  assert.equal(Cesium.calls.length, 1);
 });

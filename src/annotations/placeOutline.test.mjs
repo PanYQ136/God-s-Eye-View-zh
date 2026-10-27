@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { FEATURE_SOURCE_METHODS } from '../sources/featureSource.js';
 import { createAnnotationResolver } from './resolver.js';
+import { polygonsContain } from '../data/adminBoundaries.js';
 
 function viewerAt(lat, lon, height = 20_000) {
   return {
@@ -169,6 +170,25 @@ test('a geocoded city or neighborhood upgrades to the bundled outline', async ()
     name: 'Austin',
     types: ['locality', 'political'],
   });
+  const controller = new AbortController();
+  const credits = [];
+  const cancelled = await city.resolve(
+    'Austin',
+    {
+      ...viewerAt(39, -100, 5_000_000),
+      creditDisplay: { addStaticCredit: (credit) => credits.push(credit) },
+    },
+    { signal: controller.signal },
+  );
+  const pending = cancelled.resolveOutline();
+  controller.abort();
+  await assert.rejects(pending, { name: 'AbortError' });
+  assert.deepEqual(
+    credits,
+    [],
+    'a cancelled bundled continuation cannot mutate viewer credits',
+  );
+
   // Seen from far away: the view does not settle the name, the geocoder does.
   const resolved = await city.resolve('Austin', viewerAt(39, -100, 5_000_000));
   assert.equal(resolved.source, 'geocode');
@@ -271,10 +291,56 @@ const square = (lat, lon, d) => [
   [lon - d, lat - d],
 ];
 
+test('a courtyard outline with no filled candidate anchor remains a point', async () => {
+  const lat = 0.0005;
+  const lon = 0.0005;
+  const ring = square(lat, lon, 0.0005);
+  const hole = square(lat, lon, 0.0002);
+  const polygons = [[ring, hole]];
+  const { resolve } = harness(null, {
+    outlineRungs: rungsAnswering({
+      ring,
+      polygons,
+      kind: 'building',
+      heightM: 20,
+    }),
+  });
+  const options = { latitude: lat, longitude: lon, entityKind: 'building' };
+  const pending = await resolve(
+    'this building',
+    viewerAt(lat, lon, 1000),
+    options,
+  );
+  const outline = await pending.resolveOutline();
+  assert.equal(
+    outline,
+    null,
+    'neither the mean nor the courtyard point is filled',
+  );
+  const inline = await resolve('this building', viewerAt(lat, lon, 1000), {
+    ...options,
+    deferFootprint: false,
+  });
+  assert.equal(inline.ring, null);
+  assert.deepEqual(
+    [inline.lat, inline.lon],
+    [lat, lon],
+    'keep the honest point',
+  );
+  for (const resolved of [outline, inline]) {
+    if (resolved?.polygons)
+      assert.ok(polygonsContain(resolved.polygons, resolved.lat, resolved.lon));
+  }
+});
+
 test('a coarse bundled admin-1 city waits for a finer outline', async () => {
   const overParis = viewerAt(48.8566, 2.3522, 40_000);
-  const ring = square(48.8566, 2.3522, 0.05);
-  const rungs = rungsAnswering({ ring, kind: 'area', heightM: null });
+  // The outer-ring vertex mean is in the hole; the resolved anchor is in
+  // the shell. Completion must not move that valid point into the hole.
+  const ring = square(48.8566, 2.3822, 0.04);
+  const hole = square(48.8566, 2.3822, 0.02);
+  const polygons = [[ring, hole]];
+  const rungs = rungsAnswering({ ring, polygons, kind: 'area', heightM: null });
   const fine = harness(PARIS_PLACE, { outlineRungs: rungs });
   const resolved = await fine.resolve('Paris', overParis);
   assert.equal(
@@ -284,7 +350,17 @@ test('a coarse bundled admin-1 city waits for a finer outline', async () => {
   );
   const outline = await resolved.resolveOutline();
   assert.deepEqual(outline.ring, ring, 'the finer outline wins');
+  assert.deepEqual(outline.polygons, polygons);
+  assert.equal(outline.lat, PARIS_PLACE.lat);
+  assert.equal(outline.lon, PARIS_PLACE.lng);
+  assert.ok(polygonsContain(outline.polygons, outline.lat, outline.lon));
   assert.deepEqual(rungs.asked, [{ scope: 'city', target: 'Paris' }]);
+  const inline = await fine.resolve('Paris', overParis, {
+    deferFootprint: false,
+  });
+  assert.deepEqual(inline.polygons, polygons);
+  assert.equal(inline.lat, outline.lat);
+  assert.equal(inline.lon, outline.lon);
 
   // Nothing finer (Nominatim off, busy or capped): the bundled shape, not a point.
   const coarse = harness(PARIS_PLACE, { outlineRungs: rungsAnswering(null) });
@@ -299,6 +375,29 @@ test('a coarse bundled admin-1 city waits for a finer outline', async () => {
   const direct = await offline.resolve('Paris', overParis);
   assert.equal(direct.source, 'bundled');
   assert.equal(direct.label, 'Paris');
+
+  const overDallas = viewerAt(32.7767, -96.797, 20_000);
+  assert.equal(
+    await offline.resolve('Paris', overDallas),
+    null,
+    'a missing geocode cannot select the distant coarse homonym',
+  );
+  assert.equal(
+    await coarse.resolve('Paris', overDallas),
+    null,
+    'a rejected foreign geocode cannot restore the same distant polygon',
+  );
+  const outsideParis = harness(
+    { ...PARIS_PLACE, lat: 48.9, lng: 2.6 },
+    { outlineRungs: rungsAnswering(null) },
+  );
+  const anchored = await outsideParis.resolve('Paris', overParis);
+  assert.equal(anchored.source, 'geocode');
+  assert.equal(
+    await anchored.resolveOutline(),
+    undefined,
+    'a nearby anchor outside Paris preserves the transient base, not its coarse polygon',
+  );
 });
 
 test('detailed admin-1 units and admin asks keep the bundled shape', async () => {
@@ -357,6 +456,20 @@ test('a campus ask reaches the campus, not the Census place of its town', async 
   ).resolveOutline();
   assert.deepEqual(compound.ring, campus);
   assert.equal(kindRungs.asked[0].scope, 'compound');
+  const labelRungs = rungsAnswering({
+    ring: campus,
+    kind: 'area',
+    heightM: null,
+  });
+  const byLabel = harness(stanfordTown, { outlineRungs: labelRungs });
+  const labelled = await byLabel.resolve(
+    'Stanford',
+    viewerAt(37.43, -122.17, 8000),
+    { labelHint: 'Stanford campus' },
+  );
+  assert.notEqual(labelled.source, 'bundled');
+  assert.deepEqual((await labelled.resolveOutline()).ring, campus);
+  assert.equal(labelRungs.asked[0].scope, 'compound');
   // "Stanford" alone is the town (the Stanford CDP), and a town named after a
   // college stays a town.
   const { resolve } = harness(stanfordTown, {

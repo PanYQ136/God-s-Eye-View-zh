@@ -14,7 +14,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {
   createNominatimGate,
-  createUsageStore,
+  createGateStateStore,
   parseRetryAfter,
   resolveNominatimSettings,
   PUBLIC_NOMINATIM_SEARCH,
@@ -113,9 +113,53 @@ function publicGate(t, options = {}) {
     ...options,
     settings: options.settings || PUBLIC,
     usage:
-      options.usage || createUsageStore({ file: path.join(dir, 'state.json') }),
+      options.usage ||
+      createGateStateStore({ file: path.join(dir, 'state.json') }),
   });
 }
+
+function cancellableFlight(answer) {
+  let release;
+  let sharedSignal;
+  let calls = 0;
+  let markStarted;
+  const started = new Promise((resolve) => {
+    markStarted = resolve;
+  });
+  const gate = {
+    settings: () => OPERATOR,
+    requestJson(_buildUrl, { signal }) {
+      calls += 1;
+      sharedSignal = signal;
+      markStarted();
+      return new Promise((resolve, reject) => {
+        release = () => resolve(answer);
+        signal.addEventListener(
+          'abort',
+          () =>
+            reject(
+              Object.assign(new Error('abandoned'), {
+                code: 'NOMINATIM_ABANDONED',
+              }),
+            ),
+          { once: true },
+        );
+      });
+    },
+  };
+  return {
+    gate,
+    started,
+    release: () => release(),
+    signal: () => sharedSignal,
+    calls: () => calls,
+  };
+}
+
+const emptyCache = () => ({
+  get: async () => null,
+  set: async () => {},
+});
 
 // ---------------------------------------------------------------- settings
 
@@ -160,6 +204,13 @@ test('endpoint settings: unset is public, empty disables, operator URLs are not 
     true,
   );
   assert.equal(
+    resolveNominatimSettings({
+      NOMINATIM_URL: 'http://nominatim.openstreetmap.org/search',
+    }).endpoint,
+    null,
+    'the public service is never contacted over cleartext',
+  );
+  assert.equal(
     resolveNominatimSettings({ NOMINATIM_DAILY_CAP: '7' }).dailyCap,
     7,
   );
@@ -171,6 +222,96 @@ test('endpoint settings: unset is public, empty disables, operator URLs are not 
     resolveNominatimSettings({ NOMINATIM_DAILY_CAP: 'x' }).dailyCap,
     50,
   );
+});
+
+test('one cancelled subscriber does not abort a shared search', async () => {
+  const flight = cancellableFlight([
+    {
+      lat: '48.8566',
+      lon: '2.3522',
+      display_name: 'Paris, France',
+      name: 'Paris',
+      addresstype: 'city',
+      boundingbox: ['48.80', '48.90', '2.25', '2.45'],
+    },
+  ]);
+  const search = createNominatimSearchProvider({
+    gate: flight.gate,
+    cache: emptyCache(),
+  });
+  const cancelled = new AbortController();
+  const first = search('Paris', null, { signal: cancelled.signal });
+  const second = search('Paris');
+  await flight.started;
+  cancelled.abort();
+  await assert.rejects(first, (error) => error.code === 'NOMINATIM_ABANDONED');
+  assert.equal(flight.signal().aborted, false);
+  flight.release();
+  assert.equal((await second).status, 'OK');
+  assert.equal(flight.calls(), 1);
+});
+
+test('one cancelled subscriber does not abort a shared outline', async () => {
+  const flight = cancellableFlight([
+    row({
+      category: 'boundary',
+      type: 'administrative',
+      addresstype: 'city',
+      name: 'Paris',
+    }),
+  ]);
+  const outline = createNominatimOutlineProvider({
+    gate: flight.gate,
+    cache: emptyCache(),
+  });
+  const cancelled = new AbortController();
+  const ask = { query: 'Paris', kind: 'city', lat: 48.85, lon: 2.35 };
+  const first = outline(ask, { signal: cancelled.signal });
+  const second = outline(ask);
+  await flight.started;
+  cancelled.abort();
+  await assert.rejects(first, (error) => error.code === 'NOMINATIM_ABANDONED');
+  assert.equal(flight.signal().aborted, false);
+  flight.release();
+  assert.equal((await second).status, 'OK');
+  assert.equal(flight.calls(), 1);
+});
+
+test('the last cancelled subscriber aborts the shared upstream request', async () => {
+  const flight = cancellableFlight([
+    {
+      lat: '48.8566',
+      lon: '2.3522',
+      display_name: 'Paris, France',
+      name: 'Paris',
+      addresstype: 'city',
+      boundingbox: ['48.80', '48.90', '2.25', '2.45'],
+    },
+  ]);
+  const search = createNominatimSearchProvider({
+    gate: flight.gate,
+    cache: emptyCache(),
+  });
+  const firstController = new AbortController();
+  const secondController = new AbortController();
+  const first = search('Paris', null, { signal: firstController.signal });
+  const second = search('Paris', null, { signal: secondController.signal });
+  const firstRejected = assert.rejects(
+    first,
+    (error) => error.code === 'NOMINATIM_ABANDONED',
+  );
+  const secondRejected = assert.rejects(
+    second,
+    (error) => error.code === 'NOMINATIM_ABANDONED',
+  );
+  await flight.started;
+  firstController.abort();
+  await firstRejected;
+  assert.equal(flight.signal().aborted, false);
+  secondController.abort();
+  await secondRejected;
+  assert.equal(flight.signal().aborted, true);
+  assert.equal(flight.calls(), 1);
 });
 
 test('Retry-After reads seconds and HTTP dates', () => {
@@ -266,7 +407,7 @@ test('an operator endpoint is not subject to public cap, spacing, or durable sta
   const gate = createNominatimGate({
     settings: { ...OPERATOR, dailyCap: 1 },
     fetchImpl,
-    usage: createUsageStore({ file: path.join(blocker, 'state.json') }),
+    usage: createGateStateStore({ file: path.join(blocker, 'state.json') }),
     ...time,
   });
   const search = createNominatimSearchProvider({ gate });
@@ -283,7 +424,7 @@ test('public access fails closed when durable state is missing or unwritable', a
   const withoutState = createNominatimGate({
     settings: PUBLIC,
     fetchImpl,
-    usage: createUsageStore({ onError: () => {} }),
+    usage: createGateStateStore({ onError: () => {} }),
   });
   await assert.rejects(
     createNominatimSearchProvider({ gate: withoutState })('missing', null),
@@ -297,7 +438,7 @@ test('public access fails closed when durable state is missing or unwritable', a
     createNominatimGate({
       settings: PUBLIC,
       fetchImpl,
-      usage: createUsageStore({ file: invalidFile, onError: () => {} }),
+      usage: createGateStateStore({ file: invalidFile, onError: () => {} }),
     });
   await assert.rejects(
     createNominatimSearchProvider({ gate: makeBrokenGate() })('broken', null),
@@ -377,7 +518,7 @@ test('malformed Retry-After values retain the default refusal cooldown', async (
     const gate = publicGate(t, {
       fetchImpl,
       ...time,
-      usage: createUsageStore({
+      usage: createGateStateStore({
         file: path.join(tempDir(t), `malformed-${index}.json`),
       }),
     });
@@ -404,7 +545,7 @@ test('malformed Retry-After values retain the default refusal cooldown', async (
             headers: { 'Retry-After': '2099-01-01' },
           }),
         ...time,
-        usage: createUsageStore({ file }),
+        usage: createGateStateStore({ file }),
       });
     await assert.rejects(
       createNominatimSearchProvider({ gate: makeGate() })(
@@ -491,16 +632,6 @@ test('the queue is bounded', async (t) => {
   );
 });
 
-test('the daily count survives a restart when persisted', () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gev-nominatim-usage-'));
-  const file = path.join(dir, 'usage.json');
-  createUsageStore({ file }).increment('2026-09-28');
-  createUsageStore({ file }).increment('2026-09-28');
-  assert.equal(createUsageStore({ file }).count('2026-09-28'), 2);
-  assert.equal(createUsageStore({ file }).count('2026-09-29'), 0);
-  fs.rmSync(dir, { recursive: true, force: true });
-});
-
 // ---------------------------------------------------------------- caches
 
 test('cache lifetimes: 90 days for outlines, 30 for places, 24 hours for no result', async () => {
@@ -552,6 +683,25 @@ test('the disk cache survives a restart and stays within its bounds', async () =
     await createNominatimCache({ dir, now: time.now }).get('k0'),
     null,
   );
+  assert.equal(
+    fs.statSync(dir).mode & 0o777,
+    0o700,
+    'the query cache directory is private',
+  );
+  const text = fs
+    .readdirSync(dir)
+    .filter((name) => name.endsWith('.json'))
+    .map((name) => fs.readFileSync(path.join(dir, name), 'utf8'))
+    .join('\n');
+  assert.equal(text.includes('k4'), false, 'disk entries never store raw keys');
+  for (const name of fs
+    .readdirSync(dir)
+    .filter((entry) => entry.endsWith('.json')))
+    assert.equal(
+      fs.statSync(path.join(dir, name)).mode & 0o777,
+      0o600,
+      `${name} is private`,
+    );
   fs.rmSync(dir, { recursive: true, force: true });
 });
 
@@ -661,6 +811,52 @@ test('the first polygon-bearing result of the right class is taken (Mumbai)', ()
     'place=city: no polygon',
     'railway=station: wrong type',
   ]);
+
+  const withGeometry = (geojson) =>
+    selectOutlineResult([{ ...boundary, geojson }], {
+      kind: 'city',
+      query: 'Mumbai',
+    }).outline;
+  const parts = Array.from({ length: 24 }, (_, i) => square(i, 0));
+  assert.equal(
+    withGeometry({ type: 'MultiPolygon', coordinates: parts }).polygons.length,
+    24,
+    'all supported parts survive',
+  );
+  const holes = Array.from(
+    { length: 16 },
+    (_, i) => square(0.1 + i * 0.002, 0.1)[0],
+  );
+  assert.equal(
+    withGeometry({
+      type: 'Polygon',
+      coordinates: [square(0, 0, 1)[0], ...holes],
+    }).polygons[0].length,
+    17,
+    'all supported holes survive',
+  );
+  for (const coordinates of [
+    [...parts, square(25, 0)],
+    [[square(0, 0, 1)[0], ...holes, square(0.04, 0)[0]]],
+    [
+      [
+        square(0, 0, 1)[0],
+        [
+          [0, 0],
+          [0, 1],
+          [NaN, 1],
+          [0, 0],
+        ],
+      ],
+    ],
+    [square(0, 0), []],
+  ]) {
+    assert.equal(
+      withGeometry({ type: 'MultiPolygon', coordinates }),
+      null,
+      'unsupported or malformed topology is refused whole, never truncated',
+    );
+  }
 });
 
 test('a result whose name does not answer the ask is passed over', () => {
@@ -703,6 +899,83 @@ test('outlines are held to a vertex cap', () => {
   assert.ok(total <= 6000, `${total} vertices`);
   const first = capped[0][0];
   assert.deepEqual(first[0], first.at(-1), 'rings stay closed');
+
+  const outer = square(0, 0, 1)[0];
+  const hole = square(0.1, 0.1, 0.1)[0];
+  assert.equal(
+    capOutlineVertices([[outer, hole]], 9),
+    null,
+    'a cap cannot discard a hole to make an exact outline fit',
+  );
+  assert.equal(
+    capOutlineVertices([[outer], [hole]], 9),
+    null,
+    'a cap cannot discard a part to make an exact outline fit',
+  );
+
+  const validHole = square(-0.1, -0.1, 0.2)[0];
+  const largeWithHole = capOutlineVertices([[ring, validHole]]);
+  assert.ok(largeWithHole, 'valid large outlines with holes still simplify');
+  assert.equal(largeWithHole[0].length, 2);
+  assert.ok(largeWithHole.flat().reduce((n, r) => n + r.length, 0) <= 6000);
+  const bay = [
+    [0, 0],
+    [0.001, 0],
+    [0.001, 0.0004],
+    [0.00101, 0.0004],
+    [0.00101, 0.0006],
+    [0.001, 0.0006],
+    [0.001, 0.001],
+    [0, 0.001],
+    [0, 0],
+  ];
+  const bayHole = [
+    [0.001003, 0.00045],
+    [0.001007, 0.00045],
+    [0.001007, 0.00055],
+    [0.001003, 0.00055],
+    [0.001003, 0.00045],
+  ];
+  const denseBay = bay.slice(0, -1).flatMap((point, i) => {
+    const end = bay[i + 1];
+    const steps = i === 0 || i === 6 ? 3001 : 1;
+    return Array.from({ length: steps }, (_, j) => [
+      point[0] + ((end[0] - point[0]) * j) / steps,
+      point[1] + ((end[1] - point[1]) * j) / steps,
+    ]);
+  });
+  denseBay.push(bay[0]);
+  assert.ok(denseBay.length + bayHole.length > 6000);
+  assert.equal(
+    capOutlineVertices([[denseBay, bayHole]]),
+    null,
+    'default-cap simplification cannot leave the preserved hole outside its shell',
+  );
+  const concave = [
+    [0, 0],
+    [0.001, 0],
+    [0.001, 0.0005],
+    [0.0005, 0.0005],
+    [0.0005, 0.001],
+    [0, 0.001],
+    [0, 0],
+  ];
+  const bentHole = [
+    [0.0001, 0.0001],
+    [0.0003, 0.0001],
+    [0.0005, 0.0001],
+    [0.0009, 0.0001],
+    [0.0009, 0.00049],
+    [0.00049, 0.00049],
+    [0.00049, 0.0009],
+    [0.0001, 0.0009],
+    [0.0001, 0.0001],
+  ];
+  assert.equal(
+    capOutlineVertices([[concave, bentHole]], 11),
+    null,
+    'hole edges cannot cross a concave shell even when every output vertex is inside',
+  );
 });
 
 // ---------------------------------------------------------------- the route
@@ -717,6 +990,10 @@ function mount(options) {
       const res = {
         writableEnded: false,
         on() {},
+        setHeader(name, value) {
+          res.headers ||= {};
+          res.headers[name] = value;
+        },
         writeHead(status, sent) {
           res.status = status;
           res.headers = sent;
@@ -724,7 +1001,7 @@ function mount(options) {
         end(body) {
           res.writableEnded = true;
           resolve({
-            status: res.status,
+            status: res.status ?? res.statusCode,
             headers: res.headers,
             body: JSON.parse(body),
           });
@@ -778,22 +1055,64 @@ test('the outline route answers OK with polygons and validates its input', async
     'sec-fetch-site': 'cross-site',
   });
   assert.equal(cross.status, 403);
+  for (const headers of [
+    {
+      host: 'localhost',
+      origin: 'https://foreign.example',
+      'sec-fetch-site': 'same-origin',
+    },
+    { host: 'localhost', origin: 'null', 'sec-fetch-site': 'same-origin' },
+    { host: 'localhost', 'sec-fetch-site': 'same-site' },
+    { host: 'localhost', 'x-forwarded-for': '203.0.113.7' },
+  ]) {
+    assert.equal(
+      (await request('/outline?q=Paris&kind=city', headers)).status,
+      403,
+    );
+  }
   assert.equal(calls.length, 1);
   assert.equal((await request('/elsewhere')).status, 'next');
 });
 
-test('the outline route serializes only selected-row administrative identity', async (t) => {
+test('the outline route leaves administrative geometry hooks to the annotation layer', async (t) => {
   const { fetchImpl } = stubFetch(async (url) => {
     const query = new URL(url).searchParams.get('q');
     const fixtures = {
       'Bagmati Province': { addresstype: 'province' },
       'Mystery Province': { place_rank: 8 },
+      'Unknown Type': { addresstype: 'unrecognized', place_rank: 8 },
+      'Coerced Rank': { addresstype: 'state', place_rank: [8] },
+      'String Rank': { addresstype: 'state', place_rank: '8' },
+      'Contradicted State': { addresstype: 'state', place_rank: 20 },
       'Missing Evidence': {},
       'Northern Region': { addresstype: 'region', place_rank: 8 },
       'Central District': { addresstype: 'district', place_rank: 10 },
       'Example State': { addresstype: 'county' },
       'Bagmati Zone': { addresstype: 'state' },
       Austin: { addresstype: 'city' },
+      'Explicit Place City': {
+        category: 'place',
+        type: 'city',
+        place_rank: 16,
+      },
+      'Contradicted Place City': {
+        category: 'place',
+        type: 'city',
+        addresstype: 'suburb',
+        place_rank: 22,
+      },
+      'Malformed Place Rank': {
+        category: 'place',
+        type: 'city',
+        addresstype: 'city',
+        place_rank: '16',
+      },
+      'Accepted City Block': {
+        category: 'place',
+        type: 'city_block',
+        addresstype: 'city_block',
+        place_rank: 25,
+      },
     };
     return json([
       row({
@@ -813,11 +1132,10 @@ test('the outline route serializes only selected-row administrative identity', a
 
   const verified = await request('/outline?q=Bagmati%20Province&kind=admin');
   assert.equal(verified.status, 200);
-  assert.equal(verified.body.outline.adminArea, 'Bagmati Province');
-  assert.equal(verified.body.outline.adminLevel, 'admin1');
+  assert.equal('adminArea' in verified.body.outline, false);
+  assert.equal('adminLevel' in verified.body.outline, false);
 
   for (const query of [
-    'Mystery Province',
     'Northern Region',
     'Central District',
     'Example State',
@@ -831,15 +1149,26 @@ test('the outline route serializes only selected-row administrative identity', a
     assert.equal('adminLevel' in unverified.body.outline, false, query);
   }
 
-  const missing = await request('/outline?q=Missing%20Evidence&kind=admin');
-  assert.equal(missing.status, 200);
-  assert.equal(missing.body.status, 'ZERO_RESULTS');
-  assert.equal(missing.body.outline, null);
+  for (const query of [
+    'Missing Evidence',
+    'Mystery Province',
+    'Unknown Type',
+    'Coerced Rank',
+    'String Rank',
+    'Contradicted State',
+  ]) {
+    const missing = await request(
+      `/outline?q=${encodeURIComponent(query)}&kind=admin`,
+    );
+    assert.equal(missing.status, 200, query);
+    assert.equal(missing.body.status, 'ZERO_RESULTS', query);
+    assert.equal(missing.body.outline, null, query);
+  }
 
   const retired = await request('/outline?q=Bagmati%20Zone&kind=admin');
   assert.equal(retired.status, 200);
   assert.equal(retired.body.status, 'OK');
-  assert.equal(retired.body.outline.adminArea, 'Bagmati Zone');
+  assert.equal('adminArea' in retired.body.outline, false);
   assert.equal('adminLevel' in retired.body.outline, false);
 
   const city = await request('/outline?q=Austin&kind=city');
@@ -847,6 +1176,18 @@ test('the outline route serializes only selected-row administrative identity', a
   assert.equal(city.body.status, 'OK');
   assert.equal('adminArea' in city.body.outline, false);
   assert.equal('adminLevel' in city.body.outline, false);
+  for (const [query, kind, status] of [
+    ['Explicit Place City', 'city', 'OK'],
+    ['Contradicted Place City', 'city', 'ZERO_RESULTS'],
+    ['Malformed Place Rank', 'city', 'ZERO_RESULTS'],
+    ['Accepted City Block', 'neighborhood', 'OK'],
+  ]) {
+    const answer = await request(
+      `/outline?q=${encodeURIComponent(query)}&kind=${kind}`,
+    );
+    assert.equal(answer.status, 200, query);
+    assert.equal(answer.body.status, status, query);
+  }
 });
 
 test('the outline route reports disabled and capped as permanent, busy as retryable', async (t) => {

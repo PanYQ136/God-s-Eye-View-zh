@@ -136,16 +136,18 @@ test('a point beside a building picks the nearest within 40 m, else none', () =>
   assert.equal(buildingFromTiles(tiles, { lat: 0.0001, lon: 0.0008 }), null);
 });
 
-test('the open area enclosing the Capitol is its grounds, not a building', () => {
-  const grounds = enclosingAreaFromTiles(TILES, CAPITOL);
-  assert.ok(grounds, 'the park-like cover around the Capitol is found');
-  assert.ok(
-    grounds.areaM2 > 50_000 && grounds.areaM2 < 500_000,
-    `${grounds.areaM2} m²`,
-  );
-  assert.equal(grounds.class, 'park');
+test('tile enclosure alone does not identify the named Capitol grounds', () => {
   assert.equal(
-    enclosingAreaFromTiles(TILES, { ...CAPITOL, minAreaM2: 1e6 }),
+    enclosingAreaFromTiles(TILES, { ...CAPITOL, name: 'Texas Capitol' }),
+    null,
+    'the former unlabeled enclosure is not an exact named answer',
+  );
+  assert.equal(
+    enclosingAreaFromTiles(TILES, {
+      ...CAPITOL,
+      name: 'Texas Capitol',
+      minAreaM2: 1e6,
+    }),
     null,
     'nothing grounds-sized above the floor',
   );

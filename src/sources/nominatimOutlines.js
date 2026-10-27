@@ -30,9 +30,15 @@ function validRing(ring) {
   if (!Array.isArray(ring) || ring.length < 4) return null;
   const out = [];
   for (const point of ring) {
-    const lon = Number(point?.[0]);
-    const lat = Number(point?.[1]);
-    if (!(Math.abs(lon) <= 180 && Math.abs(lat) <= 90)) return null;
+    if (!Array.isArray(point)) return null;
+    const [lon, lat] = point;
+    if (
+      !Number.isFinite(lon) ||
+      !Number.isFinite(lat) ||
+      Math.abs(lon) > 180 ||
+      Math.abs(lat) > 90
+    )
+      return null;
     out.push([lon, lat]);
   }
   return out;
@@ -42,10 +48,11 @@ function validPolygons(value) {
   if (!Array.isArray(value) || !value.length) return null;
   const polygons = [];
   for (const rings of value) {
-    if (!Array.isArray(rings)) continue;
+    if (!Array.isArray(rings) || !rings.length) return null;
     const clean = rings.map(validRing);
-    // The outer ring must be valid; invalid holes are dropped.
-    if (clean[0]) polygons.push(clean.filter(Boolean));
+    // Never fill a malformed hole or silently discard a malformed part.
+    if (clean.some((ring) => !ring)) return null;
+    polygons.push(clean);
   }
   return polygons.length ? polygons : null;
 }

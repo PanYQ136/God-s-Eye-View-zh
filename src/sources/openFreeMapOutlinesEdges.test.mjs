@@ -42,6 +42,66 @@ test('decoded polygons keep identity and mark tile-cut fragments', () => {
     buildingFromTiles([TILE], CAPITOL)?.contains,
     'the Capitol is complete',
   );
+  const parts = [
+    [square(0, 0, 0.001), square(0.0002, 0.0002, 0.0002)],
+    [square(0.003, 0, 0.001)],
+  ];
+  const decode = (coordinates, cut = false) =>
+    decodeOpenFreeMapOutlineTile(null, 0, 0, 0, {
+      layers: {
+        building: {
+          length: 1,
+          extent: 4096,
+          feature: () => ({
+            properties: { render_height: 20 },
+            loadGeometry: () => [[{ x: cut ? -1 : 1, y: 1 }]],
+            toGeoJSON: () => ({
+              geometry: { type: 'MultiPolygon', coordinates },
+            }),
+          }),
+        },
+      },
+    });
+  const multipart = decode(parts);
+  assert.equal(multipart.buildings[0].id, null);
+  assert.equal(
+    multipart.buildings[0].featureParts,
+    multipart.buildings[1].featureParts,
+    'null ids do not split one feature into independent buildings',
+  );
+  const picked = buildingFromTiles([multipart], { lon: 0.0035, lat: 0.0005 });
+  assert.deepEqual(
+    picked.polygons,
+    [parts[1], parts[0]],
+    'selected part first; all parts and holes retained',
+  );
+  const clipped = decode(
+    [parts[0], [square(-180 - 360 / 4096, 0, 0.001)]],
+    true,
+  );
+  assert.ok(clipped.buildings.every((part) => part.clipped));
+  assert.equal(
+    buildingFromTiles([clipped], { lon: 0.0008, lat: 0.0008 }),
+    null,
+    'a cut sibling prevents a partial exact footprint',
+  );
+  const malformed = decode([parts[0], [parts[1][0], null]]);
+  const neighbor = {
+    rings: [square(0.0011, 0, 0.001)],
+    heightM: 20,
+    clipped: false,
+  };
+  assert.ok(
+    malformed.buildings.every((part) => part.clipped && part.incomplete),
+  );
+  assert.equal(
+    buildingFromTiles(
+      [{ ...malformed, buildings: [...malformed.buildings, neighbor] }],
+      { lon: 0.0008, lat: 0.0008 },
+    ),
+    null,
+    'a malformed sibling cannot become a partial exact building',
+  );
 });
 
 test('a clipped fragment is never the building, and no neighbour stands in', () => {
@@ -68,9 +128,18 @@ test('a clipped fragment is never the building, and no neighbour stands in', () 
       point,
     )?.contains,
   );
-  const lawn = { rings: [square(0, 0, 0.01)], clipped: true, class: 'park' };
+  const lawn = {
+    rings: [square(0, 0, 0.01)],
+    clipped: true,
+    class: 'park',
+    name: 'Test Park',
+  };
   assert.equal(
-    enclosingAreaFromTiles([{ areas: [lawn] }], { lat: 0.005, lon: 0.005 }),
+    enclosingAreaFromTiles([{ areas: [lawn] }], {
+      lat: 0.005,
+      lon: 0.005,
+      name: 'Test Park',
+    }),
     null,
     'clipped grounds are not grounds',
   );
@@ -94,17 +163,33 @@ test('a point in a courtyard is not inside the building', () => {
   assert.ok(near && !near.contains, 'near the courtyard walls, not inside');
 });
 
-test('grounds enclose the building sitting in their hole', () => {
+test('named grounds require matching identity and filled containment', () => {
   const lawn = {
     rings: [square(0, 0, 0.004), square(0.0015, 0.0015, 0.001).reverse()],
     clipped: false,
     class: 'park',
+    name: 'Capitol Park',
   };
   const grounds = enclosingAreaFromTiles([{ areas: [lawn] }], {
     lat: 0.002,
     lon: 0.002,
+    name: 'Capitol Park',
   });
-  assert.ok(grounds, 'the Capitol-in-its-lawn case');
+  assert.equal(grounds, null, 'a hole is not filled grounds');
+  const filled = { lat: 0.0005, lon: 0.0005, name: 'the Capitol Park' };
+  assert.ok(enclosingAreaFromTiles([{ areas: [lawn] }], filled));
+  assert.equal(
+    enclosingAreaFromTiles([{ areas: [lawn] }], {
+      ...filled,
+      name: 'Other Park',
+    }),
+    null,
+  );
+  assert.equal(
+    enclosingAreaFromTiles([{ areas: [{ ...lawn, name: null }] }], filled),
+    null,
+    'an unlabeled enclosing feature has no exact named authority',
+  );
 });
 
 test('street proximity uses segments and clips to the search extent', () => {

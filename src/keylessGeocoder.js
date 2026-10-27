@@ -206,12 +206,27 @@ export function photonSearchUrl(
   url.searchParams.set('limit', String(limit));
 
   const corners = String(bias ?? '').split('|');
-  if (corners.length === 2) {
-    const [swLat, swLng] = corners[0].split(',').map(Number);
-    const [neLat, neLng] = corners[1].split(',').map(Number);
-    if ([swLat, swLng, neLat, neLng].every(Number.isFinite)) {
+  const tokens = corners.flatMap((corner) => corner.split(','));
+  if (
+    corners.length === 2 &&
+    corners.every((corner) => corner.split(',').length === 2) &&
+    tokens.every((token) => token.trim() !== '')
+  ) {
+    const [swLat, swLng, neLat, neLng] = tokens.map(Number);
+    if (
+      [swLat, swLng, neLat, neLng].every(Number.isFinite) &&
+      Math.abs(swLat) <= 90 &&
+      Math.abs(neLat) <= 90 &&
+      swLat <= neLat &&
+      Math.abs(swLng) <= 180 &&
+      Math.abs(neLng) <= 180
+    ) {
+      const midpoint = (swLng + neLng + (swLng > neLng ? 360 : 0)) / 2;
       url.searchParams.set('lat', String((swLat + neLat) / 2));
-      url.searchParams.set('lon', String((swLng + neLng) / 2));
+      url.searchParams.set(
+        'lon',
+        String(midpoint > 180 ? midpoint - 360 : midpoint),
+      );
     }
   }
   return url.toString();
@@ -402,35 +417,6 @@ export async function geocodeKeyless(query, options) {
 }
 
 /** Construct an independent Photon provider with a bounded query cache. */
-/**
- * Read the PHOTON_URL setting: `undefined` keeps the public default, an empty
- * value (or `off`) disables Photon (`null`), and anything else must be an
- * http(s) URL without credentials. An unusable value disables Photon rather
- * than silently using the public server.
- * @param {string|undefined|null} value
- * @returns {string|null|undefined}
- */
-export function photonEndpointSetting(value) {
-  if (value === undefined) return undefined;
-  const text = String(value ?? '').trim();
-  if (!text || ['off', 'none', 'disabled'].includes(text.toLowerCase()))
-    return null;
-  try {
-    const url = new URL(text);
-    if (
-      !['http:', 'https:'].includes(url.protocol) ||
-      url.username ||
-      url.password ||
-      url.search ||
-      url.hash
-    )
-      return null;
-    return url.href;
-  } catch {
-    return null;
-  }
-}
-
 export function createPhotonGeocoder({
   fetchImpl = (...args) => fetch(...args),
   endpoint = PHOTON_ENDPOINT,

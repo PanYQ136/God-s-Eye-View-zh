@@ -4,6 +4,7 @@ import {
   ringCentroid,
 } from '../sources/featureGeometry.js';
 import { isUnavailableCapability } from '../sources/capability.js';
+import { polygonsContain } from '../data/adminBoundaries.js';
 import {
   BUILDING_MAX_DISTANCE_M,
   OUTLINE_TILE_ZOOM,
@@ -79,30 +80,18 @@ export function nominatimKindFor({ scope, groundsLike, pointLike, around }) {
   return null;
 }
 
-/** Ray-cast test for a `[lon, lat]` ring. */
-function ringHolds(ring, lat, lon) {
-  let inside = false;
-  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-    const [xi, yi] = ring[i];
-    const [xj, yj] = ring[j];
-    if (
-      yi > lat !== yj > lat &&
-      lon < ((xj - xi) * (lat - yi)) / (yj - yi) + xi
-    )
-      inside = !inside;
-  }
-  return inside;
-}
-
 /**
- * Parts with the one holding the anchor first. A boundary can be largest at
- * sea (Tokyo's island municipalities), so size alone does not pick the part
- * the ask is about; with no part holding the anchor, the order is kept.
+ * Parts with the one holding the anchor outside its holes first. A boundary
+ * can be largest at sea (Tokyo's island municipalities), so size alone does
+ * not pick the part the ask is about; with no part holding the anchor, the
+ * order is kept.
  */
 export function anchorPartFirst(polygons, points) {
   for (const { lat, lon } of points) {
     if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
-    const at = polygons.findIndex(([outer]) => ringHolds(outer, lat, lon));
+    const at = polygons.findIndex((polygon) =>
+      polygonsContain([polygon], lat, lon),
+    );
     if (at > 0) return [polygons[at], ...polygons.filter((_, i) => i !== at)];
     if (at === 0) return polygons;
   }
@@ -130,7 +119,6 @@ export function streetFootprint(street) {
     kind: 'area',
     heightM: null,
     synthesized: false,
-    outlineSource: 'openfreemap',
   };
 }
 
@@ -182,11 +170,10 @@ export function createOutlineRungs({
     if (!building) return null;
     return {
       ring: building.ring,
-      polygons: [building.rings],
+      polygons: building.polygons,
       kind: 'building',
       heightM: building.heightM,
       synthesized: false,
-      outlineSource: 'openfreemap',
     };
   }
 
@@ -199,16 +186,16 @@ export function createOutlineRungs({
       enclosingAreaFromTiles(decoded, {
         lat: at.lat,
         lon: at.lon,
+        name: outlineQueryText(ctx.target || ctx.matchName),
         minAreaM2: GROUNDS_MIN_AREA_M2,
       });
-    if (!area) return null;
+    if (!area || !polygonsContain(area.polygons, ctx.lat, ctx.lon)) return null;
     return {
       ring: area.ring,
-      polygons: [area.rings],
+      polygons: area.polygons,
       kind: 'area',
       heightM: null,
       synthesized: false,
-      outlineSource: 'openfreemap',
     };
   }
 
@@ -224,14 +211,15 @@ export function createOutlineRungs({
       { query, kind, lat: bias.lat, lon: bias.lon },
       { signal: ctx.signal },
     );
-    if (!outline?.polygons) return outline; // null | undefined | unavailable | rateLimited
+    if (!outline?.polygons?.length) return outline; // null | undefined | unavailable | rateLimited
+    // Named outlines must retain the resolved place's authority,
+    // including holes; a nearby same-name polygon is not the selected place.
+    if (!polygonsContain(outline.polygons, ctx.lat, ctx.lon)) return null;
     const polygons = anchorPartFirst(outline.polygons, [
       { lat: ctx.lat, lon: ctx.lon },
       outline.center || {},
     ]);
     const ring = polygons[0][0];
-    // A grounds ask answered by a building-sized polygon is the dome, not the
-    // grounds: report no grounds outline rather than the wrong shape.
     // A grounds ask answered by a building-sized polygon found the named
     // building, not its grounds: keep its position to find what encloses it.
     if (ctx.groundsLike && ringAreaM2(ring) < GROUNDS_MIN_AREA_M2)
@@ -245,7 +233,6 @@ export function createOutlineRungs({
           : 'area',
       heightM: null,
       synthesized: false,
-      outlineSource: 'nominatim',
       outlineName: outline.name,
     };
   }
@@ -263,28 +250,32 @@ export function createOutlineRungs({
     // A cancelled ask (board cleared, superseded) stops between rungs, so it
     // never spends a Nominatim request.
     const alive = () => ctx.signal?.throwIfAborted();
-    const accept = (fp, asScope = scope) => {
+    const accept = (fp, asScope = scope, provider) => {
       alive();
       if (!fp) return null;
       const patch = finish(fp, asScope);
       if (patch?.ring) {
-        ctx.credit?.(fp.outlineSource === 'openfreemap' ? 'tiles' : 'osm');
+        ctx.credit?.(provider === 'openfreemap' ? 'tiles' : 'osm');
         // One line per answered outline, like the resolver's own trace.
         console.log(
-          `[Outline] "${ctx.target || ''}": scope=${asScope} → ${fp.outlineSource}` +
+          `[Outline] "${ctx.target || ''}": scope=${asScope} → ${provider}` +
             ` (${patch.footprintKind}, ${patch.polygons?.length || 1} part(s))`,
         );
-        return { ...patch, outlineSource: fp.outlineSource };
+        return patch;
       }
       return null;
     };
 
     // Tiles first for streets and for a building pointed at rather than named.
     if (scope === 'street') {
-      const street = accept(await streetRung(ctx), 'street');
+      const street = accept(await streetRung(ctx), 'street', 'openfreemap');
       if (street) return street;
     } else if (scope === 'building' && !named && !ctx.around) {
-      const building = accept(await buildingRung(ctx), 'building');
+      const building = accept(
+        await buildingRung(ctx),
+        'building',
+        'openfreemap',
+      );
       if (building) return building;
     }
 
@@ -304,27 +295,35 @@ export function createOutlineRungs({
       if (found?.groundsSeed) {
         groundsSeed = found.groundsSeed;
       } else if (found?.ring) {
-        const patch = accept(found, ctx.groundsLike ? 'compound' : scope);
+        const patch = accept(
+          found,
+          ctx.groundsLike ? 'compound' : scope,
+          'nominatim',
+        );
         if (patch) return patch;
       } else if (found === undefined || found?.rateLimited) {
         retryLater = { value: found };
       }
     }
 
-    // Grounds nobody named in a polygon: the open area enclosing the point.
+    // Grounds absent from the named lookup: a matching named tile area.
     if (ctx.groundsLike && named) {
       // Around the named building when Nominatim found it, else the anchor.
       let grounds = groundsSeed
-        ? accept(await groundsRung(ctx, groundsSeed), 'compound')
+        ? accept(await groundsRung(ctx, groundsSeed), 'compound', 'openfreemap')
         : null;
-      grounds ||= accept(await groundsRung(ctx), 'compound');
+      grounds ||= accept(await groundsRung(ctx), 'compound', 'openfreemap');
       if (grounds) return grounds;
     }
 
     // A named building nobody outlined: the footprint at its point. Never for
     // a grounds ask, where the building is the wrong shape.
     if (scope === 'building' && named && !ctx.around && !ctx.groundsLike) {
-      const building = accept(await buildingRung(ctx), 'building');
+      const building = accept(
+        await buildingRung(ctx),
+        'building',
+        'openfreemap',
+      );
       if (building) return building;
     }
     // Keep the mark retryable only when nothing else could answer. A

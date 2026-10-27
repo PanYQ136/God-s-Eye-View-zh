@@ -1,27 +1,7 @@
 // PHOTON_URL: unset keeps the public default, empty disables, else a URL.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { photonEndpointSetting } from '../keylessGeocoder.js';
 import { createDefaultPlaceSearch } from './defaults.js';
-
-test('the Photon setting reads unset, disabled and operator values', () => {
-  assert.equal(photonEndpointSetting(undefined), undefined);
-  for (const off of [
-    '',
-    '  ',
-    'off',
-    'none',
-    'disabled',
-    'not a url',
-    'ftp://x.test/',
-    'https://u:p@x.test/api/',
-  ])
-    assert.equal(photonEndpointSetting(off), null, off);
-  assert.equal(
-    photonEndpointSetting('https://photon.example.test/api/'),
-    'https://photon.example.test/api/',
-  );
-});
 
 async function hosts(endpoints) {
   const asked = [];
@@ -35,7 +15,7 @@ async function hosts(endpoints) {
       );
     },
   });
-  await search.geocode(`nowhere-${Math.random()}`);
+  await search.geocode('nowhere-photon-setting');
   return asked;
 }
 

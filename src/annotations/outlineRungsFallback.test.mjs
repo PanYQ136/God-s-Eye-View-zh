@@ -22,14 +22,14 @@ const TILES = [6745, 6746].map((y) =>
 const UNAVAILABLE = { unavailable: true, retryable: false };
 const CAPITOL = { lat: 30.27472, lon: -97.74035 };
 
-function setup(answer) {
+function setup(answer, tiles = TILES) {
   const tileCalls = [];
   const asks = [];
   const rungs = createOutlineRungs({
     tiles: {
       fetchBounds: async (box) => {
         tileCalls.push(box);
-        return { tiles: TILES };
+        return { tiles };
       },
     },
     nominatim: {
@@ -71,8 +71,8 @@ for (const [label, answer] of [
       ctx({ target: 'the Texas Capitol grounds', groundsLike: true }),
       ladder,
     );
-    assert.equal(lawn.footprintKind, 'area');
-    assert.equal(lawn.outlineSource, 'openfreemap');
+    assert.ok(grounds.tileCalls.length > 0, 'grounds tiles were consulted');
+    assert.equal(lawn, answer, 'unnamed grounds preserve the retryable answer');
   });
 }
 
@@ -101,10 +101,9 @@ test('"around the Capitol grounds" is still a grounds ask', async () => {
     ladder,
   );
   assert.equal(asks.length, 1);
-  assert.equal(lawn.outlineSource, 'openfreemap');
 });
 
-test('grounds are found around the named building when the anchor is off the lawn', async () => {
+test('named grounds around a building seed still require the original anchor', async () => {
   // A place-search anchor ~250 m from the dome, outside the Capitol lawn.
   const offLawn = { lat: 30.27265, lon: -97.73925 };
   const d = 0.0003;
@@ -122,7 +121,28 @@ test('grounds are found around the named building when the anchor is off the law
     ],
     class: 'office',
   };
-  const withoutSeed = setup(null);
+  const lawnRadius = 0.001;
+  const namedTiles = [
+    {
+      areas: [
+        {
+          name: 'Texas Capitol',
+          class: 'park',
+          clipped: false,
+          rings: [
+            [
+              [CAPITOL.lon - lawnRadius, CAPITOL.lat - lawnRadius],
+              [CAPITOL.lon + lawnRadius, CAPITOL.lat - lawnRadius],
+              [CAPITOL.lon + lawnRadius, CAPITOL.lat + lawnRadius],
+              [CAPITOL.lon - lawnRadius, CAPITOL.lat + lawnRadius],
+              [CAPITOL.lon - lawnRadius, CAPITOL.lat - lawnRadius],
+            ],
+          ],
+        },
+      ],
+    },
+  ];
+  const withoutSeed = setup(null, namedTiles);
   assert.equal(
     await withoutSeed.rungs.resolve(
       ctx({
@@ -135,11 +155,20 @@ test('grounds are found around the named building when the anchor is off the law
     UNAVAILABLE,
     'the anchor alone is not inside the grounds',
   );
-  const { rungs } = setup(dome);
+  const { rungs, tileCalls } = setup(dome, namedTiles);
   const lawn = await rungs.resolve(
     ctx({ ...offLawn, target: 'the Texas Capitol grounds', groundsLike: true }),
     ladder,
   );
-  assert.equal(lawn?.outlineSource, 'openfreemap');
-  assert.equal(lawn.footprintKind, 'area');
+  assert.ok(tileCalls.length > 0, 'the matching named enclosure was consulted');
+  assert.deepEqual(
+    tileCalls,
+    withoutSeed.tileCalls,
+    'a rejected polygon cannot add a shifted grounds-seed lookup',
+  );
+  assert.equal(
+    lawn,
+    UNAVAILABLE,
+    'a building seed cannot move the original anchor into the named grounds',
+  );
 });

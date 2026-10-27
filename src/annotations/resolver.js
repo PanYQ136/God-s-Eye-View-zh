@@ -46,7 +46,7 @@ import { unavailablePlaceSearch } from '../search/placeSearch.js';
 import { isPickedWorldPosition } from '../data/scenePick.js';
 
 /** Ms the analyst region lookup waits on geocode + admin boundary. */
-export const REGION_FALLBACK_BUDGET_MS = 3_000;
+const REGION_FALLBACK_BUDGET_MS = 3_000;
 
 /**
  * Names that end like a landmark rather than a district: "Central Park",
@@ -137,18 +137,6 @@ export function createAnnotationResolver({
     cacheWrite(cache, key, null);
   }
 
-  /** Wire an external AbortSignal to a local controller; returns a detach fn. */
-  function linkAbort(controller, externalSignal) {
-    if (!externalSignal) return () => {};
-    if (externalSignal.aborted) {
-      controller.abort();
-      return () => {};
-    }
-    const onAbort = () => controller.abort();
-    externalSignal.addEventListener('abort', onAbort, { once: true });
-    return () => externalSignal.removeEventListener('abort', onAbort);
-  }
-
   /**
    * Resolve a single annotation target to a normalized world anchor.
    *
@@ -214,6 +202,16 @@ export function createAnnotationResolver({
     // Earth's 11-vertex "Paris"): kept as the fallback while the finer rungs
     // (Census, Nominatim) try first.
     let coarseCityShape = null;
+    let bundledCenter = null;
+    const coarseCityHolds = (point) =>
+      coarseCityShape &&
+      point &&
+      polygonsContainPoint(coarseCityShape.polygons, point.lat, point.lon);
+    const compoundAsk =
+      entityKind === 'compound' ||
+      isCampusAsk(target) ||
+      isGroundsLikeQuery(target) ||
+      isGroundsLikeQuery(labelHint);
     const askNamesAdmin = Boolean(adminScopeFromAsk(target, entityKind));
     // Instrumentation (logged once per target at the end): which sources were tried and what they returned.
     const trace = {
@@ -232,33 +230,31 @@ export function createAnnotationResolver({
       footprint &&
       (!Number.isFinite(lat) || !Number.isFinite(lon)) &&
       trace.query &&
+      !compoundAsk &&
       !NON_ADMIN_ENTITY_KINDS.has(entityKind)
     ) {
       const center =
         pickWorldFromScreen(viewer, 0.5, 0.5) || viewportProximity(viewer);
+      bundledCenter = center;
       const admin = await findAdminArea(trace.query, { near: center }).catch(
         () => null,
       );
       signal?.throwIfAborted();
       if (admin && !askNamesAdmin && isCoarseCityShape(admin))
         coarseCityShape = admin;
-      else if (admin) return bundledAdminTarget(viewer, admin, trace.query);
+      else if (admin)
+        return bundledAdminTarget(viewer, admin, trace.query, signal);
       // Bundled US places and neighborhoods named at or near the view. A
       // campus, grounds or monument ask ("Stanford" as a compound, "the
       // Capitol grounds") wants that feature, not a district of its name,
       // and "the area around X" is drawn by the ladder below.
-      if (
-        entityKind !== 'compound' &&
-        intent !== 'around_the_thing' &&
-        !isGroundsLikeQuery(trace.query) &&
-        !isMonumentLikeQuery(trace.query)
-      ) {
+      if (intent !== 'around_the_thing' && !isMonumentLikeQuery(trace.query)) {
         const area = await bundledAreaNear(trace.query, center, {
           entityKind,
           viewRadiusKm: viewportProximity(viewer)?.radiusKm ?? null,
         });
         signal?.throwIfAborted();
-        if (area) return bundledAdminTarget(viewer, area, trace.query);
+        if (area) return bundledAdminTarget(viewer, area, trace.query, signal);
       }
     }
 
@@ -388,8 +384,8 @@ export function createAnnotationResolver({
     }
 
     if (!Number.isFinite(lat) || !Number.isFinite(lon))
-      return coarseCityShape
-        ? bundledAdminTarget(viewer, coarseCityShape, trace.query)
+      return coarseCityHolds(bundledCenter)
+        ? bundledAdminTarget(viewer, coarseCityShape, trace.query, signal)
         : null;
 
     // Monument/memorial/statue names geocode unreliably — Google scatters them across the city (e.g.
@@ -455,8 +451,8 @@ export function createAnnotationResolver({
               `osmSnap=${trace.osmSnap} → FINAL source=rejected (proximity gate, ${drift.driftKm.toFixed(0)}km > ${drift.limitKm.toFixed(0)}km)`,
           );
         }
-        return coarseCityShape
-          ? bundledAdminTarget(viewer, coarseCityShape, trace.query)
+        return coarseCityHolds(bundledCenter)
+          ? bundledAdminTarget(viewer, coarseCityShape, trace.query, signal)
           : null;
       }
     }
@@ -482,11 +478,6 @@ export function createAnnotationResolver({
     // entity fact wants that compound even when the geocoder types the town
     // or the state: never a Census place, neighborhood or admin boundary.
     const typedScope = refineScope(scopeFromTypes(geocodeTypes), entityKind);
-    const compoundAsk =
-      entityKind === 'compound' ||
-      isCampusAsk(target) ||
-      isGroundsLikeQuery(target) ||
-      isGroundsLikeQuery(labelHint);
     const baseScope =
       compoundAsk &&
       ['country', 'state', 'county', 'city', 'neighborhood'].includes(
@@ -523,6 +514,7 @@ export function createAnnotationResolver({
      * AFTER the anchor mark is drawn and upgrade the mark in place.
      */
     const resolveBaseOutline = async () => {
+      signal?.throwIfAborted();
       let scope = baseScope;
       const isAdmin =
         scope === 'country' ||
@@ -548,6 +540,7 @@ export function createAnnotationResolver({
         const ne = await lookupNaturalRegionOutline(target, lat, lon).catch(
           () => null,
         );
+        signal?.throwIfAborted();
         if (ne) {
           registerDynamicCredit(viewer, NATURAL_EARTH_CREDIT);
           traceBundledOutline(ne.name, 'natural-earth');
@@ -606,9 +599,10 @@ export function createAnnotationResolver({
             lon,
             scope,
           ).catch(() => null);
+          signal?.throwIfAborted();
           if (admin && !askNamesAdmin && isCoarseCityShape(admin))
             coarseCityShape ||= admin;
-          else if (admin) return bundledAdminOutline(viewer, admin);
+          else if (admin) return bundledAdminOutline(viewer, admin, signal);
         }
         // A geocoded US city, town or CDP: the Census place that holds it.
         if (scope === 'city') {
@@ -617,7 +611,8 @@ export function createAnnotationResolver({
             lat,
             lon,
           ).catch(() => null);
-          if (place) return bundledAdminOutline(viewer, place);
+          signal?.throwIfAborted();
+          if (place) return bundledAdminOutline(viewer, place, signal);
         }
         // Pure admin: only an admin boundary is correct — never fall back to a
         // building/landuse (a city is never a single building).
@@ -628,6 +623,7 @@ export function createAnnotationResolver({
         // resolve here instantly to a REAL boundary, sidestepping the slow/flaky live-Overpass
         // path that times out and falls back to points (see docs/field-test-2-analysis.md).
         const ext = await lookupNeighborhoodRing(lat, lon, matchName);
+        signal?.throwIfAborted();
         if (ext) {
           traceBundledOutline(ext.name || matchName, 'datasf');
           fp = { ring: ext.ring, kind: 'area', heightM: null };
@@ -639,7 +635,8 @@ export function createAnnotationResolver({
             lat,
             lon,
           ).catch(() => null);
-          if (wof) return bundledAdminOutline(viewer, wof);
+          signal?.throwIfAborted();
+          if (wof) return bundledAdminOutline(viewer, wof, signal);
         }
         // Else fall through to the OSM admin/place → named-landuse → synthesis ladder. Each
         // returns a footprint, null (definitively no polygon), or undefined (transient
@@ -786,8 +783,18 @@ export function createAnnotationResolver({
       if (isUnavailableCapability(fp) || isRateLimitedOutcome(fp)) return fp;
       if (fp === undefined) return undefined; // TRANSIENT — a backoff retry may still find it
       if (!fp || !Array.isArray(fp.ring) || fp.ring.length < 3) return null;
-      const centroid = ringCentroid(fp.ring);
+      let centroid = ringCentroid(fp.ring);
       if (!centroid) return null;
+      // An outer-ring mean can lie in a hole or outside a concave part. Keep
+      // a filled original anchor or decline, without changing ordinary centering
+      // or inventing a new interior point.
+      if (
+        Array.isArray(fp.polygons) &&
+        !polygonsContainPoint(fp.polygons, centroid.lat, centroid.lon)
+      ) {
+        if (!polygonsContainPoint(fp.polygons, lat, lon)) return null;
+        centroid = { lat, lon };
+      }
       // Same drift bound as the anchor gate: a polygon whose centroid would drag a good
       // anchor out of plausibility is the wrong feature — drop it, keep the point.
       if (
@@ -833,10 +840,14 @@ export function createAnnotationResolver({
         base: resolveBaseOutline,
         finish: finishOutline,
       });
+      signal?.throwIfAborted();
       // Nothing finer answered (no polygon, Nominatim off, busy or capped):
       // the coarse bundled shape beats a point.
-      if (coarseCityShape && !(result?.ring && !result.synthesized))
-        return bundledAdminOutline(viewer, coarseCityShape);
+      if (
+        coarseCityHolds({ lat, lon }) &&
+        !(result?.ring && !result.synthesized)
+      )
+        return bundledAdminOutline(viewer, coarseCityShape, signal);
       return result;
     };
 
@@ -1034,7 +1045,8 @@ export function createAnnotationResolver({
    * draw them. Like the Natural Earth rung, it bypasses the scope caps and the
    * centroid drift bound: the unit IS the asked scope.
    */
-  function bundledAdminOutline(viewer, admin) {
+  function bundledAdminOutline(viewer, admin, signal) {
+    signal?.throwIfAborted();
     creditAdminSource(viewer, admin);
     traceBundledOutline(admin.name, admin.source, admin.polygons?.length);
     const { lat, lon } = admin.label;
@@ -1077,8 +1089,8 @@ export function createAnnotationResolver({
   }
 
   /** A complete resolved target for a bundled administrative unit (no outline pending). */
-  function bundledAdminTarget(viewer, admin, query) {
-    const outline = bundledAdminOutline(viewer, admin);
+  function bundledAdminTarget(viewer, admin, query, signal) {
+    const outline = bundledAdminOutline(viewer, admin, signal);
     const [west, south, east, north] = admin.bbox;
     console.log(
       `[Resolver] "${query}": bundled ${admin.kind} "${admin.name}"` +
@@ -2283,8 +2295,8 @@ export function createAnnotationResolver({
   /**
    * Region ring for ANALYST queries ("how many flights over Texas / the Alps") —
    * a name-only entry point that reuses this module's boundary machinery
-   * without the annotation pipeline. Natural Earth pack first (offline,
-   * instant; largest-area match is correct for a global name-only ask), then
+   * without the annotation pipeline. Unique Natural Earth names resolve first
+   * (offline); duplicate names require a geocoded containment anchor, then
    * geocode + admin boundary for states/countries/counties (Tier A disk-cached
    * Overpass, so repeat asks are instant). Returns null when the name doesn't
    * resolve to a region-like boundary — the analyst engine reports that
@@ -2299,7 +2311,7 @@ export function createAnnotationResolver({
    * @param {AbortSignal} [signal]
    * @param {object} [placeSearch]
    * @param {{budgetMs?: number}} [options]  `Infinity` waits for the lookup.
-   * @returns {Promise<{name:string, ring:Array<[number,number]>}|{name:string, ring:null, error:'region-timeout'}|null>}
+   * @returns {Promise<{name:string, ring:Array<[number,number]>, source:string}|{name:string, ring:null, error:'region-timeout'}|null>}
    */
   async function resolveRegionRingForQuery(
     name,
@@ -2316,16 +2328,24 @@ export function createAnnotationResolver({
     const q = String(name || '').trim();
     if (!q) return null;
     const ne = await findNaturalRegion(q).catch(() => null);
-    if (ne?.polygons?.length) {
+    signal?.throwIfAborted();
+    if (ne?.candidates === 1 && ne.polygons?.length) {
       // Largest ring carries the query scope; multi-ring regions (Andes) keep
       // their main cordillera — good enough for containment counting.
       const ring = [...ne.polygons].sort((a, b) => b.length - a.length)[0];
-      if (ring?.length >= 3) return { name: ne.name, ring };
+      if (ring?.length >= 3)
+        return { name: ne.name, ring, source: 'natural-earth' };
     }
     // Bundled states/provinces/counties by name (offline); the main part only,
     // like the Natural Earth rung above.
     const admin = await findAdminArea(q).catch(() => null);
-    if (admin) return { name: admin.name, ring: [...admin.ring] };
+    signal?.throwIfAborted();
+    if (admin)
+      return {
+        name: admin.name,
+        ring: [...admin.ring],
+        source: 'bundled-admin',
+      };
     const lookup = resolveAdminRegionRing(q, signal, placeSearch);
     if (!Number.isFinite(budgetMs)) return lookup;
     let timer;
@@ -2346,8 +2366,26 @@ export function createAnnotationResolver({
     const geo = await geocodePlace(q, null, signal, placeSearch).catch(
       () => null,
     );
+    signal?.throwIfAborted();
     if (!geo) return null;
     const scope = scopeFromTypes(geo.types);
+    if (
+      scope === 'auto' ||
+      (scope === 'compound' && geo.types?.includes('natural_feature'))
+    ) {
+      const natural = await lookupNaturalRegionOutline(
+        q,
+        geo.lat,
+        geo.lon,
+      ).catch(() => null);
+      signal?.throwIfAborted();
+      if (natural)
+        return {
+          name: natural.name,
+          ring: natural.ring,
+          source: 'natural-earth',
+        };
+    }
     if (!['country', 'state', 'county', 'city'].includes(scope)) return null;
     if (scope === 'state' || scope === 'county' || scope === 'country') {
       const admin = await findAdminAreaAt(
@@ -2356,7 +2394,9 @@ export function createAnnotationResolver({
         geo.lon,
         scope,
       ).catch(() => null);
-      if (admin) return { name: q, ring: [...admin.ring] };
+      signal?.throwIfAborted();
+      if (admin)
+        return { name: q, ring: [...admin.ring], source: 'bundled-admin' };
     }
     if (scope === 'city') {
       const place = await findPlaceAreaAt(
@@ -2364,12 +2404,16 @@ export function createAnnotationResolver({
         geo.lat,
         geo.lon,
       ).catch(() => null);
-      if (place) return { name: q, ring: [...place.ring] };
+      signal?.throwIfAborted();
+      if (place)
+        return { name: q, ring: [...place.ring], source: 'bundled-admin' };
     }
     const fp = await fetchAdminArea(geo.lat, geo.lon, q, scope, signal).catch(
       () => null,
     );
-    if (fp?.ring?.length >= 3) return { name: q, ring: fp.ring };
+    signal?.throwIfAborted();
+    if (fp?.ring?.length >= 3)
+      return { name: q, ring: fp.ring, source: 'remote-boundary' };
     return null;
   }
 

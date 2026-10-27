@@ -1,4 +1,5 @@
 import { normalizePlaceName } from './nominatimCache.js';
+import { pointInRing } from '../../../src/data/adminBoundaries.js';
 
 /**
  * Which Nominatim results may answer which voice ask, and how their polygons
@@ -30,7 +31,7 @@ export const OUTLINE_POLYGON_THRESHOLD = Object.freeze({
 });
 
 /** Total vertices returned for one outline, and parts/holes kept. */
-export const OUTLINE_MAX_VERTICES = 6000;
+const OUTLINE_MAX_VERTICES = 6000;
 const OUTLINE_MAX_PARTS = 24;
 const OUTLINE_MAX_HOLES = 16;
 
@@ -106,7 +107,7 @@ const MAN_MADE_STRUCTURES = [
  * class. Anything absent is rejected: roads, railways, stations, shops,
  * guideposts and single facilities never answer an area ask.
  */
-export const OUTLINE_ACCEPT = Object.freeze({
+const OUTLINE_ACCEPT = Object.freeze({
   city: {
     boundary: ['administrative'],
     place: SETTLEMENT_PLACES,
@@ -165,9 +166,9 @@ export const OUTLINE_ACCEPT = Object.freeze({
 });
 
 /**
- * Administrative evidence per ask kind: an address type, or a Nominatim
- * place_rank band (country 4, state 8, county 10-12, city 12-16, suburb 18-20,
- * neighbourhood 20-22). An administrative boundary with neither is refused.
+ * Administrative evidence per ask kind: a recognized address type is required.
+ * A supplied numeric place_rank must also fit the ask's broad band (country 4,
+ * state 8, county 10-12, city 12-16, suburb 18-20, neighbourhood 20-22).
  */
 const ADMIN_EVIDENCE = Object.freeze({
   city: {
@@ -192,99 +193,31 @@ const ADMIN_EVIDENCE = Object.freeze({
   },
 });
 
-const KNOWN_ADMIN_TYPES = new Set(
-  Object.values(ADMIN_EVIDENCE).flatMap((evidence) => evidence.types),
-);
-
-/**
- * Nominatim address types whose meaning is stable enough for the area consumer's
- * country/admin1/admin2 contract. `region`, `district` and numeric admin levels
- * vary by country, so they remain unverified instead of being guessed.
- */
-const VERIFIED_ADMIN_LEVEL = Object.freeze({
-  country: 'country',
-  state: 'admin1',
-  province: 'admin1',
-  county: 'admin2',
-  state_district: 'admin2',
-});
-
-const EXPLICIT_NAME_LEVEL = Object.freeze({
-  country: 'country',
-  nation: 'country',
-  province: 'admin1',
-  state: 'admin1',
-  region: 'admin1',
-  oblast: 'admin1',
-  prefecture: 'admin1',
-  canton: 'admin1',
-  governorate: 'admin1',
-  county: 'admin2',
-  district: 'admin2',
-  department: 'admin2',
-  zone: 'retired',
-});
-
-function explicitNameEvidence(value) {
-  const normalized = String(value || '')
-    .normalize('NFKC')
-    .toLocaleLowerCase()
-    .replace(/[^\p{L}\p{M}\p{N}]+/gu, ' ')
-    .trim();
-  const prefix = normalized.match(
-    /^(country|nation|province|state|region|zone|oblast|prefecture|canton|governorate|county|district|department)\s+of\b/,
-  )?.[1];
-  const suffix = normalized.match(
-    /\b(country|nation|province|state|region|zone|oblast|prefecture|canton|governorate|county|district|department)$/,
-  )?.[1];
-  const levels = new Set(
-    [prefix, suffix]
-      .filter(Boolean)
-      .map((type) => EXPLICIT_NAME_LEVEL[type])
-      .filter(Boolean),
-  );
-  if (levels.size > 1) return { contradictory: true, level: null };
-  return { contradictory: false, level: levels.values().next().value || null };
-}
-
-/**
- * Verified administrative identity carried by the selected result itself.
- * Never infer it from the request, desired kind, rank, or a separate geocoder
- * anchor. A retired name is preserved without a level so downstream policy can
- * reject it explicitly; every other contradiction stays wholly unverified.
- */
-function selectedAdminIdentity(kind, row) {
-  if (kind !== 'admin') return null;
-  const adminLevel =
-    VERIFIED_ADMIN_LEVEL[String(row?.addresstype || '').toLowerCase()];
-  const authoritativeAdminArea = String(row?.name || '').trim();
-  if (!adminLevel || !authoritativeAdminArea) return null;
-  // Validate the complete authoritative name. `adminArea` is truncated only
-  // for display after every prefix/suffix signal has been considered.
-  const { contradictory, level: nameLevel } = explicitNameEvidence(
-    authoritativeAdminArea,
-  );
-  if (contradictory) return null;
-  const adminArea = authoritativeAdminArea.slice(0, 160);
-  if (nameLevel === 'retired') return { adminArea };
-  if (nameLevel && nameLevel !== adminLevel) return null;
-  return { adminArea, adminLevel };
-}
-
-/** Whether an administrative boundary is at the level the ask names. */
-export function adminLevelFits(kind, row) {
+/** Whether supplied administrative evidence contradicts the accepted identity. */
+function adminLevelFits(kind, row) {
   const evidence = ADMIN_EVIDENCE[kind];
   if (!evidence) return true;
-  const type = String(row?.addresstype || '').toLowerCase();
-  if (type && evidence.types.includes(type)) return true;
-  // A recognized type is direct evidence. Rank is only a fallback when the
-  // upstream answer omits the type or supplies a value we do not understand;
-  // the overlapping county/city rank bands must not override `county`.
-  if (KNOWN_ADMIN_TYPES.has(type)) return false;
-  const rank = Number(row?.place_rank);
-  if (Number.isFinite(rank))
-    return rank >= evidence.ranks[0] && rank <= evidence.ranks[1];
-  return false;
+  const place = String(row?.category || row?.class).toLowerCase() === 'place';
+  // A place row already has an accepted type. Missing address evidence must
+  // not erase it, but explicit contradictory evidence must not bypass checks.
+  if (!place || Object.hasOwn(row, 'addresstype')) {
+    if (typeof row?.addresstype !== 'string') return false;
+    const type = row.addresstype.toLowerCase();
+    if (
+      !evidence.types.includes(type) &&
+      !(place && type === String(row.type).toLowerCase())
+    )
+      return false;
+  }
+  // Rank can corroborate or contradict an explicit identity, never invent it.
+  // JSONv2 supplies a number; coercing arrays or strings hides malformed data.
+  if (!Object.hasOwn(row, 'place_rank')) return true;
+  const rank = row.place_rank;
+  return (
+    Number.isInteger(rank) &&
+    // Boundary rank bands do not describe every accepted place type.
+    (place || (rank >= evidence.ranks[0] && rank <= evidence.ranks[1]))
+  );
 }
 
 /** Largest footprint (m²) a non-`building` result may have for a building ask. */
@@ -332,7 +265,7 @@ function queryWords(query) {
  * appear among one name's words, or one name must contain the whole query
  * (for scripts written without spaces).
  */
-export function outlineNameMatches(row, query) {
+function outlineNameMatches(row, query) {
   const words = queryWords(query);
   if (!words.length) return false;
   const whole = words.join(' ');
@@ -371,8 +304,7 @@ function cleanRing(ring) {
   const out = [];
   for (const point of ring) {
     if (!Array.isArray(point)) return null;
-    const lon = Number(point[0]);
-    const lat = Number(point[1]);
+    const [lon, lat] = point;
     if (!finiteLon(lon) || !finiteLat(lat)) return null;
     out.push([lon, lat]);
   }
@@ -391,30 +323,31 @@ function ringArea(ring) {
 }
 
 /** Polygon/MultiPolygon GeoJSON → `[[outer, ...holes], …]`, largest first. */
-export function polygonsFromGeoJson(geometry) {
+function polygonsFromGeoJson(geometry) {
   const raw =
     geometry?.type === 'Polygon'
       ? [geometry.coordinates]
       : geometry?.type === 'MultiPolygon'
         ? geometry.coordinates
         : null;
-  if (!Array.isArray(raw)) return null;
+  if (!Array.isArray(raw) || !raw.length || raw.length > OUTLINE_MAX_PARTS)
+    return null;
   const polygons = [];
   for (const polygon of raw) {
-    if (!Array.isArray(polygon)) continue;
+    if (
+      !Array.isArray(polygon) ||
+      !polygon.length ||
+      polygon.length - 1 > OUTLINE_MAX_HOLES
+    )
+      return null;
     const outer = cleanRing(polygon[0]);
-    if (!outer) continue;
-    const holes = polygon
-      .slice(1)
-      .map(cleanRing)
-      .filter(Boolean)
-      .sort((a, b) => ringArea(b) - ringArea(a))
-      .slice(0, OUTLINE_MAX_HOLES);
+    if (!outer) return null;
+    const holes = polygon.slice(1).map(cleanRing);
+    if (holes.some((hole) => !hole)) return null;
     polygons.push({ rings: [outer, ...holes], area: ringArea(outer) });
   }
-  if (!polygons.length) return null;
   polygons.sort((a, b) => b.area - a.area);
-  return polygons.slice(0, OUTLINE_MAX_PARTS).map((entry) => entry.rings);
+  return polygons.map((entry) => entry.rings);
 }
 
 /** Iterative Douglas–Peucker on a closed ring (keeps it closed, ≥ 4 points). */
@@ -460,6 +393,79 @@ const countVertices = (polygons) =>
     0,
   );
 
+const edgeSide = (p, q, r) =>
+  (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
+const onEdge = (p, q, r) =>
+  r[0] >= Math.min(p[0], q[0]) &&
+  r[0] <= Math.max(p[0], q[0]) &&
+  r[1] >= Math.min(p[1], q[1]) &&
+  r[1] <= Math.max(p[1], q[1]);
+
+/** Intersection, including touching, of two planar closed-ring edges. */
+function edgesIntersect(a, b, c, d) {
+  if (
+    Math.max(a[0], b[0]) < Math.min(c[0], d[0]) ||
+    Math.max(c[0], d[0]) < Math.min(a[0], b[0]) ||
+    Math.max(a[1], b[1]) < Math.min(c[1], d[1]) ||
+    Math.max(c[1], d[1]) < Math.min(a[1], b[1])
+  )
+    return false;
+  const ac = edgeSide(a, b, c);
+  const ad = edgeSide(a, b, d);
+  const ca = edgeSide(c, d, a);
+  const cb = edgeSide(c, d, b);
+  return (
+    (ac === 0 && onEdge(a, b, c)) ||
+    (ad === 0 && onEdge(a, b, d)) ||
+    (ca === 0 && onEdge(c, d, a)) ||
+    (cb === 0 && onEdge(c, d, b)) ||
+    (ac > 0 !== ad > 0 && ca > 0 !== cb > 0)
+  );
+}
+
+function ringsIntersect(a, b) {
+  for (let i = 1; i < a.length; i++)
+    for (let j = 1; j < b.length; j++)
+      if (edgesIntersect(a[i - 1], a[i], b[j - 1], b[j])) return true;
+  return false;
+}
+
+/**
+ * Check only generated bounded output, not a new input-geometry policy.
+ * Touching generated boundaries are conservatively unsupported here.
+ */
+function simplifiedTopologyFits(polygons) {
+  for (const [outer, ...holes] of polygons) {
+    for (const ring of [outer, ...holes]) {
+      if (ringArea(ring) === 0) return false;
+      for (let i = 1; i < ring.length; i++)
+        for (let j = i + 2; j < ring.length; j++) {
+          if (i === 1 && j === ring.length - 1) continue;
+          if (edgesIntersect(ring[i - 1], ring[i], ring[j - 1], ring[j]))
+            return false;
+        }
+    }
+    for (let i = 0; i < holes.length; i++) {
+      const hole = holes[i];
+      if (
+        !hole.every(([lon, lat]) => pointInRing(outer, lat, lon)) ||
+        ringsIntersect(outer, hole)
+      )
+        return false;
+      for (let j = 0; j < i; j++) {
+        const other = holes[j];
+        if (
+          ringsIntersect(hole, other) ||
+          pointInRing(other, hole[0][1], hole[0][0]) ||
+          pointInRing(hole, other[0][1], other[0][0])
+        )
+          return false;
+      }
+    }
+  }
+  return true;
+}
+
 /** Simplify until the whole outline fits the vertex cap. */
 export function capOutlineVertices(
   polygons,
@@ -468,22 +474,20 @@ export function capOutlineVertices(
   let current = polygons;
   let tolerance = 0.00002;
   for (let round = 0; round < 12; round++) {
-    if (countVertices(current) <= maxVertices) return current;
+    if (countVertices(current) <= maxVertices)
+      return current === polygons || simplifiedTopologyFits(current)
+        ? current
+        : null;
     current = polygons.map((rings) =>
       rings.map((ring) => simplifyClosedRing(ring, tolerance)),
     );
     tolerance *= 2;
   }
-  // Still over: keep the largest parts that fit, outer rings only.
-  const kept = [];
-  let total = 0;
-  for (const rings of current) {
-    const outer = rings[0];
-    if (total + outer.length > maxVertices) break;
-    kept.push([outer]);
-    total += outer.length;
-  }
-  return kept.length ? kept : null;
+  // Never turn a resource refusal into an apparently complete partial outline.
+  return countVertices(current) <= maxVertices &&
+    simplifiedTopologyFits(current)
+    ? current
+    : null;
 }
 
 /**
@@ -504,8 +508,9 @@ export function selectOutlineResult(rows, { kind, query }) {
       continue;
     }
     if (
-      String(osmClass).toLowerCase() === 'boundary' &&
-      String(osmType).toLowerCase() === 'administrative' &&
+      (String(osmClass).toLowerCase() === 'place' ||
+        (String(osmClass).toLowerCase() === 'boundary' &&
+          String(osmType).toLowerCase() === 'administrative')) &&
       !adminLevelFits(kind, row)
     ) {
       skipped.push(`${label}: level`);
@@ -535,7 +540,6 @@ export function selectOutlineResult(rows, { kind, query }) {
       skipped.push(`${label}: too large`);
       continue;
     }
-    const adminIdentity = selectedAdminIdentity(kind, row);
     const lat = Number(row.lat);
     const lon = Number(row.lon);
     return {
@@ -548,7 +552,6 @@ export function selectOutlineResult(rows, { kind, query }) {
           row.osm_type && row.osm_id != null
             ? `${row.osm_type}/${row.osm_id}`
             : null,
-        ...(adminIdentity || {}),
         center: finiteLat(lat) && finiteLon(lon) ? { lat, lon } : null,
         polygons,
       },

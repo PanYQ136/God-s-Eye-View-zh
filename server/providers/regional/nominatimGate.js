@@ -23,23 +23,23 @@ const PUBLIC_NOMINATIM_HOST = 'nominatim.openstreetmap.org';
  * The public usage policy asks for a User-Agent or Referer that identifies the
  * application. The identity is stable: it is never rotated or varied.
  */
-export const NOMINATIM_HEADERS = Object.freeze({
+const NOMINATIM_HEADERS = Object.freeze({
   'User-Agent':
     'gods-eye-view/0.1 (+https://github.com/bilawalsidhu/gods-eye-view)',
   Referer: 'https://github.com/bilawalsidhu/gods-eye-view',
 });
 
 /** Absolute policy maximum is one request per second; 1.1 s absorbs jitter. */
-export const NOMINATIM_MIN_SPACING_MS = 1100;
+const NOMINATIM_MIN_SPACING_MS = 1100;
 
 /** Requests allowed to wait for their turn; past this, refuse at once. */
 export const NOMINATIM_MAX_PENDING = 4;
 
 /** A queued request older than this has no reader left; drop it unsent. */
-export const NOMINATIM_MAX_WAIT_MS = 10_000;
+const NOMINATIM_MAX_WAIT_MS = 10_000;
 
 /** Default public requests per install per UTC day, outlines and search together. */
-export const NOMINATIM_DEFAULT_DAILY_CAP = 50;
+const NOMINATIM_DEFAULT_DAILY_CAP = 50;
 
 /**
  * Pause after a refusal without Retry-After. A Retry-After from the server is
@@ -88,12 +88,15 @@ export function resolveNominatimSettings(env = process.env) {
     url.hash
   )
     return { endpoint: null, isPublic: false, dailyCap, invalid: true };
+  const publicHost =
+    url.hostname.toLowerCase().replace(/\.$/, '') === PUBLIC_NOMINATIM_HOST;
+  if (publicHost && url.protocol !== 'https:')
+    return { endpoint: null, isPublic: false, dailyCap, invalid: true };
   if (url.pathname === '/' || url.pathname === '') url.pathname = '/search';
   return {
     endpoint: url.href.replace(/\/$/, ''),
     // A trailing DNS dot names the same host.
-    isPublic:
-      url.hostname.toLowerCase().replace(/\.$/, '') === PUBLIC_NOMINATIM_HOST,
+    isPublic: publicHost,
     dailyCap,
   };
 }
@@ -546,9 +549,6 @@ export function createGateStateStore({
   };
 }
 
-/** Compatibility name for the state store. */
-export const createUsageStore = createGateStateStore;
-
 /**
  * Construct a gate. `settings` may be a function so the environment is read
  * after the dev server loads `.env`.
@@ -558,7 +558,7 @@ export const createUsageStore = createGateStateStore;
  * @param {typeof fetch} [options.fetchImpl]
  * @param {() => number} [options.now]
  * @param {(ms: number) => Promise<void>} [options.sleep]
- * @param {ReturnType<typeof createUsageStore>} [options.usage]
+ * @param {ReturnType<typeof createGateStateStore>} [options.usage]
  */
 export function createNominatimGate({
   settings = () => resolveNominatimSettings(),

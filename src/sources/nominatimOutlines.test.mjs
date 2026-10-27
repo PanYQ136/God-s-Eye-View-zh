@@ -26,31 +26,47 @@ const reply = (status, body, headers = {}) =>
   new Response(JSON.stringify(body), { status, headers });
 
 test('an accepted outline comes back with its polygons and is remembered', async () => {
+  const hole = ring.map(([lon, lat]) => [
+    2.35 + (lon - 2.35) / 2,
+    48.85 + (lat - 48.85) / 2,
+  ]);
   const { calls, lookup } = client(() =>
     reply(200, {
       status: 'OK',
-      outline: { name: 'Paris', class: 'boundary', type: 'administrative', polygons: [[ring]] },
+      outline: {
+        name: 'Paris',
+        class: 'boundary',
+        type: 'administrative',
+        polygons: [[ring, hole]],
+      },
     }),
   );
   const ask = { query: 'Paris', kind: 'city', lat: 48.85, lon: 2.35 };
   const outline = await lookup(ask);
-  assert.deepEqual(outline.polygons, [[ring]]);
+  assert.deepEqual(outline.polygons, [[ring, hole]]);
   assert.equal(outline.class, 'boundary');
-  assert.match(calls[0], /^\/api\/geocode\/outline\?q=Paris&kind=city&lat=48\.850&lon=2\.350$/);
+  assert.match(
+    calls[0],
+    /^\/api\/geocode\/outline\?q=Paris&kind=city&lat=48\.850&lon=2\.350$/,
+  );
   await lookup(ask);
   assert.equal(calls.length, 1, 'one request per ask in a session');
 });
 
 test('no result is a definitive null; failures are transient undefined', async () => {
   const { lookup } = client((n) =>
-    n === 1 ? reply(200, { status: 'ZERO_RESULTS', outline: null }) : reply(503, { error: 'x' }),
+    n === 1
+      ? reply(200, { status: 'ZERO_RESULTS', outline: null })
+      : reply(503, { error: 'x' }),
   );
   assert.equal(await lookup({ query: 'Nowhere', kind: 'landmark' }), null);
   assert.equal(await lookup({ query: 'Down', kind: 'landmark' }), undefined);
 });
 
 test('busy is rate-limited with its Retry-After', async () => {
-  const { lookup } = client(() => reply(429, { error: 'busy' }, { 'Retry-After': '20' }));
+  const { lookup } = client(() =>
+    reply(429, { error: 'busy' }, { 'Retry-After': '20' }),
+  );
   assert.deepEqual(await lookup({ query: 'Paris', kind: 'city' }), {
     rateLimited: true,
     retryAfterMs: 20_000,
@@ -74,17 +90,49 @@ test('disabled, capped or missing routes stop asking for the session', async () 
 });
 
 test('bad input and malformed polygons never become outlines', async () => {
+  const badRing = [
+    [999, 0],
+    [1, 1],
+    [2, 2],
+    [999, 0],
+  ];
+  let polygons = [[badRing]];
   const { calls, lookup } = client(() =>
-    reply(200, { status: 'OK', outline: { polygons: [[[[999, 0], [1, 1], [2, 2], [999, 0]]]] } }),
+    reply(200, {
+      status: 'OK',
+      outline: {
+        polygons,
+      },
+    }),
   );
   assert.equal(await lookup({ query: '', kind: 'city' }), null);
   assert.equal(await lookup({ query: 'Paris', kind: 'street' }), null);
   assert.equal(calls.length, 0);
-  assert.equal(await lookup({ query: 'Paris', kind: 'city' }), undefined);
+  const ask = { query: 'Paris', kind: 'city' };
+  for (const malformed of [
+    [[badRing]],
+    [[ring, badRing]],
+    [[ring], [badRing]],
+    [[ring.map((_point, i) => (i === 1 ? [null, 48.8] : ring[i]))]],
+    [[ring.map((_point, i) => (i === 1 ? ['2.4', 48.8] : ring[i]))]],
+    [[ring.map((_point, i) => (i === 1 ? '12' : ring[i]))]],
+  ]) {
+    polygons = malformed;
+    const before = calls.length;
+    assert.equal(await lookup(ask), undefined);
+    assert.equal(await lookup(ask), undefined);
+    assert.equal(
+      calls.length,
+      before + 2,
+      'malformed outlines are not remembered',
+    );
+  }
 });
 
 test('a cancelled ask sends nothing', async () => {
-  const { calls, lookup } = client(() => reply(200, { status: 'ZERO_RESULTS' }));
+  const { calls, lookup } = client(() =>
+    reply(200, { status: 'ZERO_RESULTS' }),
+  );
   await assert.rejects(
     lookup({ query: 'Paris', kind: 'city' }, { signal: AbortSignal.abort() }),
     { name: 'AbortError' },

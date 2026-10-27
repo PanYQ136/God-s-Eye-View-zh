@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { makeRateLimiter, clientKey } from '../common/rate-limit.js';
-import { coalesceProxyRequest } from '../common/http.js';
+import { admitSameSite } from '../common/same-site.js';
+import { defaultSourceRoot } from '../common/source-root.js';
 import { naturalRegionAtPoint } from '../../../src/data/naturalEarthRegions.js';
 import {
   nominatimToGeocodeResult,
@@ -30,8 +31,8 @@ const OUTLINE_RESULT_LIMIT = 3;
 /** Largest upstream answer read for an outline (polygons are simplified upstream). */
 const OUTLINE_MAX_RESPONSE_BYTES = 4 * 1024 * 1024;
 
-/** Bump when the cached payload shape changes, so old entries are never read. */
-const CACHE_SCHEMA = 'v2';
+/** Bump when cached answers change shape or selection authority. */
+const CACHE_SCHEMA = 'v3';
 
 /**
  * The query text actually sent upstream: Unicode-composed, whitespace
@@ -57,9 +58,73 @@ function malformed() {
   });
 }
 
+function abandoned() {
+  return Object.assign(new Error('Place search was abandoned'), {
+    code: 'NOMINATIM_ABANDONED',
+  });
+}
+
+/**
+ * Share one upstream call while keeping each caller's cancellation independent.
+ * The shared controller is aborted only after the last subscriber leaves.
+ */
+function subscribeSharedRequest(inFlight, key, signal, create) {
+  if (signal?.aborted) return Promise.reject(abandoned());
+  let flight = inFlight.get(key);
+  if (!flight) {
+    flight = {
+      controller: new AbortController(),
+      users: 0,
+      settled: false,
+      promise: null,
+    };
+    const owned = flight;
+    owned.promise = Promise.resolve()
+      .then(() => create(owned.controller.signal))
+      .finally(() => {
+        owned.settled = true;
+        if (inFlight.get(key) === owned) inFlight.delete(key);
+      });
+    inFlight.set(key, owned);
+  }
+  flight.users += 1;
+  return new Promise((resolve, reject) => {
+    let left = false;
+    const leave = () => {
+      if (left) return;
+      left = true;
+      signal?.removeEventListener('abort', onAbort);
+      flight.users -= 1;
+      if (
+        flight.users === 0 &&
+        !flight.settled &&
+        inFlight.get(key) === flight
+      ) {
+        inFlight.delete(key);
+        flight.controller.abort();
+      }
+    };
+    const onAbort = () => {
+      leave();
+      reject(abandoned());
+    };
+    signal?.addEventListener('abort', onAbort, { once: true });
+    flight.promise.then(
+      (value) => {
+        leave();
+        resolve(value);
+      },
+      (error) => {
+        leave();
+        reject(error);
+      },
+    );
+  });
+}
+
 /** Where the dev server keeps Nominatim answers and the daily count. */
 export const NOMINATIM_CACHE_DIR = path.join(
-  process.cwd(),
+  defaultSourceRoot,
   '.gev-cache',
   'nominatim',
 );
@@ -76,6 +141,9 @@ export const fetchRegionalPlace = createRegionalPlaceProvider();
  * moves reuse one cache entry. The viewbox is a soft preference upstream.
  */
 function coarseBounds(bounds) {
+  // Validate the original hint before snapping or clamping can disguise a
+  // wrapped, inverted or out-of-range box as an unrelated valid viewbox.
+  if (!nominatimViewboxFromBounds(bounds)) return null;
   const match = String(bounds || '')
     .trim()
     .split('|')
@@ -122,27 +190,33 @@ export function createNominatimSearchProvider({
     const cacheKey = requestKey(gateNow, 'search', params);
     const cached = await cache.get(cacheKey);
     if (cached) return { ...cached.payload, cached: true };
-    const { promise } = coalesceProxyRequest(inFlight, cacheKey, async () => {
-      const rows = await gateNow.requestJson(
-        (endpoint) => `${endpoint}?${params}`,
-        { signal },
-      );
-      // Only a well-formed empty list is "no such place"; anything else is a
-      // failure and is never cached.
-      if (!Array.isArray(rows)) throw malformed();
-      const result = nominatimToGeocodeResult(rows[0] ?? null);
-      if (rows.length && !result) throw malformed();
-      const payload = result
-        ? { status: 'OK', results: [result] }
-        : { status: 'ZERO_RESULTS', results: [] };
-      await cache.set(
-        cacheKey,
-        payload,
-        result ? NOMINATIM_CACHE_TTL_MS.place : NOMINATIM_CACHE_TTL_MS.notFound,
-      );
-      return payload;
-    });
-    return await promise;
+    return await subscribeSharedRequest(
+      inFlight,
+      cacheKey,
+      signal,
+      async (sharedSignal) => {
+        const rows = await gateNow.requestJson(
+          (endpoint) => `${endpoint}?${params}`,
+          { signal: sharedSignal },
+        );
+        // Only a well-formed empty list is "no such place"; anything else is a
+        // failure and is never cached.
+        if (!Array.isArray(rows)) throw malformed();
+        const result = nominatimToGeocodeResult(rows[0] ?? null);
+        if (rows.length && !result) throw malformed();
+        const payload = result
+          ? { status: 'OK', results: [result] }
+          : { status: 'ZERO_RESULTS', results: [] };
+        await cache.set(
+          cacheKey,
+          payload,
+          result
+            ? NOMINATIM_CACHE_TTL_MS.place
+            : NOMINATIM_CACHE_TTL_MS.notFound,
+        );
+        return payload;
+      },
+    );
   };
 }
 
@@ -178,40 +252,37 @@ export function createNominatimOutlineProvider({
     const cacheKey = requestKey(gateNow, `outline-${kind}`, params);
     const cached = await cache.get(cacheKey);
     if (cached) return { ...cached.payload, cached: true };
-    const { promise } = coalesceProxyRequest(inFlight, cacheKey, async () => {
-      const rows = await gateNow.requestJson(
-        (endpoint) => `${endpoint}?${params}`,
-        { signal, maxBytes: OUTLINE_MAX_RESPONSE_BYTES },
-      );
-      if (!Array.isArray(rows)) throw malformed();
-      const { outline, skipped } = selectOutlineResult(rows, {
-        kind,
-        query: sent,
-      });
-      const payload = outline
-        ? { status: 'OK', outline }
-        : { status: 'ZERO_RESULTS', outline: null, skipped };
-      await cache.set(
-        cacheKey,
-        payload,
-        outline
-          ? NOMINATIM_CACHE_TTL_MS.outline
-          : NOMINATIM_CACHE_TTL_MS.notFound,
-      );
-      return payload;
-    });
-    return await promise;
+    return await subscribeSharedRequest(
+      inFlight,
+      cacheKey,
+      signal,
+      async (sharedSignal) => {
+        const rows = await gateNow.requestJson(
+          (endpoint) => `${endpoint}?${params}`,
+          { signal: sharedSignal, maxBytes: OUTLINE_MAX_RESPONSE_BYTES },
+        );
+        if (!Array.isArray(rows)) throw malformed();
+        const { outline, skipped } = selectOutlineResult(rows, {
+          kind,
+          query: sent,
+        });
+        const payload = outline
+          ? { status: 'OK', outline }
+          : { status: 'ZERO_RESULTS', outline: null, skipped };
+        await cache.set(
+          cacheKey,
+          payload,
+          outline
+            ? NOMINATIM_CACHE_TTL_MS.outline
+            : NOMINATIM_CACHE_TTL_MS.notFound,
+        );
+        return payload;
+      },
+    );
   };
 }
 
 export const fetchNominatimSearch = createNominatimSearchProvider();
-
-/** A browser on another site may not spend this install's allowance. */
-function crossSite(req) {
-  return (
-    String(req.headers?.['sec-fetch-site'] || '').toLowerCase() === 'cross-site'
-  );
-}
 
 function sendJson(res, status, body, headers = {}) {
   if (res.writableEnded) return;
@@ -312,12 +383,9 @@ export function geocodeProxy({
 
   /** Common front door: method, same-site, rate limit, abandonment signal. */
   function admit(req, res, limiter) {
+    if (admitSameSite(req, res)) return null;
     if (req.method !== 'GET') {
       sendJson(res, 405, { error: 'Method Not Allowed' });
-      return null;
-    }
-    if (crossSite(req)) {
-      sendJson(res, 403, { error: 'Cross-site requests are not accepted' });
       return null;
     }
     if (!limiter(clientKey(req))) {
@@ -394,7 +462,9 @@ export function geocodeProxy({
         res,
         200,
         { status: payload.status, results: payload.results },
-        { 'Cache-Control': payload.cached ? 'public, max-age=60' : 'no-store' },
+        {
+          'Cache-Control': payload.cached ? 'private, max-age=60' : 'no-store',
+        },
       );
     } catch (error) {
       sendFailure(res, error, 'Place search');

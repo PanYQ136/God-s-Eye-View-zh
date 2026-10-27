@@ -6,6 +6,11 @@ import {
 } from './vectorTiles.js';
 import { clipTileRing, militaryOutlineLines } from './militaryTileGeometry.js';
 import { tileToBBox } from '../data/tomtomTiles.js';
+// Kept English in data; the map card and Contacts translate it.
+import { UNNAMED_MILITARY_AREA } from '../data/installationNames.js';
+
+/** Name of a military polygon the names pack has not named. */
+export { UNNAMED_MILITARY_AREA };
 
 const ROAD_TYPES = Object.freeze({
   motorway: 'motorway',
@@ -81,7 +86,7 @@ export function clearSharedOpenFreeMapTiles() {
  * OpenMapTiles folds private access into `no`. Tunnels cannot be placed on
  * the surface above them; ramps/bridges remain valid only on a motor road.
  */
-export function isDrivableOpenMapRoad(properties = {}) {
+function isDrivableOpenMapRoad(properties = {}) {
   return (
     Object.hasOwn(ROAD_TYPES, properties.class) &&
     !properties.subclass &&
@@ -253,7 +258,7 @@ function decodeLayers(bytes, z, x, y, layerNames, parsedTile = null) {
             id: `ofm:${z}/${x}/${y}:${feature.id ?? i}:${p}`,
             kind: 'installation',
             class: 'military_land',
-            name: 'Military area',
+            name: UNNAMED_MILITARY_AREA,
             latitude,
             longitude,
             footprint: ring,
@@ -292,6 +297,7 @@ function decodeSharedOpenFreeMapTile(bytes, z, x, y) {
   let resizeCacheEntry = null;
   let cacheBound = false;
   const idleCallbacks = new Map();
+
   const cancelIdleProjection = (name) => {
     if (!idleCallbacks.has(name)) return;
     const handle = idleCallbacks.get(name);
@@ -315,8 +321,6 @@ function decodeSharedOpenFreeMapTile(bytes, z, x, y) {
     return value;
   };
   const scheduleIdleProjections = () => {
-    // Scheduling is optional unless both lifecycle operations are available;
-    // otherwise eviction could not release the callback's decoded-tile closure.
     if (
       !cacheBound ||
       typeof globalThis.requestIdleCallback !== 'function' ||
@@ -340,6 +344,7 @@ function decodeSharedOpenFreeMapTile(bytes, z, x, y) {
         idleCallbacks.set(name, handle);
       }
   };
+
   return {
     ...base,
     project,
@@ -362,7 +367,15 @@ function decodeSharedOpenFreeMapTile(bytes, z, x, y) {
   };
 }
 
-/** Construct an immutable-version road/military tile source without starting I/O. */
+/**
+ * Construct an immutable-version road/military tile source without starting I/O.
+ *
+ * `allowedOrigin` is deliberately not set here: `createVectorTileSource`
+ * derives it from whichever `tileJsonUrl` is in effect, so a caller that
+ * repoints only `tileJsonUrl` gets tiles from that host or a named error —
+ * never a silent fall back to the default host (#933). Passing
+ * `allowedOrigin` explicitly still overrides both.
+ */
 export function createOpenFreeMapSource(options = {}) {
   const {
     projection = null,
@@ -371,19 +384,20 @@ export function createOpenFreeMapSource(options = {}) {
     selectDecoded,
     ...sourceOptions
   } = options;
-  const shared = !decode && !selectDecoded;
+  const shared = !decode;
   return createVectorTileSource({
     tileJsonUrl: 'https://tiles.openfreemap.org/planet',
-    allowedOrigin: 'https://tiles.openfreemap.org',
     decode: shared
       ? decodeSharedOpenFreeMapTile
       : decode || decodeOpenFreeMapTile,
     ...(shared
       ? {
           sharedDecodedCache: sharedDecodedCache || SHARED_DECODED_TILES,
-          selectDecoded: projection
-            ? (value) => value.project(projection)
-            : ({ roads, military }) => ({ roads, military }),
+          selectDecoded:
+            selectDecoded ||
+            (projection
+              ? (value) => value.project(projection)
+              : ({ roads, military }) => ({ roads, military })),
         }
       : {
           ...(sharedDecodedCache ? { sharedDecodedCache } : {}),

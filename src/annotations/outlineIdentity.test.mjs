@@ -51,7 +51,11 @@ test('outlines sharing an outer ring but not their holes stay two marks', async 
     polygons: shapes[target],
     footprintKind: 'area',
   });
-  const engine = createAnnotationEngine({ viewer: {}, renderer, resolveTarget });
+  const engine = createAnnotationEngine({
+    viewer: {},
+    renderer,
+    resolveTarget,
+  });
   await engine.annotate({ type: 'area', target: 'a', label: 'A' });
   await engine.annotate({ type: 'area', target: 'b', label: 'B' });
   assert.equal(engine.list().length, 2, 'different holes: different marks');
@@ -65,11 +69,18 @@ test('a street highlight asks for the street outline', () => {
     { type: 'area', target: 'Congress Avenue', entityKind: 'street' },
   );
   assert.equal(
-    promoteStreetHighlight({ type: 'highlight', target: 'Lombard St, San Francisco' }).type,
+    promoteStreetHighlight({
+      type: 'highlight',
+      target: 'Lombard St, San Francisco',
+    }).type,
     'area',
   );
   assert.equal(
-    promoteStreetHighlight({ type: 'highlight', target: 'the Alamo', entityKind: 'street' }).type,
+    promoteStreetHighlight({
+      type: 'highlight',
+      target: 'the Alamo',
+      entityKind: 'street',
+    }).type,
     'area',
   );
   for (const spec of [
@@ -87,10 +98,25 @@ test('the engine resolves a bare street highlight with its footprint', async (t)
   const seen = [];
   const resolveTarget = async (args) => {
     seen.push(args);
-    return { lon: -97.74, lat: 30.27, height: 0, label: args.target, source: 'fake', ring: null };
+    return {
+      lon: -97.74,
+      lat: 30.27,
+      height: 0,
+      label: args.target,
+      source: 'fake',
+      ring: null,
+    };
   };
-  const engine = createAnnotationEngine({ viewer: {}, renderer, resolveTarget });
-  await engine.annotate({ type: 'highlight', target: 'Congress Avenue', label: 'Congress' });
+  const engine = createAnnotationEngine({
+    viewer: {},
+    renderer,
+    resolveTarget,
+  });
+  await engine.annotate({
+    type: 'highlight',
+    target: 'Congress Avenue',
+    label: 'Congress',
+  });
   assert.equal(seen[0].footprint, true);
   assert.equal(seen[0].entityKind, 'street');
 });
