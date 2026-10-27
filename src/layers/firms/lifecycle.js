@@ -91,10 +91,14 @@ export function createLifecycle({
       components.rendering.removeDetectionCollections(viewer);
       components.selection.clearContextRegistrations();
       clearSelectedEntityContextForLayer(id);
+      layerState._allFires = [];
+      layerState._allFiresByFrp = [];
       layerState._fires = [];
       layerState._firesByFrp = [];
       layerState._cellCacheByGrid.clear();
       layerState._count = 0;
+      layerState._totalCount = 0;
+      layerState._rowControlsListener = null;
       layerState._cellCount = 0;
       layerState._lastUpdate = null;
       layerState._keyRequired = false;

@@ -6,6 +6,7 @@ import {
   accentForSeverity,
   formatFrpMw,
 } from '../../data/firmsLabels.js';
+import { FRP_RAMP, frpRampStop } from '../../data/firmsIntensity.js';
 import {
   VIEW_PADDING,
   DETECTION_COLOR_STOPS,
@@ -119,27 +120,42 @@ export function createModel({
     );
   }
 
-  function heatColor(value, alpha) {
-    if (value > 0.72) return Cesium.Color.RED.withAlpha(alpha);
-    if (value > 0.42) return Cesium.Color.ORANGE.withAlpha(alpha);
-    return Cesium.Color.YELLOW.withAlpha(alpha);
+  /**
+   * The ramp stop for a fire radiative power (stepped, coldest first).
+   * Intensity alone drives the color: confidence feeds the card text and the
+   * switch, brightness is unreliable (saturates at 367 K) — see HAL-675.
+   * @param {number} frp - Megawatts.
+   * @returns {{name: string, minFrp: number, color: Cesium.Color}}
+   */
+
+  function frpColorStop(frp) {
+    const name = frpRampStop(frp).name;
+    return (
+      DETECTION_COLOR_STOPS.find((stop) => stop.name === name) ||
+      DETECTION_COLOR_STOPS[0]
+    );
   }
 
   /**
-   * Pick a sprite color stop from FRP + confidence, reusing the same
-   * yellow → orange → red thresholds as the aggregated heat cells.
+   * Fill color for an aggregated heat cell: the ramp color of its strongest
+   * detection, so cells, markers and the slider legend read on one scale.
+   * @param {number} maxFrp - Strongest FRP in the cell, megawatts.
+   * @param {number} alpha - Fill alpha (heat-normalized by the caller).
+   * @returns {Cesium.Color}
+   */
+
+  function heatColor(maxFrp, alpha) {
+    return frpColorStop(maxFrp).color.withAlpha(alpha);
+  }
+
+  /**
+   * Pick a sprite color stop for one detection from its FRP on the shared ramp.
    * @param {Object} fire - Detection record.
    * @returns {{name: string, color: Cesium.Color}}
    */
 
   function detectionColorStop(fire) {
-    const heat = Math.min(
-      1,
-      Math.sqrt(Math.max(0, fire.frp) / 150) * 0.85 + fire.confidence * 0.15,
-    );
-    if (heat > 0.72) return DETECTION_COLOR_STOPS[0];
-    if (heat > 0.42) return DETECTION_COLOR_STOPS[1];
-    return DETECTION_COLOR_STOPS[2];
+    return frpColorStop(fire?.frp);
   }
 
   /** FRP → core marker pixel size, clamped to 8..28px. */
@@ -418,7 +434,7 @@ export function createModel({
       position: candidate.position,
       cullPosition: candidate.cullPosition || candidate.position,
       gapPx: 10,
-      accent: candidate.accent || accentForSeverity('yellow'),
+      accent: candidate.accent || accentForSeverity(FRP_RAMP[0].name),
       title: `${cell.count} ${noun}`,
       details: [parts.join(' · ')],
       selected: false,
@@ -460,16 +476,14 @@ export function createModel({
   }
 
   /**
-   * Heat-normalized cell score → severity accent, mirroring heatColor's
-   * red/orange/yellow thresholds.
-   * @param {number} normalized - 0..1 normalized heat score.
+   * Cell card accent: the ramp stop of the cell's strongest detection,
+   * mirroring heatColor.
+   * @param {number} maxFrp - Strongest FRP in the cell, megawatts.
    * @returns {string} "r, g, b" accent string.
    */
 
-  function cellAccent(normalized) {
-    if (normalized > 0.72) return accentForSeverity('red');
-    if (normalized > 0.42) return accentForSeverity('orange');
-    return accentForSeverity('yellow');
+  function cellAccent(maxFrp) {
+    return accentForSeverity(frpColorStop(maxFrp).name);
   }
 
   /** Coordinate line like "30.512°N 75.831°E". */
@@ -576,6 +590,7 @@ export function createModel({
     cellIntersectsBounds,
     heatScore,
     heatColor,
+    frpColorStop,
     detectionColorStop,
     frpPixelSize,
     sizeBucket,

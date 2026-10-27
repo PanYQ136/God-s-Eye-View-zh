@@ -1,4 +1,5 @@
 import { FIRMS_AMBIENT_COHORT_LIMIT } from '../../data/firmsLabels.js';
+import { FRP_RAMP } from '../../data/firmsIntensity.js';
 import * as Cesium from 'cesium';
 
 /** Client poll interval; the proxy's 30 min TTL is what guards upstream quota. */
@@ -88,10 +89,16 @@ export const CULL_LIFT_THRESHOLD_M = 10;
 
 export const CULL_LIFT_M = 12;
 
-/** Color stops shared by cell heat fills and detection glow sprites. */
+/**
+ * Color stops shared by cell heat fills and detection glow sprites: the
+ * six-stop cold → hot FRP ramp (firmsIntensity.js), coldest first, as Cesium
+ * colors. Stop names key the glow-sprite cache and the card accents.
+ */
 
-export const DETECTION_COLOR_STOPS = [
-  { name: 'red', color: Cesium.Color.RED },
-  { name: 'orange', color: Cesium.Color.ORANGE },
-  { name: 'yellow', color: Cesium.Color.YELLOW },
-];
+export const DETECTION_COLOR_STOPS = FRP_RAMP.map((stop) =>
+  Object.freeze({
+    name: stop.name,
+    minFrp: stop.minFrp,
+    color: Cesium.Color.fromCssColorString(stop.hex),
+  }),
+);
