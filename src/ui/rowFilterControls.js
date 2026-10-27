@@ -104,8 +104,9 @@ export function syncSliderBlock(container, slider, { before = null } = {}) {
  * Buttons carry `data-chip-id` like chips so the row's delegated click handler
  * can resolve them; the caller matches `.data-toggle-segment`.
  *
- * Descriptor: `{ id, ariaLabel, options: [{ id, label, title, active,
- * disabled, params }] }`.
+ * Descriptor: `{ id, label, ariaLabel, options: [{ id, label, title, active,
+ * disabled, params }] }` — `label` is an optional visible caption above the
+ * buttons (the group itself is a flex item, so the caption is a sibling).
  * @param {HTMLElement} container The row's `.data-toggle-controls` node.
  * @param {?object} segmented Descriptor, or null to remove the group.
  * @param {{before?: ?Node}} [options] Insertion anchor for a new group.
@@ -121,18 +122,37 @@ export function syncSegmentedGroup(
   const existing = [...container.children].find(
     (node) => node.dataset?.segmentedId,
   );
+  const existingCaption = [...container.children].find(
+    (node) => node.dataset?.segmentedCaptionFor,
+  );
   if (!segmented) {
     existing?.remove();
+    existingCaption?.remove();
     return null;
   }
   let group = existing;
   if (!group || group.dataset.segmentedId !== segmented.id) {
     existing?.remove();
+    existingCaption?.remove();
     group = document.createElement('div');
     group.className = 'gev-segmented data-toggle-segmented';
     group.dataset.segmentedId = segmented.id;
     group.setAttribute('role', 'radiogroup');
     container.insertBefore(group, before);
+  }
+  let caption = [...container.children].find(
+    (node) => node.dataset?.segmentedCaptionFor === segmented.id,
+  );
+  if (segmented.label) {
+    if (!caption) {
+      caption = document.createElement('span');
+      caption.className = 'data-toggle-segmented-label';
+      caption.dataset.segmentedCaptionFor = segmented.id;
+      container.insertBefore(caption, group);
+    }
+    set(caption, 'textContent', segmented.label);
+  } else {
+    caption?.remove();
   }
   if (segmented.ariaLabel) attribute(group, 'aria-label', segmented.ariaLabel);
   const stale = new Map();

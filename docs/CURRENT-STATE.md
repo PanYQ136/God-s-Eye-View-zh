@@ -2062,9 +2062,10 @@ hot ramp: blue from 0 MW, teal from 5, lime from 20, amber from 50, orange from
 cells, glow sprites and card accents read the same ramp; confidence and
 brightness do not affect the color.
 
-The Active Fires row carries a minimum-FRP slider on a log scale whose track is
-painted with the ramp and ticked at the same six values, an All / Nominal+ /
-High confidence switch, and an "N of M shown" counter. The default is 0 MW and
+The Active Fires row carries a "Fire intensity (FRP)" slider on a log scale
+whose track is painted with the ramp and ticked at the same six values (its
+value reads "All" or "≥ N MW"), a "Confidence" switch with All / Nominal+ /
+High, and an "N of M shown" counter. The default is 0 MW and
 All, because many of the strongest detections are rated low confidence. The
 filter runs once in `ingestion.applyFilter()` before rendering, so markers,
 cards, heat cells, the shared context store, the top-fires query and the

@@ -135,11 +135,11 @@ export function createQueries({
       return {
         slider: {
           id: 'min-frp',
-          label: t('Min FRP'),
+          label: t('Fire intensity (FRP)'),
           ariaLabel: t('Minimum fire radiative power, megawatts'),
           valueText:
             minFrp > 0
-              ? t('{value} MW', { value: frpLabel(minFrp) })
+              ? t('≥ {value} MW', { value: frpLabel(minFrp) })
               : t('All', { context: 'fire intensity filter' }),
           min: 0,
           max: SLIDER_STEPS,
@@ -156,6 +156,7 @@ export function createQueries({
         },
         segmented: {
           id: 'confidence',
+          label: t('Confidence'),
           ariaLabel: t('Detection confidence'),
           options: FIRMS_CONFIDENCE_MODES.map((mode) => ({
             id: `confidence-${mode}`,

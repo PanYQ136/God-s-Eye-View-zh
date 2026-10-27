@@ -2870,9 +2870,10 @@
   "Every detection — many of the strongest fires are rated low confidence": "所有检测——许多最强的火点置信度为低",
   "Nominal and high confidence detections": "标称和高置信度的检测",
   "High confidence detections only": "仅高置信度的检测",
-  "Min FRP": "最小 FRP",
+  "Fire intensity (FRP)": "火势强度 (FRP)",
+  "≥ {value} MW": "≥ {value} MW",
+  "Confidence": "置信度",
   "Minimum fire radiative power, megawatts": "最小火辐射功率（兆瓦）",
-  "{value} MW": "{value} MW",
   "fire intensity filter|All": "全部",
   "Detection confidence": "检测置信度",
   "{shown} of {total} shown": "显示 {shown} / {total}"

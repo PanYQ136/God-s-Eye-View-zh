@@ -3077,9 +3077,10 @@
   "Every detection — many of the strongest fires are rated low confidence": "Все детекции — у многих сильнейших пожаров достоверность низкая",
   "Nominal and high confidence detections": "Детекции средней и высокой достоверности",
   "High confidence detections only": "Только детекции высокой достоверности",
-  "Min FRP": "Мин. FRP",
+  "Fire intensity (FRP)": "Интенсивность (FRP)",
+  "≥ {value} MW": "≥ {value} МВт",
+  "Confidence": "Достоверность",
   "Minimum fire radiative power, megawatts": "Минимальная мощность излучения пожара, мегаватты",
-  "{value} MW": "{value} МВт",
   "fire intensity filter|All": "Все",
   "Detection confidence": "Достоверность детекции",
   "{shown} of {total} shown": "показано {shown} из {total}"

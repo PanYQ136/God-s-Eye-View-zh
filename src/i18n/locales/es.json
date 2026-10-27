@@ -3008,9 +3008,10 @@
   "Every detection — many of the strongest fires are rated low confidence": "Todas las detecciones — muchos de los incendios más intensos tienen confianza baja",
   "Nominal and high confidence detections": "Detecciones de confianza nominal y alta",
   "High confidence detections only": "Solo detecciones de confianza alta",
-  "Min FRP": "FRP mín.",
+  "Fire intensity (FRP)": "Intensidad (FRP)",
+  "≥ {value} MW": "≥ {value} MW",
+  "Confidence": "Confianza",
   "Minimum fire radiative power, megawatts": "Potencia radiativa mínima del fuego, en megavatios",
-  "{value} MW": "{value} MW",
   "fire intensity filter|All": "Todo",
   "Detection confidence": "Confianza de la detección",
   "{shown} of {total} shown": "{shown} de {total} mostrados"

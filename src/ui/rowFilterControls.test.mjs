@@ -24,6 +24,7 @@ const sliderDescriptor = (overrides = {}) => ({
 
 const segmentedDescriptor = (active = 'all') => ({
   id: 'confidence',
+  label: 'Confidence',
   ariaLabel: 'Detection confidence',
   options: ['all', 'nominal', 'high'].map((mode) => ({
     id: `confidence-${mode}`,
@@ -96,6 +97,9 @@ test('the segmented group is a radiogroup whose active option reads checked, rec
   assert.equal(group.getAttribute('role'), 'radiogroup');
   assert.equal(group.getAttribute('aria-label'), 'Detection confidence');
   assert.ok(group.className.split(' ').includes('gev-segmented'));
+  const caption = container.children[container.children.indexOf(group) - 1];
+  assert.equal(caption.className, 'data-toggle-segmented-label');
+  assert.equal(caption.textContent, 'Confidence');
   const buttons = group.children;
   assert.deepEqual(
     buttons.map((b) => [
@@ -118,10 +122,18 @@ test('the segmented group is a radiogroup whose active option reads checked, rec
   assert.equal(buttons[0].getAttribute('aria-checked'), 'false');
   assert.equal(buttons[2].getAttribute('aria-checked'), 'true');
   assert.ok(buttons[2].classList.contains('active'));
+  assert.equal(container.children.length, 2, 'caption and group');
+
+  syncSegmentedGroup(container, { ...segmentedDescriptor('high'), label: '' });
+  assert.equal(
+    container.querySelector('.data-toggle-segmented-label'),
+    null,
+    'an empty label removes the caption',
+  );
   assert.equal(container.children.length, 1);
 
   syncSegmentedGroup(container, null);
-  assert.equal(container.children.length, 0);
+  assert.equal(container.children.length, 0, 'null removes group and caption');
 });
 
 test('a layer row dispatches slider input and switch clicks as user params', async () => {
@@ -163,10 +175,15 @@ test('a layer row dispatches slider input and switch clicks as user params', asy
       row.querySelector('.data-toggle-controls-info').textContent,
       '12 of 40 shown',
     );
-    // Order: switch, slider, info.
+    // Order: switch caption, switch, slider, info.
     assert.deepEqual(
       container.children.map((node) => node.className.split(' ')[0]),
-      ['gev-segmented', 'data-toggle-slider', 'data-toggle-controls-info'],
+      [
+        'data-toggle-segmented-label',
+        'gev-segmented',
+        'data-toggle-slider',
+        'data-toggle-controls-info',
+      ],
     );
 
     const input = row.querySelector('.data-toggle-slider-input');
