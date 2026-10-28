@@ -965,8 +965,9 @@ body.gev-drawing #cesiumContainer canvas {
   color: var(--text-primary);
 }
 .pp-mode-btn.active {
-  background: var(--accent);
-  color: #000;
+  background: color-mix(in srgb, var(--accent) 30%, #061014);
+  color: #eaf6ff;
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
 }
 
 /* These controls also move into Cockpit Display; keep focus on the control

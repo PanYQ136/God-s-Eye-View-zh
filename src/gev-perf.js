@@ -8,6 +8,10 @@
  * 完全可还原：删掉本文件 + index.html 里对应的 1 行 <script> 即恢复原状。
  * 只读 window.__gevViewer（由 viewer.js 暴露），不 import Cesium、不改动任何既有模块。
  */
+/* Phase 1 · S1g：#gev-gpu-chip 必须与 FPS 同一个 wrap（§13.3 R3），
+   由 src/lc/gpu.js 提供（唯一 GPU 判定来源，R5）。 */
+import { mountChip } from './lc/gpu.js';
+
 (() => {
   const LS_KEY = 'gev.perfMode';
   const st = {
@@ -130,9 +134,10 @@
     const css = document.createElement('style');
     css.textContent = [
       '#gev-perf-wrap{position:fixed;left:12px;bottom:52px;z-index:2147482000;display:flex;gap:8px;align-items:center;font:12px/1.2 system-ui,"Segoe UI",sans-serif;}',
-      '#gev-perf-btn{cursor:pointer;border:1px solid #2b4a63;background:rgba(8,20,30,.72);color:#bfe9ff;padding:6px 11px;border-radius:16px;letter-spacing:.4px;backdrop-filter:blur(3px);}',
-      '#gev-perf-btn.on{background:#0a3a2a;border-color:#1f8f6a;color:#9dffd6;}',
-      '#gev-perf-fps{border:1px solid #2b4a63;background:rgba(8,20,30,.72);color:#8fe3ff;padding:6px 10px;border-radius:16px;min-width:62px;text-align:center;font-variant-numeric:tabular-nums;}',
+      /* 灰圈=0（Phase 1 · §6.6）：徽标不用 border/outline/inset 描边，层级只靠底色与亮度 */
+      '#gev-perf-btn{cursor:pointer;border:0;outline:0;box-shadow:none;background:rgba(8,20,30,.72);color:#bfe9ff;padding:6px 11px;border-radius:16px;letter-spacing:.4px;backdrop-filter:blur(3px);}',
+      '#gev-perf-btn.on{background:rgba(10,58,42,.86);color:#9dffd6;}',
+      '#gev-perf-fps{border:0;outline:0;box-shadow:none;background:rgba(8,20,30,.72);color:#8fe3ff;padding:6px 10px;border-radius:16px;min-width:62px;text-align:center;font-variant-numeric:tabular-nums;}',
     ].join('');
     document.head.appendChild(css);
     const wrap = document.createElement('div');
@@ -148,6 +153,7 @@
     wrap.appendChild(fps);
     wrap.appendChild(btn);
     document.body.appendChild(wrap);
+    mountChip(); // #gev-gpu-chip 与 FPS 同 wrap（§13.3 R3）
     syncBtn();
   }
 

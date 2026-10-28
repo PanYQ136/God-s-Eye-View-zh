@@ -11,6 +11,8 @@
   <link rel="stylesheet" href="/gev-responsive.css" />
   <link rel="stylesheet" href="/gev-fix.css" />
   <link rel="stylesheet" href="/gev-panel-win.css" />
+  <!-- src/lc 材质层（唯一材质来源，必须排在所有 App CSS 之后）；删掉本行即回滚材质 -->
+  <link rel="stylesheet" href="/src/lc/material.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -39,6 +41,8 @@
 
   <!-- gev:template hud-loading -->
 
+  <!-- src/lc 外部披露开关（1 行）：让 App 不再绑定这 7 张卡的披露/悬停/恢复；删掉本行即还原 -->
+  <script>window.__lcExternalDisclosure=new Set(['data-panel','scene-panel','pp-toggles','cctv-panel','global-context-panel','location-bar','control-panel']);</script>
   <script type="module" src="/src/main.js"></script>
   <!-- GEV 中文增强包（界面汉化 + 美化钩子）；删掉本行即完全还原 -->
   <script type="module" src="/src/gev-cn.js"></script>
@@ -59,5 +63,15 @@
   <script type="module" src="/src/ui/mobile-ui.js"></script>
   <!-- GEV 面板自由拖拽/缩放层（移动/缩放/吸附/持久化/玻璃）；删掉本行 + gev-panel-win.css 的 <link> 即完全回滚 -->
   <script type="module" src="/src/gev-panel-win.js"></script>
+  <!-- 液态玻璃折射滤镜（移植 rdev/liquid-glass-react v1.1.1 位移图，注入 #gev-lg-filter） -->
+  <script src="/gev-lg-filter.js"></script>
+  <!-- src/lc 卡片层（Controller/Layout/Renderer/Port/Interaction）；删掉本行 + material.css 的 <link> 即完全回滚 -->
+  <script type="module" src="/src/lc/index.js"></script>
+  <!-- WebGL 液态玻璃折射层已停用（2026-10-26 用户决策 = 方案 A：改回 3:25 的 rdev SVG 位移滤镜）。
+       恢复办法：把下面这行取消注释，并把 gev-liquid-cards.css 换回 docs/_collab/t_8cf06356/before/gev-liquid-cards.WEBGL.css -->
+  <!-- <script src="/gev-gl-glass.js"></script> -->
+  <!-- 边缘折射环（只画卡片边缘 16px 的真折射 + R/G/B 色散，中心交给 CSS blur）。
+       ?gevEdge=0 完全关闭（不开 preserveDrawingBuffer，等同旧基线）；删本行即完全回滚。 -->
+  <script src="/gev-edge-lens.js"></script>
 </body>
 </html>

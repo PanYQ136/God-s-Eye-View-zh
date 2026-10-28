@@ -234,7 +234,7 @@ export function createRecentImageryPanel({
     row.id = `ri-slot-${slotId}`;
     const tag = el('span', 'ri-slot-tag', row);
     const value = el('span', 'ri-slot-value', row);
-    const unpin = el('button', 'data-toggle-chip ri-unpin', row, '×');
+    const unpin = el('button', 'data-toggle-chip ri-unpin', row, '−');
     unpin.type = 'button';
     unpin.id = `ri-unpin-${slotId}`;
     unpin.dataset.unpin = slotId;
