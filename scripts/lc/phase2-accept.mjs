@@ -184,6 +184,7 @@ async function ensureAllMini() {
   for (const id of IDS) {
     const p = (await phases())[id];
     if (p !== 'mini') {
+      /* teardown：只把上一组留下的展开卡拉回 mini，不作为任何断言判据 */
       await page.evaluate((id) => window.__lc.api.dispatch({ type: 'ESC', id }), id);
       await sleep(600);
     }
@@ -849,6 +850,7 @@ if (!only.length || only.includes('T18')) {
       { id: 'top', axis: 'y', at: r.y },
       { id: 'left', axis: 'x', at: r.x },
     ]);
+  /* teardown（非判据）：截图完成后收起，回到 mini 基线 */
   await page.evaluate(() => window.__lc.api.dispatch({ type: 'ESC', id: 'data-panel' }));
   await waitPhase('data-panel', 'mini', 3000);
   await waitQuiet();
@@ -865,6 +867,7 @@ if (!only.length || only.includes('T18')) {
       { id: 'top', axis: 'y', at: r.y },
       { id: 'left', axis: 'x', at: r.x },
     ]);
+  /* teardown（非判据）：截图完成后收起，回到 mini 基线 */
   await page.evaluate(() => window.__lc.api.dispatch({ type: 'ESC', id: 'location-bar' }));
   await waitPhase('location-bar', 'mini', 3000);
   await waitQuiet();
@@ -1008,8 +1011,21 @@ if (!only.length || only.includes('T19')) {
       edgeLens: !!document.getElementById('gev-edge-lens'),
     };
   });
-  /* 软件轮里的开卡必须是 150ms / 无回弹（M4），且不建全屏折射 canvas */
-  await p3.evaluate(() => window.__lc.api.dispatch({ type: 'ACTIVATE', id: 'cctv-panel' }));
+  /* 软件轮里的开卡必须是 150ms / 无回弹（M4），且不建全屏折射 canvas。
+     这里同样用真实指针（p3 自己的 CDP 鼠标）点标题，不走 api.dispatch。 */
+  {
+    const box = await p3.evaluate(() => {
+      const h = document.querySelector('#cctv-panel .panel-header');
+      if (!h) return null;
+      const r = h.getBoundingClientRect();
+      return r.width > 0 ? { x: r.x + r.width / 2, y: r.y + r.height / 2 } : null;
+    });
+    if (box) {
+      await p3.mouse.move(box.x, box.y);
+      await p3.mouse.down();
+      await p3.mouse.up();
+    }
+  }
   await sleep(900);
   const softMorph = await p3.evaluate(() => window.__lc.api.morph());
   const softGeom = await p3.evaluate(() => {
