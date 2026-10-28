@@ -229,6 +229,20 @@ test('nearest-aircraft results leave out an altitude the feed did not report', (
   });
   assert.equal(unknown.say, 'Selected RCH123, 8.2 km from Ramstein.');
   assert.deepEqual(unknown.display.lines, ['8.2\u00a0km from Ramstein']);
+
+  // A reported sea-level altitude is still spoken.
+  const seaLevel = envelope('select_nearest_aircraft', {
+    ok: true,
+    location: 'Ramstein',
+    layerId: 'military',
+    feed: { state: 'nominal' },
+    aircraft: { callsign: 'RCH123', altitudeM: 0, distanceKm: 8.2 },
+  });
+  assert.equal(seaLevel.say, 'Selected RCH123, 8.2 km from Ramstein, 0 feet.');
+  assert.deepEqual(seaLevel.display.lines, [
+    '8.2\u00a0km from Ramstein',
+    'Altitude 0 feet',
+  ]);
 });
 
 test('frame_overhead keeps the essential scope audible and lists referents', () => {
