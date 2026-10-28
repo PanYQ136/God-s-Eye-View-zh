@@ -16,6 +16,26 @@
 
 ---
 
+## 2026-10-28 23:11 Phase 2：Phase 0 架构全量落地 + 旧卡片代码退役（双系统清零）
+
+- **现象**：Phase 1 只落了 `gpu.js`/`morph.js` 两个模块——`controller/layout/render/interaction/collapse-port/app-adapter` 全部未接管；旧 `src/gev-liquid-cards.js`（3048 行）+ `public/gev-liquid-cards.css`（1009 行 / 309 行 `!important`）与新材质层并存。表现：scene 展开时 data mini 跳位、卡与卡重叠、快速连点堆动画、dock 三张面板各一套几何被挤到 x=966/1142、动画中读 rect 触发多重自纠定时器。
+- **根因**：① `.collapsed` 有多个写入者（旧卡层直写 + App `panelChrome`），谁最后写谁赢；② 几何在动画中回读 `getBoundingClientRect()`，让位/收缩互相打架；③ 灰圈来自 append-only 的 `inset 0 0 0 1px` 环形阴影 22 处（App 侧还另画一层 1px `border`），磨砂/暗底来自卡壳自带的 `backdrop-filter` 与不透明底。
+- **改动**：
+  - 新建 `src/lc/` 七模块（`controller` 279 行状态机 / `layout` 229 行纯函数几何 / `dock-overlay` / `render` 262 行单帧渲染 / `interaction` 203 行真指针 / `collapse-port` 113 行唯一 `.collapsed` 写入者 / `app-adapter` 416 行唯一 DOM 触点）+ `material.css` 104 行 + `index.js` 组装；`gpu.js`/`morph.js` 沿用。
+  - 旧 `src/gev-liquid-cards.js`、`public/gev-liquid-cards.css` **删除（0 行）**；`__gevLc` 旁路 0 处；`planGroupPush`/`normalizeRail`/`clearLateOverlaps`/`settleGuard`/`springProgress` 全删；卡片层 `setTimeout` 只剩 `morph.js:224` 的 M5 保险丝 1 个。
+  - 死代码退役（执行表 §二）：`public/gev-gl-glass.js`、`public/gev-lg-filter.js` + `gev-lg-dispmap.jpg`、`src/ui/lgGlass.js` 删除，`index.html` 三处各 ≤2 行且都带「删掉本行即回滚」注释；125 个 `scripts/qa-*` 归档到 `scripts/_archive/qa/`（保留 47 个被 `src/**/*.test.mjs` / `package.json` / `format-scope.json` / `qa-l9-matrix` 传递引用的）。
+  - 新增 `scripts/lc/{phase2-accept,verify-single-owner,verify-topbar}.mjs` + `README.md`；历史 `_diag*/_probe*` 收进 `scripts/lc/_diag/`。
+- **验证**（本机实测，全部可复跑）：
+  - `node --test src/lc/*.test.mjs` **81/81**；`scripts/lc/phase2-accept.mjs` **20/20 PASS**（18 处真实 CDP 指针/键盘操作驱动断言；`api.dispatch` 仅 3 处 teardown 收回基线，不参与判据）。
+  - 逐卡开卡 **393–450ms**、峰值 **1.0348–1.0350**；收起 **352–362ms**（反向过冲 0.9651–0.9656）；让位动画同族曲线。
+  - FPS 展开态 **153.5/155.6**（p50 6.1ms，p90 6.2ms）；GPU `ANGLE (NVIDIA RTX 3060 Laptop)` tier `high`；SwiftShader 轮 tier `software` + chip「GPU 未启用」+ 提示条 + 不建 `#gev-edge-lens` + 150ms 零回弹。
+  - 4x/8x 边缘剖面：顶沿**恰好 1 条 1px 高光**（正控），左/底沿 ridges=0、darkRuns=0，色散 chroma ≤4 → 无灰圈、无彩虹带、无第二内圈。
+  - 唯一写入者（`verify-single-owner`）：`port.writes` 增量 === `.collapsed` 观测变更数、`direct=0`、`appApiMissing=0`、语音卡零写入。
+  - 全仓 `npm test`：5149 tests / 5105 通过 / **34 既有失败**（proxy/provider 工具链）；用 `git worktree` 在改动前的 `f16cd41` 重跑同批文件，失败测试名逐条 `diff = IDENTICAL`，**非本次引入**。
+  - 完整报告（承诺→文件/行→测试 ID 全表）：`docs/architecture/phase2-implementation.md`。
+
+---
+
 ## 2026-10-24 14:00 外网访问：生产端点就绪 + Tailscale 复发 NoState + 项目全局 Skill
 
 - **生产外网端点** `start-prod.cmd`（vite preview `0.0.0.0:4174`，服务 dist + 全 /api，provider 均实现 configurePreviewServer）。实测 `/`200、`/api/cyclones`1风暴、`/api/sources/health` down0，`127.0.0.1:4174` 与 `192.168.110.126:4174` 均可达。
