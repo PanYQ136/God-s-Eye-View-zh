@@ -49,12 +49,15 @@
   #gev-dossier{
     position:fixed; left:12px; bottom:64px; z-index:2147483000;
     width:316px; max-width:calc(100vw - 24px); max-height:60vh; overflow:hidden auto;
-    background:linear-gradient(180deg, rgba(6,18,24,.94), rgba(4,12,18,.92));
-    border:1px solid rgba(57,208,255,.34); border-radius:10px;
-    box-shadow:0 8px 28px rgba(0,0,0,.5), inset 0 0 24px rgba(57,208,255,.05);
-    color:#d6f4ff; font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;
+    /* t_829dd186：与 9 张卡同一套透明液态材质 —— 中心零填充、无 backdrop 磨砂，
+       只在边缘留 0.5px 发丝边（原来是 rgba(6,18,24,.94) 深色实底 + blur(6px)）。 */
+    background:transparent;
+    border:1px solid transparent; border-radius:10px;
+    box-shadow:inset 0 0 0 0.5px rgba(255,255,255,.26), inset 0 1px 0 rgba(255,255,255,.10);
+    color:#eafbff; font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;
     font-size:12px; line-height:1.5; letter-spacing:.2px;
-    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+    text-shadow:0 1px 2px rgba(0,0,0,.6);
+    backdrop-filter:none; -webkit-backdrop-filter:none;
     transform:translateY(8px); opacity:0; pointer-events:none;
     transition:opacity .18s ease, transform .18s ease;
   }
@@ -62,7 +65,7 @@
   #gev-dossier .gd-head{
     display:flex; align-items:center; gap:8px; padding:8px 10px;
     border-bottom:1px solid rgba(57,208,255,.2); cursor:move; user-select:none;
-    background:rgba(57,208,255,.06);
+    background:transparent;   /* t_829dd186：原来是 rgba(57,208,255,.06) 青色实底 */
   }
   #gev-dossier .gd-dot{ width:8px; height:8px; border-radius:50%; flex:0 0 auto;
     background:var(--gd-accent,#39d0ff); box-shadow:0 0 8px var(--gd-accent,#39d0ff); }
@@ -164,7 +167,7 @@
       '<span class="gd-dot"></span>' +
       '<span class="gd-title">—</span>' +
       '<span class="gd-badge live">LIVE</span>' +
-      '<span class="gd-x" title="关闭">✕</span>' +
+      '<span class="gd-x" title="关闭">关闭</span>' +
       '</div>' +
       '<div class="gd-body">' +
       '<div class="gd-tag">目标档案 · TARGET DOSSIER</div>' +

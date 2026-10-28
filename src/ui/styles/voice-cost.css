@@ -82,3 +82,37 @@
 .gev-voice-cost-value[hidden] {
   display: none;
 }
+
+/* ── 紧凑语音卡（--dock-voice-width: 8.75rem = 140px）里的横向预算 ──────────
+   dock 把语音卡压到 140px 后，.gev-voice-heading 所在的文本列只剩 ≈75px：
+   关(10) + 间隙(5.6) + 标准按钮(48) + 间隙(3.5) + ~$0.00(38) ≈ 105px，
+   flex 行放不下就把整行往右撑，.gev-voice-cost 的右边缘落到 169px，
+   即 #gev-voice-control 的 scrollWidth 从 140 变成 169（可见溢出玻璃右缘 29px）。
+   常态隐藏预算数值、保留 标准 档位按钮（它是可点控件），即可让卡片内
+   麦克风 / 关 / 标准 / ON-OFF / 语音待命 全部坐标 0 位移且不再横向溢出；
+   悬停或键盘聚焦到卡片时再把数值放回来（此时 help tooltip 本来就浮在卡外，
+   属于设计内的浮层溢出）。 */
+#command-dock #gev-voice-control .gev-voice-cost-value {
+  display: none;
+}
+
+#command-dock #gev-voice-control:hover .gev-voice-cost-value,
+#command-dock #gev-voice-control:focus-within .gev-voice-cost-value {
+  display: block;
+}
+
+/* 预算数值隐藏后行内空出 ≈6px，flex 会把已经收缩到 0 的 kicker 撑回一点，
+   把 关 / 标准 整体右移 6px。kicker 在紧凑卡里本来就不可见（宽度 0、文字被裁），
+   这里把它固定成 0 宽；同时取消 .gev-voice-cost 的 margin-left:auto ——
+   有富余空间时 auto 会把 标准 按钮顶到行尾（80 → 86px），
+   改成紧跟在 关 后面，坐标与修复前逐像素一致。 */
+#command-dock .gev-voice-heading .gev-voice-kicker {
+  flex: 0 0 0;
+  width: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+#command-dock #gev-voice-control .gev-voice-cost {
+  margin-left: 0;
+}

@@ -43,13 +43,11 @@
 #command-dock > #location-bar {
   grid-area: locations;
   min-width: 0;
-  border-right: 1px solid rgba(123, 189, 211, 0.16);
 }
 
 #command-dock > #control-panel {
   grid-area: presets;
   min-width: 0;
-  border-left: 1px solid rgba(123, 189, 211, 0.16);
 }
 
 #command-dock > #gev-voice-control {
@@ -60,13 +58,7 @@
   min-width: 0;
   margin: -14px 0;
   padding: 19px 14px 12px;
-  border-color: rgba(0, 212, 255, 0.36);
   border-radius: 12px;
-  background: rgba(8, 31, 42, 0.94);
-  box-shadow:
-    0 12px 30px rgba(0, 0, 0, 0.56),
-    0 0 26px rgba(0, 212, 255, 0.12),
-    0 0 0 1px rgba(0, 212, 255, 0.08) inset;
 }
 
 #command-dock .gev-voice-kicker {

@@ -51,14 +51,6 @@
   flex-basis: var(--dock-presets-open);
 }
 
-#command-dock > #location-bar {
-  border-right: 1px solid rgba(123, 189, 211, 0.18);
-}
-
-#command-dock > #control-panel {
-  border-left: 1px solid rgba(123, 189, 211, 0.18);
-}
-
 #command-dock .panel-inner,
 #command-dock .location-inner,
 #command-dock #control-panel.collapsed .panel-inner,

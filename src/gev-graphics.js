@@ -20,6 +20,8 @@
  * 完全可还原：删本文件 + index.html 一行引用。
  */
 import { PostProcessStage, Cartesian2 } from 'cesium';
+/* Phase 1 · S1g：探测画布必须带 powerPreference 且只由 src/lc/gpu.js 判定（§13.3 R1/R5） */
+import { probe as gpuProbe } from './lc/gpu.js';
 
 (() => {
   const LS_KEY = 'gev.gfx';
@@ -250,20 +252,14 @@ import { PostProcessStage, Cartesian2 } from 'cesium';
     return e;
   }
 
-  /** 探测当前浏览器实际使用的 WebGL 渲染器（判断是否真走了独显）。 */
+  /** 探测当前浏览器实际使用的 WebGL 渲染器（判断是否真走了独显）。
+      Phase 1 · S1g：改由 src/lc/gpu.js 统一探测（带 powerPreference、用完释放上下文、
+      软件渲染只有一处判定）。这里只取字符串。 */
   function gpuInfo() {
     try {
-      const c = document.createElement('canvas');
-      const gl = c.getContext('webgl2') || c.getContext('webgl');
-      if (!gl) return '无 WebGL（可能未启用硬件加速）';
-      const dbg = gl.getExtension('WEBGL_debug_renderer_info');
-      const r = dbg
-        ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)
-        : gl.getParameter(gl.RENDERER);
-      try {
-        gl.getExtension('WEBGL_lose_context')?.loseContext();
-      } catch (e) {}
-      return String(r || '未知');
+      const s = gpuProbe();
+      if (!s || !s.ok) return '无 WebGL（可能未启用硬件加速）';
+      return String(s.renderer || '未知');
     } catch (e) {
       return '未知';
     }

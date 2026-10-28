@@ -7,24 +7,12 @@
   transition: outline-color .18s ease;
   will-change: left, top, width, height;
 }
-.gev-win:hover { outline: 1px dashed rgba(0, 212, 255, .26); outline-offset: 2px; }
+.gev-win:hover { outline: none !important; }
 .gev-win > * { min-height: 0; }
 
-/* 右下角缩放手柄 */
-.gev-win-resize {
-  position: absolute; right: 1px; bottom: 1px; width: 18px; height: 18px;
-  cursor: nwse-resize; z-index: 6; touch-action: none; border-radius: 0 0 12px 0;
-}
-.gev-win-resize::after {
-  content: ''; position: absolute; right: 4px; bottom: 4px; width: 9px; height: 9px;
-  border-right: 2px solid rgba(0, 212, 255, .5); border-bottom: 2px solid rgba(0, 212, 255, .5);
-  border-bottom-right-radius: 3px;
-}
-.gev-win:hover .gev-win-resize::after { border-color: rgba(0, 212, 255, .85); }
-
-/* 交互态 */
+/* 交互态（P2-1：hover 不描边；拖动/缩放用淡实线；P2-2：右下缩放手柄已移除） */
 .gev-win-dragging { user-select: none; cursor: move; }
-.gev-win-dragging, .gev-win-resizing { outline: 1px dashed rgba(0, 212, 255, .8) !important; outline-offset: 2px; }
+.gev-win-dragging, .gev-win-resizing { outline: 1px solid rgba(0, 212, 255, .30) !important; outline-offset: 2px; }
 .gev-win-resizing { cursor: nwse-resize; }
 
 #gev-pw-reset:hover { border-color: #00d4ff !important; color: #fff !important; }

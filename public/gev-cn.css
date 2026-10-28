@@ -65,23 +65,15 @@
     transform 0.18s ease !important;
 }
 
-/* 5) 滚动条美化 */
+/* 5) 滚动条：全局隐藏（保留滚动能力，去掉青色"怪散色"竖/横条） */
 * {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0, 212, 255, 0.35) transparent;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  scrollbar-color: transparent transparent;
 }
-::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none !important; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb {
-  background: rgba(0, 212, 255, 0.25);
-  border-radius: 4px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 212, 255, 0.45);
-  background-clip: padding-box;
-}
+::-webkit-scrollbar-thumb { background: transparent; }
 
 /* 6) 标题栏：更精致的呼吸光晕 */
 #title-bar h1 { letter-spacing: 6px; }

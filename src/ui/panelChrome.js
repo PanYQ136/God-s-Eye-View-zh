@@ -98,6 +98,16 @@ export class PanelChrome {
     for (const control of this._panelDisclosureControls || [])
       control.destroy();
     this._panelDisclosureControls = [];
+    /* ── src/lc 外部披露开关（2026-10-28 Phase 2）─────────────────────────────
+       卡片层（src/lc）拥有这 7 张卡的披露语义时，App 只保留 API、不再绑定按钮 /
+       悬停 / 启动恢复（D1：初始全 mini 由 CollapsePort 负责）。
+       删掉下面两行 + 三个 ext() 判断即完全还原。 */
+    const ext = (id) =>
+      !!(typeof window !== 'undefined' && window.__lcExternalDisclosure && window.__lcExternalDisclosure.has && window.__lcExternalDisclosure.has(id));
+    if (typeof window !== 'undefined') {
+      window.__lcPanelApi = window.__lcPanelApi || {};
+      window.__lcPanelApi.setPanelCollapsed = (id, collapsed, options) => this.setPanelCollapsed(id, collapsed, options);
+    }
     const targets = new Map();
     document
       .querySelectorAll('.panel-collapse-btn[data-collapse-target]')
@@ -110,6 +120,7 @@ export class PanelChrome {
     for (const [targetId, buttons] of targets) {
       const panel = document.getElementById(targetId);
       if (!panel) continue;
+      if (ext(targetId)) continue;
       this._panelDisclosureControls.push(
         bindPanelDisclosure({
           panel,
@@ -133,14 +144,16 @@ export class PanelChrome {
       syncShare: false,
       persist: false,
     });
-    this._initAutoHoverPanel('control-panel', {
-      openDelayMs: 130,
-      closeDelayMs: 900,
-    });
-    this._initAutoHoverPanel('location-bar', {
-      openDelayMs: 130,
-      closeDelayMs: 900,
-    });
+    if (!ext('control-panel'))
+      this._initAutoHoverPanel('control-panel', {
+        openDelayMs: 130,
+        closeDelayMs: 900,
+      });
+    if (!ext('location-bar'))
+      this._initAutoHoverPanel('location-bar', {
+        openDelayMs: 130,
+        closeDelayMs: 900,
+      });
     this._initCommandDockPins();
     this._initCommandDockTrayMetrics();
     this._maybeNotifyLayoutReset();

@@ -132,7 +132,10 @@ export function createApplicationViewer({ container, creditContainer }) {
   // GEV perf 2026-10-24: 默认关闭 preserveDrawingBuffer —— 它每帧强制整帧 framebuffer
   // 拷贝（viewer.js 注释自认），而本应用所有 toDataURL 均在离屏 2D canvas，无 Cesium 画布
   // 截图/录屏依赖，故默认 false 纯赚。用户如需可在画面设置面板开启。
-  const pdb = typeof gfx.pdb === 'boolean' ? gfx.pdb : false;
+  // GEV 液态玻璃 2026-10-26: WebGL 玻璃层要每帧读回地图纹理做折射，必须保留绘制缓冲。
+  // public/gev-gl-glass.js（经典脚本，先于本模块执行）会置 window.__GEV_GL_PRESERVE = true，
+  // 这里做「或」运算，避免画面设置里的 pdb 迁移把它关掉导致玻璃整层失效。
+  const pdb = (typeof gfx.pdb === 'boolean' ? gfx.pdb : false) || window.__GEV_GL_PRESERVE === true;
   const tileMSE = typeof gfx.tileMSE === 'number' ? gfx.tileMSE : apple ? 4 : 2;
   /*
    * fps: 0 / 负数 / NaN = "不限帧率"，Cesium 只接受 undefined（会抛

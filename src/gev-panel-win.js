@@ -8,13 +8,13 @@
   if (window.__gevPanelWin) return; window.__gevPanelWin = true;
 
   const KEY = 'gev-pw-v1';
-  const SNAP = 14, MOVE_TOL = 4, HEADER_H = 46;
+  const SNAP = 8, MOVE_TOL = 8, HEADER_H = 46;
   const TARGETS = {
-    'left-panel-stack':   { minW: 220, minH: 160 },
-    'right-context-rail': { minW: 220, minH: 160 },
+    // 左栈/右栏交由卡片层(gev-liquid-cards)+App 原生布局管理；gev-panel-win 不再接管，
+    // 否则其 applyGeom 会把容器 top 强设为捕获值，与卡片层「上移 translateY」叠加导致卡片出屏。
     'command-dock':       { minW: 300, minH: 70 }
   };
-  const INTERACTIVE = 'button,input,select,textarea,a,label,[role=slider],.pp-slider,.pp-select,.pp-mode-btn,.panel-collapse-btn,.pp-collapse-btn,.gev-win-resize,#gev-pw-reset';
+  const INTERACTIVE = 'button,input,select,textarea,a,label,[role=slider],.pp-slider,.pp-select,.pp-mode-btn,.panel-collapse-btn,.pp-collapse-btn,#gev-pw-reset';
 
   let store = {};
   try { store = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { store = {}; }
@@ -24,7 +24,7 @@
 
   const ghost = document.createElement('div');
   ghost.className = 'gev-placeholder';
-  ghost.style.cssText = 'position:fixed;display:none;pointer-events:none;z-index:2147483000;border:2px dashed rgba(0,212,255,.65);background:rgba(0,212,255,.09);border-radius:14px;';
+  ghost.style.cssText = 'position:fixed;display:none;pointer-events:none;z-index:2147483000;border:1px solid rgba(0,212,255,.40);background:rgba(0,212,255,.06);border-radius:14px;';
 
   function applyGeom(el, g) {
     el.style.setProperty('position', 'fixed', 'important');
@@ -64,27 +64,74 @@
   let rafId = 0, pendingFn = null;
   function raf(fn) { pendingFn = fn; if (rafId) return; rafId = requestAnimationFrame(() => { rafId = 0; const f = pendingFn; pendingFn = null; if (f) f(); }); }
 
+  /* dock 高度 = 最高子卡（语音卡 86px 常比 location/control 折叠高 60px 更高）。
+     历史 bug(t_829dd186)：刷新后恰好在语音卡还没排版时量到 60px → top = 730-60-12 = 658，
+     语音卡底边落到 744 被视口裁掉。
+     注意：只认「卡片级」子节点，并且把结果夹在 60–260 之间 —— 否则任何以百分比跟随
+     dock 高度的子层都会形成「量到 → 写高 → 再量到更高」的反馈（实测会放大到 1.6e6 px）。 */
+  function dockHeight(el) {
+    let hMax = 0;
+    [...el.children].forEach((c) => {
+      try {
+        const b = c.getBoundingClientRect();
+        const card = c.classList && c.classList.contains('gev-lc');
+        // 只认「正常卡片高度」(44–140)：几何被污染时（历史 store 值异常）不采信
+        if (card && b.height >= 44 && b.height <= 140 && b.height > hMax) hMax = b.height;
+      } catch (e) {}
+    });
+    const own = el.getBoundingClientRect().height || 0;
+    if (!hMax && own >= 44 && own <= 140) hMax = own;
+    return Math.ceil(Math.min(140, Math.max(60, hMax || 86)));
+  }
+
+  /* dock 几何复核：init 时语音卡可能还没排版（它有 saved 走 500ms 快启动路径，
+     那时量到的是 location/control 的 60px），导致 top = vh-60-12 把语音卡顶出屏幕。
+     这里按当前真实子卡高度重算一次，只在几何真的变了时才写。 */
+  function syncDock() {
+    const el = document.getElementById('command-dock');
+    if (!el || !el.classList.contains('gev-win')) return;
+    if (el.classList.contains('gev-win-dragging') || el.classList.contains('gev-win-resizing')) return;
+    const min = TARGETS['command-dock'] || { minW: 300, minH: 70 };
+    const w = Math.max(min.minW, Math.min(476, vw() - 24));
+    const h = dockHeight(el);
+    const g = { l: Math.round((vw() - w) / 2), t: Math.round(vh() - h - 12), w: Math.round(w), h: Math.round(h) };
+    const cur = store['command-dock'];
+    if (cur && cur.l === g.l && cur.t === g.t && cur.w === g.w && cur.h === g.h) return;
+    applyGeom(el, g);
+    store['command-dock'] = g;
+    save();
+  }
+
   function initPanel(el, min) {
     if (el.classList.contains('gev-win')) return;
     const b = el.getBoundingClientRect();
     if (b.width < 100 || b.height < 50) return;
     const id = el.id; el.dataset.gevWinId = id;
     el.classList.add('gev-win');
-    let g = store[id] ? { ...store[id] } : rectOf(el);
-    g.w = Math.max(min.minW, g.w); g.h = Math.max(min.minH, g.h);
-    g.l = clamp(g.l, 0, Math.max(0, vw() - g.w)); g.t = clamp(g.t, 0, Math.max(0, vh() - g.h));
+    let g;
+    if (id === 'command-dock') {
+      // P1-4 视口重排：命令坞固定居中贴底，宽度随视口收缩(左右各留12px)，避免窄屏贴右/不居中
+      const w = Math.max(min.minW, Math.min(476, vw() - 24));
+      const h = dockHeight(el);
+      g = { l: Math.round((vw() - w) / 2), t: Math.round(vh() - h - 12), w: Math.round(w), h: Math.round(h) };
+    } else {
+      g = store[id] ? { ...store[id] } : rectOf(el);
+      g.w = Math.max(min.minW, g.w); g.h = Math.max(min.minH, g.h);
+      g.l = clamp(g.l, 0, Math.max(0, vw() - g.w)); g.t = clamp(g.t, 0, Math.max(0, vh() - g.h));
+    }
     el.style.setProperty('transition', 'none', 'important'); // 首帧不滑动
     applyGeom(el, g); store[id] = g; save();
+    if (id === 'command-dock') {
+      // 语音卡排版晚于 dock 首帧：补三次复核（不用 ResizeObserver —— 会和 dock 高度互相触发）
+      [260, 900, 2200].forEach((t) => setTimeout(syncDock, t));
+    }
     setTimeout(() => { if (!el.classList.contains('gev-win-dragging') && !el.classList.contains('gev-win-resizing')) el.style.removeProperty('transition'); }, 60);
 
-    if (!el.querySelector(':scope > .gev-win-resize')) {
-      const rz = document.createElement('div'); rz.className = 'gev-win-resize'; rz.title = '拖动缩放';
-      el.appendChild(rz);
-      rz.addEventListener('pointerdown', e => startResize(e, el, min));
-    }
+    // P2-2：缩放手柄已移除（改由卡片级边缘缩放承担，不再整体缩放容器）
     el.addEventListener('pointerdown', e => {
       if (e.button !== undefined && e.button !== 0) return;
       if (e.target.closest(INTERACTIVE)) return;
+      if (e.target.closest('.gev-lc')) return; // P1-2：卡片区域归卡片交互（边缘缩放/展开），容器拖动只在卡片间隙
       const top = el.getBoundingClientRect().top;
       if ((e.clientY - top) > HEADER_H) return; // 仅顶部把手区内可拖，避免劫持内容滚动
       startDrag(e, el);
@@ -148,6 +195,14 @@
     Object.keys(TARGETS).forEach(id => { const el = document.getElementById(id); if (el) initPanel(el, TARGETS[id]); });
     window.addEventListener('resize', () => {
       document.querySelectorAll('.gev-win').forEach(el => {
+        if (el.id === 'command-dock') {
+          // P1-4：命令坞随视口重排——居中贴底、宽度收缩(留12px边距)
+          const min = TARGETS['command-dock'] || { minW: 300, minH: 70 };
+          const w = Math.max(min.minW, Math.min(476, vw() - 24));
+          const h = dockHeight(el);
+          const g = { l: Math.round((vw() - w) / 2), t: Math.round(vh() - h - 12), w: Math.round(w), h: Math.round(h) };
+          applyGeom(el, g); store[el.id] = g; save(); return;
+        }
         const b = el.getBoundingClientRect();
         el.style.setProperty('left', Math.round(clamp(b.left, 0, Math.max(0, vw() - b.width))) + 'px', 'important');
         el.style.setProperty('top', Math.round(clamp(b.top, 0, Math.max(0, vh() - b.height))) + 'px', 'important');
@@ -171,7 +226,7 @@
       let ok = false;
       if (L && R) {
         const lb = L.getBoundingClientRect(), rb = R.getBoundingClientRect();
-        ok = document.querySelectorAll('canvas').length >= 6 && lb.height > 300 && rb.left >= 760;
+        ok = document.querySelectorAll('canvas').length >= 6 && lb.width > 50 && rb.width > 50;
         if (ok) { const s = sigOf(L, R); if (s === last) stable++; else { stable = 0; last = s; } }
       }
       if ((ok && stable >= 8) || ++tries > 150) { initAll(); return; } // 稳定 8×200ms=1.6s
