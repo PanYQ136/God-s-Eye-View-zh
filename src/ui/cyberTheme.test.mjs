@@ -182,11 +182,11 @@ const cyberStyles = read('./styles/cyber.css');
 test('Cyber clipped expand controls retain an inset keyboard-focus outline in map and cockpit', () => {
   assert.match(
     cyberStyles,
-    /:root\[data-ui-theme='cyber'\]\s+:is\(\s*\.panel-collapse-btn,\s*body\.cockpit-mode \.cockpit-utility-glyph\s*\):focus-visible\s*\{[^}]*outline: 2px solid var\(--cyber-red-bright\) !important;[^}]*outline-offset: -3px;[^}]*box-shadow: none;/,
+    /:root\[data-ui-theme='cyber'\]\s+body\.cockpit-mode \.cockpit-utility-glyph:focus-visible\s*\{[^}]*outline: 2px solid var\(--cyber-red-bright\) !important;[^}]*outline-offset: -3px;[^}]*box-shadow: none;/,
   );
   assert.match(
     cyberStyles,
-    /:root\[data-ui-theme='cyber'\]\s+:is\(\.panel-collapse-btn, body\.cockpit-mode \.cockpit-utility-glyph\):is\(\s*:hover,\s*:focus-visible\s*\)\s*\{[^}]*border-color: var\(--cyber-red-bright\);/,
+    /:root\[data-ui-theme='cyber'\]\s+body\.cockpit-mode \.cockpit-utility-glyph:is\(:hover, :focus-visible\)\s*\{[^}]*border-color: var\(--cyber-red-bright\);/,
   );
 });
 
@@ -195,10 +195,7 @@ test('Cyber Radio retains upstream nested Context ownership', () => {
 });
 
 test('Cyber cockpit launchers share Data Layers frame and expand-control treatment', () => {
-  assert.match(
-    cyberStyles,
-    /:is\(\.panel-collapse-btn, body\.cockpit-mode \.cockpit-utility-glyph\)/,
-  );
+  assert.match(cyberStyles, /body\.cockpit-mode \.cockpit-utility-glyph/);
   assert.match(
     cyberStyles,
     /body\.cockpit-mode \.cockpit-utility-launcher \{[^}]*width: var\(--cyber-panel-width\);[^}]*min-height: 60px;[^}]*clip-path: var\(--cyber-panel-frame\);/,
@@ -250,10 +247,8 @@ test('Cyber side panels share one width and one framed surface material', () => 
     cyberStyles,
     /\.cockpit-utility-control:not\(\.is-expanded\)\s+\.cockpit-utility-launcher \{\s*width: var\(--cyber-panel-collapsed-width\);/,
   );
-  assert.match(
-    cyberStyles,
-    /#pp-toggles\s*> \.pp-header-row\s+\.pp-collapse-btn \{[\s\S]*?width: var\(--cyber-panel-control-size\);[\s\S]*?height: var\(--cyber-panel-control-size\);/,
-  );
+  // Phase 3：Display 的折叠按钮已删除，不再有 .pp-collapse-btn 尺寸规则。
+  assert.doesNotMatch(cyberStyles, /pp-collapse-btn/);
   assert.doesNotMatch(
     cyberStyles,
     /\.cockpit-utility-control\.is-expanded\s*\{[^}]*order:/,

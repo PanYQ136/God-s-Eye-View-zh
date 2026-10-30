@@ -25,11 +25,16 @@ export function createCollapsePort({ adapter, ids = DEFAULT_PORT_IDS, onExternal
   const desired = new Map();
   const suppress = new Map();
   let observers = [];
-  const stats = { writes: 0, appWrites: 0, suppressed: 0, direct: 0, failures: 0 };
+  const stats = { writes: 0, appWrites: 0, suppressed: 0, direct: 0, preboot: 0, reconciled: 0, failures: 0 };
 
   function current(id) {
     return adapter.isCollapsed(id);
   }
+
+  /* Phase7A3：App API 是否在位。测试注入的假 adapter 没有该方法 → 视为在位
+     （等价旧行为：一律走 App 路径、options 原样透传）。 */
+  const appApiReady = () =>
+    typeof adapter.hasPanelApi === 'function' ? adapter.hasPanelApi() : true;
 
   /**
    * 唯一写入口。
@@ -44,13 +49,37 @@ export function createCollapsePort({ adapter, ids = DEFAULT_PORT_IDS, onExternal
     }
     /* 自己写入的 200ms 内不把它当「外部写入」回流（App 的写入可能异步到下一帧） */
     suppress.set(id, clock() + 200);
-    const path = adapter.setPanelCollapsed(id, want, { explicit: false, persist: false, syncShare: false });
+    /* Phase7A3：App 还没起来（LC 先于 Cesium mount）→ 走 preboot 记账，不算 direct。
+       App API 在位时必须**原样**传三个 options（TC-M9 断言 exact options），
+       所以 preboot 只在真的需要时附加。 */
+    const preboot = !appApiReady();
+    const writeOpts = { explicit: false, persist: false, syncShare: false };
+    if (preboot) writeOpts.preboot = true;
+    const path = adapter.setPanelCollapsed(id, want, writeOpts);
     desired.set(id, want);
     stats.writes += 1;
-    if (path === 'direct') stats.direct += 1;
+    if (path === 'preboot') stats.preboot += 1;
+    else if (path === 'direct') stats.direct += 1;
     const ok = current(id) === want;
     if (!ok) stats.failures += 1;
     return { ok, changed: true, path, value: want, reason };
+  }
+
+  /** App 起来（`window.__lcPanelApi` 就位）后的状态回灌：
+      把 DOM 现状按 desired 一次性写回 App，之后所有写入都走 App API。
+      preboot 期由本 port 直写的 class 不再算「第二写入者」（App 从这一刻接管）。 */
+  function reconcile() {
+    if (!appApiReady()) return false;
+    let n = 0;
+    for (const id of ids) {
+      const cur = current(id);
+      const want = desired.has(id) ? desired.get(id) : cur;
+      suppress.set(id, clock() + 200);
+      adapter.setPanelCollapsed(id, want, { explicit: false, persist: false, syncShare: false });
+      n += 1;
+    }
+    stats.reconciled = n;
+    return true;
   }
 
   /** 把 7 张卡强制成同一个相位（boot：全 mini；D1）。 */
@@ -102,6 +131,7 @@ export function createCollapsePort({ adapter, ids = DEFAULT_PORT_IDS, onExternal
     forceAll,
     start,
     stop,
+    reconcile,
     read: current,
     desired: (id) => desired.get(id),
     stats: () => ({ ...stats }),

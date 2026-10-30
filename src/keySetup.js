@@ -206,6 +206,14 @@ export async function initKeySetup({
   const doFetch = fetchImpl || globalThis.fetch?.bind(globalThis);
 
   let status = null;
+  /* Phase7A2：prod/preview 构建里根本没有 /api/setup/status（server/standalone
+     key-setup 只在 dev 挂载，preview 恒 404）。旧写法先发请求再靠 catch 自毁，
+     代价是每轮冷启动都往控制台塞一条 404（验收「无 404」项）。这里提前判掉，
+     行为与 catch 分支完全一致：surface 不存在，chip/dialog 都不建。 */
+  if (import.meta.env?.PROD === true) {
+    destroy();
+    return null;
+  }
   try {
     const response = await doFetch('/api/setup/status', {
       cache: 'no-store',

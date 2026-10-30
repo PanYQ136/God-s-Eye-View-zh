@@ -157,11 +157,17 @@ function shortRenderer(s) {
   }
   out = out
     .replace(/\((?:0x)?[0-9a-f]{4,}\)/gi, '')
+    /* Chrome 的 renderer 串会在长度上限处截断，PCI id 常只剩 "(0x0000252"：
+       去掉这种没有右括号的尾巴，否则 chip 上会挂着半截十六进制。 */
+    .replace(/\s*\((?:0x)?[0-9a-f]{2,}\)?$/i, '')
     .replace(/\bvs_5_0\b|\bps_5_0\b|\bD3D11\b/gi, '')
     .replace(/\s+/g, ' ')
     .trim();
   if (!out) out = t;
-  return out.length > 28 ? out.slice(0, 27) + '…' : out;
+  /* Phase 3：状态带右侧已留出 400px+ 的专属槽位，28 字符会把
+     「NVIDIA GeForce RTX 3060 Laptop GPU」（34 字符）截成 "...Lap…"。
+     放宽到 40 字符，超长型号仍走省略号 + title 里给完整 renderer。 */
+  return out.length > 40 ? out.slice(0, 39) + '…' : out;
 }
 
 function chipText(s) {
@@ -177,7 +183,7 @@ function ensureCss() {
   st.id = 'gev-gpu-css';
   /* 灰圈=0（§6.6）：chip / notice 都不用 border / outline / inset 描边，只用底色+字色 */
   st.textContent = [
-    `#${CHIP_ID}{border:0;outline:0;box-shadow:none;background:rgba(8,20,30,.72);color:#8fe3ff;padding:6px 10px;border-radius:16px;font:12px/1.2 system-ui,"Segoe UI",sans-serif;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-variant-numeric:tabular-nums;}`,
+    `#${CHIP_ID}{border:0;outline:0;box-shadow:none;background:rgba(8,20,30,.72);color:#8fe3ff;padding:6px 10px;border-radius:16px;font:12px/1.2 system-ui,"Segoe UI",sans-serif;max-width:360px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-variant-numeric:tabular-nums;}`,
     `#${CHIP_ID}[data-gpu-tier="software"],#${CHIP_ID}[data-gpu-tier="none"]{background:rgba(58,20,10,.78);color:#ffc9a8;}`,
     `#${NOTICE_ID}{position:fixed;left:50%;bottom:200px;transform:translateX(-50%);z-index:2147483000;border:0;outline:0;box-shadow:0 8px 28px rgba(0,0,0,.35);background:rgba(24,12,8,.86);color:#ffe2cf;padding:10px 16px;border-radius:14px;font:13px/1.45 system-ui,"Segoe UI",sans-serif;max-width:min(520px,78vw);backdrop-filter:none;cursor:pointer;animation:gev-gpu-notice 9s linear forwards;}`,
     `#${NOTICE_ID} b{color:#fff;font-weight:600;}`,

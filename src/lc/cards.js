@@ -11,7 +11,12 @@ export const CARDS = Object.freeze({
   'scene-panel': { expW: 320, expH: 340, rail: 'left', expandable: true },
   'pp-toggles': { expW: 300, expH: 430, rail: 'right', expandable: true },
   'cctv-panel': { expW: 340, expH: 430, rail: 'right', expandable: true },
-  'global-context-panel': { expW: 320, expH: 400, rail: 'right', expandable: true },
+  'global-context-panel': {
+    expW: 320,
+    expH: 400,
+    rail: 'right',
+    expandable: true,
+  },
   'location-bar': { expW: 380, expH: 240, rail: 'dock', expandable: true },
   'control-panel': { expW: 520, expH: 380, rail: 'dock', expandable: true },
   'gev-voice-control': { expW: 260, expH: 240, rail: 'dock', expandable: true },
@@ -41,18 +46,19 @@ export const HEAD_SEL =
 /** 标题区域内仍属内部控件：点了不切换卡片。 */
 export const HEAD_NO_TOGGLE =
   'input,select,textarea,a,label,[role=slider],[contenteditable],' +
-  '.pp-slider,.pp-select,.pp-mode-btn,.panel-collapse-btn,.pp-collapse-btn,.dock-pin-btn,' +
+  '.pp-slider,.pp-select,.pp-mode-btn,.dock-pin-btn,' +
   '[data-no-toggle],.style-btn,.pp-toggle-btn,.scene-btn,.scene-shot-btn,.map-stack-chip,' +
   '.context-mode-button,.search-toggle-btn,.cctv-cal-btn,.context-radio-dock,.context-radio-toggle,' +
   '.context-radio-mini,.gev-voice-tier-btn,.gev-voice-cost-value,.gev-voice-error-dismiss';
 
 /** 本身「就是」切换按钮的元素：它们虽然是 <button>，但必须算标题热区。 */
-export const HEAD_TOGGLE_SELF = '.dock-tray-toggle,.location-bar-toggle,button.panel-header';
+export const HEAD_TOGGLE_SELF =
+  '.dock-tray-toggle,.location-bar-toggle,button.panel-header';
 
 /** mini 态里任何交互控件都不该触发「整卡=标题」的切换。 */
 export const INTERACTIVE =
   'button,input,select,textarea,a,label,[role=slider],.pp-slider,.pp-select,.pp-mode-btn,' +
-  '.panel-collapse-btn,.pp-collapse-btn,.dock-pin-btn,[data-no-toggle],.style-btn,' +
+  '[data-no-toggle],.style-btn,' +
   '.pp-toggle-btn,.scene-btn,.scene-shot-btn,.map-stack-chip,.context-radio-dock,' +
   '.context-radio-toggle,.context-radio-mini';
 

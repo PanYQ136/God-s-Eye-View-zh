@@ -118,29 +118,6 @@
   background: linear-gradient(to right, var(--glass-border), transparent);
 }
 
-.panel-collapse-btn {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text-dim);
-  font-family: var(--font-mono);
-  font-size: 13px;
-  line-height: 1;
-  cursor: pointer;
-  transition:
-    background-color var(--transition-fast),
-    border-color var(--transition-fast),
-    color var(--transition-fast);
-}
-
-.panel-collapse-btn:hover {
-  border-color: var(--glass-border-hover);
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.07);
-}
-
 /* ── Button Grid ──────────────────────────────── */
 .button-grid {
   display: flex;
@@ -305,14 +282,71 @@
   align-items: center;
   justify-content: center;
   transition:
-    opacity 0.8s ease,
-    visibility 0.8s ease;
+    opacity 0.28s ease,
+    visibility 0.28s ease;
+}
+
+/* ── Phase7A-D：底图细化期的地图暗纱 ─────────────────────────────────
+   放行输入后遮罩不再盖全屏，但底图此时常有「左侧粗 LOD、右侧清晰」的撕裂
+   （实测截图：同帧内半屏马赛克半屏高清）。这层纱只盖 #cesiumContainer（卡片在
+   更高层，不受影响；无 backdrop-filter，不构成第二层玻璃），到 B5 达标时瞬时移除
+   —— 不设 transition，保证「撤遮罩那一刻」的截图就是地图本来的样子。 */
+#cesiumContainer.boot-refining::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    120% 100% at 50% 45%,
+    rgba(4, 12, 18, 0.42) 0%,
+    rgba(4, 12, 18, 0.72) 72%
+  );
 }
 
 #loading-screen.hidden {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
+}
+
+/* ── Phase7A-D：输入放行后遮罩退化为状态胶囊 ─────────────────────────
+   「卡片可点」不再等 B5 清晰度：放行后遮罩背景透明、pointer-events:none，
+   只保留顶部一枚不可点的进度胶囊；地图在可见区继续细化，B5 达标后
+   .hidden 把胶囊一起撤掉。不改卡片材质/文字/分辨率。 */
+#loading-screen.input-released {
+  pointer-events: none;
+  background: transparent;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+#loading-screen.input-released .loader-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 74px;
+  padding: 7px 14px 7px 10px;
+  border-radius: 999px;
+  background: rgba(4, 12, 18, 0.9);
+  border: 1px solid rgba(0, 246, 255, 0.16);
+}
+
+#loading-screen.input-released .loader-logo {
+  width: 20px;
+  margin: 0;
+  animation: none;
+  filter: none;
+}
+
+#loading-screen.input-released h2 {
+  display: none;
+}
+
+#loading-screen.input-released .loader-status {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  opacity: 0.82;
 }
 
 .loader-content {
@@ -481,14 +515,6 @@
   font-size: 8px;
   letter-spacing: 1.4px;
   color: var(--text-dim);
-}
-
-#pp-toggles > .pp-header-row .pp-collapse-btn {
-  width: 20px;
-  height: 20px;
-  border-radius: 6px;
-  font-size: 12px;
-  padding: 0;
 }
 
 #pp-toggles.collapsed {

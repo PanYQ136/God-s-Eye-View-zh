@@ -20,7 +20,12 @@
   },
   "viewer": {
     "exports": ["./application/viewer"],
-    "modules": ["src/app/viewer.js", "src/app/atmosphereCompat.js"],
+    "modules": [
+      "src/app/viewer.js",
+      "src/app/atmosphereCompat.js",
+      "src/app/shaderCompileCache.js",
+      "src/boot-timeline.js"
+    ],
     "external": ["cesium"]
   },
   "vite-build": {
@@ -1219,6 +1224,7 @@
       "src/maps/credits.js",
       "src/maps/defaultSources.js",
       "src/maps/google3d.js",
+      "src/maps/tileWarmup.js",
       "src/maps/imagery.js",
       "src/maps/registry.js",
       "src/maps/terrain.js",
@@ -1334,7 +1340,9 @@
       "src/app/tools.js",
       "src/app/viewer.js",
       "src/app/atmosphereCompat.js",
+      "src/app/shaderCompileCache.js",
       "src/bloom.js",
+      "src/boot-timeline.js",
       "src/camera.js",
       "src/cameraVerbs.js",
       "src/cctvFocusPolicy.js",
@@ -1685,6 +1693,7 @@
       "src/maps/credits.js",
       "src/maps/defaultSources.js",
       "src/maps/google3d.js",
+      "src/maps/tileWarmup.js",
       "src/maps/imagery.js",
       "src/maps/registry.js",
       "src/maps/terrain.js",

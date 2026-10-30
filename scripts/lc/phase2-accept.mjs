@@ -67,11 +67,19 @@ const browser = await puppeteer.launch({
     '--disable-backgrounding-occluded-windows',
     '--disable-renderer-backgrounding',
     '--disable-background-timer-throttling',
+    /* Windows 原生遮挡检测会把被别的窗口盖住的 Chrome 判为不可见 → rAF 掉到 ~18fps，
+       T16 的 FPS 门槛就会假红（实测同一份代码 63→18fps，GPU 利用率 0%）。 */
+    '--disable-features=CalculateNativeWinOcclusion',
   ],
   protocolTimeout: 900000,
   defaultViewport: { width: W, height: H, deviceScaleFactor: 1 },
 });
 const page = await browser.newPage();
+/* 别的窗口（浏览器/终端）盖在上面时 Chrome 会把本页判为 occluded → rAF 节流到 ~12fps，
+   T16 的 FPS 门槛、以及靠 rAF 推进的动画都会假失败。开跑前把本页抬到最前。 */
+try {
+  await page.bringToFront();
+} catch (e) {}
 const consoleErrors = [];
 page.on('console', (m) => {
   if (m.type() === 'error') consoleErrors.push(m.text().slice(0, 200));
@@ -89,7 +97,8 @@ for (let i = 0; i < 200; i++) {
   if (ready) break;
   await sleep(400);
 }
-await sleep(9000); // 等 App 把布局/轨道摆完 + 我们的沉降结束
+/* 这台机器同时跑 Cesium + Chrome，布局/沉降比开发机慢；9s 会在忙时截断，改 12s。 */
+await sleep(12000); // 等 App 把布局/轨道摆完 + 我们的沉降结束
 
 /* ── 工具 ───────────────────────────────────────────────────────────────── */
 const st = () => page.evaluate(() => (window.__lc && window.__lc.api ? window.__lc.api.state() : null));
@@ -111,7 +120,7 @@ const geo = (id) =>
     };
   }, id);
 const violations = () => page.evaluate(() => (window.__lc.violations || []).slice(0, 10));
-const waitPhase = async (id, want, ms = 3000) => {
+const waitPhase = async (id, want, ms = 8000) => {
   const t0 = Date.now();
   while (Date.now() - t0 < ms) {
     const p = (await phases())[id];
@@ -121,7 +130,7 @@ const waitPhase = async (id, want, ms = 3000) => {
   return false;
 };
 /** 等「所有卡」都没有动画（让位动画属于别的元素，只看目标卡会误判）。 */
-const waitQuiet = async (ms = 3000) => {
+const waitQuiet = async (ms = 8000) => {
   const t0 = Date.now();
   while (Date.now() - t0 < ms) {
     const busy = await page.evaluate((ids) => ids.filter((id) => { const e = document.getElementById(id); return e && e.getAnimations().length; }).length, IDS);
@@ -130,12 +139,15 @@ const waitQuiet = async (ms = 3000) => {
   }
   return false;
 };
-const waitSettled = async (id, ms = 3000) => {
+const waitSettled = async (id, ms = 8000) => {
+  /* 注意：状态机相位（api.phases）与 DOM 的 data-lc-phase 由渲染帧写入，机器忙时
+     两者会差一帧。只等状态机会出现「状态机 open、DOM 仍是 opening」的读，随后
+     geo() 断言就假红（T7 实测）。这里要求两者一致再返回。 */
   const t0 = Date.now();
   while (Date.now() - t0 < ms) {
     const p = (await phases())[id];
-    const a = (await geo(id)).anims;
-    if ((p === 'open' || p === 'mini') && a === 0) return p;
+    const g = await geo(id);
+    if ((p === 'open' || p === 'mini') && g.anims === 0 && g.phase === p) return p;
     await sleep(40);
   }
   return (await phases())[id];
@@ -199,7 +211,7 @@ async function ensureAllMini() {
  *     （主线程被 Cesium 长任务阻塞时，边跑边采样会读到冻结值；定帧采样由引擎插值，稳）
  *   · 采完 finish()，让 ANIM_END 正常回流，不破坏状态机
  */
-async function armMeasure(id, timeoutMs = 2000) {
+async function armMeasure(id, timeoutMs = 8000) {
   await page.evaluate(
     (id, timeoutMs) => {
       window.__measure = (async () => {

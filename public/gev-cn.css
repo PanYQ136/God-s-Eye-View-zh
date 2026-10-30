@@ -12,19 +12,13 @@
     'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
 }
 
-/* 2) 玻璃面板美化：更细腻的描边、阴影、顶高光与一丝青色辉光 */
-.panel-inner,
-#pp-toggles:not(.collapsed),
+/* 2) 玻璃面板美化：更细腻的描边、阴影、顶高光与一丝青色辉光
+   Phase5：卡片本体与卡内 *-panel-inner 的描边/阴影/inset 发丝边已全部移除 ——
+   AGENTS §3「每张卡只有一层玻璃」，第二层 shell/inset 1px 就是「双灰圈」的源头。
+   玻璃只由 #gev-edge-lens 单层折射负责，这里不再给卡或卡内层画壳。 */
 .pp-toggle-btn,
 .pp-header-row,
 #param-slider-panel,
-#data-panel:not(.collapsed) .data-panel-inner,
-#cctv-panel:not(.collapsed) .cctv-panel-inner,
-#scene-panel:not(.collapsed) .scene-panel-inner,
-#global-context-panel:not(.collapsed) .global-context-panel-inner,
-#radio-panel:not(.collapsed) .radio-panel-inner,
-#weather-panel:not(.collapsed) .weather-panel-inner,
-#recent-imagery-panel:not(.collapsed) .recent-imagery-panel-inner,
 .context-radio-mini,
 .key-setup,
 .first-run-launcher {
@@ -51,7 +45,6 @@
 .style-btn,
 .pp-toggle-btn,
 .scene-btn,
-.panel-collapse-btn,
 .map-stack-chip,
 .data-toggle-btn,
 .context-mode-button,
@@ -269,7 +262,6 @@ option {
 }
 
 /* 12) 折叠开关：更大的点击热区，避免“点了没反应/找不到” ─────────── */
-.panel-collapse-btn,
 .dock-tray-toggle {
   min-width: 22px;
   min-height: 22px;

@@ -13,32 +13,6 @@ function listenerScope() {
   };
 }
 
-/** Bind collapse buttons and bubbling Escape to an existing panel. */
-export function bindPanelDisclosure({
-  panel,
-  buttons = [],
-  onChange,
-  onEscape,
-}) {
-  if (
-    !panel ||
-    typeof onChange !== 'function' ||
-    typeof onEscape !== 'function'
-  ) {
-    throw new TypeError(
-      'Panel disclosure requires a panel, onChange and onEscape',
-    );
-  }
-  const scope = listenerScope();
-  for (const button of new Set(buttons)) {
-    scope.listen(button, 'click', () => {
-      onChange(!panel.classList.contains('collapsed'), { explicit: true });
-    });
-  }
-  scope.listen(panel, 'keydown', onEscape);
-  return { destroy: () => scope.destroy() };
-}
-
 /** Close the nearest expanded panel and return focus to its disclosure. */
 export function collapsePanelOnEscape(
   event,
@@ -182,7 +156,7 @@ export function createHoverDisclosure({
   );
 
   listen(panelEl, 'click', (event) => {
-    if (event.target.closest('.panel-collapse-btn, .dock-tray-toggle')) return;
+    if (event.target.closest('.dock-tray-toggle')) return;
     clearOpen();
     clearClose();
     if (panelEl.classList.contains('collapsed')) {

@@ -22,6 +22,7 @@ import {
   holdContinuousRender,
   releaseContinuousRender,
 } from './renderGovernor.js';
+import { announceBootCenter } from './maps/tileWarmup.js';
 
 (function () {
   'use strict';
@@ -42,6 +43,8 @@ import {
   const MIN_DWELL_MS = 1000;
   const TWEEN_MS = 4200;
   const GEO_CAP = 6500; // 单源最长等待
+  const LOC_CAP_MS = 12000; // 无就绪门（旧路径）等定位的上限
+  const GPS_REFINE_MS = 900; // Phase7A：遮罩期内给 GPS 纠偏的窗口（就绪门路径）；3000→900，遮罩不再等它
 
   let firstCall = true;
   let ran = false;
@@ -233,6 +236,27 @@ import {
     return loc;
   }
 
+  /* ── 快速定位（Phase6C3-B）：高德 IP 或本地缓存，通常 <1s ──
+     冷启动遮罩期先用它落位，GPS（要下载高德 JS 脚本 + 授权）在之后 3s 内追上来
+     再纠正；这样「冷启动时长」不被 GPS 绑住，又不会长期停在城市级精度。 */
+  async function resolveFastLocation() {
+    try {
+      const ip = await Promise.race([amapIpGeo(), sleep(2200).then(() => null)]);
+      if (valid(ip)) return ip;
+    } catch (e) {
+      /* ignore */
+    }
+    return lastKnown();
+  }
+
+  /* 两个位置是否相距 >2km（判断 GPS 是否值得再落位一次） */
+  function isFar(a, b) {
+    if (!valid(a) || !valid(b)) return false;
+    const dLat = (a.lat - b.lat) * 111;
+    const dLon = (a.lon - b.lon) * 111 * Math.cos((b.lat * Math.PI) / 180);
+    return Math.hypot(dLat, dLon) > 2;
+  }
+
   function hasShareLink() {
     return /(?:^|[#&])lat=-?[\d.]+/.test(window.location.hash || '');
   }
@@ -248,6 +272,29 @@ import {
         roll: 0,
       },
     });
+    return true;
+  }
+
+  /* ── 直接落到最终视角（无动画）：Phase6C3-B 遮罩期预热用 ──
+     相机从 10,000km 拉到 12,000m 的电影镜头会持续 4.2s 流瓦片，可见状态下必然
+     出现 >100ms 长帧；遮罩期一次落位，把「落位 + 瓦片流」都压在遮罩后面。 */
+  function jumpTo(target) {
+    const v = viewer();
+    if (!sceneReady(v)) return false;
+    const t = target || HOME;
+    v.camera.setView({
+      destination: Cesium.Cartesian3.fromDegrees(t.lon, t.lat, END_HEIGHT),
+      orientation: {
+        heading: Cesium.Math.toRadians(15),
+        pitch: Cesium.Math.toRadians(-89),
+        roll: 0,
+      },
+    });
+    try {
+      v.scene.requestRender?.();
+    } catch (e) {
+      /* ignore */
+    }
     return true;
   }
 
@@ -311,6 +358,15 @@ import {
         /* ignore */
       }
       releaseContinuousRender('gev-cine');
+      /* Phase6C3-B：告诉冷启动就绪门「镜头已落到最终视角」——它会接着等
+         最终视角的瓦片流静默，然后才允许收起加载遮罩。 */
+      CINE.done = true;
+      CINE.stage = 'done';
+      try {
+        window.dispatchEvent(new CustomEvent('gev:cine-done'));
+      } catch (e) {
+        /* ignore */
+      }
     };
     holdContinuousRender('gev-cine');
     const step = () => {
@@ -380,39 +436,111 @@ import {
     el._t = setTimeout(() => el.classList.remove('show'), ms || 5200);
   }
 
+  /* Phase7A：定位在**脚本求值**就发起（旧实现在 run() 里、要等 viewer 就绪+
+     就绪门放行才发，白等 1–2s）。相机一就绪就能直接落位。 */
+  const bootLocP = resolveLocation();
+  const bootFastP = resolveFastLocation();
+  if (bootFastP && typeof bootFastP.then === 'function')
+    bootFastP
+      .then((loc) => {
+        if (!loc) return;
+        announceBootCenter(loc);
+        /* Phase7A：底图瓦片预取按真实中心重算（与预取中心相距 >2km 时） */
+        try {
+          globalThis.__gevBaseTiles?.center(loc);
+        } catch (_) {}
+      })
+      .catch(() => {});
+
   async function run() {
     if (ran) return;
     const v = viewer();
     if (!sceneReady(v)) {
-      if (tries++ < 160) setTimeout(run, 250);
+      if (tries++ < 600) setTimeout(run, 60);
       return;
     }
     if (firstCall && hasShareLink()) {
       ran = true;
       CINE.stage = 'share-skip';
+      CINE.done = true;
       return;
     }
     firstCall = false;
     ran = true;
 
     CINE.stage = 'locating';
-    const locP = resolveLocation(); // ① 并行定位（不等瓦片）
+    const locP = bootLocP; // ① 全量定位（GPS 优先；脚本求值即发起）
+    const fastP = bootFastP; // ①b 快速定位（高德 IP / 本地缓存）
 
-    await waitForLoaderHidden(30000); // ② 等启动遮罩收起
+    /* ② Phase6C3-B：相机动作全部挪到加载遮罩「后面」——
+       就绪门在 3D Tiles 首批瓦片进场景之后再放行相机动作；遮罩则由就绪门在
+       「相机落到最终视角 + 瓦片流静默」之后才收。于是冷启动的 shader link /
+       瓦片 JSON 解析 burst 全部发生在遮罩期内，用户看不到长帧。
+       就绪门缺失时退回旧行为（等遮罩收起后再跑电影镜头）。 */
+    const bg = window.__gevBoot;
+    const gated = !!(bg && typeof bg.whenCineMayStart === 'function');
+    await (gated ? bg.whenCineMayStart(14000) : waitForLoaderHidden(30000));
     CINE.stage = 'space-set';
-    setSpaceView(HOME.lon, HOME.lat); // ③ 立刻出太空视角
+    setSpaceView(HOME.lon, HOME.lat); // 站位视角（太空层瓦片很便宜，先让 tileset 有东西可画）
 
-    const loc = await locP; // ④ 定位结果
-    if (loc && loc.source !== 'home') {
-      setSpaceView(loc.lon, loc.lat); // 对准设备经度（10万米高空跳变几乎看不出）
-      CINE.stage =
-        loc.source === 'home' ? 'space-set:default' : 'space-set:device';
-    } else {
-      CINE.stage = 'space-set:default';
+    if (gated) {
+      /* ③ 遮罩期落位，两段：
+         (a) 先用快速定位（IP / 本地缓存）落位，不必等 GPS 脚本把冷启动拖长；
+         (b) 再给 GPS 一个短窗口（GPS_REFINE_MS），拿到更准位置且明显不同时，
+             在遮罩内再落位一次 —— 两次落位的瓦片流都在遮罩后面。
+         直接落位（不做 4.2s 电影镜头）：镜头从 10,000km 拉到 12km 期间持续
+         流瓦片，可见状态下必然出现 >100ms 长帧；遮罩期一次落位能把「落位 +
+         瓦片流」整体压进遮罩。reveal 后用户看到的是已就位的本机位置画面。
+         （Phase6C4 实测：把这两段等待摘出关键路径后 cine 由 4.2s 缩到 2.0s，
+           但总遮罩时长 0 收益 —— 见下一条注释，瓶颈不在相机侧。已回退。） */
+      const cached = lastKnown();
+      let target = cached || { ...HOME, source: 'home' };
+      /* Phase7A：先用缓存/家**立即**落位 —— 底图瓦片此刻才开始流，别为
+         1.2s 的 IP 定位把整条金字塔链整体后推（实测落位后 2.2s 才到清晰层）。 */
+      CINE.stage = 'preroll-jump';
+      jumpTo(target);
+      const fast = await Promise.race([fastP, sleep(1200).then(() => null)]);
+      if (fast && valid(fast) && isFar(target, fast)) {
+        target = fast;
+        CINE.stage = 'preroll-jump:fast';
+        jumpTo(target);
+      }
+      const better = await Promise.race([locP, sleep(GPS_REFINE_MS).then(() => null)]);
+      if (better && valid(better) && isFar(target, better)) {
+        target = better;
+        CINE.stage = 'preroll-jump:gps';
+        jumpTo(target);
+      }
+      CINE.geo = target;
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      CINE.stage = 'done';
+      CINE.done = true;
+      try {
+        window.dispatchEvent(new CustomEvent('gev:cine-done'));
+      } catch (e) {
+        /* ignore */
+      }
+      if (target.source && target.source !== 'home') {
+        const tag =
+          { 'amap-gps': '高德GPS', browser: '浏览器', 'amap-ip': '高德IP' }[
+            target.source
+          ] || target.source;
+        toast('定位来源：' + tag + (target.city ? '（' + target.city + '）' : ''));
+      } else {
+        toast('未能获取设备定位，已定位到默认位置');
+      }
+      return;
     }
 
+    /* 无就绪门（旧行为）：等定位结果后跑可见电影镜头 */
+    const locSel =
+      (await Promise.race([locP, sleep(LOC_CAP_MS).then(() => null)])) || null;
+    const loc = locSel || lastKnown() || { ...HOME, source: 'home' };
+    CINE.stage = locSel ? 'space-set:device' : 'space-set:loc-timeout';
+    if (locSel && locSel.lon !== HOME.lon) setSpaceView(loc.lon, loc.lat);
+
     await sleep(MIN_DWELL_MS);
-    tweenTo(loc || { ...HOME, source: 'home' }); // ⑤ 电影镜头放大
+    tweenTo(loc); // ⑤ 电影镜头放大（仅无就绪门时可见）
 
     if (loc && loc.source && loc.source !== 'home') {
       const tag =

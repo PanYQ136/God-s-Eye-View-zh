@@ -153,7 +153,11 @@ export function run(el, first, opts) {
       : (() => {
           try {
             /* §6.7：software tier 也走 150ms / 无回弹（不做第二套材质，只切一个开关） */
-            if (window.__gevGpu && typeof window.__gevGpu.tier === 'function' && window.__gevGpu.tier() === 'software')
+            if (
+              window.__gevGpu &&
+              typeof window.__gevGpu.tier === 'function' &&
+              window.__gevGpu.tier() === 'software'
+            )
               return true;
             return matchMedia('(prefers-reduced-motion: reduce)').matches;
           } catch (_) {
@@ -171,7 +175,11 @@ export function run(el, first, opts) {
 
   let anim;
   try {
-    anim = el.animate(kf.frames, { duration: dur, easing: 'linear', fill: 'none' });
+    anim = el.animate(kf.frames, {
+      duration: dur,
+      easing: 'linear',
+      fill: 'none',
+    });
   } catch (_) {
     return null;
   }
@@ -193,8 +201,18 @@ export function run(el, first, opts) {
       pPeak: kf.pPeak,
       pPeakY: kf.pPeakY,
       samples: kf.samples,
-      from: [Math.round(first.left), Math.round(first.top), Math.round(first.width), Math.round(first.height)],
-      to: [Math.round(last.left), Math.round(last.top), Math.round(last.width), Math.round(last.height)],
+      from: [
+        Math.round(first.left),
+        Math.round(first.top),
+        Math.round(first.width),
+        Math.round(first.height),
+      ],
+      to: [
+        Math.round(last.left),
+        Math.round(last.top),
+        Math.round(last.width),
+        Math.round(last.height),
+      ],
       at: Date.now(),
     };
   } catch (_) {}
@@ -218,7 +236,7 @@ export function run(el, first, opts) {
      动画被节流时 currentTime 永远停在 0，finished 永不触发 → 判死、cancel 让 inline
      几何当场生效，并补一次落定回调。
      窗口从 64ms 放宽到 200ms 的实测理由：首张开卡时主线程被布局/样式计算独占
-     170–260ms（实测 gev-liquid-cards 采样：inline 几何 166ms 写入、WAAPI 到 340ms
+     170–260ms（实测采样：inline 几何 166ms 写入、WAAPI 到 340ms
      才走到 79ms），64ms 判死会把**正常**开卡的果冻动画全部掐掉（T16 峰值恒为 1.000）。
      200ms 仍然远小于「被节流到 1fps」的判定窗口，节流场景照旧取消。 */
   setTimeout(() => {
@@ -241,7 +259,16 @@ export function run(el, first, opts) {
   return anim;
 }
 
-export default { durationMs, keyframes, run, cancel, animationsOf, MIN_MS, MAX_MS, REDUCE_MS };
+export default {
+  durationMs,
+  keyframes,
+  run,
+  cancel,
+  animationsOf,
+  MIN_MS,
+  MAX_MS,
+  REDUCE_MS,
+};
 
 /* 兄弟卡「让位平移」用同一条果冻曲线（M2：一个元素上只允许一族曲线；
    旧实现是 280ms + cubic-bezier(.22,.9,.24,1)，与开卡曲线不同族 → 双曲线抖动）。 */
@@ -255,7 +282,12 @@ export const SHIFT_PEAK = 1.02;
 function reducedNow(opts) {
   if (opts && opts.reducedMotion !== undefined) return !!opts.reducedMotion;
   try {
-    if (window.__gevGpu && typeof window.__gevGpu.tier === 'function' && window.__gevGpu.tier() === 'software') return true;
+    if (
+      window.__gevGpu &&
+      typeof window.__gevGpu.tier === 'function' &&
+      window.__gevGpu.tier() === 'software'
+    )
+      return true;
     return matchMedia('(prefers-reduced-motion: reduce)').matches;
   } catch (_) {
     return false;
@@ -263,7 +295,9 @@ function reducedNow(opts) {
 }
 export function shiftKeyframes(from, to, opts = {}) {
   const reduce = !!opts.reduce;
-  const peak = reduce ? 1 : Math.min(TARGET_OVERSHOOT, Math.max(1.02, opts.peak || SHIFT_PEAK));
+  const peak = reduce
+    ? 1
+    : Math.min(TARGET_OVERSHOOT, Math.max(1.02, opts.peak || SHIFT_PEAK));
   const c1 = reduce ? 0 : backC1(peak);
   const n = Math.max(12, Math.min(40, Math.round((opts.duration || 400) / 12)));
   const out = [];
@@ -274,7 +308,10 @@ export function shiftKeyframes(from, to, opts = {}) {
     const y = from.y + (to.y - from.y) * p;
     /* 回弹峰值：正弦鼓包，t=0.5 处精确等于 peak（可断言，不夸张） */
     const s = reduce ? 1 : 1 + (peak - 1) * Math.sin(Math.PI * t);
-    out.push({ offset: t, transform: `translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0) scale(${s.toFixed(4)})` });
+    out.push({
+      offset: t,
+      transform: `translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0) scale(${s.toFixed(4)})`,
+    });
   }
   return { frames: out, c1, peak, samples: n + 1 };
 }
@@ -287,14 +324,28 @@ export function runShift(el, opts = {}) {
   if (!el) return null;
   const from = opts.from || { x: 0, y: 0 };
   const to = opts.to || { x: 0, y: 0 };
-  if (Math.abs(from.x - to.x) < 0.5 && Math.abs(from.y - to.y) < 0.5) return null;
+  if (Math.abs(from.x - to.x) < 0.5 && Math.abs(from.y - to.y) < 0.5)
+    return null;
   const reduce = reducedNow(opts);
-  const dur = reduce ? REDUCE_MS : durationMs((opts.size && opts.size.w) || 300, (opts.size && opts.size.h) || 300);
+  const dur = reduce
+    ? REDUCE_MS
+    : durationMs(
+        (opts.size && opts.size.w) || 300,
+        (opts.size && opts.size.h) || 300,
+      );
   cancel(el);
-  const kf = shiftKeyframes(from, to, { reduce, duration: dur, peak: opts.peak });
+  const kf = shiftKeyframes(from, to, {
+    reduce,
+    duration: dur,
+    peak: opts.peak,
+  });
   let anim;
   try {
-    anim = el.animate(kf.frames, { duration: dur, easing: 'linear', fill: 'none' });
+    anim = el.animate(kf.frames, {
+      duration: dur,
+      easing: 'linear',
+      fill: 'none',
+    });
   } catch (_) {
     return null;
   }
@@ -302,7 +353,14 @@ export function runShift(el, opts = {}) {
   try {
     window.__lc = window.__lc || {};
     window.__lc.morph = window.__lc.morph || {};
-    window.__lc.morph.shift = { duration: dur, peak: kf.peak, reduce, from, to, at: Date.now() };
+    window.__lc.morph.shift = {
+      duration: dur,
+      peak: kf.peak,
+      reduce,
+      from,
+      to,
+      at: Date.now(),
+    };
   } catch (_) {}
   const drop = () => {
     if (CURRENT.get(el) === anim) CURRENT.delete(el);
@@ -313,5 +371,3 @@ export function runShift(el, opts = {}) {
   } catch (_) {}
   return anim;
 }
-
-

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>fps probe v2</title>
+<style>
+  html,body{margin:0;height:100%;background:#0b0e12;overflow:hidden}
+  #cv{position:fixed;inset:0;width:100vw;height:100vh}
+  .glass{position:fixed;width:300px;height:180px;border-radius:22px;background:rgba(255,255,255,.05);
+         border:1px solid rgba(255,255,255,.25);backdrop-filter:blur(18px) saturate(1.4)}
+</style></head>
+<body>
+<canvas id="cv"></canvas>
+<script>
+const q = new URLSearchParams(location.search);
+const mode = q.get("mode") || "noop";
+const cv = document.getElementById("cv");
+const dpr = devicePixelRatio;
+let draw = null;
+
+function sizeCanvas(w, h) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+
+if (mode === "noop") {
+  cv.style.display = "none";
+} else if (mode === "small") {
+  sizeCanvas(240, 160);
+  const g = cv.getContext("2d");
+  draw = (t) => { g.fillStyle = "hsl(" + ((t / 20) % 360) + ",60%,25%)"; g.fillRect(0, 0, cv.width, cv.height); };
+} else if (mode === "alpha2d" || mode === "canvas") {
+  sizeCanvas(innerWidth, innerHeight);
+  const g = cv.getContext("2d", mode === "alpha2d" ? { alpha: false } : undefined);
+  draw = (t) => { g.fillStyle = "hsl(" + ((t / 20) % 360) + ",10%,12%)"; g.fillRect(0, 0, cv.width, cv.height); };
+} else if (mode === "desync") {
+  sizeCanvas(innerWidth, innerHeight);
+  const g = cv.getContext("2d", { alpha: false, desynchronized: true });
+  window.__desyncOk = !!(g && g.getContextAttributes && g.getContextAttributes().desynchronized);
+  draw = (t) => { g.fillStyle = "hsl(" + ((t / 20) % 360) + ",10%,12%)"; g.fillRect(0, 0, cv.width, cv.height); };
+} else if (mode === "webgl") {
+  const g = cv.getContext("webgl", { alpha: false, antialias: false, powerPreference: "high-performance" });
+  window.__glInfo = g ? g.getParameter(g.getExtension("WEBGL_debug_renderer_info").UNMASKED_RENDERER_WEBGL) : "no-ctx";
+  cv.width = Math.round(innerWidth * dpr); cv.height = Math.round(innerHeight * dpr);
+  let i = 0;
+  draw = () => { g.viewport(0, 0, cv.width, cv.height); g.clearColor((i++ % 60) / 300, 0.05, 0.08, 1); g.clear(g.COLOR_BUFFER_BIT); };
+}
+window.__mode = mode;
+window.__sample = (dur) => new Promise((res) => {
+  const ts = []; let stop = false;
+  const tick = (t) => { ts.push(t); if (draw) draw(t); if (!stop) requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+  setTimeout(() => { stop = true; res(ts); }, dur);
+});
+</script>
+</body></html>

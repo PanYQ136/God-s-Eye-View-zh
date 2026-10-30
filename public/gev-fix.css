@@ -15,9 +15,6 @@
 .location-mini-city { font-size: 10.5px !important; }
 .location-mini-poi  { font-size: 10px !important; }
 
-/* ── P2：顶部液态玻璃按钮 44×44 大于其余 36×36，统一为 36 对齐基线 ── */
-#lg-glass-trigger { width: 36px !important; height: 36px !important; }
-
 /* ── P2：命令坞中间语音模块高 66px，比左右托盘(62px)外凸，收敛到 62 对齐 ── */
 #gev-voice-button { height: 62px !important; align-self: center; }
 
@@ -58,12 +55,12 @@
 .data-toggle-btn { color: #9aa3ad !important; }
 .data-toggle-btn.active, .data-toggle-btn.on { color: #e8f4ff !important; }
 
-/* C-1 显示面板开关标签在渐变底上 2.1:1(#b0b1b4/#77777b) → 深色实心高对比
-   仅作用于开关按钮内的 .pp-label，不动深色面板上的其它 label */
-.pp-toggle-btn .pp-label,
-#hud-toggle .pp-label, #models3d-toggle .pp-label, #scope-toggle .pp-label,
-#draw-toggle .pp-label, #celestial-toggle .pp-label, #clean-view-toggle .pp-label,
-#bloom-toggle .pp-label, #sharpen-toggle .pp-label { color: #0d1015 !important; font-weight: 600 !important; text-shadow: none !important; }
+/* C-1 显示面板开关标签（2026-10-29 Phase6A 撤销）
+   原文：`.pp-toggle-btn .pp-label { color:#0d1015 !important; ... }` —— 给「浅色渐变态按钮底」
+   的旧材质写的。material 化后按钮底已是 transparent（src/lc/material.css §5 --lc-control-fill），
+   近黑文字落在卫星底图上 = pp 展开后 9 行开关整排看不见（审计 P0-1 根因）。
+   删除该深色规则，标签回到 material.css §4 的 --lc-text + --lc-text-shadow。
+   若要回滚：恢复下面三行注释里的选择器即可（但会重新引入「面板看不清」缺陷）。 */
 
 /* C-3 场景 meta 对比度 2.4:1 + 字距 0.10em 过宽 + 卡片嵌套 → 提亮 + 收字距 + 11px */
 .scene-shot-meta { color: #9aa3ad !important; letter-spacing: 0.02em !important; font-size: 11px !important; }

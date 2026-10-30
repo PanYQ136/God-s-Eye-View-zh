@@ -16,7 +16,13 @@
 /* ── 1) 舞台：展开卡唯一父层（fixed 坐标系 = 视口）──────────────────────── */
 .lc-stage { position: fixed; inset: 0; z-index: 150; pointer-events: none; }
 .lc-stage > .gev-lc { pointer-events: auto; position: fixed; margin: 0; box-sizing: border-box; }
-/* ── 2) 卡壳（①）：透明 + 顶部高光 + 单层外投影；无 border/outline/inset ── */
+/* ── 2) 卡壳（①）：透明 + 顶部高光 + 单层外投影；无 border/outline/inset ──
+   Phase 4（2026-10-29）玻璃分工，改这里之前先读：
+     · 边缘折射/镜面高光 = public/gev-edge-lens.js（band 10px、单层、半透 bandAlpha、单向光源）
+     · 本文件的 1px 顶部高光 = 边缘层的「降级替身」：GPU tier=software 或 ?gevEdge=0 时
+       边缘 canvas 不创建，卡片仍有上沿光泽，不会退化成纯平面。
+     · 硬约束：任何情况下不得加 border / outline / inset ring / backdrop-filter / 闭合描边；
+       灰圈的两个历史来源（1px 内描边、band 实心替换底图）都已在本阶段根除。 */
 :is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc {
   background: var(--lc-shell-fill); background-image: none; border: 0; outline: 0;
   box-shadow: var(--lc-shell-shadow); border-radius: var(--lc-radius);
@@ -40,6 +46,14 @@
 :is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc :is(.pp-label,.pp-header-label,.panel-title,.dock-tray-toggle,.location-toolbar-label,.data-toggle-btn,.data-toggle-meta,.scene-shot-label,.scene-shot-meta,.location-pill,.gev-voice-heading,.gev-voice-readout,.pp-icon,.panel-mini-value,.btn-label,.btn-key) {
   color: var(--lc-text); text-shadow: var(--lc-text-shadow);
 }
+/* ── 4b) 显示卡开关行文字（P0-1 根因，修复落在 public/gev-fix.css）────────────────
+   gev-fix.css 里遗留的 `.pp-toggle-btn .pp-label { color:#0d1015 (强制权重) }` 是给
+   「按钮自带浅色渐变态」的旧材质写的；Phase 3 之后按钮底已归零（--lc-control-fill:
+   transparent），近黑文字(#0d1015，相对亮度≈0.006)直接落在卫星底图上，于是展开后的
+   9 行开关（HUD/检测/模型3D/示波/绘制/天体/净化/泛光/锐化）整排「看不见」——这就是
+   审计报告里「pp 展开后看不到面板内容」的主因（截图实测：滑块数值可见、开关行无字）。
+   解法不是在本文件里加强制权重对抗（本文件硬门槛：强制权重计数 0），而是删掉 gev-fix
+   那条过期的深色规则，让下面 §4 的 --lc-text + --lc-text-shadow 正常生效。 */
 /* ── 5) 控件：零填充 + 高光表达状态；不画线（§6.6 处置 2）─────────────── */
 :is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc :is(.pp-toggle-btn,.pp-mode-btn,.data-toggle-btn,.style-btn,.scene-btn,.scene-shot-btn,.map-stack-chip,.context-mode-button,.search-toggle-btn,.dock-tray-toggle,.location-bar-toggle,button,input,select,textarea) {
   background-color: var(--lc-control-fill); background-image: none; color: inherit;
@@ -57,12 +71,35 @@
   position: sticky; top: -8px; z-index: 3; background: transparent;
 }
 :is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc[data-lc-phase='mini'] { overflow: visible; }
+/* mini 高度回到设计值：Phase 3 删掉折叠按钮后标题条少了一颗 20px 控件，
+   data/scene 的 mini 从 48 掉到 41（槽位节奏 48/50 被破坏，验收 T3/T4 逐像素回位失败）。
+   卡壳几何由 src/lc 写，这里只把标题命中面的高度钉住，不再依赖任何按钮撑高。 */
+:is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel).gev-lc :is(.panel-header,.pp-header-row) { min-height: 48px; }
+/* dock 三卡（位置/控制/语音）不要参与这条：它们的 mini 是 86px 的 grid 芯片行，
+   给 .gev-voice-heading 强行 min-height:48 会把 grid 行撑爆 → 语音卡的「关」溢出到
+   FPS 芯片上方（实测 y=604 而卡顶 616）。 */
+/* 左轨两张卡的 mini 高度钉死 48：它们的卡里还留着 App 的 .*-panel-inner 正文（24px），
+   不裁掉就变成 74，槽位节奏与「展开盒贴槽位」全部错位。mini 只需要标题命中面。 */
+:is(#data-panel,#scene-panel).gev-lc[data-lc-phase='mini'] { height: 48px; overflow: hidden; }
+:is(#data-panel,#scene-panel).gev-lc[data-lc-phase='mini'] .panel-header { margin-bottom: 0; }
+/* mini 标题垂直居中（P0-3 根因）：App 的 `.data-panel-inner` / `.scene-panel-inner` 自带
+   `padding: 14px 16px 10px`（scene 是 14/14/10），mini 卡高只有 48px，正文又被隐藏，
+   于是 header 被这 14px 上内边距整体压下 14px —— 实测 header 中心比卡中心低 14.0px
+   （卡 52,94.3,176,48 / header 68,108.3,144,48）。这里只清掉纵向内边距并把内层撑满
+   卡高做 flex 居中，横向 padding 原样保留（标题左缩进 16/14px 不变）。 */
+:is(#data-panel,#scene-panel).gev-lc[data-lc-phase='mini'] > :is(.data-panel-inner,.scene-panel-inner,[class$='-panel-inner']) {
+  height: 100%; padding-top: 0; padding-bottom: 0; display: flex; flex-direction: column; justify-content: center;
+}
 :is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc[data-lc-phase='open']::-webkit-scrollbar { width: 0; height: 0; }
 /* ── 7) 显示（pp）展开流：行行分开、分段按钮换行（§19 收口为 6 条）──────── */
 :is(#pp-toggles).gev-lc[data-lc-phase='open'] { display: flex; flex-direction: column; row-gap: 8px; }
-:is(#pp-toggles).gev-lc[data-lc-phase='open'] .pp-toggle-group { display: flex; flex-direction: column; align-items: stretch; gap: 6px; height: auto; min-height: 0; overflow: visible; }
+/* §7 收口：.pp-toggle-group 是 #pp-toggles 的直接 flex 子项（.pp-panel-body 为 display:contents）。
+   默认 flex-shrink:1 + 上一版 min-height:0 会让组盒在内容总高 > 卡高时被压扁到
+   74/51/19/18/34/9/18/18/9，组内行仍按自然高度绘制 → 17 行互相叠压（最小间距 -53px）。
+   flex: 0 0 auto 禁止收缩，滚动交给 #pp-toggles 自己。 */
+:is(#pp-toggles).gev-lc[data-lc-phase='open'] .pp-toggle-group { display: flex; flex-direction: column; flex: 0 0 auto; align-items: stretch; gap: 8px; height: auto; min-height: 0; overflow: visible; }
 :is(#pp-toggles).gev-lc[data-lc-phase='open'] .pp-slider-row { display: flex; flex: 0 0 auto; align-items: center; gap: 8px; height: auto; min-height: 30px; padding: 6px 10px; }
-:is(#pp-toggles).gev-lc[data-lc-phase='open'] .pp-slider-row.detection-allocation-row { flex-direction: column; align-items: stretch; gap: 6px; }
+:is(#pp-toggles).gev-lc[data-lc-phase='open'] .pp-slider-row.detection-allocation-row { flex-direction: column; align-items: stretch; gap: 8px; }
 :is(#pp-toggles).gev-lc[data-lc-phase='open'] .pp-mode-seg { display: flex; flex-wrap: wrap; gap: 4px; height: auto; }
 :is(#pp-toggles).gev-lc[data-lc-phase='open'] .pp-mode-btn { width: auto; flex: 0 0 auto; }
 /* ── 8) 语音卡展开流（脱离 #command-dock 后必须自持）───────────────────── */
@@ -79,8 +116,15 @@
 :is(#gev-voice-control).gev-lc[data-lc-phase='open'] .gev-voice-visualizer span:nth-child(7n) { height: 12px; }
 /* ── 9) dock 面板（D3：唯一形态；内容直接铺在玻璃上，无第二套几何）─────── */
 .lc-stage > .dock-panel { display: flex; flex-direction: column; gap: 6px; }
+/* 位置面板展开（P1-1）：卡 476×88、内边距 8 → 内容盒 72px，而 .location-inner 的自然
+   高度只有 60px（toolbar 22 + 6 + popover 32），贴着内容盒顶部排 → 实测上间隙 8px、
+   下间隙 20px（城市芯片行离卡底 23px，上面留白），看起来「贴底 + 上方大空白」。
+   这里让内层撑满内容盒并整组垂直居中，上下间隙各 14px（±1px），不再偏底。 */
+:is(#location-bar).gev-lc[data-lc-phase='open'] > .location-inner {
+  display: flex; flex-direction: column; justify-content: center; gap: 6px; height: 100%;
+}
 .lc-stage > .dock-panel :is(.dock-popover-content,.location-inner,.panel-inner) { position: static; display: block; visibility: visible; opacity: 1; transform: none; width: auto; height: auto; max-height: none; inset: auto; padding: 0; margin: 0; background: transparent; box-shadow: none; border: 0; }
-.lc-stage > .dock-panel :is(.dock-pin-btn,.panel-collapse-btn) { display: none; }
+.lc-stage > .dock-panel .dock-pin-btn { display: none; }
 /* ── 10) 占位（收起归位的前提：原槽位逐像素不变）──────────────────────── */
 .gev-lc-placeholder { flex: 0 0 auto; border-radius: var(--lc-radius); background: transparent; pointer-events: none; }
 /* ── 11) 无圆形 ✕（硬需求）：卡内任何关闭钮都不显示 ───────────────────── */
@@ -102,3 +146,44 @@
 #gev-gpu-chip[data-gpu-tier='software'], #gev-gpu-chip[data-gpu-tier='none'] { color: #ffd8a8; }
 #gev-gpu-notice { position: fixed; top: 84px; left: 50%; translate: -50% 0; z-index: 210; padding: 8px 14px; border-radius: 12px; background: rgba(12, 16, 22, 0.66); color: var(--lc-text); text-shadow: var(--lc-text-shadow); font: 500 12px/1.35 'Inter', system-ui, sans-serif; pointer-events: none; animation: lc-notice-out 9s ease-in forwards; }
 @keyframes lc-notice-out { 0%, 82% { opacity: 1; } 100% { opacity: 0; } }
+
+/* ── 15) 页面 chrome 统一材质 + 中/EN 与 GPU/FPS 分槽（P0-6）──────────────
+   旧 gev-cn.css 给 #gev-lang-toggle / #gev-locate-btn 画了 border + backdrop-filter，
+   与 material 的唯一材质冲突（灰圈/毛玻璃双份）。这里统一为透明 + 单层文字投影；
+   并给两个常驻 chip 分开的槽位：GPU/FPS 贴左下（bottom 52），中/EN 抬到其上方。 */
+#gev-lang-toggle, #gev-locate-btn, #gev-perf-wrap {
+  background: transparent; background-image: none; border: 0; outline: 0;
+  box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none;
+  color: var(--lc-text); text-shadow: var(--lc-text-shadow);
+}
+#gev-lang-toggle { left: 12px; bottom: 88px; }
+#gev-lang-toggle:hover { border: 0; box-shadow: none; }
+#gev-locate-btn:hover { border: 0; box-shadow: none; }
+
+/* ── 16) hover 镜面高光（P0-2）：单层、只作用于卡壳 ────────────────────────
+   实测改前 hover 前后 boxShadow/background/filter/transform/::before 全不变（审计 hover.json），
+   因为 §2 把 transition 置 none 且全仓没有一条卡壳 :hover 规则。
+   这里只动卡壳自己的两个既有绘制层，不加元素/不加伪元素/不加第二圈：
+     · ::before（顶部 1px 高光条）→ 提亮到 .32 白，读作镜面反光上沿（仍不闭合）；
+     · box-shadow → 在既有投影后追加「壳内柔和辉光」(inset 0 0 30px 模糊，无实线边)
+       + 一点冷白外发光；0 填充、0 backdrop-filter、0 border。
+   box-shadow/background 都画在卡壳 border-box 上，不随卡内滚动内容移动。 */
+:is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc {
+  transition: box-shadow 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
+:is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc:hover {
+  box-shadow: var(--lc-shell-shadow), 0 0 22px rgba(150, 210, 255, 0.12), inset 0 0 44px rgba(255, 255, 255, 0.16);
+}
+/* hover 上沿镜面：**只提亮既有那一条 1px 发丝**，不新增带、不闭合。
+   Phase6C1b：原规则把 ::before 撑到 12px / rgba(255,255,255,0.4)（板面覆盖 lens 的 band 10），
+   hover 时顶沿 Δ 从 56.11 掉到 28.18 —— 卡壳第二圈高光压住折射顶沿，违反 AGENTS §3
+   「每张卡只有一层玻璃 / 卡内无第二圈高光」。镜头带本身就是顶沿高光，hover 不该再叠一层；
+   hover 提示交给 box-shadow 的弥散外辉光 + 壳内柔光（上面那条，非边缘亮带）。
+   实测（RTX3060 棋盘态）：hover 顶沿 Δ 回到 ≥40，四边单带。 */
+:is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc:hover::before {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.62) 18%, rgba(255, 255, 255, 0.62) 82%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc { transition: none; }
+}

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>fps probe v3</title>
+<style>
+  html,body{margin:0;height:100%;background:#0b0e12;overflow:hidden}
+  #cv{position:fixed;inset:0;width:100vw;height:100vh}
+  #mv{position:fixed;left:20px;top:20px;width:200px;height:200px;background:#3a7}
+</style></head>
+<body>
+<canvas id="cv"></canvas><div id="mv"></div>
+<script>
+const q = new URLSearchParams(location.search);
+const mode = q.get("mode") || "div";
+const cv = document.getElementById("cv");
+const mv = document.getElementById("mv");
+const dpr = devicePixelRatio;
+let draw = null;
+if (mode === "div") {
+  cv.style.display = "none";
+  let i = 0;
+  draw = () => { mv.style.transform = "translateX(" + (i++ % 120) + "px)"; };
+} else if (mode === "divstatic") {
+  cv.style.display = "none";
+  draw = null;
+} else if (mode === "staticcanvas") {
+  cv.width = Math.round(innerWidth * dpr); cv.height = Math.round(innerHeight * dpr);
+  const g = cv.getContext("2d");
+  g.fillStyle = "#123"; g.fillRect(0, 0, cv.width, cv.height);
+  draw = null;
+} else if (mode === "webglDesync") {
+  const g = cv.getContext("webgl", { alpha: false, antialias: false, powerPreference: "high-performance", desynchronized: true });
+  cv.width = Math.round(innerWidth * dpr); cv.height = Math.round(innerHeight * dpr);
+  let i = 0;
+  draw = () => { g.viewport(0, 0, cv.width, cv.height); g.clearColor((i++ % 60) / 300, 0.05, 0.08, 1); g.clear(g.COLOR_BUFFER_BIT); };
+  window.__glAttr = g && g.getContextAttributes ? g.getContextAttributes().desynchronized : null;
+}
+window.__mode = mode;
+window.__sample = (dur) => new Promise((res) => {
+  const ts = []; let stop = false;
+  const tick = (t) => { ts.push(t); if (draw) draw(t); if (!stop) requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+  setTimeout(() => { stop = true; res(ts); }, dur);
+});
+</script>
+</body></html>

@@ -123,7 +123,6 @@
   color: rgba(190, 221, 230, 0.58);
 }
 
-#command-dock .panel-collapse-btn,
 #command-dock .panel-mini-status,
 #command-dock .location-mini-status {
   display: none !important;

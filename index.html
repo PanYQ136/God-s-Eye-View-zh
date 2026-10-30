@@ -21,6 +21,13 @@
        names a glyph this list is missing, because a missing glyph does not draw
        a box — the ligature never forms and the element renders the literal word. -->
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0&icon_names=adjust,arrow_drop_down,arrow_forward,arrow_left,arrow_right,bolt,chevron_left,chevron_right,close,close_fullscreen,dark_mode,draw,east,flare,flight,layers_clear,light_mode,local_fire_department,my_location,navigation,normal,on,open_in_full,public,radar,radio,right_panel_close,right_panel_open,rocket_launch,skip_next,skip_previous,view_in_ar" rel="stylesheet" />
+  <!-- Phase7A3 · 卡壳/LC 前置（先于 Cesium 求值，唯一能把「卡片可点」压进 ≤5s 的路径）。
+       module 脚本与 classic defer 脚本按**文档顺序**执行：这两行在 head 里、而建置期注入的
+       `/cesium/Cesium.js` 由 build/vite.js 挪到 head 末尾并改成「按需注入求值」，
+       所以卡片层先 mount，Cesium 求值不再挡在它前面。
+       回滚：删掉这两行 + 把 body 里原来的两个 <script> 还原即可。 -->
+  <script type="module" src="/src/gev-boot-gate.js"></script>
+  <script type="module" src="/src/lc/index.js"></script>
 </head>
 <body>
   <!-- gev:template scene-chrome -->
@@ -43,26 +50,25 @@
 
   <!-- src/lc 外部披露开关（1 行）：让 App 不再绑定这 7 张卡的披露/悬停/恢复；删掉本行即还原 -->
   <script>window.__lcExternalDisclosure=new Set(['data-panel','scene-panel','pp-toggles','cctv-panel','global-context-panel','location-bar','control-panel']);</script>
+  <!-- 冷启动就绪门（Phase6C3-B/D）：决定加载遮罩何时收（3D Tiles 首批内容 +
+       program link + 开场镜头 + 瓦片静默）。Phase7A3 起移到 <head>，先于 Cesium 求值。
+       删掉 head 里那一行即回滚为「恢复完就收遮罩」。 -->
   <script type="module" src="/src/main.js"></script>
   <!-- GEV 中文增强包（界面汉化 + 美化钩子）；删掉本行即完全还原 -->
   <script type="module" src="/src/gev-cn.js"></script>
   <!-- GEV 定位当前设备位置；删掉本行即移除该功能 -->
   <script type="module" src="/src/gev-locate.js"></script>
-  <!-- GEV 打开即显示航班（默认开启 flights 图层）；删掉本行即还原图层默认全关 -->
-  <script type="module" src="/src/gev-autolocate.js"></script>
+  <!-- GEV 打开即显示航班（默认开启 flights 图层）：Phase7A3 起由 src/bootstrap.js 在 Cesium 就绪后装载
+       （它顶部就引用 Cesium 全局，不能跑在 Cesium 求值之前）；删掉 bootstrap.js 里那一行即还原 -->
   <!-- GEV 交通工具详细档案框（型号/性能 + 实时位置）；删掉本行即完全还原 -->
-  <script type="module" src="/src/gev-dossier.js"></script>
-  <script type="module" src="/src/gev-perf.js"></script>
+  <!-- Phase7A-A：首屏非关键入口由 boot-defer.js 动态装载；Phase7A3 起该入口由 src/bootstrap.js
+       在 Cesium 就绪后 import（其中的 gev-graphics 顶部引用 Cesium 全局） -->
   <!-- GEV 数据图层「渲染上限」控件（滑动条 0–999 + 数值框）；删掉本行即完全还原 -->
-  <script type="module" src="/src/gev-layer-limits.js"></script>
   <!-- GEV「画面设置」面板（画质预设/渲染分辨率/锐化/抗锯齿 + FSR 风格放大）；删掉本行即完全还原 -->
-  <script type="module" src="/src/gev-graphics.js"></script>
   <!-- 手机竖屏抽屉触发；删掉本行 + style.css 的 mobile-portrait.css import 即回滚 -->
-  <script type="module" src="/src/ui/mobile-ui.js"></script>
   <!-- GEV 面板自由拖拽/缩放层（移动/缩放/吸附/持久化/玻璃）；删掉本行 + gev-panel-win.css 的 <link> 即完全回滚 -->
-  <script type="module" src="/src/gev-panel-win.js"></script>
-  <!-- src/lc 卡片层（Controller/Layout/Renderer/Port/Interaction）；删掉本行 + material.css 的 <link> 即完全回滚 -->
-  <script type="module" src="/src/lc/index.js"></script>
+  <!-- src/lc 卡片层（Controller/Layout/Renderer/Port/Interaction）：Phase7A3 起移到 <head>，
+       先于 Cesium 求值 mount；删掉 head 里那一行 + material.css 的 <link> 即完全回滚 -->
   <!-- 边缘折射环（只画卡片边缘 16px 的真折射 + R/G/B 色散，中心交给 CSS blur）。
        ?gevEdge=0 完全关闭（不开 preserveDrawingBuffer，等同旧基线）；删本行即完全回滚。 -->
   <script src="/gev-edge-lens.js"></script>

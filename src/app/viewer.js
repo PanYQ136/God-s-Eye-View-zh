@@ -3,6 +3,22 @@ import {
   applyModelAtmosphereWorkaround,
   isAppleMobilePlatform,
 } from './atmosphereCompat.js';
+import * as timeline from '../boot-timeline.js';
+import { installShaderCompileCache } from './shaderCompileCache.js';
+
+timeline.mark('viewer:module-eval');
+
+/* 启动期 shader 编译去重（同 (ctx,type,source) 只编译一次）。见模块头注释：
+   prod 3 跑证据 = compileShader 34–36 次里只有 23 份源码，1 个 VS 被编译 10–12 次。
+   必须在 `new Cesium.Viewer` 之前装；`?shadercache=0` 关掉做 A/B。 */
+try {
+  const off =
+    typeof location !== 'undefined' &&
+    new URLSearchParams(location.search).get('shadercache') === '0';
+  installShaderCompileCache({ enabled: !off });
+} catch (_) {
+  /* 任何异常都不影响启动 */
+}
 
 const PINCH_ZOOM_MULTIPLIER = 8;
 const MAX_PINCH_PIXEL_DELTA = 120;
@@ -132,17 +148,20 @@ export function createApplicationViewer({ container, creditContainer }) {
   // GEV perf 2026-10-24: 默认关闭 preserveDrawingBuffer —— 它每帧强制整帧 framebuffer
   // 拷贝（viewer.js 注释自认），而本应用所有 toDataURL 均在离屏 2D canvas，无 Cesium 画布
   // 截图/录屏依赖，故默认 false 纯赚。用户如需可在画面设置面板开启。
-  // GEV 液态玻璃 2026-10-26: WebGL 玻璃层要每帧读回地图纹理做折射，必须保留绘制缓冲。
-  // public/gev-gl-glass.js（经典脚本，先于本模块执行）会置 window.__GEV_GL_PRESERVE = true，
-  // 这里做「或」运算，避免画面设置里的 pdb 迁移把它关掉导致玻璃整层失效。
-  const pdb = (typeof gfx.pdb === 'boolean' ? gfx.pdb : false) || window.__GEV_GL_PRESERVE === true;
+  // GEV 边缘折射 2026-10-26: 边缘层（public/gev-edge-lens.js）要读回地图纹理，
+  // 必须保留绘制缓冲；它先于本模块执行并置 window.__GEV_GL_PRESERVE = true，
+  // 这里做「或」运算，避免画面设置里的 pdb 迁移把它关掉导致折射整层失效。
+  const pdb =
+    (typeof gfx.pdb === 'boolean' ? gfx.pdb : false) ||
+    window.__GEV_GL_PRESERVE === true;
   const tileMSE = typeof gfx.tileMSE === 'number' ? gfx.tileMSE : apple ? 4 : 2;
   /*
    * fps: 0 / 负数 / NaN = "不限帧率"，Cesium 只接受 undefined（会抛
    * "targetFrameRate must be greater than 0, or undefined"，整个 viewer 构造失败）。
    */
   const fpsRaw = Number(gfx.fps);
-  const fps = Number.isFinite(fpsRaw) && fpsRaw > 0 ? Math.min(fpsRaw, 240) : undefined;
+  const fps =
+    Number.isFinite(fpsRaw) && fpsRaw > 0 ? Math.min(fpsRaw, 240) : undefined;
   const gpuPref =
     gfx.gpuPref === 'high-performance' ||
     gfx.gpuPref === 'low-power' ||
@@ -151,6 +170,7 @@ export function createApplicationViewer({ container, creditContainer }) {
       : apple
         ? 'default'
         : 'high-performance';
+  timeline.mark('viewer:construct:begin', { gpuPref, msaa });
   const viewer = new Cesium.Viewer(container, {
     timeline: false,
     animation: false,
@@ -181,6 +201,17 @@ export function createApplicationViewer({ container, creditContainer }) {
         failIfMajorPerformanceCaveat: false,
       },
     },
+  });
+  timeline.mark('viewer:construct:end', {
+    renderer: (() => {
+      try {
+        const gl = viewer.scene.context._gl;
+        const ext = gl.getExtension('WEBGL_debug_renderer_info');
+        return ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : null;
+      } catch (_) {
+        return null;
+      }
+    })(),
   });
   try {
     // undefined = 交给浏览器垂直同步；绝不能赋 0
@@ -250,6 +281,7 @@ export function createApplicationViewer({ container, creditContainer }) {
     viewer.scene.skyAtmosphere.atmosphereLightIntensity = 18;
     viewer.scene.skyAtmosphere.saturationShift = -0.12;
     viewer.scene.skyAtmosphere.brightnessShift = -0.08;
+    timeline.mark('viewer:ready', { resolutionScale: viewer.resolutionScale });
     return viewer;
   } catch (error) {
     viewer.destroy();

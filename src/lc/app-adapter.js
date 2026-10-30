@@ -16,7 +16,14 @@ const rectOf = (el) => {
   if (!el) return null;
   const b = el.getBoundingClientRect();
   if (!b || (!b.width && !b.height)) return null;
-  return { x: px(b.x), y: px(b.y), w: px(b.width), h: px(b.height), right: px(b.right), bottom: px(b.bottom) };
+  return {
+    x: px(b.x),
+    y: px(b.y),
+    w: px(b.width),
+    h: px(b.height),
+    right: px(b.right),
+    bottom: px(b.bottom),
+  };
 };
 const visible = (el) => {
   if (!el || !el.isConnected) return false;
@@ -44,7 +51,8 @@ export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
   const origin = new Map(); // id → {parent, next}
 
   function el(id) {
-    if (!els.has(id) || !els.get(id).isConnected) els.set(id, doc.getElementById(id));
+    const cached = els.get(id);
+    if (!cached || !cached.isConnected) els.set(id, doc.getElementById(id));
     return els.get(id);
   }
 
@@ -130,7 +138,12 @@ export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
       const parent = ph.parentElement || (o && o.parent);
       if (parent && e.parentElement !== parent) parent.insertBefore(e, ph);
       ph.remove();
-    } else if (o && o.parent && o.parent.isConnected && e.parentElement !== o.parent) {
+    } else if (
+      o &&
+      o.parent &&
+      o.parent.isConnected &&
+      e.parentElement !== o.parent
+    ) {
       o.parent.insertBefore(e, o.next && o.next.isConnected ? o.next : null);
     }
     placeholders.delete(id);
@@ -191,7 +204,14 @@ export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
         if (w) {
           w.__lc = w.__lc || {};
           w.__lc.chDbg = w.__lc.chDbg || [];
-          w.__lc.chDbg.push({ id, width: Math.round(width), fallback, h, phase: e.dataset.lcPhase || '', cls: e.className });
+          w.__lc.chDbg.push({
+            id,
+            width: Math.round(width),
+            fallback,
+            h,
+            phase: e.dataset.lcPhase || '',
+            cls: e.className,
+          });
           if (w.__lc.chDbg.length > 12) w.__lc.chDbg.shift();
         }
       } catch (_) {}
@@ -227,7 +247,9 @@ export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
       data 展开时 scene 不让位、切卡时展开盒跳位）。归一化后槽位与「谁在动画」完全解耦。 */
   function normalizeRailSlots(cards) {
     for (const rail in RAIL_ORDER) {
-      const list = RAIL_ORDER[rail].filter((id) => cards[id] && cards[id].connected && cards[id].mini);
+      const list = RAIL_ORDER[rail].filter(
+        (id) => cards[id] && cards[id].connected && cards[id].mini,
+      );
       if (!list.length) continue;
       const top = Math.min(...list.map((id) => cards[id].mini.y));
       let y = top;
@@ -244,7 +266,11 @@ export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
   }
 
   function measure({ pushes = {}, phases = {}, dockId = null } = {}) {
-    const view = { w: Math.round(doc.documentElement.clientWidth || innerWidth), h: Math.round(doc.documentElement.clientHeight || innerHeight), dpr: devicePixelRatio || 1 };
+    const view = {
+      w: Math.round(doc.documentElement.clientWidth || innerWidth),
+      h: Math.round(doc.documentElement.clientHeight || innerHeight),
+      dpr: devicePixelRatio || 1,
+    };
     const viewKey = view.w + 'x' + view.h;
     if (viewKey !== slotViewKey) {
       slotViewKey = viewKey;
@@ -260,7 +286,8 @@ export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
       const e0 = el(id);
       const ph0 = phases[id] || 'mini';
       const push0 = pushes[id] || { x: 0, y: 0 };
-      const anim0 = e0 && e0.getAnimations ? e0.getAnimations().length > 0 : false;
+      const anim0 =
+        e0 && e0.getAnimations ? e0.getAnimations().length > 0 : false;
       if (
         isStaged(id) ||
         ph0 !== 'mini' ||
@@ -297,8 +324,13 @@ export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
            轨道重排；此时若读占位/rect，槽位会漂（实测 data→scene 切换时 scene 槽位被读成
            data 的 94 → 展开盒跳位 56px + FLIP 重启 + 瞬时压住 data 的 mini）。 */
         mini = slotCache.get(id);
-      } else if (phRect) mini = { x: phRect.x, y: phRect.y, w: phRect.w, h: phRect.h };
-      else if (slotCache.has(id) && (railBusy || pushing || ph !== 'mini' || animating)) mini = slotCache.get(id);
+      } else if (phRect)
+        mini = { x: phRect.x, y: phRect.y, w: phRect.w, h: phRect.h };
+      else if (
+        slotCache.has(id) &&
+        (railBusy || pushing || ph !== 'mini' || animating)
+      )
+        mini = slotCache.get(id);
       else if (vis) {
         mini = { x: vis.x, y: vis.y, w: vis.w, h: vis.h };
         slotCache.set(id, mini);
@@ -317,37 +349,79 @@ export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
     normalizeRailSlots(cards);
     const dockEl = doc.getElementById('command-dock');
     const dRect = rectOf(dockEl);
-    const dock = dRect ? { ...dRect, cx: dRect.x + dRect.w / 2, top: dRect.y } : null;
+    const dock = dRect
+      ? { ...dRect, cx: dRect.x + dRect.w / 2, top: dRect.y }
+      : null;
 
     /* dock 面板的内容高：只在有 dock 卡在开/开中时量（测量帧内一次） */
     if (dockId && dock) {
       const panelW = Math.max(
         GEO.PANEL_MIN_W,
-        Math.min(Math.min(dock.w, GEO.PANEL_MAX_W), view.w - 2 * GEO.PANEL_EDGE),
+        Math.min(
+          Math.min(dock.w, GEO.PANEL_MAX_W),
+          view.w - 2 * GEO.PANEL_EDGE,
+        ),
       );
-      const maxH = Math.max(GEO.PANEL_MIN_H, Math.round(dock.top - GEO.SAFE_TOP - GEO.DOCK_LIFT));
-      const h = contentHeight(dockId, panelW, Math.min(CARDS[dockId] ? CARDS[dockId].expH : GEO.PANEL_MIN_H, maxH));
+      const maxH = Math.max(
+        GEO.PANEL_MIN_H,
+        Math.round(dock.top - GEO.SAFE_TOP - GEO.DOCK_LIFT),
+      );
+      const h = contentHeight(
+        dockId,
+        panelW,
+        Math.min(CARDS[dockId] ? CARDS[dockId].expH : GEO.PANEL_MIN_H, maxH),
+      );
       if (cards[dockId]) cards[dockId].contentH = h;
     }
 
     const protectedRects = [];
     for (const pid of PROTECT_IDS) {
       const r = rectOf(doc.getElementById(pid));
-      if (r && r.w > 1 && r.h > 1) protectedRects.push({ id: pid, x: r.x, y: r.y, w: r.w, h: r.h });
+      if (r && r.w > 1 && r.h > 1)
+        protectedRects.push({ id: pid, x: r.x, y: r.y, w: r.w, h: r.h });
     }
     const credits = rectOf(doc.querySelector('.cesium-widget-credits'));
-    if (credits) protectedRects.push({ id: 'cesium-credits', x: credits.x, y: credits.y, w: credits.w, h: credits.h });
+    if (credits)
+      protectedRects.push({
+        id: 'cesium-credits',
+        x: credits.x,
+        y: credits.y,
+        w: credits.w,
+        h: credits.h,
+      });
     /* 左右轨道卡不得压住底部 dock（横向相交才算） */
-    if (dock) protectedRects.push({ id: 'command-dock', x: dock.x, y: dock.y, w: dock.w, h: dock.h });
+    if (dock)
+      protectedRects.push({
+        id: 'command-dock',
+        x: dock.x,
+        y: dock.y,
+        w: dock.w,
+        h: dock.h,
+      });
 
-    const safe = { top: GEO.SAFE_TOP, bottom: GEO.SAFE_BOTTOM, left: 0, right: 0 };
-    return { viewport: view, safe, cards, dock, protected: protectedRects, phases };
+    const safe = {
+      top: GEO.SAFE_TOP,
+      bottom: GEO.SAFE_BOTTOM,
+      left: 0,
+      right: 0,
+    };
+    return {
+      viewport: view,
+      safe,
+      cards,
+      dock,
+      protected: protectedRects,
+      phases,
+    };
   }
 
-  /* ── 页面 chrome 几何：两条侧轨上移到标题栏之下（旧层用 transform 做的事）──
-     App 的自然位置是垂直居中（top≈190），Hermes 一直把轨道提到 94。
-     用独立的 `translate` 属性做（不与 App 的 transform 抢写者），并按当前 rect 求差，
-     因此重复调用幂等、换视口自适应。 */
+  /* ── 页面 chrome 几何：两条侧轨上移到标题栏之下（旧 App 层用 transform 做的事）──
+     App 的自然位置是 26vh（≈190），Hermes 一直把轨道提到 94。
+     这里必须用独立的 `translate`（瞬时生效），不能改成写 --*-stack-safe-top：
+     轨道有 `transition: top`，改写变量会让轨道在 200–300ms 里从 190 滑到 94，
+     而 src/lc 的槽位测量恰好发生在这段过渡里 —— 实测槽位被写成 190，
+     之后 data 展开盒落在 y=190（= 高出槽位 96px），P2 验收 T2/T4 直接失败。
+     translate 不参与布局、无过渡，测到的 rect 就是最终位置，且按当前 rect 求差 → 幂等。 */
   function liftRails(targetTop = 94) {
     const out = {};
     for (const sel of ['#left-panel-stack', '#right-context-rail']) {
@@ -355,11 +429,22 @@ export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
       if (!rail) continue;
       const r = rail.getBoundingClientRect();
       if (!r.height) continue;
-      const cur = parseFloat((getComputedStyle(rail).translate || 'none').split(' ')[1] || '0') || 0;
+      const cur =
+        parseFloat(
+          (getComputedStyle(rail).translate || 'none').split(' ')[1] || '0',
+        ) || 0;
       /* natural = 去掉我们自己 translate 后的位置 → 幂等：App 把轨道摆到哪都不会累积漂移 */
       const natural = r.top - cur;
       const want = Math.round(Math.min(0, targetTop - natural));
-      if (Math.abs(want - cur) > 0.5) rail.style.setProperty('translate', `0 ${want}px`);
+      if (Math.abs(want - cur) > 0.5) {
+        rail.style.setProperty('translate', `0 ${want}px`);
+        /* 轨道位置变了 → 槽位缓存整体作废。
+           慢渲染（软件渲染/SwiftShader）下第一帧测量可能发生在 translate 之前，
+           缓存里留下 pre-lift 的 y（实测 pp=190）→ normalizeRailSlots 按 190 归一，
+           cctv 槽位变 248，展开卡与 mini 全错位（T19 实测）。 */
+        slotCache.clear();
+        slotViewKey = '';
+      }
       out[sel] = want;
     }
     return out;
@@ -378,15 +463,21 @@ export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
       return 'app';
     }
     /* 兜底：App 未注入 API（旧构建/单测）→ 直写 class，并通过 diagnostics 记账，
-       让测试能发现「走到了第二写入者」。 */
+       让测试能发现「走到了第二写入者」。
+       Phase7A3：卡片层现在先于 Cesium/App 起来，preboot 期的写入是**预期**的
+       （不是 App API 缺失的缺陷）→ 记进 prebootWrites，App 起来后由
+       CollapsePort.reconcile() 把状态回灌给 App，S2/S3（direct/appApiMissing 为 0）
+       仍然成立。 */
+    const preboot = !!(opts && opts.preboot);
     const e = el(id);
     if (e) e.classList.toggle('collapsed', !!collapsed);
     if (typeof window !== 'undefined') {
       window.__lc = window.__lc || {};
       window.__lc.diagnostics = window.__lc.diagnostics || {};
-      window.__lc.diagnostics.appApiMissing = (window.__lc.diagnostics.appApiMissing || 0) + 1;
+      const key = preboot ? 'prebootWrites' : 'appApiMissing';
+      window.__lc.diagnostics[key] = (window.__lc.diagnostics[key] || 0) + 1;
     }
-    return 'direct';
+    return preboot ? 'preboot' : 'direct';
   }
 
   const isCollapsed = (id) => {

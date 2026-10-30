@@ -12,6 +12,9 @@ export function syncRadioPanelPlacement(doc) {
   if (!panel || !parent || !header || !dock || !mini) return;
   if (panel.parentElement !== parent) parent.append(panel);
   if (dock.parentElement !== header)
-    header.insertBefore(dock, header.querySelector('.panel-collapse-btn'));
+    header.insertBefore(
+      dock,
+      header.firstChild ?? header.children?.[0] ?? null,
+    );
   if (mini.parentElement !== dock) dock.append(mini);
 }

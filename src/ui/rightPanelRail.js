@@ -47,9 +47,19 @@ export function layoutRightPanelRail({
   // A collapse may schedule one follow-up, which only measures and allocates.
   const isCollapseRetry = pendingCollapseRetries.delete(stack);
 
+  /* Phase 3：7 张卡（.gev-lc）的几何只由 src/lc/layout.js + render.js 写。
+     本轨道引擎只服务仍未接管的旧面板；只剩 lc 卡时整趟直接返回，
+     不写 --right-stack-safe-*，因此 dock / 位置卡开合不会带动右侧卡片（P0-3）。 */
   const panels = [...stack.children].filter(
-    (panel) => panel.matches('[data-panel-id]') && !panel.hidden,
+    (panel) =>
+      panel.matches('[data-panel-id]') &&
+      !panel.hidden &&
+      !panel.classList.contains('gev-lc'),
   );
+  if (!panels.length) {
+    stack.classList.remove('layout-exclusive');
+    return;
+  }
   if (!hud.visible || hud.variant !== 'tactical') {
     for (const panel of panels.filter((item) =>
       item.classList.contains('layout-auto-collapsed'),

@@ -215,7 +215,9 @@ export function createReplay({ state: layerState, services, parts, source }) {
       );
       if (toggleButton) {
         toggleButton.disabled = !active;
-        toggleButton.textContent = layerState._replayPaused ? '▶' : 'Ⅱ';
+        toggleButton.innerHTML = layerState._replayPaused
+          ? '<span class="lc-tri lc-tri--r" aria-hidden="true"></span>'
+          : '<span class="lc-pause" aria-hidden="true"></span>';
         toggleButton.setAttribute(
           'aria-label',
           layerState._replayPaused ? 'Resume replay' : 'Pause replay',

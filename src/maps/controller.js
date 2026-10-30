@@ -2,6 +2,13 @@ import { indexMapSources } from './registry.js';
 import * as Cesium from 'cesium';
 import { createMapCredits } from './credits.js';
 import { acquireImageryComparison } from './imageryComparison.js';
+/* Phase7A 观测：底图栈各段耗时（boot-timeline 缺失时是空操作） */
+const mark = (name, meta) => {
+  try {
+    globalThis.__bootTimeline?.mark?.(name, meta);
+  } catch (_) {}
+};
+
 
 /**
  * Private `setStack` option marking a switch the controller issues itself
@@ -160,7 +167,10 @@ export class MapSourceController {
     return acquireImageryComparison(this, options);
   }
 
-  async setStack(id, { silent = false, [AUTOMATIC]: automatic = false } = {}) {
+  async setStack(
+    id,
+    { silent = false, [AUTOMATIC]: automatic = false, deferTerrain = false } = {},
+  ) {
     if (this._destroyed) return this.getState();
     const stack = this.getStack(id) || this.getStack(this._registry.unknownId);
     if (!stack) return null;
@@ -171,6 +181,7 @@ export class MapSourceController {
       return this.getState();
     }
     const gen = ++this._switchGen;
+    this._deferTerrainOnce = deferTerrain === true;
     this._switchOrigin = automatic ? 'automatic' : 'manual';
     this._isSwitching = true;
     this._lastError = null;
@@ -273,6 +284,7 @@ export class MapSourceController {
       this.viewer.imageryLayers.add(this._imageryLayer, 0);
     }
     const source = this._sources.get(resolution.effectiveStackId);
+    mark('stack:imagery:ready');
     this._credits.show(source?.credit || null);
     // A repeated request still owns a new switch generation. Rebind its
     // failure listener so fallback remains live without accumulating listeners.
@@ -283,16 +295,42 @@ export class MapSourceController {
     this.viewer.scene.globe.show = true;
     this._activeId = resolution.effectiveStackId;
     if (source?.terrain && source.terrain.id !== this._terrainMode) {
+      mark('stack:terrain:begin');
       const terrain = source.terrain;
-      const result = await this._cached(
-        this._terrainProviders,
-        terrain.id,
-        () => terrain.create({ signal: this._abort.signal }),
-      );
-      if (gen !== this._switchGen) return;
-      if (result.terrain) this.viewer.scene.setTerrain(result.terrain);
-      else this.viewer.terrainProvider = result.provider;
-      this._terrainMode = terrain.id;
+      /* Phase7A（base-first）：地形不是首屏必需（底图 imagery 已经能出清晰影像）。
+         冷启动那次切换允许 `deferTerrain`：不 await，地形在后台装好再 setTerrain，
+         省掉实测 3.1s 的 Cesium World Terrain 元数据往返。 */
+      const wantDeferred = this._deferTerrainOnce === true;
+      this._deferTerrainOnce = false;
+      const applyTerrain = async () => {
+        /* Phase7A3：地形安装（setTerrain）会让 globe 重建，画面有 1–2 帧空/黑。
+           把「地形切换进行中」暴露给冷启动就绪门（src/gev-boot-gate.js），
+           让遮罩不会在这段空窗里被收起（实测 reveal 帧中心 std 2.61 → B5 FAIL）。 */
+        const busy = (v) => {
+          try {
+            (globalThis.__gevStackState = globalThis.__gevStackState || {}).terrainBusy = v;
+          } catch (_) {}
+        };
+        busy(true);
+        try {
+          const result = await this._cached(
+            this._terrainProviders,
+            terrain.id,
+            () => terrain.create({ signal: this._abort.signal }),
+          );
+          if (gen !== this._switchGen) return;
+          mark('stack:terrain:end');
+          if (result.terrain) this.viewer.scene.setTerrain(result.terrain);
+          else this.viewer.terrainProvider = result.provider;
+          this._terrainMode = terrain.id;
+          /* setTerrain 的重建发生在随后 1–2 帧，busy 要盖住这段空窗再放开。 */
+          await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+        } finally {
+          busy(false);
+        }
+      };
+      if (wantDeferred) void applyTerrain().catch(() => {});
+      else await applyTerrain();
     }
     return resolution;
   }

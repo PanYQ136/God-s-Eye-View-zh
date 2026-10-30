@@ -48,7 +48,6 @@ export function bindRadioControls() {
     if (displayOpen) this.actions.revealStyleParameters();
     if (this._cockpitDisplayToggleBtn) {
       const action = displayOpen ? 'Collapse' : 'Expand';
-      this._cockpitDisplayToggleBtn.textContent = displayOpen ? '▶' : '◀';
       this._cockpitDisplayToggleBtn.setAttribute(
         'aria-label',
         `${action} Cockpit display options`,
@@ -57,7 +56,6 @@ export function bindRadioControls() {
     }
     if (this._cockpitRadioToggleBtn) {
       const action = radioOpen ? 'Collapse' : 'Expand';
-      this._cockpitRadioToggleBtn.textContent = radioOpen ? '▶' : '◀';
       this._cockpitRadioToggleBtn.setAttribute(
         'aria-label',
         `${action} Cockpit Radio controls`,

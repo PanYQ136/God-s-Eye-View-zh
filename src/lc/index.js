@@ -16,6 +16,12 @@ import { layout } from './layout.js';
 
 const BOOT_MAX_FRAMES = 900; // ≈15s（rAF 计帧，不用 setTimeout）
 const SETTLE_FRAMES = 90; // ≈1.5s：App 启动期会搬容器/恢复状态，沉降后强制全 mini（D1）
+/* Phase7A3：语音卡（#gev-voice-control）不是静态卡壳 —— 它由 App 在命令坞里注入，
+   排在 Cesium 之后。卡壳/LC 现在先于 Cesium mount，**不能**为它把整层挂载推到
+   App 就绪（实测那样 cardsClickable 又回到 7–9.5s）。改为：必需卡 = 7 张静态卡壳，
+   语音卡等它出现时由 MutationObserver 补皮（skinCard）。 */
+const DEFERRED_IDS = Object.freeze(['gev-voice-control']);
+const REQUIRED_IDS = Object.freeze(CARD_IDS.filter((id) => !DEFERRED_IDS.includes(id)));
 
 const TARGETS = (() => {
   const t = {};
@@ -166,7 +172,7 @@ export function boot() {
   /* ── 启动 ──────────────────────────────────────────────────────────────── */
   let bootFrames = 0;
   const waitReady = () => {
-    const ready = CARD_IDS.every((id) => document.getElementById(id));
+    const ready = REQUIRED_IDS.every((id) => document.getElementById(id));
     if (!ready && ++bootFrames < BOOT_MAX_FRAMES) {
       requestAnimationFrame(waitReady);
       return;
@@ -174,15 +180,20 @@ export function boot() {
     start();
   };
 
+  /* 材质皮（幂等）：8 张卡统一加 .gev-lc + 初始相位。后到的卡（语音卡）也走这里。 */
+  function skinCard(id) {
+    const el = document.getElementById(id);
+    if (!el) return false;
+    const first = !el.classList.contains('gev-lc');
+    el.classList.add('gev-lc');
+    if (!el.dataset.lcPhase) el.dataset.lcPhase = PHASE.MINI;
+    el.dataset.lcRail = (CARDS[id] && CARDS[id].rail) || 'chrome';
+    return first;
+  }
+
   function start() {
     /* 1) 材质皮：8 张卡统一加 .gev-lc + 初始相位 */
-    for (const id of CARD_IDS.concat(['gev-gfx-fab'])) {
-      const el = document.getElementById(id);
-      if (!el) continue;
-      el.classList.add('gev-lc');
-      if (!el.dataset.lcPhase) el.dataset.lcPhase = PHASE.MINI;
-      el.dataset.lcRail = (CARDS[id] && CARDS[id].rail) || 'chrome';
-    }
+    for (const id of CARD_IDS.concat(['gev-gfx-fab'])) skinCard(id);
     /* 1b) 两条侧轨上移到标题栏之下（App 自然位置是垂直居中 top≈190） */
     adapter.liftRails(94);
     /* 2) 初始全 mini（D1）：先经 App API 收起 7 张披露卡 */
@@ -203,6 +214,12 @@ export function boot() {
 
     /* 5) App 把展开卡抢回轨道 → 重新脱层（展开卡必须在 stage 是 renderer 的不变量） */
     const parentWatch = new MutationObserver(() => {
+      /* Phase7A3：语音卡/玻璃 FAB 可能在 LC 挂载之后才注入 → 补皮并排一帧布局 */
+      let skinned = false;
+      for (const id of DEFERRED_IDS.concat(['gev-gfx-fab'])) {
+        if (skinCard(id)) skinned = true;
+      }
+      if (skinned) scheduleFrame();
       const { phases } = phaseMap();
       for (const id of CARD_IDS) {
         if (isLive(phases[id]) && !adapter.isStaged(id)) {
@@ -215,6 +232,32 @@ export function boot() {
     });
     try {
       parentWatch.observe(document.body, { childList: true, subtree: true });
+    } catch (_) {}
+
+    /* Phase7A3：LC 现在先于 App 起来，App 在启动中段（Cesium 之后）会自己摆轨道/
+       外壳几何（natural top≈190、body.cockpit-mode 等），此时 LC 的槽位已过期 →
+       监听两条轨与 body 的 style/class 变化，重新对齐一次 + 一次布局帧。
+       liftRails 只写 translate（不参与布局、无过渡），且幂等，不会自激。 */
+    let appGeomQueued = false;
+    const onAppGeom = () => {
+      if (appGeomQueued) return;
+      appGeomQueued = true;
+      requestAnimationFrame(() => {
+        appGeomQueued = false;
+        adapter.liftRails(94);
+        controller.dispatch({ type: ACT.RESIZE });
+      });
+    };
+    const geomWatch = new MutationObserver(onAppGeom);
+    for (const sel of ['#left-panel-stack', '#right-context-rail', '#command-dock']) {
+      const node = document.querySelector(sel);
+      if (!node) continue;
+      try {
+        geomWatch.observe(node, { attributes: true, attributeFilter: ['style', 'class'] });
+      } catch (_) {}
+    }
+    try {
+      geomWatch.observe(document.body, { attributes: true, attributeFilter: ['class'] });
     } catch (_) {}
 
     /* 5b) 侧轨上移的稳定化：App 在启动后 2–8s 之间会把轨道摆到「垂直居中」，
@@ -250,7 +293,72 @@ export function boot() {
     };
     requestAnimationFrame(settleTick);
 
-    api.ready = true;
+    /* Phase6C3-B：api.ready 的口径改为「遮罩已收起、可交互」——gate 用它当冷启动
+       终点，遮罩期的长帧（Cesium ShaderProgram link / 瓦片 JSON 解析）不计入可见
+       帧。没有就绪门（删掉 index.html 那行）时立即置位，等价旧行为。 */
+    api.mounted = true;
+    /* Phase7A2：卡片层挂载时刻（= D+ 输入放行的判据）。记进冷启动时间线，
+       否则「卡片何时真的能点」只能靠外部轮询猜（实测轮询本身会拖慢冷启动）。 */
+    api.mountedAt = +performance.now().toFixed(1);
+    try {
+      if (globalThis.__bootTimeline && typeof globalThis.__bootTimeline.mark === 'function')
+        globalThis.__bootTimeline.mark('lc:mounted');
+    } catch (_) {}
+    /* Phase7A3：卡片层现在先于 Cesium 求值起来 → mount 的一刻**同步**放行输入
+       （遮罩退化成顶部胶囊 + 只盖 canvas 的暗纱；卡片 rail 不再被挡）。
+       不等 rAF 轮询：Cesium 求值一开始就占住主线程 3s，rAF 唤醒会被推迟。 */
+    try {
+      const gate = window.__gevBoot;
+      if (gate && typeof gate.releaseInputEarly === 'function')
+        api.inputReleasedAt = gate.releaseInputEarly('lc-mounted-sync');
+    } catch (_) {}
+    /* Phase7A3：App（Cesium 之后）起来时把 collapsed 状态回灌给 App API，
+       并把轨道/卡片几何重新对齐一次（App 启动中段会自己摆轨道位置）。 */
+    let appWatchFrames = 0;
+    const appWatch = () => {
+      appWatchFrames += 1;
+      let adopted = false;
+      try {
+        adopted = port.reconcile();
+      } catch (_) {}
+      if (adopted) {
+        api.appApiAt = +performance.now().toFixed(1);
+        try {
+          if (globalThis.__bootTimeline && typeof globalThis.__bootTimeline.mark === 'function')
+            globalThis.__bootTimeline.mark('lc:app-api');
+        } catch (_) {}
+        adapter.liftRails(94);
+        controller.dispatch({ type: ACT.RESIZE });
+        return;
+      }
+      if (appWatchFrames < 3600) requestAnimationFrame(appWatch);
+    };
+    requestAnimationFrame(appWatch);
+    const markReady = () => {
+      if (api.ready) return;
+      api.readyAt = +(performance.now()).toFixed(1);
+      api.ready = true;
+    };
+    const bootGate = window.__gevBoot;
+    if (bootGate && typeof bootGate.whenInteractive === 'function') {
+      bootGate.whenInteractive(30000).then(markReady, markReady);
+    } else {
+      markReady();
+    }
+    /* Phase7A-D：卡片可点的时刻与「遮罩视觉收起」解耦。
+       api.ready 保留旧语义（= 遮罩完全消失，C3 起的验收口径，现已 deprecated）；
+       api.interactiveAt = 遮罩放行输入（gate inputRelease）且本层已 mounted/bind。
+       此时卡片 DOM 已就绪、pointer 事件已绑定，真实点击会进 opening。 */
+    api.interactiveAt = null;
+    const markInteractive = () => {
+      if (api.interactiveAt != null) return;
+      api.interactiveAt = +performance.now().toFixed(1);
+    };
+    if (bootGate && typeof bootGate.whenInputRelease === 'function') {
+      bootGate.whenInputRelease(15000).then(markInteractive, markInteractive);
+    } else {
+      markInteractive();
+    }
   }
 
   /* ── 只读钩子（§3.1 原则 5：可断言优先）────────────────────────────────── */

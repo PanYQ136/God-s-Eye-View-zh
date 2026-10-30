@@ -436,7 +436,7 @@ export class VisualSettings {
     if (this._cockpitDisplayToggleBtn?.getAttribute('aria-expanded') !== 'true')
       return;
     this._sliderPanel.classList.remove('collapsed');
-    this._syncPanelCollapseButton(this._sliderPanel);
+    this._syncPanelDisclosureState?.(this._sliderPanel);
     this._lifetime.frame(() =>
       this._lifetime.frame(() => {
         this._sliderPanel?.scrollIntoView?.({ block: 'nearest' });
@@ -1494,7 +1494,7 @@ export class VisualSettings {
     if (!this._sliderPanel?.classList.contains('active')) return;
     if (this._cockpitDisplayPortalActive) return;
     this._sliderPanel.classList.remove('collapsed');
-    this._syncPanelCollapseButton(this._sliderPanel);
+    this._syncPanelDisclosureState?.(this._sliderPanel);
     this.setPanelCollapsed('pp-toggles', false, { explicit: true });
     this._lifetime.frame(() =>
       this._lifetime.frame(() => {

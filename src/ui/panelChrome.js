@@ -3,7 +3,6 @@ import { displayPanelScroller } from './displayPanelScroll.js';
 import { PanelPositionControls } from './panelPositionControls.js';
 import { PanelLayoutController } from './panelLayoutController.js';
 import {
-  bindPanelDisclosure,
   collapsePanelOnEscape,
   createHoverDisclosure,
 } from './panelDisclosure.js';
@@ -57,7 +56,8 @@ export class PanelChrome {
     this._cockpitPanelRestore = null;
     this._cockpitContextCollapsedForDataPanel = false;
     this._panelPosition = new PanelPositionControls({
-      syncPanelCollapseButton: (panel) => this._syncPanelCollapseButton(panel),
+      syncPanelDisclosureState: (panel) =>
+        this._syncPanelDisclosureState(panel),
       layoutRightPanels: () => this._layoutRightPanels(),
       syncCctvPanelViewport: () => this._syncCctvPanelViewport(),
       showToast: (message) => this._showToast(message),
@@ -68,7 +68,8 @@ export class PanelChrome {
         variant: this.hud.getVariant(),
       }),
       scheduleCockpitLayout: () => this.cockpitView?.scheduleContextLayout(),
-      syncPanelCollapseButton: (panel) => this._syncPanelCollapseButton(panel),
+      syncPanelDisclosureState: (panel) =>
+        this._syncPanelDisclosureState(panel),
       readDisplayScrollTop: () =>
         this._displayPortalScrollRestoreOwner === 'standard'
           ? this._standardDisplayScrollTop
@@ -98,65 +99,51 @@ export class PanelChrome {
     for (const control of this._panelDisclosureControls || [])
       control.destroy();
     this._panelDisclosureControls = [];
-    /* ── src/lc 外部披露开关（2026-10-28 Phase 2）─────────────────────────────
-       卡片层（src/lc）拥有这 7 张卡的披露语义时，App 只保留 API、不再绑定按钮 /
-       悬停 / 启动恢复（D1：初始全 mini 由 CollapsePort 负责）。
-       删掉下面两行 + 三个 ext() 判断即完全还原。 */
+    /* ── src/lc 外部披露（Phase 2/3）──────────────────────────────────────────
+       7 张卡的开合由 src/lc 唯一拥有：App 既不生成折叠按钮（模板已删）、也不绑定
+       点击/悬停/启动恢复，只保留 setPanelCollapsed API 供 CollapsePort 调用。
+       删掉下面这段 + index.html 的 __lcExternalDisclosure 一行即还原。 */
     const ext = (id) =>
-      !!(typeof window !== 'undefined' && window.__lcExternalDisclosure && window.__lcExternalDisclosure.has && window.__lcExternalDisclosure.has(id));
+      !!(
+        typeof window !== 'undefined' &&
+        window.__lcExternalDisclosure &&
+        window.__lcExternalDisclosure.has &&
+        window.__lcExternalDisclosure.has(id)
+      );
     if (typeof window !== 'undefined') {
       window.__lcPanelApi = window.__lcPanelApi || {};
-      window.__lcPanelApi.setPanelCollapsed = (id, collapsed, options) => this.setPanelCollapsed(id, collapsed, options);
+      window.__lcPanelApi.setPanelCollapsed = (id, collapsed, options) =>
+        this.setPanelCollapsed(id, collapsed, options);
     }
-    const targets = new Map();
-    document
-      .querySelectorAll('.panel-collapse-btn[data-collapse-target]')
-      .forEach((button) => {
-        const targetId = button.dataset.collapseTarget;
-        if (!targetId) return;
-        if (!targets.has(targetId)) targets.set(targetId, []);
-        targets.get(targetId).push(button);
-      });
-    for (const [targetId, buttons] of targets) {
-      const panel = document.getElementById(targetId);
-      if (!panel) continue;
-      if (ext(targetId)) continue;
-      this._panelDisclosureControls.push(
-        bindPanelDisclosure({
-          panel,
-          buttons,
-          onChange: (collapsed, options) =>
-            this.setPanelCollapsed(targetId, collapsed, options),
-          onEscape: (event) => this._collapsePanelOnEscape(event, targetId),
-        }),
-      );
-      this._restorePanelCollapsedState(targetId, {
-        allowStored: !this._initialShareState,
-      });
-    }
-    // The command dock always starts compact; either wing reveals on hover,
-    // focus, or click and collapses again after the interaction moves away.
-    this.setPanelCollapsed('control-panel', true, {
-      syncShare: false,
-      persist: false,
-    });
-    this.setPanelCollapsed('location-bar', true, {
-      syncShare: false,
-      persist: false,
-    });
-    if (!ext('control-panel'))
-      this._initAutoHoverPanel('control-panel', {
-        openDelayMs: 130,
-        closeDelayMs: 900,
-      });
-    if (!ext('location-bar'))
-      this._initAutoHoverPanel('location-bar', {
-        openDelayMs: 130,
-        closeDelayMs: 900,
-      });
+    /* 旧面板（天气 / 近期影像 / 电台 / 参数滑条）不再有折叠按钮 DOM：
+       标题条本身成为开合热区；7 张卡的标题热区归 src/lc/interaction.js。 */
+    this._bindLegacyPanelHeaders(ext);
     this._initCommandDockPins();
     this._initCommandDockTrayMetrics();
     this._maybeNotifyLayoutReset();
+  }
+
+  /** 旧面板（非 src/lc 卡片）的标题条开合；7 张卡不绑（ext 命中的一律跳过）。 */
+  _bindLegacyPanelHeaders(ext) {
+    for (const panel of document.querySelectorAll('[data-panel-id]')) {
+      const id = panel.dataset.panelId || panel.id;
+      if (!id || ext(id) || id === 'radio-panel') continue;
+      const header = panel.querySelector('.panel-header');
+      if (!header || header.dataset.lcLegacyDisclosure) continue;
+      header.dataset.lcLegacyDisclosure = '1';
+      this._lifetime.listen(header, 'click', (event) => {
+        if (
+          event.target.closest(
+            'input, select, option, button, a, label, [role=slider]',
+          )
+        )
+          return;
+        event.stopPropagation();
+        this.setPanelCollapsed(id, !panel.classList.contains('collapsed'), {
+          explicit: true,
+        });
+      });
+    }
   }
 
   _collapsePanelOnEscape(event, panelId) {
@@ -279,10 +266,6 @@ export class PanelChrome {
     }
   }
 
-  _restorePanelCollapsedState(panelId, options1) {
-    return this._panelPosition._restorePanelCollapsedState(panelId, options1);
-  }
-
   _savePanelCollapsedState(panelId, collapsed) {
     return this._panelPosition._savePanelCollapsedState(panelId, collapsed);
   }
@@ -295,39 +278,13 @@ export class PanelChrome {
     return this._panelLayout._scheduleLeftPanelLayout(options0);
   }
 
-  _syncPanelCollapseButton(panelEl) {
-    const isRightRail = [
-      'pp-toggles',
-      'cctv-panel',
-      'weather-panel',
-      'recent-imagery-panel',
-      'global-context-panel',
-    ].includes(panelEl?.id);
+  /**
+   * 披露状态同步（Phase 3）：7 张卡的折叠按钮已从 DOM/模板彻底删除，这里不再查询、
+   * 也不再写任何折叠按钮；只同步 dock 把手 aria 与 Radio/Context 启动器。
+   */
+  _syncPanelDisclosureState(panelEl) {
+    if (!panelEl) return;
     const collapsed = panelEl.classList.contains('collapsed');
-    panelEl
-      .querySelectorAll('.panel-collapse-btn[data-collapse-target]')
-      .forEach((btn) => {
-        const owner = btn.closest('[data-panel-id], #param-slider-panel');
-        if (owner !== panelEl) return;
-        if (isRightRail) {
-          btn.textContent = collapsed ? '◀' : '▶';
-        } else {
-          btn.textContent = collapsed ? '+' : '−';
-        }
-        btn.setAttribute('aria-expanded', String(!collapsed));
-        const panelName =
-          panelEl
-            .querySelector('.panel-title, .pp-header-label')
-            ?.textContent?.trim() || 'panel';
-        const action = collapsed ? 'Expand' : 'Collapse';
-        btn.title = `${action} ${panelName}`;
-        btn.setAttribute('aria-label', `${action} ${panelName}`);
-        if (panelEl.id === 'radio-panel') {
-          const action = collapsed ? 'Expand' : 'Collapse';
-          btn.title = `${action} Radio`;
-          btn.setAttribute('aria-label', `${action} Radio section`);
-        }
-      });
     const dockToggle = panelEl.querySelector(
       `[data-dock-toggle-target="${panelEl.id}"]`,
     );
@@ -491,7 +448,7 @@ export class PanelChrome {
       panelEl.classList.contains('collapsed') === nextCollapsed &&
       !wasAutoCollapsed
     ) {
-      this._syncPanelCollapseButton(panelEl);
+      this._syncPanelDisclosureState?.(panelEl);
       if (priorLeftOwner !== this._panelLayout._leftStackPreferredPanelId) {
         this._scheduleLeftPanelLayout({ reconsiderAutoCollapse: true });
       }
@@ -565,7 +522,7 @@ export class PanelChrome {
       this._cockpitContextCollapsedForDataPanel = false;
       this.cockpitView.setContextCollapsed(false);
     }
-    this._syncPanelCollapseButton(panelEl);
+    this._syncPanelDisclosureState?.(panelEl);
     if (persist !== false)
       this._savePanelCollapsedState(panelId, nextCollapsed);
     if (panelId === 'pp-toggles') {

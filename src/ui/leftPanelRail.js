@@ -36,7 +36,12 @@ export function layoutLeftPanelRail({
 }) {
   if (!stack) return;
 
-  const panels = [...stack.querySelectorAll(':scope > [data-panel-id]')];
+  /* Phase 3：7 张卡（.gev-lc）的几何只由 src/lc/layout.js + render.js 写。
+     本轨道引擎只服务仍未接管的旧面板；只剩 lc 卡时整趟直接返回，
+     连 --left-stack-safe-* 都不写 —— 否则 dock 展开会带着 5 张卡一起动（P0-3）。 */
+  const panels = [...stack.querySelectorAll(':scope > [data-panel-id]')].filter(
+    (panel) => !panel.classList.contains('gev-lc'),
+  );
   if (!panels.length) return;
   if (!hud.visible || hud.variant !== 'tactical') {
     for (const panel of panels.filter((item) =>

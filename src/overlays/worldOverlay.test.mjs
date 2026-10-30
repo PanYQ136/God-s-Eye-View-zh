@@ -2223,3 +2223,50 @@ test('diagnostics facade preserves the complete binding shape', () => {
   ];
   assert.deepEqual(Object.keys(diagnostics).sort(), fields.sort());
 });
+
+test('camera motion caps host repaint cadence and still lands a trailing frame', () => {
+  const env = installMockEnvironment({ width: 400, height: 300, dpr: 1 });
+  try {
+    // The shared mock camera has no `directionWC`; give it one so pose motion is
+    // observable, then count full-surface clears (= painted host frames).
+    env.viewer.camera.directionWC = new Cesium.Cartesian3(0, 0, -1);
+    const clears = () => env.ctx.calls.filter((call) => call[0] === 'clearRect').length;
+    initWorldOverlay(env.viewer);
+    setOverlayEntries('cadence-probe', [selectedEntry('CARD')]);
+
+    env.advanceTime(100);
+    env.postRender.raise();
+    assert.equal(clears(), 1, 'a frame with paint work repaints the surface');
+
+    // Pose unchanged: no cadence ceiling. Fades, leader animation, card clicks
+    // and data updates all ride this path and must keep display rate.
+    env.advanceTime(5);
+    env.postRender.raise();
+    assert.equal(clears(), 2, 'a frame without camera motion keeps display rate');
+
+    // Pose moved 5 ms after the last paint: inside the 33 ms window, skipped.
+    env.viewer.camera.positionWC = new Cesium.Cartesian3(1, 0, 10_000_000);
+    env.advanceTime(5);
+    env.postRender.raise();
+    assert.equal(clears(), 2, 'a second pose change inside the cadence window is skipped');
+
+    // Window closed: the very next frame paints the current pose.
+    env.advanceTime(40);
+    env.postRender.raise();
+    assert.equal(clears(), 3, 'the frame after the cadence window repaints');
+
+    // A skipped frame also arms exactly one trailing request so a camera that
+    // stops mid-window still ends on the settled pose.
+    env.viewer.camera.positionWC = new Cesium.Cartesian3(2, 0, 10_000_000);
+    env.advanceTime(5);
+    const requestsBefore = env.viewer.scene.requestRenderCount;
+    env.postRender.raise();
+    assert.equal(clears(), 3, 'second in-window pose change is skipped too');
+    assert.ok(
+      env.viewer.scene.requestRenderCount >= requestsBefore,
+      'the host never drops a skipped frame without handing the request forward',
+    );
+  } finally {
+    env.cleanup();
+  }
+});

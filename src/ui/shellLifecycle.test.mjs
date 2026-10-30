@@ -174,18 +174,21 @@ test('panel layout coalesces each rail and cannot rearm after destruction', () =
   }
 });
 
-test('panel disposal cancels a live drag without saving or accepting later pointer movement', () => {
+test('legacy panel drag layer is retired: no card geometry is ever written', () => {
   const f = fixture();
   try {
     const owner = new PanelPositionControls({
-      syncPanelCollapseButton() {},
-      layoutRightPanels() {},
-      syncCctvPanelViewport() {},
+      syncPanelDisclosureState() {},
       showToast() {},
     });
     const panel = f.element(),
       handle = f.element();
-    owner._makePanelDraggable('sample', panel, handle);
+    // Phase 3：拖拽/缩放/位置持久化整层删除 —— 方法本身不再存在。
+    assert.equal(owner._makePanelDraggable, undefined);
+    assert.equal(owner._reclampDraggablePanels, undefined);
+    assert.equal(owner._savePanelPosition, undefined);
+    const before = { ...panel.style };
+    owner._initPanelDrag?.();
     handle.dispatchEvent(
       Object.assign(new Event('pointerdown', { cancelable: true }), {
         button: 0,
@@ -193,22 +196,15 @@ test('panel disposal cancels a live drag without saving or accepting later point
         clientY: 40,
       }),
     );
-    assert.equal(panel.classList.contains('panel-dragging'), true);
-    owner.destroy();
-    const before = { ...panel.style };
     window.dispatchEvent(
       Object.assign(new Event('pointermove'), { clientX: 500, clientY: 300 }),
     );
     window.dispatchEvent(new Event('pointerup'));
     assert.deepEqual(panel.style, before);
     assert.equal(panel.classList.contains('panel-dragging'), false);
-    owner._makePanelDraggable('sample', panel, handle);
-    owner._initPanelDrag();
-    owner._ppToggles.style.top = '10000px';
-    owner._reclampDraggablePanels();
-    assert.equal(owner._ppToggles.style.top, '10000px');
     assert.equal(owner.removers.length, 0);
     assert.deepEqual(f.writes, []);
+    owner.destroy();
   } finally {
     f.restore();
   }
@@ -336,9 +332,9 @@ test('weather rail orders between CCTV and Context, resets positions, observes a
       readHud: () => ({}),
       scheduleCockpitLayout() {},
       readDisplayScrollTop: () => 0,
-      syncPanelCollapseButton(panel) {
+      syncPanelDisclosureState(panel) {
         synced.push(panel.id);
-        PanelChrome.prototype._syncPanelCollapseButton.call(chrome, panel);
+        PanelChrome.prototype._syncPanelDisclosureState.call(chrome, panel);
       },
     });
     owner._initRightPanelAdaptiveLayout();
@@ -351,14 +347,13 @@ test('weather rail orders between CCTV and Context, resets positions, observes a
     assert.equal(weather.style.positions.size, 0);
     assert.equal(weather.classList.contains('panel-draggable'), false);
     assert.equal(weather.classList.contains('panel-dragging'), false);
-    assert.equal(weather.button.textContent, '◀');
-    assert.equal(weather.button.getAttribute('aria-expanded'), 'false');
-    assert.equal(weather.button.title, 'Expand WEATHER');
+    // Phase 3：折叠按钮已删除 —— 披露同步只写 dock 把手 aria，不再碰任何按钮。
+    assert.equal(weather.button.textContent, '');
+    assert.equal(weather.button.getAttribute('aria-expanded'), undefined);
     weather.classList.remove('collapsed');
-    PanelChrome.prototype._syncPanelCollapseButton.call(chrome, weather);
-    assert.equal(weather.button.textContent, '▶');
-    assert.equal(weather.button.getAttribute('aria-expanded'), 'true');
-    assert.equal(weather.button.getAttribute('aria-label'), 'Collapse WEATHER');
+    PanelChrome.prototype._syncPanelDisclosureState.call(chrome, weather);
+    assert.equal(weather.button.textContent, '');
+    assert.equal(weather.button.getAttribute('aria-expanded'), undefined);
     owner.destroy();
     assert.equal(observed.size, 0);
     assert.equal(f.frames.size, 0);

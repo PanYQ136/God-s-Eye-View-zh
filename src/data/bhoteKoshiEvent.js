@@ -856,8 +856,8 @@ function createPanel(event, handlers) {
         <button type="button" data-action="next-beat" title="Next story beat" aria-label="Next story beat">›</button>
       </div>
       <div class="bhote-event-actions">
-        <button type="button" data-action="play">▶ PLAY</button>
-        <button type="button" data-action="play-scene" hidden title="Play the next shot and continue through this scene">▶ PLAY SCENE</button>
+        <button type="button" data-action="play">PLAY</button>
+        <button type="button" data-action="play-scene" hidden title="Play the next shot and continue through this scene">PLAY SCENE</button>
         <button type="button" data-action="cinematic" aria-pressed="false">◉ CINEMATIC</button>
         <button type="button" data-action="story-replay">↺ FULL STORY</button>
         <button type="button" data-action="open-source">↗ OPEN ORIGINAL</button>
@@ -2981,21 +2981,21 @@ export function createBhoteKoshiEventLayer({
     const playLabel = sceneDirected
       ? _sceneActionPending && _sceneActionPending.type !== 'scene'
         ? '… PLAYING SHOT'
-        : '▶ PLAY SHOT'
+        : 'PLAY SHOT'
       : _playing
-        ? 'Ⅱ PAUSE'
+        ? 'PAUSE'
         : _progress >= 1
           ? _cinematicReplayArmed
             ? '↺ REPLAY CINEMATIC'
             : '↺ REPLAY'
-          : '▶ PLAY';
+          : 'PLAY';
     setElementProperty(_panelRefs.playButton, 'textContent', playLabel);
     setElementProperty(
       _panelRefs.playSceneButton,
       'textContent',
       _sceneActionPending?.type === 'scene'
         ? '… PLAYING SCENE'
-        : '▶ PLAY SCENE',
+        : 'PLAY SCENE',
     );
     setElementProperty(
       _panelRefs.playSceneButton,

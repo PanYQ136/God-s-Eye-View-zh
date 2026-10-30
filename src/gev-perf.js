@@ -168,15 +168,30 @@ import { mountChip } from './lc/gpu.js';
         if (el) el.textContent = 'FPS ' + fps;
         // GEV (G4/G14): 自适应分辨率——性能模式开启时按实测 FPS 微调 resolutionScale 逼近 57fps。
         // 50–58 为死区（不抖），越界才按 0.05/0.03 步长在 [0.6, 0.9] 内调整。
+        /* Phase7D2：启动/升级期的 FPS 低谷是「瓦片 burst」造成的，不是分辨率造成的
+           —— 那时降分辨率既压不住 burst，还会让画布尺寸来回跳（实测 0.85→0.61→0.9
+           三档各触发一次 framebuffer 重建，长帧窗口里纯属加戏）。所以先在启动后 12s、
+           且 __gevPhotoreal 还没 ready 时冻结自适应；20s 后无论如何解冻，
+           防止「photoreal 永远不 ready」把自适应永久锁死。 */
         try {
           if (st.on && st.viewer) {
             const v = st.viewer;
-            let r = v.resolutionScale || 0.85;
-            if (fps > 0 && fps < 50 && r > 0.6) r = Math.max(0.6, r - 0.05);
-            else if (fps > 58 && r < 0.9) r = Math.min(0.9, r + 0.03);
-            if (Math.abs(r - (v.resolutionScale || 0.85)) > 0.001) {
-              v.resolutionScale = r;
-              try { v.scene.requestRender && v.scene.requestRender(); } catch (e) {}
+            const nowMs = performance.now();
+            const bootAge = nowMs - (st.bootAt || 0);
+            const photo = globalThis.__gevPhotoreal;
+            const upgrading = !!(photo && photo.ready === false);
+            const frozen = bootAge < 12000 || (upgrading && bootAge < 20000);
+            if (frozen) {
+              st.adaptFrozen = true;
+            } else {
+              st.adaptFrozen = false;
+              let r = v.resolutionScale || 0.85;
+              if (fps > 0 && fps < 50 && r > 0.6) r = Math.max(0.6, r - 0.05);
+              else if (fps > 58 && r < 0.9) r = Math.min(0.9, r + 0.03);
+              if (Math.abs(r - (v.resolutionScale || 0.85)) > 0.001) {
+                v.resolutionScale = r;
+                try { v.scene.requestRender && v.scene.requestRender(); } catch (e) {}
+              }
             }
           }
         } catch (e) {}
@@ -188,6 +203,7 @@ import { mountChip } from './lc/gpu.js';
 
   function boot(viewer) {
     st.viewer = viewer;
+    st.bootAt = performance.now();
     buildUi();
     // FPS 计数：st.frames 过去从未自增（徽标恒 0）。用 requestAnimationFrame
     // 度量浏览器实际帧节奏——requestRenderMode 空闲不渲染时它仍反映真实流畅度。

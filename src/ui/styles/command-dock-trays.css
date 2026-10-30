@@ -372,6 +372,13 @@
   z-index: 8;
   width: clamp(19rem, 29vw, 24rem);
   padding: 0.85rem 0.9rem;
+  /* 常态 display:none —— 与 .gev-voice-help-tray 同一个坑（见 command-dock-sliding.css
+     §help-tray）：只用 visibility:hidden 时，这块 378px 宽、居中定位的 error tray
+     仍然计入 #gev-voice-control 的可滚动溢出区，把 140px 卡的 scrollWidth 从 140
+     撑到 259（audit P0-4 的 259/140 就出在这里）。显示态由下方 data-status='error'
+     规则切回 display:block，配合 transition 的 allow-discrete + @starting-style
+     保留原有淡入。 */
+  display: none;
   visibility: hidden;
   opacity: 0;
   color: rgba(255, 220, 224, 0.92);
@@ -389,16 +396,27 @@
   transition:
     opacity 180ms ease,
     visibility 180ms ease,
+    display 180ms allow-discrete,
     transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 #command-dock
   #gev-voice-control[data-status='error']:not(.error-dismissed)
   .gev-voice-error-tray {
+  display: block;
   visibility: visible;
   opacity: 1;
   pointer-events: auto;
   transform: translate(-50%, 0) scale(1);
+}
+
+@starting-style {
+  #command-dock
+    #gev-voice-control[data-status='error']:not(.error-dismissed)
+    .gev-voice-error-tray {
+    opacity: 0;
+    transform: translate(-50%, 0.55rem) scale(0.985);
+  }
 }
 
 #command-dock .gev-voice-error-header {

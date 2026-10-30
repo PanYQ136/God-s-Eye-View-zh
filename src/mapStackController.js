@@ -29,4 +29,21 @@ export class MapStackController extends MapSourceController {
       Boolean(String(this.cesiumToken || '').trim())
     );
   }
+
+  /**
+   * Phase7A · base-first：3D Tiles 在底图之后才解析完成，注册表构造时还拿不到。
+   * 把迟到的 tileset 登记到 photoreal 源上（可用性同步打开），随后的
+   * setStack('photoreal') 就能走正常切换路径（隐藏 globe / 移除 imagery / credit）。
+   * 返回 false 表示老版本没有 photoreal 源，调用方自行 add + 隐藏 globe 兜底。
+   */
+  adoptPhotorealTileset(tileset) {
+    if (!tileset) return false;
+    this.googleTileset = tileset;
+    const source = this._sources && this._sources.get('photoreal');
+    if (!source) return false;
+    source.tileset = tileset;
+    source.available = true;
+    source.unavailableReason = null;
+    return true;
+  }
 }

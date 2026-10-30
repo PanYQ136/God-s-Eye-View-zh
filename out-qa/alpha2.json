@@ -1,0 +1,510 @@
+{
+ "probe": "qa-lg-alpha-glassonly",
+ "method": "玻璃画布提到最顶层 + 页面透明 + omitBackground → 截图 alpha 即玻璃像素 alpha",
+ "default": {
+  "tag": "default(0.90/0.75)",
+  "rows": [
+   {
+    "id": "data-panel",
+    "variant": "regular",
+    "interiorUniform": 0.9,
+    "inner": {
+     "p10": 239,
+     "p50": 239,
+     "p90": 239,
+     "max": 239,
+     "n": 1104
+    },
+    "edgeIn2": {
+     "p10": 239,
+     "p50": 239,
+     "p90": 239,
+     "max": 239,
+     "n": 184
+    }
+   },
+   {
+    "id": "scene-panel",
+    "variant": "regular",
+    "interiorUniform": 0.9,
+    "inner": {
+     "p10": 239,
+     "p50": 239,
+     "p90": 239,
+     "max": 239,
+     "n": 1104
+    },
+    "edgeIn2": {
+     "p10": 239,
+     "p50": 239,
+     "p90": 239,
+     "max": 239,
+     "n": 184
+    }
+   },
+   {
+    "id": "pp-toggles",
+    "variant": "regular",
+    "interiorUniform": 0.9,
+    "inner": {
+     "p10": 235,
+     "p50": 235,
+     "p90": 235,
+     "max": 235,
+     "n": 1104
+    },
+    "edgeIn2": {
+     "p10": 235,
+     "p50": 235,
+     "p90": 235,
+     "max": 235,
+     "n": 184
+    }
+   },
+   {
+    "id": "cctv-panel",
+    "variant": "regular",
+    "interiorUniform": 0.9,
+    "inner": {
+     "p10": 239,
+     "p50": 241,
+     "p90": 246,
+     "max": 247,
+     "n": 1104
+    },
+    "edgeIn2": {
+     "p10": 239,
+     "p50": 239,
+     "p90": 239,
+     "max": 239,
+     "n": 184
+    }
+   },
+   {
+    "id": "global-context-panel",
+    "variant": "regular",
+    "interiorUniform": 0.9,
+    "inner": {
+     "p10": 239,
+     "p50": 239,
+     "p90": 239,
+     "max": 239,
+     "n": 1104
+    },
+    "edgeIn2": {
+     "p10": 239,
+     "p50": 239,
+     "p90": 239,
+     "max": 239,
+     "n": 184
+    }
+   },
+   {
+    "id": "location-bar",
+    "variant": "regular",
+    "interiorUniform": 0.9,
+    "inner": {
+     "p10": 239,
+     "p50": 241,
+     "p90": 247,
+     "max": 248,
+     "n": 1056
+    },
+    "edgeIn2": {
+     "p10": 239,
+     "p50": 239,
+     "p90": 239,
+     "max": 239,
+     "n": 176
+    }
+   },
+   {
+    "id": "control-panel",
+    "variant": "regular",
+    "interiorUniform": 0.9,
+    "inner": {
+     "p10": 239,
+     "p50": 239,
+     "p90": 239,
+     "max": 239,
+     "n": 1056
+    },
+    "edgeIn2": {
+     "p10": 239,
+     "p50": 239,
+     "p90": 239,
+     "max": 239,
+     "n": 176
+    }
+   },
+   {
+    "id": "gev-voice-control",
+    "variant": "regular",
+    "interiorUniform": 0.9,
+    "inner": {
+     "p10": 241,
+     "p50": 247,
+     "p90": 247,
+     "max": 248,
+     "n": 864
+    },
+    "edgeIn2": {
+     "p10": 241,
+     "p50": 241,
+     "p90": 241,
+     "max": 241,
+     "n": 144
+    }
+   },
+   {
+    "id": "gev-gfx-fab",
+    "variant": "clear",
+    "interiorUniform": 0.75,
+    "inner": {
+     "p10": 205,
+     "p50": 205,
+     "p90": 205,
+     "max": 205,
+     "n": 264
+    },
+    "edgeIn2": {
+     "p10": 205,
+     "p50": 205,
+     "p90": 205,
+     "max": 212,
+     "n": 44
+    }
+   },
+   {
+    "id": "topbar",
+    "variant": "regular",
+    "interiorUniform": 0.9,
+    "inner": {
+     "p10": 235,
+     "p50": 235,
+     "p90": 235,
+     "max": 235,
+     "n": 1320
+    },
+    "edgeIn2": {
+     "p10": 235,
+     "p50": 235,
+     "p90": 235,
+     "max": 236,
+     "n": 220
+    }
+   },
+   {
+    "id": "locate-chip",
+    "variant": "clear",
+    "interiorUniform": 0.75,
+    "inner": {
+     "p10": 237,
+     "p50": 237,
+     "p90": 237,
+     "max": 237,
+     "n": 384
+    },
+    "edgeIn2": {
+     "p10": 237,
+     "p50": 237,
+     "p90": 237,
+     "max": 237,
+     "n": 64
+    }
+   },
+   {
+    "id": "perf-chip",
+    "variant": "clear",
+    "interiorUniform": 0.75,
+    "inner": {
+     "p10": 191,
+     "p50": 191,
+     "p90": 191,
+     "max": 191,
+     "n": 912
+    },
+    "edgeIn2": {
+     "p10": 191,
+     "p50": 191,
+     "p90": 191,
+     "max": 192,
+     "n": 152
+    }
+   },
+   {
+    "id": "lang-chip",
+    "variant": "clear",
+    "interiorUniform": 0.75,
+    "inner": {
+     "p10": 237,
+     "p50": 237,
+     "p90": 237,
+     "max": 237,
+     "n": 528
+    },
+    "edgeIn2": {
+     "p10": 237,
+     "p50": 237,
+     "p90": 237,
+     "max": 238,
+     "n": 88
+    }
+   }
+  ]
+ },
+ "lo": {
+  "tag": "lo(0.86/0.70)",
+  "rows": [
+   {
+    "id": "data-panel",
+    "variant": "regular",
+    "interiorUniform": 0.86,
+    "inner": {
+     "p10": 233,
+     "p50": 233,
+     "p90": 233,
+     "max": 233,
+     "n": 1104
+    },
+    "edgeIn2": {
+     "p10": 233,
+     "p50": 233,
+     "p90": 233,
+     "max": 233,
+     "n": 184
+    }
+   },
+   {
+    "id": "scene-panel",
+    "variant": "regular",
+    "interiorUniform": 0.86,
+    "inner": {
+     "p10": 233,
+     "p50": 233,
+     "p90": 233,
+     "max": 233,
+     "n": 1104
+    },
+    "edgeIn2": {
+     "p10": 233,
+     "p50": 233,
+     "p90": 233,
+     "max": 233,
+     "n": 184
+    }
+   },
+   {
+    "id": "pp-toggles",
+    "variant": "regular",
+    "interiorUniform": 0.86,
+    "inner": {
+     "p10": 227,
+     "p50": 227,
+     "p90": 227,
+     "max": 227,
+     "n": 1104
+    },
+    "edgeIn2": {
+     "p10": 227,
+     "p50": 227,
+     "p90": 227,
+     "max": 227,
+     "n": 184
+    }
+   },
+   {
+    "id": "cctv-panel",
+    "variant": "regular",
+    "interiorUniform": 0.86,
+    "inner": {
+     "p10": 233,
+     "p50": 235,
+     "p90": 242,
+     "max": 244,
+     "n": 1104
+    },
+    "edgeIn2": {
+     "p10": 233,
+     "p50": 233,
+     "p90": 233,
+     "max": 233,
+     "n": 184
+    }
+   },
+   {
+    "id": "global-context-panel",
+    "variant": "regular",
+    "interiorUniform": 0.86,
+    "inner": {
+     "p10": 233,
+     "p50": 233,
+     "p90": 233,
+     "max": 233,
+     "n": 1104
+    },
+    "edgeIn2": {
+     "p10": 233,
+     "p50": 233,
+     "p90": 233,
+     "max": 233,
+     "n": 184
+    }
+   },
+   {
+    "id": "location-bar",
+    "variant": "regular",
+    "interiorUniform": 0.86,
+    "inner": {
+     "p10": 233,
+     "p50": 236,
+     "p90": 243,
+     "max": 245,
+     "n": 1056
+    },
+    "edgeIn2": {
+     "p10": 233,
+     "p50": 233,
+     "p90": 233,
+     "max": 233,
+     "n": 176
+    }
+   },
+   {
+    "id": "control-panel",
+    "variant": "regular",
+    "interiorUniform": 0.86,
+    "inner": {
+     "p10": 233,
+     "p50": 233,
+     "p90": 233,
+     "max": 233,
+     "n": 1056
+    },
+    "edgeIn2": {
+     "p10": 233,
+     "p50": 233,
+     "p90": 233,
+     "max": 233,
+     "n": 176
+    }
+   },
+   {
+    "id": "gev-voice-control",
+    "variant": "regular",
+    "interiorUniform": 0.86,
+    "inner": {
+     "p10": 236,
+     "p50": 244,
+     "p90": 244,
+     "max": 246,
+     "n": 864
+    },
+    "edgeIn2": {
+     "p10": 236,
+     "p50": 236,
+     "p90": 236,
+     "max": 236,
+     "n": 144
+    }
+   },
+   {
+    "id": "gev-gfx-fab",
+    "variant": "clear",
+    "interiorUniform": 0.7,
+    "inner": {
+     "p10": 195,
+     "p50": 195,
+     "p90": 195,
+     "max": 195,
+     "n": 264
+    },
+    "edgeIn2": {
+     "p10": 195,
+     "p50": 195,
+     "p90": 195,
+     "max": 203,
+     "n": 44
+    }
+   },
+   {
+    "id": "topbar",
+    "variant": "regular",
+    "interiorUniform": 0.86,
+    "inner": {
+     "p10": 227,
+     "p50": 227,
+     "p90": 227,
+     "max": 227,
+     "n": 1320
+    },
+    "edgeIn2": {
+     "p10": 227,
+     "p50": 227,
+     "p90": 227,
+     "max": 228,
+     "n": 220
+    }
+   },
+   {
+    "id": "locate-chip",
+    "variant": "clear",
+    "interiorUniform": 0.7,
+    "inner": {
+     "p10": 234,
+     "p50": 234,
+     "p90": 234,
+     "max": 234,
+     "n": 384
+    },
+    "edgeIn2": {
+     "p10": 234,
+     "p50": 234,
+     "p90": 234,
+     "max": 234,
+     "n": 64
+    }
+   },
+   {
+    "id": "perf-chip",
+    "variant": "clear",
+    "interiorUniform": 0.7,
+    "inner": {
+     "p10": 178,
+     "p50": 178,
+     "p90": 178,
+     "max": 178,
+     "n": 912
+    },
+    "edgeIn2": {
+     "p10": 178,
+     "p50": 178,
+     "p90": 178,
+     "max": 179,
+     "n": 152
+    }
+   },
+   {
+    "id": "lang-chip",
+    "variant": "clear",
+    "interiorUniform": 0.7,
+    "inner": {
+     "p10": 234,
+     "p50": 234,
+     "p90": 234,
+     "max": 234,
+     "n": 528
+    },
+    "edgeIn2": {
+     "p10": 234,
+     "p50": 234,
+     "p90": 234,
+     "max": 234,
+     "n": 88
+    }
+   }
+  ]
+ },
+ "control_glassHidden_maxAlpha": 255,
+ "consoleErrors": []
+}

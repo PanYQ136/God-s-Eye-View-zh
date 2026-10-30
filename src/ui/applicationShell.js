@@ -231,8 +231,8 @@ export class StyleManager extends ShellFacade {
           this._scheduleRightPanelLayout(...args),
         _setCockpitDisclosure: (...args) => this._setCockpitDisclosure(...args),
         _setMapStack: (...args) => this._setMapStack(...args),
-        _syncPanelCollapseButton: (...args) =>
-          this._syncPanelCollapseButton(...args),
+        _syncPanelDisclosureState: (...args) =>
+          this._syncPanelDisclosureState(...args),
         _syncShareState: (...args) => this._syncShareState(...args),
         setPanelCollapsed: (...args) => this.setPanelCollapsed(...args),
       },
