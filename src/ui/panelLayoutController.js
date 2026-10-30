@@ -27,10 +27,6 @@ const LEFT_STACK_OBSTACLE_SELECTOR = [
   '#cockpit-context',
   '#cesium-credits .cesium-credit-logoContainer',
   '#cesium-credits .cesium-credit-textContainer',
-  '#location-bar',
-  '#control-panel',
-  '#gev-voice-control',
-  '#pp-toggles',
   '#param-slider-panel',
 ].join(', ');
 /**
@@ -58,19 +54,17 @@ const RIGHT_STACK_OBSTACLE_SELECTOR = [
   '#cockpit-signal-stream',
   '#cesium-credits .cesium-credit-logoContainer',
   '#cesium-credits .cesium-credit-textContainer',
-  '#command-dock',
-  '#gev-voice-control',
 ].join(', ');
 export class PanelLayoutController {
   constructor({
     readHud,
     scheduleCockpitLayout,
-    syncPanelCollapseButton,
+    syncPanelDisclosureState,
     readDisplayScrollTop,
   }) {
     this.readHud = readHud;
     this.scheduleCockpitLayout = scheduleCockpitLayout;
-    this._syncPanelCollapseButton = syncPanelCollapseButton;
+    this._syncPanelDisclosureState = syncPanelDisclosureState;
     this.readDisplayScrollTop = readDisplayScrollTop;
     this.destroyed = false;
     this._adaptivePanelSettleTimer = null;
@@ -207,7 +201,7 @@ export class PanelLayoutController {
         panel.style.removeProperty(property);
       panel.classList.remove('panel-draggable', 'panel-dragging');
       stack.insertBefore(panel, globalContextPanel);
-      this._syncPanelCollapseButton(panel);
+      this._syncPanelDisclosureState?.(panel);
     }
     if (this._sliderPanel) {
       this._sliderPanel.style.removeProperty('top');
@@ -294,7 +288,7 @@ export class PanelLayoutController {
           '.layout-auto-collapsed',
         )) {
           panel.classList.remove('collapsed', 'layout-auto-collapsed');
-          this._syncPanelCollapseButton(panel);
+          this._syncPanelDisclosureState?.(panel);
         }
       }
       this._syncRightPanelAdaptiveLayout();
@@ -310,7 +304,7 @@ export class PanelLayoutController {
       windowRef: window,
       hud: this.readHud(),
       preferredPanelId: this._rightStackPreferredPanelId,
-      onCollapse: (panel) => this._syncPanelCollapseButton(panel),
+      onCollapse: (panel) => this._syncPanelDisclosureState?.(panel),
       onRetry: () => this._scheduleRightPanelLayout(),
       leftStack: this._leftPanelStack,
       displayPanel: this._ppToggles,
@@ -429,7 +423,7 @@ export class PanelLayoutController {
           '.layout-auto-collapsed',
         )) {
           panel.classList.remove('collapsed', 'layout-auto-collapsed');
-          this._syncPanelCollapseButton(panel);
+          this._syncPanelDisclosureState?.(panel);
         }
       }
       this._syncLeftPanelAdaptiveLayout();
@@ -444,7 +438,7 @@ export class PanelLayoutController {
       windowRef: window,
       hud: this.readHud(),
       preferredPanelId: this._leftStackPreferredPanelId,
-      onCollapse: (panel) => this._syncPanelCollapseButton(panel),
+      onCollapse: (panel) => this._syncPanelDisclosureState?.(panel),
       onRetry: () => this._scheduleLeftPanelLayout(),
       collapsedHeights: this._leftStackCollapsedHeights,
       onAligned: () => this._scheduleRightPanelLayout(),

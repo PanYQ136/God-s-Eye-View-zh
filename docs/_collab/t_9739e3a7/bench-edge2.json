@@ -1,0 +1,329 @@
+{
+ "0-baseline": {
+  "q": "?gevEdge=0",
+  "collapsed": {
+   "p50": 6.5,
+   "p90": 11.4,
+   "p99": 18.7,
+   "fps50": 153.8,
+   "fps90": 87.7
+  },
+  "expanded": {
+   "p50": 17.5,
+   "p90": 27.7,
+   "p99": 74.9,
+   "fps50": 57.1,
+   "fps90": 36.1
+  },
+  "oneCard": null,
+  "st0": null,
+  "st1": null,
+  "logs": []
+ },
+ "2-pdb": {
+  "q": "?gevEdge=2",
+  "collapsed": {
+   "p50": 11.6,
+   "p90": 19.2,
+   "p99": 26.1,
+   "fps50": 86.2,
+   "fps90": 52.1
+  },
+  "expanded": {
+   "p50": 12.8,
+   "p90": 28.3,
+   "p99": 121.9,
+   "fps50": 78.1,
+   "fps90": 35.3
+  },
+  "oneCard": null,
+  "st0": {
+   "fps": 54.9,
+   "fpsRaw": 0,
+   "p50": 18.2,
+   "p90": 24.2,
+   "frames": 0,
+   "scale": 1,
+   "canvas": [
+    1536,
+    730
+   ],
+   "tex": "cesium-direct",
+   "err": null,
+   "band": 16,
+   "dispPx": 4.2,
+   "lod": 0,
+   "only": null,
+   "cap": 60,
+   "count": 0,
+   "surfaces": [],
+   "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Laptop GPU (0x00002520) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  "st1": {
+   "fps": 41.7,
+   "fpsRaw": 0,
+   "p50": 24,
+   "p90": 52.8,
+   "frames": 0,
+   "scale": 1,
+   "canvas": [
+    1536,
+    730
+   ],
+   "tex": "cesium-direct",
+   "err": null,
+   "band": 16,
+   "dispPx": 4.2,
+   "lod": 0,
+   "only": null,
+   "cap": 60,
+   "count": 0,
+   "surfaces": [],
+   "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Laptop GPU (0x00002520) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  "logs": []
+ },
+ "1-edge": {
+  "q": "?gevEdge=1",
+  "collapsed": {
+   "p50": 10.4,
+   "p90": 17.6,
+   "p99": 24.4,
+   "fps50": 96.2,
+   "fps90": 56.8
+  },
+  "expanded": {
+   "p50": 14.7,
+   "p90": 31.2,
+   "p99": 121.7,
+   "fps50": 68,
+   "fps90": 32.1
+  },
+  "oneCard": {
+   "p50": 9.2,
+   "p90": 16.4,
+   "p99": 54.7,
+   "fps50": 108.7,
+   "fps90": 61
+  },
+  "st0": {
+   "fps": 54.9,
+   "fpsRaw": 0,
+   "p50": 18.2,
+   "p90": 24.3,
+   "frames": 474,
+   "scale": 1,
+   "canvas": [
+    1536,
+    730
+   ],
+   "tex": "cesium-direct",
+   "err": null,
+   "band": 16,
+   "dispPx": 4.2,
+   "lod": 0,
+   "only": null,
+   "cap": 60,
+   "count": 9,
+   "surfaces": [
+    {
+     "id": "data-panel",
+     "rect": [
+      52,
+      94,
+      176,
+      43
+     ],
+     "band": 12.8
+    },
+    {
+     "id": "scene-panel",
+     "rect": [
+      52,
+      145,
+      176,
+      43
+     ],
+     "band": 12.8
+    },
+    {
+     "id": "pp-toggles",
+     "rect": [
+      1308,
+      94,
+      176,
+      50
+     ],
+     "band": 15
+    },
+    {
+     "id": "cctv-panel",
+     "rect": [
+      1308,
+      152,
+      176,
+      50
+     ],
+     "band": 15
+    },
+    {
+     "id": "global-context-panel",
+     "rect": [
+      1308,
+      210,
+      176,
+      50
+     ],
+     "band": 15
+    },
+    {
+     "id": "location-bar",
+     "rect": [
+      530,
+      632,
+      168,
+      86
+     ],
+     "band": 16
+    },
+    {
+     "id": "control-panel",
+     "rect": [
+      838,
+      632,
+      168,
+      86
+     ],
+     "band": 16
+    },
+    {
+     "id": "gev-voice-control",
+     "rect": [
+      698,
+      632,
+      140,
+      86
+     ],
+     "band": 16
+    },
+    {
+     "id": "gev-gfx-fab",
+     "rect": [
+      1482,
+      592,
+      42,
+      42
+     ],
+     "band": 12.6
+    }
+   ],
+   "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Laptop GPU (0x00002520) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  "st1": {
+   "fps": 41.2,
+   "fpsRaw": 0,
+   "p50": 24.3,
+   "p90": 48.8,
+   "frames": 733,
+   "scale": 1,
+   "canvas": [
+    1536,
+    730
+   ],
+   "tex": "cesium-direct",
+   "err": null,
+   "band": 16,
+   "dispPx": 4.2,
+   "lod": 0,
+   "only": null,
+   "cap": 60,
+   "count": 8,
+   "surfaces": [
+    {
+     "id": "data-panel",
+     "rect": [
+      52,
+      94,
+      320,
+      380
+     ],
+     "band": 16
+    },
+    {
+     "id": "pp-toggles",
+     "rect": [
+      1308,
+      94,
+      176,
+      50
+     ],
+     "band": 15
+    },
+    {
+     "id": "cctv-panel",
+     "rect": [
+      1308,
+      152,
+      176,
+      50
+     ],
+     "band": 15
+    },
+    {
+     "id": "global-context-panel",
+     "rect": [
+      1308,
+      210,
+      176,
+      50
+     ],
+     "band": 15
+    },
+    {
+     "id": "location-bar",
+     "rect": [
+      530,
+      632,
+      168,
+      86
+     ],
+     "band": 16
+    },
+    {
+     "id": "control-panel",
+     "rect": [
+      838,
+      632,
+      168,
+      86
+     ],
+     "band": 16
+    },
+    {
+     "id": "gev-voice-control",
+     "rect": [
+      698,
+      632,
+      140,
+      86
+     ],
+     "band": 16
+    },
+    {
+     "id": "gev-gfx-fab",
+     "rect": [
+      1482,
+      592,
+      42,
+      42
+     ],
+     "band": 12.6
+    }
+   ],
+   "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Laptop GPU (0x00002520) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  "logs": [
+   "[gev-edge] on · band=16px · scale=1 · tex=cesium-direct · post=3"
+  ]
+ }
+}

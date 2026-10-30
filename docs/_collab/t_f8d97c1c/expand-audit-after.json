@@ -1,0 +1,4578 @@
+{
+ "viewport": [
+  1536,
+  730
+ ],
+ "at": "2026-10-26T18:54:42.251Z",
+ "single": [
+  {
+   "id": "data-panel",
+   "self": {
+    "id": "data-panel",
+    "x": 52,
+    "y": 94,
+    "w": 320,
+    "h": 380,
+    "buttons": 42,
+    "hitOk": 10,
+    "covered": 0,
+    "cut": 32,
+    "bad": [],
+    "scrollable": true,
+    "scrollH": 2075,
+    "clientH": 380,
+    "overX": 0,
+    "worstX": 0,
+    "btnX": 0,
+    "btnPair": [],
+    "bottomOk": true,
+    "narrowCls": false,
+    "cls": "panel-collapsible active gev-lc gev-lc-floating"
+   },
+   "visible": [
+    "data-panel",
+    "pp-toggles",
+    "cctv-panel",
+    "global-context-panel",
+    "location-bar",
+    "control-panel",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 320,
+     "h": 380,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible active gev-lc gev-lc-floating"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 176,
+     "h": 43,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible collapsed gev-lc gev-lc-hid"
+    },
+    "pp-toggles": {
+     "x": 1308,
+     "y": 94,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible collapsed gev-lc"
+    },
+    "cctv-panel": {
+     "x": 1308,
+     "y": 152,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible collapsed gev-lc"
+    },
+    "global-context-panel": {
+     "x": 1308,
+     "y": 210,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible collapsed gev-lc"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible collapsed gev-lc"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible collapsed gev-lc"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   }
+  },
+  {
+   "id": "scene-panel",
+   "self": {
+    "id": "scene-panel",
+    "x": 52,
+    "y": 145,
+    "w": 320,
+    "h": 340,
+    "buttons": 63,
+    "hitOk": 11,
+    "covered": 0,
+    "cut": 52,
+    "bad": [],
+    "scrollable": true,
+    "scrollH": 514,
+    "clientH": 340,
+    "overX": 0,
+    "worstX": 0,
+    "btnX": 2,
+    "btnPair": [
+     [
+      "加载",
+      "运行日志",
+      758
+     ],
+     [
+      "删除",
+      "运行日志",
+      856
+     ]
+    ],
+    "bottomOk": true,
+    "narrowCls": false,
+    "cls": "panel-collapsible gev-lc gev-lc-floating"
+   },
+   "visible": [
+    "data-panel",
+    "scene-panel",
+    "pp-toggles",
+    "cctv-panel",
+    "global-context-panel",
+    "location-bar",
+    "control-panel",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 176,
+     "h": 43,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible active gev-lc collapsed"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 320,
+     "h": 340,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "pp-toggles": {
+     "x": 1308,
+     "y": 94,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible collapsed gev-lc"
+    },
+    "cctv-panel": {
+     "x": 1308,
+     "y": 152,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible collapsed gev-lc"
+    },
+    "global-context-panel": {
+     "x": 1308,
+     "y": 210,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible collapsed gev-lc"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible collapsed gev-lc"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible collapsed gev-lc"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   }
+  },
+  {
+   "id": "pp-toggles",
+   "self": {
+    "id": "pp-toggles",
+    "x": 1184,
+    "y": 94,
+    "w": 300,
+    "h": 430,
+    "buttons": 15,
+    "hitOk": 15,
+    "covered": 0,
+    "cut": 0,
+    "bad": [],
+    "scrollable": false,
+    "scrollH": 430,
+    "clientH": 430,
+    "overX": 0,
+    "worstX": 0,
+    "btnX": 8,
+    "btnPair": [
+     [
+      "◎\n      ",
+      "▣\n      ",
+      2648
+     ],
+     [
+      "加权",
+      "✈\n      ",
+      1698
+     ],
+     [
+      "✈\n      ",
+      "adjust\n ",
+      2648
+     ],
+     [
+      "adjust\n ",
+      "draw\n   ",
+      2648
+     ]
+    ],
+    "bottomOk": null,
+    "narrowCls": false,
+    "cls": "panel-collapsible gev-lc gev-lc-floating"
+   },
+   "visible": [
+    "data-panel",
+    "scene-panel",
+    "pp-toggles",
+    "location-bar",
+    "control-panel",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 176,
+     "h": 43,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible active gev-lc collapsed"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 176,
+     "h": 43,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "pp-toggles": {
+     "x": 1184,
+     "y": 94,
+     "w": 300,
+     "h": 430,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "cctv-panel": {
+     "x": 1308,
+     "y": 152,
+     "w": 176,
+     "h": 50,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible collapsed gev-lc gev-lc-hid"
+    },
+    "global-context-panel": {
+     "x": 1308,
+     "y": 210,
+     "w": 176,
+     "h": 50,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible collapsed gev-lc gev-lc-hid"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible collapsed gev-lc"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible collapsed gev-lc"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   }
+  },
+  {
+   "id": "cctv-panel",
+   "self": {
+    "id": "cctv-panel",
+    "x": 1144,
+    "y": 152,
+    "w": 340,
+    "h": 412,
+    "buttons": 19,
+    "hitOk": 8,
+    "covered": 0,
+    "cut": 11,
+    "bad": [],
+    "scrollable": true,
+    "scrollH": 673,
+    "clientH": 412,
+    "overX": 0,
+    "worstX": 0,
+    "btnX": 0,
+    "btnPair": [],
+    "bottomOk": true,
+    "narrowCls": false,
+    "cls": "panel-collapsible gev-lc gev-lc-floating"
+   },
+   "visible": [
+    "data-panel",
+    "scene-panel",
+    "pp-toggles",
+    "cctv-panel",
+    "location-bar",
+    "control-panel",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 176,
+     "h": 43,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible active gev-lc collapsed"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 176,
+     "h": 43,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "pp-toggles": {
+     "x": 1308,
+     "y": 94,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "cctv-panel": {
+     "x": 1144,
+     "y": 152,
+     "w": 340,
+     "h": 412,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "global-context-panel": {
+     "x": 1308,
+     "y": 210,
+     "w": 176,
+     "h": 50,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible collapsed gev-lc gev-lc-hid"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible collapsed gev-lc"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible collapsed gev-lc"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   }
+  },
+  {
+   "id": "global-context-panel",
+   "self": {
+    "id": "global-context-panel",
+    "x": 1164,
+    "y": 210,
+    "w": 320,
+    "h": 354,
+    "buttons": 3,
+    "hitOk": 3,
+    "covered": 0,
+    "cut": 0,
+    "bad": [],
+    "scrollable": true,
+    "scrollH": 374,
+    "clientH": 354,
+    "overX": 0,
+    "worstX": 0,
+    "btnX": 0,
+    "btnPair": [],
+    "bottomOk": true,
+    "narrowCls": false,
+    "cls": "panel-collapsible gev-lc gev-lc-floating"
+   },
+   "visible": [
+    "data-panel",
+    "scene-panel",
+    "pp-toggles",
+    "cctv-panel",
+    "global-context-panel",
+    "location-bar",
+    "control-panel",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 176,
+     "h": 43,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible active gev-lc collapsed"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 176,
+     "h": 43,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "pp-toggles": {
+     "x": 1308,
+     "y": 94,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "cctv-panel": {
+     "x": 1308,
+     "y": 152,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "global-context-panel": {
+     "x": 1164,
+     "y": 210,
+     "w": 320,
+     "h": 354,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible collapsed gev-lc"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible collapsed gev-lc"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   }
+  },
+  {
+   "id": "location-bar",
+   "self": {
+    "id": "location-bar",
+    "x": 530,
+    "y": 478,
+    "w": 380,
+    "h": 240,
+    "buttons": 11,
+    "hitOk": 6,
+    "covered": 0,
+    "cut": 5,
+    "bad": [],
+    "scrollable": true,
+    "scrollH": 260,
+    "clientH": 240,
+    "overX": 5,
+    "worstX": 378,
+    "btnX": 1,
+    "btnPair": [
+     [
+      "Tokyo",
+      "🔎",
+      786
+     ]
+    ],
+    "bottomOk": true,
+    "narrowCls": false,
+    "cls": "panel-collapsible gev-lc gev-lc-floating"
+   },
+   "visible": [
+    "data-panel",
+    "scene-panel",
+    "pp-toggles",
+    "cctv-panel",
+    "global-context-panel",
+    "location-bar",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 176,
+     "h": 43,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible active gev-lc collapsed"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 176,
+     "h": 43,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "pp-toggles": {
+     "x": 1308,
+     "y": 94,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "cctv-panel": {
+     "x": 1308,
+     "y": 152,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "global-context-panel": {
+     "x": 1308,
+     "y": 210,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 478,
+     "w": 380,
+     "h": 240,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible collapsed gev-lc gev-lc-hid"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   }
+  },
+  {
+   "id": "control-panel",
+   "self": {
+    "id": "control-panel",
+    "x": 838,
+    "y": 338,
+    "w": 465,
+    "h": 380,
+    "buttons": 20,
+    "hitOk": 14,
+    "covered": 0,
+    "cut": 6,
+    "bad": [],
+    "scrollable": true,
+    "scrollH": 410,
+    "clientH": 380,
+    "overX": 26,
+    "worstX": 447,
+    "btnX": 0,
+    "btnPair": [],
+    "bottomOk": true,
+    "narrowCls": false,
+    "cls": "panel-collapsible gev-lc gev-lc-floating"
+   },
+   "visible": [
+    "data-panel",
+    "scene-panel",
+    "pp-toggles",
+    "cctv-panel",
+    "global-context-panel",
+    "location-bar",
+    "control-panel",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 176,
+     "h": 43,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible active gev-lc collapsed"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 176,
+     "h": 43,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "pp-toggles": {
+     "x": 1308,
+     "y": 94,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "cctv-panel": {
+     "x": 1308,
+     "y": 152,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "global-context-panel": {
+     "x": 1308,
+     "y": 210,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 338,
+     "w": 465,
+     "h": 380,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   }
+  }
+ ],
+ "combos": [
+  {
+   "combo": [
+    "data-panel",
+    "pp-toggles",
+    "location-bar"
+   ],
+   "order": "fwd",
+   "visible": [
+    "data-panel",
+    "pp-toggles",
+    "location-bar",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 320,
+     "h": 380,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible active gev-lc gev-lc-floating"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 176,
+     "h": 43,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "pp-toggles": {
+     "x": 1184,
+     "y": 94,
+     "w": 300,
+     "h": 430,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "cctv-panel": {
+     "x": 1308,
+     "y": 152,
+     "w": 176,
+     "h": 50,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "global-context-panel": {
+     "x": 1308,
+     "y": 210,
+     "w": 176,
+     "h": 50,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 478,
+     "w": 380,
+     "h": 240,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   },
+   "detail": {
+    "data-panel": {
+     "id": "data-panel",
+     "x": 52,
+     "y": 94,
+     "w": 320,
+     "h": 380,
+     "buttons": 42,
+     "hitOk": 10,
+     "covered": 0,
+     "cut": 32,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 2075,
+     "clientH": 380,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible active gev-lc gev-lc-floating"
+    },
+    "pp-toggles": {
+     "id": "pp-toggles",
+     "x": 1184,
+     "y": 94,
+     "w": 300,
+     "h": 430,
+     "buttons": 15,
+     "hitOk": 15,
+     "covered": 0,
+     "cut": 0,
+     "bad": [],
+     "scrollable": false,
+     "scrollH": 430,
+     "clientH": 430,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 8,
+     "btnPair": [
+      [
+       "◎\n      ",
+       "▣\n      ",
+       2648
+      ],
+      [
+       "加权",
+       "✈\n      ",
+       1698
+      ],
+      [
+       "✈\n      ",
+       "adjust\n ",
+       2648
+      ],
+      [
+       "adjust\n ",
+       "draw\n   ",
+       2648
+      ]
+     ],
+     "bottomOk": null,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "location-bar": {
+     "id": "location-bar",
+     "x": 530,
+     "y": 478,
+     "w": 380,
+     "h": 240,
+     "buttons": 11,
+     "hitOk": 6,
+     "covered": 0,
+     "cut": 5,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 260,
+     "clientH": 240,
+     "overX": 5,
+     "worstX": 378,
+     "btnX": 1,
+     "btnPair": [
+      [
+       "Tokyo",
+       "🔎",
+       786
+      ]
+     ],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    }
+   },
+   "shot": null
+  },
+  {
+   "combo": [
+    "data-panel",
+    "pp-toggles",
+    "control-panel"
+   ],
+   "order": "fwd",
+   "visible": [
+    "data-panel",
+    "pp-toggles",
+    "location-bar",
+    "control-panel",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 320,
+     "h": 380,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible active gev-lc gev-lc-floating"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 176,
+     "h": 43,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "pp-toggles": {
+     "x": 1184,
+     "y": 94,
+     "w": 300,
+     "h": 430,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "cctv-panel": {
+     "x": 1308,
+     "y": 152,
+     "w": 176,
+     "h": 50,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "global-context-panel": {
+     "x": 1308,
+     "y": 210,
+     "w": 176,
+     "h": 50,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 338,
+     "w": 338,
+     "h": 380,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating gev-lc-narrow"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   },
+   "detail": {
+    "data-panel": {
+     "id": "data-panel",
+     "x": 52,
+     "y": 94,
+     "w": 320,
+     "h": 380,
+     "buttons": 42,
+     "hitOk": 10,
+     "covered": 0,
+     "cut": 32,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 2075,
+     "clientH": 380,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible active gev-lc gev-lc-floating"
+    },
+    "pp-toggles": {
+     "id": "pp-toggles",
+     "x": 1184,
+     "y": 94,
+     "w": 300,
+     "h": 430,
+     "buttons": 15,
+     "hitOk": 15,
+     "covered": 0,
+     "cut": 0,
+     "bad": [],
+     "scrollable": false,
+     "scrollH": 430,
+     "clientH": 430,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 8,
+     "btnPair": [
+      [
+       "◎\n      ",
+       "▣\n      ",
+       2648
+      ],
+      [
+       "加权",
+       "✈\n      ",
+       1698
+      ],
+      [
+       "✈\n      ",
+       "adjust\n ",
+       2648
+      ],
+      [
+       "adjust\n ",
+       "draw\n   ",
+       2648
+      ]
+     ],
+     "bottomOk": null,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "control-panel": {
+     "id": "control-panel",
+     "x": 838,
+     "y": 338,
+     "w": 338,
+     "h": 380,
+     "buttons": 20,
+     "hitOk": 12,
+     "covered": 0,
+     "cut": 8,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 410,
+     "clientH": 380,
+     "overX": 31,
+     "worstX": 574,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": true,
+     "cls": "panel-collapsible gev-lc gev-lc-floating gev-lc-narrow"
+    }
+   },
+   "shot": "docs\\_collab\\t_f8d97c1c\\combo-pp-toggles+control.png"
+  },
+  {
+   "combo": [
+    "data-panel",
+    "cctv-panel",
+    "location-bar"
+   ],
+   "order": "fwd",
+   "visible": [
+    "data-panel",
+    "pp-toggles",
+    "cctv-panel",
+    "location-bar",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 320,
+     "h": 380,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible active gev-lc gev-lc-floating"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 176,
+     "h": 43,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "pp-toggles": {
+     "x": 1308,
+     "y": 94,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "cctv-panel": {
+     "x": 1144,
+     "y": 152,
+     "w": 340,
+     "h": 412,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "global-context-panel": {
+     "x": 1308,
+     "y": 210,
+     "w": 176,
+     "h": 50,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 478,
+     "w": 380,
+     "h": 240,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   },
+   "detail": {
+    "data-panel": {
+     "id": "data-panel",
+     "x": 52,
+     "y": 94,
+     "w": 320,
+     "h": 380,
+     "buttons": 42,
+     "hitOk": 10,
+     "covered": 0,
+     "cut": 32,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 2075,
+     "clientH": 380,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible active gev-lc gev-lc-floating"
+    },
+    "cctv-panel": {
+     "id": "cctv-panel",
+     "x": 1144,
+     "y": 152,
+     "w": 340,
+     "h": 412,
+     "buttons": 19,
+     "hitOk": 8,
+     "covered": 0,
+     "cut": 11,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 673,
+     "clientH": 412,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "location-bar": {
+     "id": "location-bar",
+     "x": 530,
+     "y": 478,
+     "w": 380,
+     "h": 240,
+     "buttons": 11,
+     "hitOk": 6,
+     "covered": 0,
+     "cut": 5,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 260,
+     "clientH": 240,
+     "overX": 5,
+     "worstX": 378,
+     "btnX": 1,
+     "btnPair": [
+      [
+       "Tokyo",
+       "🔎",
+       786
+      ]
+     ],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    }
+   },
+   "shot": null
+  },
+  {
+   "combo": [
+    "data-panel",
+    "cctv-panel",
+    "control-panel"
+   ],
+   "order": "fwd",
+   "visible": [
+    "data-panel",
+    "pp-toggles",
+    "cctv-panel",
+    "location-bar",
+    "control-panel",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 320,
+     "h": 380,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible active gev-lc gev-lc-floating"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 176,
+     "h": 43,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "pp-toggles": {
+     "x": 1308,
+     "y": 94,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "cctv-panel": {
+     "x": 1144,
+     "y": 152,
+     "w": 340,
+     "h": 412,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "global-context-panel": {
+     "x": 1308,
+     "y": 210,
+     "w": 176,
+     "h": 50,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 338,
+     "w": 298,
+     "h": 380,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating gev-lc-narrow"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   },
+   "detail": {
+    "data-panel": {
+     "id": "data-panel",
+     "x": 52,
+     "y": 94,
+     "w": 320,
+     "h": 380,
+     "buttons": 42,
+     "hitOk": 10,
+     "covered": 0,
+     "cut": 32,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 2075,
+     "clientH": 380,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible active gev-lc gev-lc-floating"
+    },
+    "cctv-panel": {
+     "id": "cctv-panel",
+     "x": 1144,
+     "y": 152,
+     "w": 340,
+     "h": 412,
+     "buttons": 19,
+     "hitOk": 8,
+     "covered": 0,
+     "cut": 11,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 673,
+     "clientH": 412,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "control-panel": {
+     "id": "control-panel",
+     "x": 838,
+     "y": 338,
+     "w": 298,
+     "h": 380,
+     "buttons": 20,
+     "hitOk": 11,
+     "covered": 0,
+     "cut": 9,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 410,
+     "clientH": 380,
+     "overX": 34,
+     "worstX": 614,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": true,
+     "cls": "panel-collapsible gev-lc gev-lc-floating gev-lc-narrow"
+    }
+   },
+   "shot": "docs\\_collab\\t_f8d97c1c\\combo-cctv-panel+control.png"
+  },
+  {
+   "combo": [
+    "data-panel",
+    "global-context-panel",
+    "location-bar"
+   ],
+   "order": "fwd",
+   "visible": [
+    "data-panel",
+    "pp-toggles",
+    "cctv-panel",
+    "global-context-panel",
+    "location-bar",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 320,
+     "h": 380,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible active gev-lc gev-lc-floating"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 176,
+     "h": 43,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "pp-toggles": {
+     "x": 1308,
+     "y": 94,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "cctv-panel": {
+     "x": 1308,
+     "y": 152,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "global-context-panel": {
+     "x": 1164,
+     "y": 210,
+     "w": 320,
+     "h": 354,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 478,
+     "w": 380,
+     "h": 240,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   },
+   "detail": {
+    "data-panel": {
+     "id": "data-panel",
+     "x": 52,
+     "y": 94,
+     "w": 320,
+     "h": 380,
+     "buttons": 42,
+     "hitOk": 10,
+     "covered": 0,
+     "cut": 32,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 2075,
+     "clientH": 380,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible active gev-lc gev-lc-floating"
+    },
+    "global-context-panel": {
+     "id": "global-context-panel",
+     "x": 1164,
+     "y": 210,
+     "w": 320,
+     "h": 354,
+     "buttons": 3,
+     "hitOk": 3,
+     "covered": 0,
+     "cut": 0,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 374,
+     "clientH": 354,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "location-bar": {
+     "id": "location-bar",
+     "x": 530,
+     "y": 478,
+     "w": 380,
+     "h": 240,
+     "buttons": 11,
+     "hitOk": 6,
+     "covered": 0,
+     "cut": 5,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 260,
+     "clientH": 240,
+     "overX": 5,
+     "worstX": 378,
+     "btnX": 1,
+     "btnPair": [
+      [
+       "Tokyo",
+       "🔎",
+       786
+      ]
+     ],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    }
+   },
+   "shot": null
+  },
+  {
+   "combo": [
+    "data-panel",
+    "global-context-panel",
+    "control-panel"
+   ],
+   "order": "fwd",
+   "visible": [
+    "data-panel",
+    "pp-toggles",
+    "cctv-panel",
+    "global-context-panel",
+    "location-bar",
+    "control-panel",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 320,
+     "h": 380,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible active gev-lc gev-lc-floating"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 176,
+     "h": 43,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "pp-toggles": {
+     "x": 1308,
+     "y": 94,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "cctv-panel": {
+     "x": 1308,
+     "y": 152,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "global-context-panel": {
+     "x": 1164,
+     "y": 210,
+     "w": 320,
+     "h": 354,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 338,
+     "w": 318,
+     "h": 380,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating gev-lc-narrow"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   },
+   "detail": {
+    "data-panel": {
+     "id": "data-panel",
+     "x": 52,
+     "y": 94,
+     "w": 320,
+     "h": 380,
+     "buttons": 42,
+     "hitOk": 10,
+     "covered": 0,
+     "cut": 32,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 2075,
+     "clientH": 380,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible active gev-lc gev-lc-floating"
+    },
+    "global-context-panel": {
+     "id": "global-context-panel",
+     "x": 1164,
+     "y": 210,
+     "w": 320,
+     "h": 354,
+     "buttons": 3,
+     "hitOk": 3,
+     "covered": 0,
+     "cut": 0,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 374,
+     "clientH": 354,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "control-panel": {
+     "id": "control-panel",
+     "x": 838,
+     "y": 338,
+     "w": 318,
+     "h": 380,
+     "buttons": 20,
+     "hitOk": 12,
+     "covered": 0,
+     "cut": 8,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 410,
+     "clientH": 380,
+     "overX": 34,
+     "worstX": 594,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": true,
+     "cls": "panel-collapsible gev-lc gev-lc-floating gev-lc-narrow"
+    }
+   },
+   "shot": "docs\\_collab\\t_f8d97c1c\\combo-global-context-panel+control.png"
+  },
+  {
+   "combo": [
+    "scene-panel",
+    "pp-toggles",
+    "location-bar"
+   ],
+   "order": "fwd",
+   "visible": [
+    "data-panel",
+    "scene-panel",
+    "pp-toggles",
+    "location-bar",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 176,
+     "h": 43,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible active gev-lc collapsed"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 320,
+     "h": 340,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "pp-toggles": {
+     "x": 1184,
+     "y": 94,
+     "w": 300,
+     "h": 430,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "cctv-panel": {
+     "x": 1308,
+     "y": 152,
+     "w": 176,
+     "h": 50,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "global-context-panel": {
+     "x": 1308,
+     "y": 210,
+     "w": 176,
+     "h": 50,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 478,
+     "w": 380,
+     "h": 240,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   },
+   "detail": {
+    "scene-panel": {
+     "id": "scene-panel",
+     "x": 52,
+     "y": 145,
+     "w": 320,
+     "h": 340,
+     "buttons": 63,
+     "hitOk": 11,
+     "covered": 0,
+     "cut": 52,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 514,
+     "clientH": 340,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 2,
+     "btnPair": [
+      [
+       "加载",
+       "运行日志",
+       758
+      ],
+      [
+       "删除",
+       "运行日志",
+       856
+      ]
+     ],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "pp-toggles": {
+     "id": "pp-toggles",
+     "x": 1184,
+     "y": 94,
+     "w": 300,
+     "h": 430,
+     "buttons": 15,
+     "hitOk": 15,
+     "covered": 0,
+     "cut": 0,
+     "bad": [],
+     "scrollable": false,
+     "scrollH": 430,
+     "clientH": 430,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 8,
+     "btnPair": [
+      [
+       "◎\n      ",
+       "▣\n      ",
+       2648
+      ],
+      [
+       "加权",
+       "✈\n      ",
+       1698
+      ],
+      [
+       "✈\n      ",
+       "adjust\n ",
+       2648
+      ],
+      [
+       "adjust\n ",
+       "draw\n   ",
+       2648
+      ]
+     ],
+     "bottomOk": null,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "location-bar": {
+     "id": "location-bar",
+     "x": 530,
+     "y": 478,
+     "w": 380,
+     "h": 240,
+     "buttons": 11,
+     "hitOk": 6,
+     "covered": 0,
+     "cut": 5,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 260,
+     "clientH": 240,
+     "overX": 5,
+     "worstX": 378,
+     "btnX": 1,
+     "btnPair": [
+      [
+       "Tokyo",
+       "🔎",
+       786
+      ]
+     ],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    }
+   },
+   "shot": null
+  },
+  {
+   "combo": [
+    "scene-panel",
+    "pp-toggles",
+    "control-panel"
+   ],
+   "order": "fwd",
+   "visible": [
+    "data-panel",
+    "scene-panel",
+    "pp-toggles",
+    "location-bar",
+    "control-panel",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 176,
+     "h": 43,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible active gev-lc collapsed"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 320,
+     "h": 340,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "pp-toggles": {
+     "x": 1184,
+     "y": 94,
+     "w": 300,
+     "h": 430,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "cctv-panel": {
+     "x": 1308,
+     "y": 152,
+     "w": 176,
+     "h": 50,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "global-context-panel": {
+     "x": 1308,
+     "y": 210,
+     "w": 176,
+     "h": 50,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 338,
+     "w": 338,
+     "h": 380,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating gev-lc-narrow"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   },
+   "detail": {
+    "scene-panel": {
+     "id": "scene-panel",
+     "x": 52,
+     "y": 145,
+     "w": 320,
+     "h": 340,
+     "buttons": 63,
+     "hitOk": 11,
+     "covered": 0,
+     "cut": 52,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 514,
+     "clientH": 340,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 2,
+     "btnPair": [
+      [
+       "加载",
+       "运行日志",
+       758
+      ],
+      [
+       "删除",
+       "运行日志",
+       856
+      ]
+     ],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "pp-toggles": {
+     "id": "pp-toggles",
+     "x": 1184,
+     "y": 94,
+     "w": 300,
+     "h": 430,
+     "buttons": 15,
+     "hitOk": 15,
+     "covered": 0,
+     "cut": 0,
+     "bad": [],
+     "scrollable": false,
+     "scrollH": 430,
+     "clientH": 430,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 8,
+     "btnPair": [
+      [
+       "◎\n      ",
+       "▣\n      ",
+       2648
+      ],
+      [
+       "加权",
+       "✈\n      ",
+       1698
+      ],
+      [
+       "✈\n      ",
+       "adjust\n ",
+       2648
+      ],
+      [
+       "adjust\n ",
+       "draw\n   ",
+       2648
+      ]
+     ],
+     "bottomOk": null,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "control-panel": {
+     "id": "control-panel",
+     "x": 838,
+     "y": 338,
+     "w": 338,
+     "h": 380,
+     "buttons": 20,
+     "hitOk": 12,
+     "covered": 0,
+     "cut": 8,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 410,
+     "clientH": 380,
+     "overX": 31,
+     "worstX": 574,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": true,
+     "cls": "panel-collapsible gev-lc gev-lc-floating gev-lc-narrow"
+    }
+   },
+   "shot": null
+  },
+  {
+   "combo": [
+    "scene-panel",
+    "cctv-panel",
+    "location-bar"
+   ],
+   "order": "fwd",
+   "visible": [
+    "data-panel",
+    "scene-panel",
+    "pp-toggles",
+    "cctv-panel",
+    "location-bar",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 176,
+     "h": 43,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible active gev-lc collapsed"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 320,
+     "h": 340,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "pp-toggles": {
+     "x": 1308,
+     "y": 94,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "cctv-panel": {
+     "x": 1144,
+     "y": 152,
+     "w": 340,
+     "h": 412,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "global-context-panel": {
+     "x": 1308,
+     "y": 210,
+     "w": 176,
+     "h": 50,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 478,
+     "w": 380,
+     "h": 240,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   },
+   "detail": {
+    "scene-panel": {
+     "id": "scene-panel",
+     "x": 52,
+     "y": 145,
+     "w": 320,
+     "h": 340,
+     "buttons": 63,
+     "hitOk": 11,
+     "covered": 0,
+     "cut": 52,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 514,
+     "clientH": 340,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 2,
+     "btnPair": [
+      [
+       "加载",
+       "运行日志",
+       758
+      ],
+      [
+       "删除",
+       "运行日志",
+       856
+      ]
+     ],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "cctv-panel": {
+     "id": "cctv-panel",
+     "x": 1144,
+     "y": 152,
+     "w": 340,
+     "h": 412,
+     "buttons": 19,
+     "hitOk": 8,
+     "covered": 0,
+     "cut": 11,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 673,
+     "clientH": 412,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "location-bar": {
+     "id": "location-bar",
+     "x": 530,
+     "y": 478,
+     "w": 380,
+     "h": 240,
+     "buttons": 11,
+     "hitOk": 6,
+     "covered": 0,
+     "cut": 5,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 260,
+     "clientH": 240,
+     "overX": 5,
+     "worstX": 378,
+     "btnX": 1,
+     "btnPair": [
+      [
+       "Tokyo",
+       "🔎",
+       786
+      ]
+     ],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    }
+   },
+   "shot": null
+  },
+  {
+   "combo": [
+    "scene-panel",
+    "cctv-panel",
+    "control-panel"
+   ],
+   "order": "fwd",
+   "visible": [
+    "data-panel",
+    "scene-panel",
+    "pp-toggles",
+    "cctv-panel",
+    "location-bar",
+    "control-panel",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 176,
+     "h": 43,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible active gev-lc collapsed"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 320,
+     "h": 340,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "pp-toggles": {
+     "x": 1308,
+     "y": 94,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "cctv-panel": {
+     "x": 1144,
+     "y": 152,
+     "w": 340,
+     "h": 412,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "global-context-panel": {
+     "x": 1308,
+     "y": 210,
+     "w": 176,
+     "h": 50,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 338,
+     "w": 298,
+     "h": 380,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating gev-lc-narrow"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   },
+   "detail": {
+    "scene-panel": {
+     "id": "scene-panel",
+     "x": 52,
+     "y": 145,
+     "w": 320,
+     "h": 340,
+     "buttons": 63,
+     "hitOk": 11,
+     "covered": 0,
+     "cut": 52,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 514,
+     "clientH": 340,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 2,
+     "btnPair": [
+      [
+       "加载",
+       "运行日志",
+       758
+      ],
+      [
+       "删除",
+       "运行日志",
+       856
+      ]
+     ],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "cctv-panel": {
+     "id": "cctv-panel",
+     "x": 1144,
+     "y": 152,
+     "w": 340,
+     "h": 412,
+     "buttons": 19,
+     "hitOk": 8,
+     "covered": 0,
+     "cut": 11,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 673,
+     "clientH": 412,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "control-panel": {
+     "id": "control-panel",
+     "x": 838,
+     "y": 338,
+     "w": 298,
+     "h": 380,
+     "buttons": 20,
+     "hitOk": 11,
+     "covered": 0,
+     "cut": 9,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 410,
+     "clientH": 380,
+     "overX": 34,
+     "worstX": 614,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": true,
+     "cls": "panel-collapsible gev-lc gev-lc-floating gev-lc-narrow"
+    }
+   },
+   "shot": null
+  },
+  {
+   "combo": [
+    "scene-panel",
+    "global-context-panel",
+    "location-bar"
+   ],
+   "order": "fwd",
+   "visible": [
+    "data-panel",
+    "scene-panel",
+    "pp-toggles",
+    "cctv-panel",
+    "global-context-panel",
+    "location-bar",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 176,
+     "h": 43,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible active gev-lc collapsed"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 320,
+     "h": 340,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "pp-toggles": {
+     "x": 1308,
+     "y": 94,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "cctv-panel": {
+     "x": 1308,
+     "y": 152,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "global-context-panel": {
+     "x": 1164,
+     "y": 210,
+     "w": 320,
+     "h": 354,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 478,
+     "w": 380,
+     "h": 240,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   },
+   "detail": {
+    "scene-panel": {
+     "id": "scene-panel",
+     "x": 52,
+     "y": 145,
+     "w": 320,
+     "h": 340,
+     "buttons": 63,
+     "hitOk": 11,
+     "covered": 0,
+     "cut": 52,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 514,
+     "clientH": 340,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 2,
+     "btnPair": [
+      [
+       "加载",
+       "运行日志",
+       758
+      ],
+      [
+       "删除",
+       "运行日志",
+       856
+      ]
+     ],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "global-context-panel": {
+     "id": "global-context-panel",
+     "x": 1164,
+     "y": 210,
+     "w": 320,
+     "h": 354,
+     "buttons": 3,
+     "hitOk": 3,
+     "covered": 0,
+     "cut": 0,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 374,
+     "clientH": 354,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "location-bar": {
+     "id": "location-bar",
+     "x": 530,
+     "y": 478,
+     "w": 380,
+     "h": 240,
+     "buttons": 11,
+     "hitOk": 6,
+     "covered": 0,
+     "cut": 5,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 260,
+     "clientH": 240,
+     "overX": 5,
+     "worstX": 378,
+     "btnX": 1,
+     "btnPair": [
+      [
+       "Tokyo",
+       "🔎",
+       786
+      ]
+     ],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    }
+   },
+   "shot": null
+  },
+  {
+   "combo": [
+    "scene-panel",
+    "global-context-panel",
+    "control-panel"
+   ],
+   "order": "fwd",
+   "visible": [
+    "data-panel",
+    "scene-panel",
+    "pp-toggles",
+    "cctv-panel",
+    "global-context-panel",
+    "location-bar",
+    "control-panel",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 176,
+     "h": 43,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible active gev-lc collapsed"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 320,
+     "h": 340,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "pp-toggles": {
+     "x": 1308,
+     "y": 94,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "cctv-panel": {
+     "x": 1308,
+     "y": 152,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "global-context-panel": {
+     "x": 1164,
+     "y": 210,
+     "w": 320,
+     "h": 354,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 338,
+     "w": 318,
+     "h": 380,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating gev-lc-narrow"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   },
+   "detail": {
+    "scene-panel": {
+     "id": "scene-panel",
+     "x": 52,
+     "y": 145,
+     "w": 320,
+     "h": 340,
+     "buttons": 63,
+     "hitOk": 11,
+     "covered": 0,
+     "cut": 52,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 514,
+     "clientH": 340,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 2,
+     "btnPair": [
+      [
+       "加载",
+       "运行日志",
+       758
+      ],
+      [
+       "删除",
+       "运行日志",
+       856
+      ]
+     ],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "global-context-panel": {
+     "id": "global-context-panel",
+     "x": 1164,
+     "y": 210,
+     "w": 320,
+     "h": 354,
+     "buttons": 3,
+     "hitOk": 3,
+     "covered": 0,
+     "cut": 0,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 374,
+     "clientH": 354,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "control-panel": {
+     "id": "control-panel",
+     "x": 838,
+     "y": 338,
+     "w": 318,
+     "h": 380,
+     "buttons": 20,
+     "hitOk": 12,
+     "covered": 0,
+     "cut": 8,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 410,
+     "clientH": 380,
+     "overX": 34,
+     "worstX": 594,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": true,
+     "cls": "panel-collapsible gev-lc gev-lc-floating gev-lc-narrow"
+    }
+   },
+   "shot": null
+  },
+  {
+   "combo": [
+    "control-panel",
+    "pp-toggles",
+    "data-panel"
+   ],
+   "order": "rev",
+   "visible": [
+    "data-panel",
+    "pp-toggles",
+    "location-bar",
+    "control-panel",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 320,
+     "h": 380,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible active gev-lc gev-lc-floating"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 176,
+     "h": 43,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "pp-toggles": {
+     "x": 1184,
+     "y": 94,
+     "w": 300,
+     "h": 430,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "cctv-panel": {
+     "x": 1308,
+     "y": 152,
+     "w": 176,
+     "h": 50,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "global-context-panel": {
+     "x": 1308,
+     "y": 210,
+     "w": 176,
+     "h": 50,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 338,
+     "w": 338,
+     "h": 380,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating gev-lc-narrow"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   },
+   "detail": {
+    "control-panel": {
+     "id": "control-panel",
+     "x": 838,
+     "y": 338,
+     "w": 338,
+     "h": 380,
+     "buttons": 20,
+     "hitOk": 12,
+     "covered": 0,
+     "cut": 8,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 410,
+     "clientH": 380,
+     "overX": 31,
+     "worstX": 574,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": true,
+     "cls": "panel-collapsible gev-lc gev-lc-floating gev-lc-narrow"
+    },
+    "pp-toggles": {
+     "id": "pp-toggles",
+     "x": 1184,
+     "y": 94,
+     "w": 300,
+     "h": 430,
+     "buttons": 15,
+     "hitOk": 15,
+     "covered": 0,
+     "cut": 0,
+     "bad": [],
+     "scrollable": false,
+     "scrollH": 430,
+     "clientH": 430,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 8,
+     "btnPair": [
+      [
+       "◎\n      ",
+       "▣\n      ",
+       2648
+      ],
+      [
+       "加权",
+       "✈\n      ",
+       1698
+      ],
+      [
+       "✈\n      ",
+       "adjust\n ",
+       2648
+      ],
+      [
+       "adjust\n ",
+       "draw\n   ",
+       2648
+      ]
+     ],
+     "bottomOk": null,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "data-panel": {
+     "id": "data-panel",
+     "x": 52,
+     "y": 94,
+     "w": 320,
+     "h": 380,
+     "buttons": 42,
+     "hitOk": 10,
+     "covered": 0,
+     "cut": 32,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 2075,
+     "clientH": 380,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible active gev-lc gev-lc-floating"
+    }
+   },
+   "shot": null
+  },
+  {
+   "combo": [
+    "control-panel",
+    "cctv-panel",
+    "data-panel"
+   ],
+   "order": "rev",
+   "visible": [
+    "data-panel",
+    "pp-toggles",
+    "cctv-panel",
+    "location-bar",
+    "control-panel",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 320,
+     "h": 380,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible active gev-lc gev-lc-floating"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 176,
+     "h": 43,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "pp-toggles": {
+     "x": 1308,
+     "y": 94,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "cctv-panel": {
+     "x": 1144,
+     "y": 152,
+     "w": 340,
+     "h": 412,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "global-context-panel": {
+     "x": 1308,
+     "y": 210,
+     "w": 176,
+     "h": 50,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 338,
+     "w": 298,
+     "h": 380,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating gev-lc-narrow"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   },
+   "detail": {
+    "control-panel": {
+     "id": "control-panel",
+     "x": 838,
+     "y": 338,
+     "w": 298,
+     "h": 380,
+     "buttons": 20,
+     "hitOk": 11,
+     "covered": 0,
+     "cut": 9,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 410,
+     "clientH": 380,
+     "overX": 34,
+     "worstX": 614,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": true,
+     "cls": "panel-collapsible gev-lc gev-lc-floating gev-lc-narrow"
+    },
+    "cctv-panel": {
+     "id": "cctv-panel",
+     "x": 1144,
+     "y": 152,
+     "w": 340,
+     "h": 412,
+     "buttons": 19,
+     "hitOk": 8,
+     "covered": 0,
+     "cut": 11,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 673,
+     "clientH": 412,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "data-panel": {
+     "id": "data-panel",
+     "x": 52,
+     "y": 94,
+     "w": 320,
+     "h": 380,
+     "buttons": 42,
+     "hitOk": 10,
+     "covered": 0,
+     "cut": 32,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 2075,
+     "clientH": 380,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible active gev-lc gev-lc-floating"
+    }
+   },
+   "shot": null
+  },
+  {
+   "combo": [
+    "control-panel",
+    "global-context-panel",
+    "data-panel"
+   ],
+   "order": "rev",
+   "visible": [
+    "data-panel",
+    "pp-toggles",
+    "cctv-panel",
+    "global-context-panel",
+    "location-bar",
+    "control-panel",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 320,
+     "h": 380,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible active gev-lc gev-lc-floating"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 176,
+     "h": 43,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "pp-toggles": {
+     "x": 1308,
+     "y": 94,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "cctv-panel": {
+     "x": 1308,
+     "y": 152,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "global-context-panel": {
+     "x": 1164,
+     "y": 210,
+     "w": 320,
+     "h": 354,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 338,
+     "w": 318,
+     "h": 380,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating gev-lc-narrow"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   },
+   "detail": {
+    "control-panel": {
+     "id": "control-panel",
+     "x": 838,
+     "y": 338,
+     "w": 318,
+     "h": 380,
+     "buttons": 20,
+     "hitOk": 12,
+     "covered": 0,
+     "cut": 8,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 410,
+     "clientH": 380,
+     "overX": 34,
+     "worstX": 594,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": true,
+     "cls": "panel-collapsible gev-lc gev-lc-floating gev-lc-narrow"
+    },
+    "global-context-panel": {
+     "id": "global-context-panel",
+     "x": 1164,
+     "y": 210,
+     "w": 320,
+     "h": 354,
+     "buttons": 3,
+     "hitOk": 3,
+     "covered": 0,
+     "cut": 0,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 374,
+     "clientH": 354,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "data-panel": {
+     "id": "data-panel",
+     "x": 52,
+     "y": 94,
+     "w": 320,
+     "h": 380,
+     "buttons": 42,
+     "hitOk": 10,
+     "covered": 0,
+     "cut": 32,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 2075,
+     "clientH": 380,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible active gev-lc gev-lc-floating"
+    }
+   },
+   "shot": null
+  },
+  {
+   "combo": [
+    "control-panel",
+    "pp-toggles",
+    "scene-panel"
+   ],
+   "order": "rev",
+   "visible": [
+    "data-panel",
+    "scene-panel",
+    "pp-toggles",
+    "location-bar",
+    "control-panel",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 176,
+     "h": 43,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible active gev-lc collapsed"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 320,
+     "h": 340,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "pp-toggles": {
+     "x": 1184,
+     "y": 94,
+     "w": 300,
+     "h": 430,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "cctv-panel": {
+     "x": 1308,
+     "y": 152,
+     "w": 176,
+     "h": 50,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "global-context-panel": {
+     "x": 1308,
+     "y": 210,
+     "w": 176,
+     "h": 50,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 338,
+     "w": 338,
+     "h": 380,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating gev-lc-narrow"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   },
+   "detail": {
+    "control-panel": {
+     "id": "control-panel",
+     "x": 838,
+     "y": 338,
+     "w": 338,
+     "h": 380,
+     "buttons": 20,
+     "hitOk": 12,
+     "covered": 0,
+     "cut": 8,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 410,
+     "clientH": 380,
+     "overX": 31,
+     "worstX": 574,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": true,
+     "cls": "panel-collapsible gev-lc gev-lc-floating gev-lc-narrow"
+    },
+    "pp-toggles": {
+     "id": "pp-toggles",
+     "x": 1184,
+     "y": 94,
+     "w": 300,
+     "h": 430,
+     "buttons": 15,
+     "hitOk": 15,
+     "covered": 0,
+     "cut": 0,
+     "bad": [],
+     "scrollable": false,
+     "scrollH": 430,
+     "clientH": 430,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 8,
+     "btnPair": [
+      [
+       "◎\n      ",
+       "▣\n      ",
+       2648
+      ],
+      [
+       "加权",
+       "✈\n      ",
+       1698
+      ],
+      [
+       "✈\n      ",
+       "adjust\n ",
+       2648
+      ],
+      [
+       "adjust\n ",
+       "draw\n   ",
+       2648
+      ]
+     ],
+     "bottomOk": null,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "scene-panel": {
+     "id": "scene-panel",
+     "x": 52,
+     "y": 145,
+     "w": 320,
+     "h": 340,
+     "buttons": 63,
+     "hitOk": 11,
+     "covered": 0,
+     "cut": 52,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 514,
+     "clientH": 340,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 2,
+     "btnPair": [
+      [
+       "加载",
+       "运行日志",
+       758
+      ],
+      [
+       "删除",
+       "运行日志",
+       856
+      ]
+     ],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    }
+   },
+   "shot": null
+  },
+  {
+   "combo": [
+    "control-panel",
+    "cctv-panel",
+    "scene-panel"
+   ],
+   "order": "rev",
+   "visible": [
+    "data-panel",
+    "scene-panel",
+    "pp-toggles",
+    "cctv-panel",
+    "location-bar",
+    "control-panel",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 176,
+     "h": 43,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible active gev-lc collapsed"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 320,
+     "h": 340,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "pp-toggles": {
+     "x": 1308,
+     "y": 94,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "cctv-panel": {
+     "x": 1144,
+     "y": 152,
+     "w": 340,
+     "h": 412,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "global-context-panel": {
+     "x": 1308,
+     "y": 210,
+     "w": 176,
+     "h": 50,
+     "vis": "hidden",
+     "disp": "block",
+     "op": "0",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed gev-lc-hid"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 338,
+     "w": 298,
+     "h": 380,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating gev-lc-narrow"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   },
+   "detail": {
+    "control-panel": {
+     "id": "control-panel",
+     "x": 838,
+     "y": 338,
+     "w": 298,
+     "h": 380,
+     "buttons": 20,
+     "hitOk": 11,
+     "covered": 0,
+     "cut": 9,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 410,
+     "clientH": 380,
+     "overX": 34,
+     "worstX": 614,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": true,
+     "cls": "panel-collapsible gev-lc gev-lc-floating gev-lc-narrow"
+    },
+    "cctv-panel": {
+     "id": "cctv-panel",
+     "x": 1144,
+     "y": 152,
+     "w": 340,
+     "h": 412,
+     "buttons": 19,
+     "hitOk": 8,
+     "covered": 0,
+     "cut": 11,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 673,
+     "clientH": 412,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "scene-panel": {
+     "id": "scene-panel",
+     "x": 52,
+     "y": 145,
+     "w": 320,
+     "h": 340,
+     "buttons": 63,
+     "hitOk": 11,
+     "covered": 0,
+     "cut": 52,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 514,
+     "clientH": 340,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 2,
+     "btnPair": [
+      [
+       "加载",
+       "运行日志",
+       758
+      ],
+      [
+       "删除",
+       "运行日志",
+       856
+      ]
+     ],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    }
+   },
+   "shot": null
+  },
+  {
+   "combo": [
+    "control-panel",
+    "global-context-panel",
+    "scene-panel"
+   ],
+   "order": "rev",
+   "visible": [
+    "data-panel",
+    "scene-panel",
+    "pp-toggles",
+    "cctv-panel",
+    "global-context-panel",
+    "location-bar",
+    "control-panel",
+    "gev-gfx-fab"
+   ],
+   "overlaps": [],
+   "rects": {
+    "data-panel": {
+     "x": 52,
+     "y": 94,
+     "w": 176,
+     "h": 43,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible active gev-lc collapsed"
+    },
+    "scene-panel": {
+     "x": 52,
+     "y": 145,
+     "w": 320,
+     "h": 340,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "pp-toggles": {
+     "x": 1308,
+     "y": 94,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "flex",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "cctv-panel": {
+     "x": 1308,
+     "y": 152,
+     "w": 176,
+     "h": 50,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "global-context-panel": {
+     "x": 1164,
+     "y": 210,
+     "w": 320,
+     "h": 354,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "location-bar": {
+     "x": 530,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": true,
+     "cls": "panel-collapsible gev-lc collapsed"
+    },
+    "control-panel": {
+     "x": 838,
+     "y": 338,
+     "w": 318,
+     "h": 380,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating gev-lc-narrow"
+    },
+    "gev-gfx-fab": {
+     "x": 1482,
+     "y": 592,
+     "w": 42,
+     "h": 42,
+     "vis": "visible",
+     "disp": "block",
+     "op": "1",
+     "collapsed": false,
+     "cls": "gev-lc"
+    }
+   },
+   "detail": {
+    "control-panel": {
+     "id": "control-panel",
+     "x": 838,
+     "y": 338,
+     "w": 318,
+     "h": 380,
+     "buttons": 20,
+     "hitOk": 12,
+     "covered": 0,
+     "cut": 8,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 410,
+     "clientH": 380,
+     "overX": 34,
+     "worstX": 594,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": true,
+     "cls": "panel-collapsible gev-lc gev-lc-floating gev-lc-narrow"
+    },
+    "global-context-panel": {
+     "id": "global-context-panel",
+     "x": 1164,
+     "y": 210,
+     "w": 320,
+     "h": 354,
+     "buttons": 3,
+     "hitOk": 3,
+     "covered": 0,
+     "cut": 0,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 374,
+     "clientH": 354,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 0,
+     "btnPair": [],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    },
+    "scene-panel": {
+     "id": "scene-panel",
+     "x": 52,
+     "y": 145,
+     "w": 320,
+     "h": 340,
+     "buttons": 63,
+     "hitOk": 11,
+     "covered": 0,
+     "cut": 52,
+     "bad": [],
+     "scrollable": true,
+     "scrollH": 514,
+     "clientH": 340,
+     "overX": 0,
+     "worstX": 0,
+     "btnX": 2,
+     "btnPair": [
+      [
+       "加载",
+       "运行日志",
+       758
+      ],
+      [
+       "删除",
+       "运行日志",
+       856
+      ]
+     ],
+     "bottomOk": true,
+     "narrowCls": false,
+     "cls": "panel-collapsible gev-lc gev-lc-floating"
+    }
+   },
+   "shot": null
+  }
+ ],
+ "baseline": {
+  "rects": {
+   "data-panel": {
+    "x": 52,
+    "y": 94,
+    "w": 176,
+    "h": 43,
+    "vis": "visible",
+    "disp": "block",
+    "op": "1",
+    "collapsed": true,
+    "cls": "panel-collapsible collapsed active gev-lc"
+   },
+   "scene-panel": {
+    "x": 52,
+    "y": 145,
+    "w": 176,
+    "h": 43,
+    "vis": "visible",
+    "disp": "block",
+    "op": "1",
+    "collapsed": true,
+    "cls": "panel-collapsible collapsed gev-lc"
+   },
+   "pp-toggles": {
+    "x": 1308,
+    "y": 94,
+    "w": 176,
+    "h": 50,
+    "vis": "visible",
+    "disp": "flex",
+    "op": "1",
+    "collapsed": true,
+    "cls": "panel-collapsible collapsed gev-lc"
+   },
+   "cctv-panel": {
+    "x": 1308,
+    "y": 152,
+    "w": 176,
+    "h": 50,
+    "vis": "visible",
+    "disp": "block",
+    "op": "1",
+    "collapsed": true,
+    "cls": "panel-collapsible collapsed gev-lc"
+   },
+   "global-context-panel": {
+    "x": 1308,
+    "y": 210,
+    "w": 176,
+    "h": 50,
+    "vis": "visible",
+    "disp": "block",
+    "op": "1",
+    "collapsed": true,
+    "cls": "panel-collapsible collapsed gev-lc"
+   },
+   "location-bar": {
+    "x": 530,
+    "y": 632,
+    "w": 168,
+    "h": 86,
+    "vis": "visible",
+    "disp": "block",
+    "op": "1",
+    "collapsed": true,
+    "cls": "panel-collapsible collapsed gev-lc"
+   },
+   "control-panel": {
+    "x": 838,
+    "y": 632,
+    "w": 168,
+    "h": 86,
+    "vis": "visible",
+    "disp": "block",
+    "op": "1",
+    "collapsed": true,
+    "cls": "panel-collapsible collapsed gev-lc"
+   },
+   "gev-gfx-fab": {
+    "x": 1482,
+    "y": 592,
+    "w": 42,
+    "h": 42,
+    "vis": "visible",
+    "disp": "block",
+    "op": "1",
+    "collapsed": false,
+    "cls": "gev-lc"
+   }
+  },
+  "visible": [
+   "data-panel",
+   "scene-panel",
+   "pp-toggles",
+   "cctv-panel",
+   "global-context-panel",
+   "location-bar",
+   "control-panel",
+   "gev-gfx-fab"
+  ],
+  "overlaps": [],
+  "api": true
+ },
+ "after": {
+  "rects": {
+   "data-panel": {
+    "x": 52,
+    "y": 94,
+    "w": 176,
+    "h": 43,
+    "vis": "visible",
+    "disp": "block",
+    "op": "1",
+    "collapsed": true,
+    "cls": "panel-collapsible active gev-lc collapsed"
+   },
+   "scene-panel": {
+    "x": 52,
+    "y": 145,
+    "w": 176,
+    "h": 43,
+    "vis": "visible",
+    "disp": "block",
+    "op": "1",
+    "collapsed": true,
+    "cls": "panel-collapsible gev-lc collapsed"
+   },
+   "pp-toggles": {
+    "x": 1308,
+    "y": 94,
+    "w": 176,
+    "h": 50,
+    "vis": "visible",
+    "disp": "flex",
+    "op": "1",
+    "collapsed": true,
+    "cls": "panel-collapsible gev-lc collapsed"
+   },
+   "cctv-panel": {
+    "x": 1308,
+    "y": 152,
+    "w": 176,
+    "h": 50,
+    "vis": "visible",
+    "disp": "block",
+    "op": "1",
+    "collapsed": true,
+    "cls": "panel-collapsible gev-lc collapsed"
+   },
+   "global-context-panel": {
+    "x": 1308,
+    "y": 210,
+    "w": 176,
+    "h": 50,
+    "vis": "visible",
+    "disp": "block",
+    "op": "1",
+    "collapsed": true,
+    "cls": "panel-collapsible gev-lc collapsed"
+   },
+   "location-bar": {
+    "x": 530,
+    "y": 632,
+    "w": 168,
+    "h": 86,
+    "vis": "visible",
+    "disp": "block",
+    "op": "1",
+    "collapsed": true,
+    "cls": "panel-collapsible gev-lc collapsed"
+   },
+   "control-panel": {
+    "x": 838,
+    "y": 632,
+    "w": 168,
+    "h": 86,
+    "vis": "visible",
+    "disp": "block",
+    "op": "1",
+    "collapsed": true,
+    "cls": "panel-collapsible gev-lc collapsed"
+   },
+   "gev-gfx-fab": {
+    "x": 1482,
+    "y": 592,
+    "w": 42,
+    "h": 42,
+    "vis": "visible",
+    "disp": "block",
+    "op": "1",
+    "collapsed": false,
+    "cls": "gev-lc"
+   }
+  },
+  "visible": [
+   "data-panel",
+   "scene-panel",
+   "pp-toggles",
+   "cctv-panel",
+   "global-context-panel",
+   "location-bar",
+   "control-panel",
+   "gev-gfx-fab"
+  ],
+  "overlaps": [],
+  "api": true
+ },
+ "restore": {
+  "identical": true,
+  "diff": []
+ },
+ "summary": {
+  "single_overlap_state_count": 0,
+  "combo_overlap_state_count": 0,
+  "combos": 18,
+  "singles": 7,
+  "restore_identical": true,
+  "console_errors": 0
+ }
+}

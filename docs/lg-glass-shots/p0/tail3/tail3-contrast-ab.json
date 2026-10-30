@@ -1,0 +1,760 @@
+{
+ "url": "http://127.0.0.1:4173/",
+ "errors": [],
+ "darkAfter": {
+  "label": "dark-after",
+  "glassLum": "dark",
+  "cards": [
+   {
+    "id": "data-panel",
+    "innerBg": "rgba(0, 0, 0, 0)",
+    "lcBg": "rgba(6, 10, 16, 0.22)",
+    "lum": "dark",
+    "texts": [
+     {
+      "t": "数据图层",
+      "color": "rgb(234, 244, 255)",
+      "pixel": 6.2,
+      "declared": 6.25,
+      "bg": 0.101,
+      "fg": 0.886
+     }
+    ],
+    "worstPixel": 6.2,
+    "worstDeclared": 6.25
+   },
+   {
+    "id": "scene-panel",
+    "innerBg": "rgba(0, 0, 0, 0)",
+    "lcBg": "rgba(6, 10, 16, 0.22)",
+    "lum": "dark",
+    "texts": [
+     {
+      "t": "场景",
+      "color": "rgb(234, 244, 255)",
+      "pixel": 8.83,
+      "declared": 9.07,
+      "bg": 0.054,
+      "fg": 0.869
+     }
+    ],
+    "worstPixel": 8.83,
+    "worstDeclared": 9.07
+   },
+   {
+    "id": "pp-toggles",
+    "innerBg": "rgba(0, 0, 0, 0)",
+    "lcBg": "rgba(6, 10, 16, 0.22)",
+    "lum": "dark",
+    "texts": [
+     {
+      "t": "显示",
+      "color": "rgb(234, 244, 255)",
+      "pixel": 12.11,
+      "declared": 12.11,
+      "bg": 0.028,
+      "fg": 0.894
+     }
+    ],
+    "worstPixel": 12.11,
+    "worstDeclared": 12.11
+   },
+   {
+    "id": "cctv-panel",
+    "innerBg": "rgba(0, 0, 0, 0)",
+    "lcBg": "rgba(6, 10, 16, 0.22)",
+    "lum": "dark",
+    "texts": [
+     {
+      "t": "监控",
+      "color": "rgb(234, 244, 255)",
+      "pixel": 8.92,
+      "declared": 8.92,
+      "bg": 0.056,
+      "fg": 0.894
+     }
+    ],
+    "worstPixel": 8.92,
+    "worstDeclared": 8.92
+   },
+   {
+    "id": "global-context-panel",
+    "innerBg": "rgba(0, 0, 0, 0)",
+    "lcBg": "rgba(6, 10, 16, 0.22)",
+    "lum": "dark",
+    "texts": [
+     {
+      "t": "上下文",
+      "color": "rgb(234, 244, 255)",
+      "pixel": 7.48,
+      "declared": 8.03,
+      "bg": 0.068,
+      "fg": 0.83
+     },
+     {
+      "t": "radio",
+      "color": "rgba(143, 207, 255, 0.58)",
+      "pixel": 3.92,
+      "declared": 8.58,
+      "bg": 0.023,
+      "fg": 0.237
+     }
+    ],
+    "worstPixel": 3.92,
+    "worstDeclared": 8.03
+   },
+   {
+    "id": "location-bar",
+    "innerBg": "rgba(0, 0, 0, 0)",
+    "lcBg": "rgba(6, 10, 16, 0.22)",
+    "lum": "dark",
+    "texts": [],
+    "worstPixel": null,
+    "worstDeclared": null
+   },
+   {
+    "id": "control-panel",
+    "innerBg": "rgba(0, 0, 0, 0)",
+    "lcBg": "rgba(6, 10, 16, 0.22)",
+    "lum": "dark",
+    "texts": [],
+    "worstPixel": null,
+    "worstDeclared": null
+   },
+   {
+    "id": "gev-voice-control",
+    "innerBg": null,
+    "lcBg": "rgba(5, 9, 14, 0.48)",
+    "lum": "dark",
+    "texts": [
+     {
+      "t": "关",
+      "color": "rgb(255, 255, 255)",
+      "pixel": 9.87,
+      "declared": 9.87,
+      "bg": 0.056,
+      "fg": 1
+     },
+     {
+      "t": "标准",
+      "color": "rgb(255, 255, 255)",
+      "pixel": 9.74,
+      "declared": 13.37,
+      "bg": 0.029,
+      "fg": 0.715
+     },
+     {
+      "t": "~$0.00",
+      "color": "rgb(207, 224, 238)",
+      "pixel": 4.26,
+      "declared": 6.91,
+      "bg": 0.062,
+      "fg": 0.429
+     },
+     {
+      "t": "ON/OFF",
+      "color": "rgb(255, 255, 255)",
+      "pixel": 11.15,
+      "declared": 11.85,
+      "bg": 0.039,
+      "fg": 0.939
+     },
+     {
+      "t": "语音待命",
+      "color": "rgb(207, 224, 238)",
+      "pixel": 8.74,
+      "declared": 9.09,
+      "bg": 0.036,
+      "fg": 0.698
+     },
+     {
+      "t": "DISMISS",
+      "color": "rgb(232, 243, 255)",
+      "pixel": 2.02,
+      "declared": 6.63,
+      "bg": 0.091,
+      "fg": 0.234
+     }
+    ],
+    "worstPixel": 2.02,
+    "worstDeclared": 6.63
+   },
+   {
+    "id": "gev-gfx-fab",
+    "innerBg": null,
+    "lcBg": "rgba(6, 10, 16, 0.22)",
+    "lum": "dark",
+    "texts": [],
+    "worstPixel": null,
+    "worstDeclared": null
+   }
+  ]
+ },
+ "darkBefore": {
+  "label": "dark-before",
+  "glassLum": "dark",
+  "cards": [
+   {
+    "id": "data-panel",
+    "innerBg": "rgba(6, 10, 16, 0.22)",
+    "lcBg": "rgba(6, 10, 16, 0.22)",
+    "lum": "dark",
+    "texts": [
+     {
+      "t": "数据图层",
+      "color": "rgb(234, 244, 255)",
+      "pixel": 8.11,
+      "declared": 8.18,
+      "bg": 0.065,
+      "fg": 0.886
+     }
+    ],
+    "worstPixel": 8.11,
+    "worstDeclared": 8.18
+   },
+   {
+    "id": "scene-panel",
+    "innerBg": "rgba(6, 10, 16, 0.22)",
+    "lcBg": "rgba(6, 10, 16, 0.22)",
+    "lum": "dark",
+    "texts": [
+     {
+      "t": "场景",
+      "color": "rgb(234, 244, 255)",
+      "pixel": 10.65,
+      "declared": 10.94,
+      "bg": 0.036,
+      "fg": 0.869
+     }
+    ],
+    "worstPixel": 10.65,
+    "worstDeclared": 10.94
+   },
+   {
+    "id": "pp-toggles",
+    "innerBg": "rgba(6, 10, 16, 0.22)",
+    "lcBg": "rgba(6, 10, 16, 0.22)",
+    "lum": "dark",
+    "texts": [
+     {
+      "t": "显示",
+      "color": "rgb(234, 244, 255)",
+      "pixel": 12.12,
+      "declared": 12.12,
+      "bg": 0.028,
+      "fg": 0.894
+     }
+    ],
+    "worstPixel": 12.12,
+    "worstDeclared": 12.12
+   },
+   {
+    "id": "cctv-panel",
+    "innerBg": "rgba(6, 10, 16, 0.22)",
+    "lcBg": "rgba(6, 10, 16, 0.22)",
+    "lum": "dark",
+    "texts": [
+     {
+      "t": "监控",
+      "color": "rgb(234, 244, 255)",
+      "pixel": 10.82,
+      "declared": 10.82,
+      "bg": 0.037,
+      "fg": 0.894
+     }
+    ],
+    "worstPixel": 10.82,
+    "worstDeclared": 10.82
+   },
+   {
+    "id": "global-context-panel",
+    "innerBg": "rgba(6, 10, 16, 0.22)",
+    "lcBg": "rgba(6, 10, 16, 0.22)",
+    "lum": "dark",
+    "texts": [
+     {
+      "t": "上下文",
+      "color": "rgb(234, 244, 255)",
+      "pixel": 9.3,
+      "declared": 10,
+      "bg": 0.044,
+      "fg": 0.828
+     },
+     {
+      "t": "radio",
+      "color": "rgba(143, 207, 255, 0.58)",
+      "pixel": 4.06,
+      "declared": 9.2,
+      "bg": 0.018,
+      "fg": 0.226
+     }
+    ],
+    "worstPixel": 4.06,
+    "worstDeclared": 9.2
+   },
+   {
+    "id": "location-bar",
+    "innerBg": "rgba(6, 10, 16, 0.22)",
+    "lcBg": "rgba(6, 10, 16, 0.22)",
+    "lum": "dark",
+    "texts": [],
+    "worstPixel": null,
+    "worstDeclared": null
+   },
+   {
+    "id": "control-panel",
+    "innerBg": "rgba(6, 10, 16, 0.22)",
+    "lcBg": "rgba(6, 10, 16, 0.22)",
+    "lum": "dark",
+    "texts": [],
+    "worstPixel": null,
+    "worstDeclared": null
+   },
+   {
+    "id": "gev-voice-control",
+    "innerBg": null,
+    "lcBg": "rgba(5, 9, 14, 0.48)",
+    "lum": "dark",
+    "texts": [
+     {
+      "t": "关",
+      "color": "rgb(255, 255, 255)",
+      "pixel": 9.87,
+      "declared": 9.87,
+      "bg": 0.056,
+      "fg": 1
+     },
+     {
+      "t": "标准",
+      "color": "rgb(255, 255, 255)",
+      "pixel": 9.74,
+      "declared": 13.37,
+      "bg": 0.029,
+      "fg": 0.715
+     },
+     {
+      "t": "~$0.00",
+      "color": "rgb(207, 224, 238)",
+      "pixel": 3.31,
+      "declared": 8.09,
+      "bg": 0.046,
+      "fg": 0.268
+     },
+     {
+      "t": "ON/OFF",
+      "color": "rgb(255, 255, 255)",
+      "pixel": 11.12,
+      "declared": 11.81,
+      "bg": 0.039,
+      "fg": 0.939
+     },
+     {
+      "t": "语音待命",
+      "color": "rgb(207, 224, 238)",
+      "pixel": 8.75,
+      "declared": 9.1,
+      "bg": 0.035,
+      "fg": 0.698
+     },
+     {
+      "t": "DISMISS",
+      "color": "rgb(232, 243, 255)",
+      "pixel": 2.02,
+      "declared": 6.63,
+      "bg": 0.091,
+      "fg": 0.234
+     }
+    ],
+    "worstPixel": 2.02,
+    "worstDeclared": 6.63
+   },
+   {
+    "id": "gev-gfx-fab",
+    "innerBg": null,
+    "lcBg": "rgba(6, 10, 16, 0.22)",
+    "lum": "dark",
+    "texts": [],
+    "worstPixel": null,
+    "worstDeclared": null
+   }
+  ]
+ },
+ "brightAfter": {
+  "label": "bright-after",
+  "glassLum": "bright",
+  "cards": [
+   {
+    "id": "data-panel",
+    "innerBg": "rgba(0, 0, 0, 0)",
+    "lcBg": "rgba(5, 9, 14, 0.62)",
+    "lum": "bright",
+    "texts": [
+     {
+      "t": "数据图层",
+      "color": "rgb(255, 255, 255)",
+      "pixel": 10.49,
+      "declared": 10.58,
+      "bg": 0.049,
+      "fg": 0.991
+     }
+    ],
+    "worstPixel": 10.49,
+    "worstDeclared": 10.58
+   },
+   {
+    "id": "scene-panel",
+    "innerBg": "rgba(0, 0, 0, 0)",
+    "lcBg": "rgba(5, 9, 14, 0.62)",
+    "lum": "bright",
+    "texts": [
+     {
+      "t": "场景",
+      "color": "rgb(255, 255, 255)",
+      "pixel": 14.34,
+      "declared": 14.84,
+      "bg": 0.021,
+      "fg": 0.965
+     }
+    ],
+    "worstPixel": 14.34,
+    "worstDeclared": 14.84
+   },
+   {
+    "id": "pp-toggles",
+    "innerBg": "rgba(0, 0, 0, 0)",
+    "lcBg": "rgba(5, 9, 14, 0.62)",
+    "lum": "bright",
+    "texts": [
+     {
+      "t": "显示",
+      "color": "rgb(255, 255, 255)",
+      "pixel": 8,
+      "declared": 8,
+      "bg": 0.081,
+      "fg": 1
+     }
+    ],
+    "worstPixel": 8,
+    "worstDeclared": 8
+   },
+   {
+    "id": "cctv-panel",
+    "innerBg": "rgba(0, 0, 0, 0)",
+    "lcBg": "rgba(5, 9, 14, 0.62)",
+    "lum": "dark",
+    "texts": [
+     {
+      "t": "监控",
+      "color": "rgb(255, 255, 255)",
+      "pixel": 10.16,
+      "declared": 10.16,
+      "bg": 0.053,
+      "fg": 1
+     }
+    ],
+    "worstPixel": 10.16,
+    "worstDeclared": 10.16
+   },
+   {
+    "id": "global-context-panel",
+    "innerBg": "rgba(0, 0, 0, 0)",
+    "lcBg": "rgba(5, 9, 14, 0.62)",
+    "lum": "dark",
+    "texts": [
+     {
+      "t": "上下文",
+      "color": "rgb(255, 255, 255)",
+      "pixel": 7.93,
+      "declared": 8.56,
+      "bg": 0.073,
+      "fg": 0.922
+     },
+     {
+      "t": "radio",
+      "color": "rgba(143, 207, 255, 0.58)",
+      "pixel": 4.11,
+      "declared": 9.28,
+      "bg": 0.018,
+      "fg": 0.227
+     }
+    ],
+    "worstPixel": 4.11,
+    "worstDeclared": 8.56
+   },
+   {
+    "id": "location-bar",
+    "innerBg": "rgba(0, 0, 0, 0)",
+    "lcBg": "rgba(5, 9, 14, 0.62)",
+    "lum": "bright",
+    "texts": [],
+    "worstPixel": null,
+    "worstDeclared": null
+   },
+   {
+    "id": "control-panel",
+    "innerBg": "rgba(0, 0, 0, 0)",
+    "lcBg": "rgba(5, 9, 14, 0.62)",
+    "lum": "bright",
+    "texts": [],
+    "worstPixel": null,
+    "worstDeclared": null
+   },
+   {
+    "id": "gev-voice-control",
+    "innerBg": null,
+    "lcBg": "rgba(5, 9, 14, 0.48)",
+    "lum": "dark",
+    "texts": [
+     {
+      "t": "关",
+      "color": "rgb(255, 255, 255)",
+      "pixel": 10.08,
+      "declared": 10.08,
+      "bg": 0.054,
+      "fg": 1
+     },
+     {
+      "t": "标准",
+      "color": "rgb(255, 255, 255)",
+      "pixel": 9.06,
+      "declared": 12.33,
+      "bg": 0.035,
+      "fg": 0.722
+     },
+     {
+      "t": "~$0.00",
+      "color": "rgb(207, 224, 238)",
+      "pixel": 3.42,
+      "declared": 7.03,
+      "bg": 0.061,
+      "fg": 0.328
+     },
+     {
+      "t": "ON/OFF",
+      "color": "rgb(255, 255, 255)",
+      "pixel": 12.97,
+      "declared": 13.78,
+      "bg": 0.026,
+      "fg": 0.939
+     },
+     {
+      "t": "语音待命",
+      "color": "rgb(207, 224, 238)",
+      "pixel": 7.41,
+      "declared": 7.7,
+      "bg": 0.051,
+      "fg": 0.698
+     },
+     {
+      "t": "DISMISS",
+      "color": "rgb(232, 243, 255)",
+      "pixel": 1.56,
+      "declared": 2.92,
+      "bg": 0.27,
+      "fg": 0.45
+     }
+    ],
+    "worstPixel": 1.56,
+    "worstDeclared": 2.92
+   },
+   {
+    "id": "gev-gfx-fab",
+    "innerBg": null,
+    "lcBg": "rgba(6, 10, 16, 0.22)",
+    "lum": "dark",
+    "texts": [],
+    "worstPixel": null,
+    "worstDeclared": null
+   }
+  ]
+ },
+ "brightBefore": {
+  "label": "bright-before",
+  "glassLum": "bright",
+  "cards": [
+   {
+    "id": "data-panel",
+    "innerBg": "rgba(5, 9, 14, 0.62)",
+    "lcBg": "rgba(5, 9, 14, 0.62)",
+    "lum": "bright",
+    "texts": [
+     {
+      "t": "数据图层",
+      "color": "rgb(255, 255, 255)",
+      "pixel": 16.67,
+      "declared": 16.82,
+      "bg": 0.012,
+      "fg": 0.991
+     }
+    ],
+    "worstPixel": 16.67,
+    "worstDeclared": 16.82
+   },
+   {
+    "id": "scene-panel",
+    "innerBg": "rgba(5, 9, 14, 0.62)",
+    "lcBg": "rgba(5, 9, 14, 0.62)",
+    "lum": "bright",
+    "texts": [
+     {
+      "t": "场景",
+      "color": "rgb(255, 255, 255)",
+      "pixel": 17.76,
+      "declared": 18.38,
+      "bg": 0.007,
+      "fg": 0.965
+     }
+    ],
+    "worstPixel": 17.76,
+    "worstDeclared": 18.38
+   },
+   {
+    "id": "pp-toggles",
+    "innerBg": "rgba(5, 9, 14, 0.62)",
+    "lcBg": "rgba(5, 9, 14, 0.62)",
+    "lum": "bright",
+    "texts": [
+     {
+      "t": "显示",
+      "color": "rgb(255, 255, 255)",
+      "pixel": 8.01,
+      "declared": 8.01,
+      "bg": 0.081,
+      "fg": 1
+     }
+    ],
+    "worstPixel": 8.01,
+    "worstDeclared": 8.01
+   },
+   {
+    "id": "cctv-panel",
+    "innerBg": "rgba(5, 9, 14, 0.62)",
+    "lcBg": "rgba(5, 9, 14, 0.62)",
+    "lum": "dark",
+    "texts": [
+     {
+      "t": "监控",
+      "color": "rgb(255, 255, 255)",
+      "pixel": 16.66,
+      "declared": 16.66,
+      "bg": 0.013,
+      "fg": 1
+     }
+    ],
+    "worstPixel": 16.66,
+    "worstDeclared": 16.66
+   },
+   {
+    "id": "global-context-panel",
+    "innerBg": "rgba(5, 9, 14, 0.62)",
+    "lcBg": "rgba(5, 9, 14, 0.62)",
+    "lum": "dark",
+    "texts": [
+     {
+      "t": "上下文",
+      "color": "rgb(255, 255, 255)",
+      "pixel": 14.57,
+      "declared": 15.89,
+      "bg": 0.016,
+      "fg": 0.913
+     },
+     {
+      "t": "radio",
+      "color": "rgba(143, 207, 255, 0.58)",
+      "pixel": 4.41,
+      "declared": 10.64,
+      "bg": 0.009,
+      "fg": 0.21
+     }
+    ],
+    "worstPixel": 4.41,
+    "worstDeclared": 10.64
+   },
+   {
+    "id": "location-bar",
+    "innerBg": "rgba(5, 9, 14, 0.62)",
+    "lcBg": "rgba(5, 9, 14, 0.62)",
+    "lum": "bright",
+    "texts": [],
+    "worstPixel": null,
+    "worstDeclared": null
+   },
+   {
+    "id": "control-panel",
+    "innerBg": "rgba(5, 9, 14, 0.62)",
+    "lcBg": "rgba(5, 9, 14, 0.62)",
+    "lum": "bright",
+    "texts": [],
+    "worstPixel": null,
+    "worstDeclared": null
+   },
+   {
+    "id": "gev-voice-control",
+    "innerBg": null,
+    "lcBg": "rgba(5, 9, 14, 0.48)",
+    "lum": "dark",
+    "texts": [
+     {
+      "t": "关",
+      "color": "rgb(255, 255, 255)",
+      "pixel": 10.08,
+      "declared": 10.08,
+      "bg": 0.054,
+      "fg": 1
+     },
+     {
+      "t": "标准",
+      "color": "rgb(255, 255, 255)",
+      "pixel": 9.06,
+      "declared": 12.33,
+      "bg": 0.035,
+      "fg": 0.722
+     },
+     {
+      "t": "~$0.00",
+      "color": "rgb(207, 224, 238)",
+      "pixel": 5.78,
+      "declared": 11.88,
+      "bg": 0.015,
+      "fg": 0.328
+     },
+     {
+      "t": "ON/OFF",
+      "color": "rgb(255, 255, 255)",
+      "pixel": 12.97,
+      "declared": 13.78,
+      "bg": 0.026,
+      "fg": 0.939
+     },
+     {
+      "t": "语音待命",
+      "color": "rgb(207, 224, 238)",
+      "pixel": 7.41,
+      "declared": 7.7,
+      "bg": 0.051,
+      "fg": 0.698
+     },
+     {
+      "t": "DISMISS",
+      "color": "rgb(232, 243, 255)",
+      "pixel": 1.56,
+      "declared": 2.92,
+      "bg": 0.27,
+      "fg": 0.45
+     }
+    ],
+    "worstPixel": 1.56,
+    "worstDeclared": 2.92
+   },
+   {
+    "id": "gev-gfx-fab",
+    "innerBg": null,
+    "lcBg": "rgba(6, 10, 16, 0.22)",
+    "lum": "dark",
+    "texts": [],
+    "worstPixel": null,
+    "worstDeclared": null
+   }
+  ]
+ }
+}

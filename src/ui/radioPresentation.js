@@ -1,4 +1,8 @@
 /** Render Radio state without making playback or Context decisions. */
+/* 播放/暂停图形（纯 CSS 三角/双竖条，不再用 ▶ Ⅱ 字符） */
+const PLAY_HTML = '<span class="lc-tri lc-tri--r" aria-hidden="true"></span>';
+const PAUSE_HTML = '<span class="lc-pause" aria-hidden="true"></span>';
+
 export function renderRadioState(state) {
   if (this.destroyed || !state || !this._radioPanel) return;
   const lifecycle = this.actions.getLifecycle() || null;
@@ -240,7 +244,7 @@ export function renderRadioState(state) {
         : 'Play';
     this._contextRadioMiniPlayBtn.disabled = !interactive || !hasStations;
     this._contextRadioMiniPlayBtn.classList.toggle('active', activePlayback);
-    this._contextRadioMiniPlayBtn.textContent = activePlayback ? 'Ⅱ' : '▶';
+    this._contextRadioMiniPlayBtn.innerHTML = activePlayback ? PAUSE_HTML : PLAY_HTML;
     this._contextRadioMiniPlayBtn.setAttribute(
       'aria-label',
       `${action} ${selected ? 'selected' : 'nearest'} radio station`,
@@ -255,7 +259,7 @@ export function renderRadioState(state) {
         : 'Play';
     this._cockpitRadioPlayBtn.disabled = !interactive || !hasStations;
     this._cockpitRadioPlayBtn.classList.toggle('active', activePlayback);
-    this._cockpitRadioPlayBtn.textContent = activePlayback ? 'Ⅱ' : '▶';
+    this._cockpitRadioPlayBtn.innerHTML = activePlayback ? PAUSE_HTML : PLAY_HTML;
     this._cockpitRadioPlayBtn.setAttribute(
       'aria-label',
       `${action} ${selected ? 'selected' : 'nearest'} radio station`,

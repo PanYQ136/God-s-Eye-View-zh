@@ -1,0 +1,51 @@
+{
+ "errs": [],
+ "before": {
+  "hasLc": true,
+  "keys": [],
+  "info": {
+   "floating": false,
+   "collapsed": true,
+   "x": 52,
+   "y": 94,
+   "w": 176,
+   "h": 41
+  },
+  "cls": "panel-collapsible collapsed active gev-lc"
+ },
+ "openRes": {
+  "anim": {
+   "t0": 13402.90000000596,
+   "dur": 350
+  },
+  "cnt": 1,
+  "info": {
+   "floating": true,
+   "collapsed": false,
+   "x": 52,
+   "y": 94,
+   "w": 176,
+   "h": 41
+  },
+  "cls": "panel-collapsible active gev-lc gev-lc-floating",
+  "parent": "gev-zh"
+ },
+ "after": {
+  "info": {
+   "floating": true,
+   "collapsed": false,
+   "x": 52,
+   "y": 94,
+   "w": 320,
+   "h": 564
+  },
+  "cls": "panel-collapsible active gev-lc gev-lc-floating",
+  "parent": "BODY#",
+  "style": {
+   "left": "52px",
+   "top": "93.7969px",
+   "w": "320px",
+   "h": "564px"
+  }
+ }
+}

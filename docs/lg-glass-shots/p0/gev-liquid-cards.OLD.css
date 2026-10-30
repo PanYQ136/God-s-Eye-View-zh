@@ -1,0 +1,331 @@
+/* ============================================================================
+   GEV 液态玻璃卡片层（gev-liquid-cards.css）
+   —— 给 9 个功能卡加 Apple Liquid Glass 外观 + 边框悬停缩放热区 + 展开浮层。
+   材质数值沿用项目官方 lg-glass.css（blur22 / saturate1.9 / 双层填充 / 内高光+投影）。
+   与交互层 gev-liquid-cards.js 配套；删除 index.html 的 <link> + <script> 即完全回滚。
+   ========================================================================== */
+
+/* ── 卡片玻璃皮：移植 rdev/liquid-glass-react v1.1.1 真·折射玻璃（作用于全部 9 模块）──
+   ::before 作为折射磨砂层(backdrop blur6 + saturate140 + SVG 位移折射 url(#gev-lg-filter))，
+   内容浮于其上不被折射；#gev-lg-filter 由 public/gev-lg-filter.js 注入。
+   默认「通透」= 纯库效果；html[data-gev-glass="solid"] = 加暗纱提升明亮底图可读性。 */
+/* 全局隐藏滚动条（仍可滚轮/触控板滚动）：去掉卡片边缘那根青色"怪散色"竖/横条 */
+* { scrollbar-width: none; -ms-overflow-style: none; }
+*::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none !important; }
+
+.gev-lc {
+  position: relative;
+  border-radius: 16px !important;
+  border: 0 !important;
+  background: rgba(12, 18, 26, 0.52) !important;
+  isolation: isolate;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.10), 0 12px 40px rgba(0, 0, 0, 0.28) !important;
+  color: #eef7ff;
+  transition: box-shadow .2s ease;
+}
+/* 折射磨砂层：真实元素 .gev-lg-warp(JS 注入)，库同款 filter:url(#gev-lg-filter) + backdrop；内容层 z-index:1 浮其上不被折射 */
+.gev-lg-warp {
+  position: absolute; inset: 0; z-index: 0;
+  border-radius: inherit; pointer-events: none;
+  -webkit-backdrop-filter: blur(6px) saturate(140%);
+  backdrop-filter: blur(6px) saturate(140%);
+  /* filter:url(#gev-lens-N) 由 JS 逐卡设置（按卡尺寸生成位移图） */
+  transition: background .25s ease, backdrop-filter .25s ease;
+}
+/* 内容层抬到 warp 之上（z 1），避免被折射扭曲；热区/占位除外 */
+.gev-lc > *:not(.gev-lg-warp):not(.gev-lc-edge):not(.gev-lc-placeholder) { position: relative; z-index: 1; }
+/* 通透档(纯 demo 观感)：卡片近全透明 + 轻磨砂，底图透出；默认档为上面的可读磨砂 */
+html[data-gev-glass="light"] .gev-lc { background: rgba(255, 255, 255, 0.055) !important; }
+html[data-gev-glass="light"] .gev-lg-warp {
+  background: transparent;
+  -webkit-backdrop-filter: blur(6px) saturate(140%);
+  backdrop-filter: blur(6px) saturate(140%);
+}
+.gev-lc:hover {
+  border-color: rgba(255, 255, 255, 0.30) !important;
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+}
+
+/* 深色/明亮 切换按钮（放在齿轮位置左侧） */
+.gev-lc-toggle {
+  position: fixed; z-index: 2147481700;
+  width: 40px; height: 40px; border-radius: 50%;
+  display: grid; place-items: center; cursor: pointer;
+  background: rgba(18, 26, 34, 0.62); color: #eaf6ff;
+  border: 1px solid rgba(255, 255, 255, 0.30);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  box-shadow: 0 6px 20px -6px rgba(0, 0, 0, 0.6);
+  font-size: 18px; line-height: 1; user-select: none;
+  transition: border-color .15s ease, color .15s ease, transform .1s ease;
+}
+.gev-lc-toggle:hover { border-color: rgba(41, 211, 255, 0.7); color: #fff; }
+.gev-lc-toggle:active { transform: scale(0.94); }
+
+/* ── 去掉「+」「◁」等可见折叠按钮（改为空白点击切换） ───────────────── */
+.gev-lc .panel-collapse-btn,
+.gev-lc .pp-collapse-btn,
+.gev-lc .dock-pin-btn { display: none !important; }
+
+/* ── 边框悬停缩放热区：透明、精准、紧贴边框（边 6px / 角 14px） ──────── */
+.gev-lc-edge {
+  position: absolute;
+  z-index: 40;
+  background: transparent;
+  touch-action: none;
+}
+.gev-lc-edge-n  { top: 0;    left: 16px;  right: 16px; height: 8px;  cursor: ns-resize; }
+.gev-lc-edge-s  { bottom: 0; left: 16px;  right: 16px; height: 8px;  cursor: ns-resize; }
+.gev-lc-edge-w  { left: 0;   top: 16px;   bottom: 16px; width: 10px; cursor: ew-resize; }
+.gev-lc-edge-e  { right: 0;  top: 16px;   bottom: 16px; width: 10px; cursor: ew-resize; }
+.gev-lc-edge-nw { left: 0;   top: 0;      width: 16px; height: 16px; cursor: nwse-resize; }
+.gev-lc-edge-ne { right: 0;  top: 0;      width: 16px; height: 16px; cursor: nesw-resize; }
+.gev-lc-edge-sw { left: 0;   bottom: 0;   width: 16px; height: 16px; cursor: nesw-resize; }
+.gev-lc-edge-se { right: 0;  bottom: 0;   width: 16px; height: 16px; cursor: nwse-resize; }
+
+/* 展开为浮层（脱离组内流，避免挤动兄弟） */
+.gev-lc.gev-lc-floating {
+  position: fixed !important;
+  z-index: 2147481500 !important;
+  margin: 0 !important;
+  transform-origin: top left;
+  will-change: transform, opacity;
+  overflow: auto;
+  max-height: none !important;
+  max-width: none !important;
+  min-height: 0 !important;
+  flex: 0 0 auto !important;
+}
+/* 占位块：展开时在原流位置保留迷你尺寸，兄弟不位移 */
+.gev-lc-placeholder { visibility: hidden !important; pointer-events: none !important; }
+
+/* 拖拽幽灵 */
+.gev-lc-ghost {
+  position: fixed; z-index: 2147481600; pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, .55);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .06);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.28), 0 0 24px rgba(255,255,255,.18);
+  display: none;
+}
+
+/* 旧分组层缩放手柄已彻底移除（P2-2）：见 gev-panel-win.js 不再创建 + gev-panel-win.css 删除样式 */
+
+/* ===== 官方 liquid-glass-react 折射层 gev-rg.js（React19 + GPU 位移滤镜） ===== */
+#gev-rg-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 5; }
+.gev-rg-host { position: fixed; left: 0; top: 0; width: 0; height: 0; pointer-events: none; display: none; }
+.gev-rg-host > .fd-glass {
+  position: absolute !important; left: 50% !important; top: 50% !important;
+  width: 100% !important; height: 100% !important; transition: none !important;
+}
+.gev-rg-host > .fd-glass > .glass {
+  width: 100% !important; height: 100% !important; display: flex !important; align-items: stretch !important;
+  padding: 0 !important; border-radius: 18px !important;
+  transition: transform .2s ease-in-out, border-radius .2s ease !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.24), inset 0 0 0 1px rgba(255,255,255,.08), 0 10px 30px -6px rgba(0,0,0,.40) !important;
+}
+.gev-rg-host > .fd-glass > .glass > div {
+  width: 100% !important; height: 100% !important; font: inherit !important; text-shadow: none !important; transition: none !important;
+}
+html.gev-rg-on .gev-lg-warp { display: none !important; }
+html.gev-rg-on .gev-lc { background: rgba(255, 255, 255, 0.03) !important; }
+
+/* ===== 真·WebGL 折射层 gev-gl-glass.js ===== */
+html.gev-gl-on .gev-lg-warp { display: none !important; }
+html.gev-gl-on #gev-rg-overlay { display: none !important; }
+html.gev-gl-on .gev-lc { background: linear-gradient(180deg, rgba(10,16,22,0.14), rgba(10,16,22,0.06)), rgba(12,18,26,0.12) !important; text-shadow: 0 1px 2px rgba(0,0,0,.8), 0 0 1px rgba(0,0,0,.9); }
+html.gev-gl-on .gev-lc,
+html.gev-gl-on .gev-lc::before,
+html.gev-gl-on .gev-lc::after,
+html.gev-gl-on .gev-lc:hover {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+/* 面板内部深色底在 gl 模式调半透+去自身模糊，让折射地图透出（更通透） */
+html.gev-gl-on .data-panel-inner,
+html.gev-gl-on .scene-panel-inner,
+html.gev-gl-on .cctv-panel-inner,
+html.gev-gl-on .global-context-panel-inner,
+html.gev-gl-on .global-context-inner,
+html.gev-gl-on .dock-popover-content,
+html.gev-gl-on .pp-header-row,
+html.gev-gl-on [class$="-panel-inner"] {
+  background: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+/* 一致性 P0：显示卡(pp-toggles) 不再自带更重的阴影/青色辉光/额外模糊，统一到单层玻璃 */
+#pp-toggles:not(.collapsed) {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+html.gev-gl-on #pp-toggles:not(.collapsed) {
+  background: linear-gradient(180deg, rgba(10,16,22,0.14), rgba(10,16,22,0.06)), rgba(12,18,26,0.12) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.10), 0 12px 40px rgba(0,0,0,.28) !important;
+  border: 0 !important;
+}
+/* 显示卡浮层：子项一律 100%、禁横向溢出，组件不切边（第二轮体检 P0） */
+#pp-toggles.gev-lc-floating { --pp-expanded-width: 100% !important; padding: 8px !important; overflow-x: hidden !important; overflow-y: auto !important; }
+#pp-toggles.gev-lc-floating .pp-header-row,
+#pp-toggles.gev-lc-floating .pp-toggle-btn,
+#pp-toggles.gev-lc-floating .pp-mode-btn,
+#pp-toggles.gev-lc-floating .pp-slider-row,
+#pp-toggles.gev-lc-floating .pp-select,
+#pp-toggles.gev-lc-floating .pp-text-input,
+#pp-toggles.gev-lc-floating .pp-toggle-group { width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; }
+/* 去掉卡片背后青色光晕（场景/数据卡的 .panel-glow 第二层光） */
+html.gev-gl-on .panel-glow { display: none !important; }
+html.gev-gl-on .dock-tray-toggle,
+html.gev-gl-on .panel-header,
+html.gev-gl-on .dock-pin-btn {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  background: transparent !important;
+}
+/* 让左栈卡内容按真实高度排布，不被 flex 拉伸填满→消除尾部空白 */
+html.gev-gl-on .data-panel-inner,
+html.gev-gl-on .scene-panel-inner { height: auto !important; }
+html.gev-gl-on .data-toggle-list { flex: 0 0 auto !important; }
+html.gev-gl-on #gev-gl-glass { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 4; }
+/* 小功能按钮：逐元素液态玻璃（贴合各自形状，天然一一对应） */
+html.gev-gl-on #clear-selected-layers,
+html.gev-gl-on #share-btn,
+html.gev-gl-on #tilt-map-view,
+html.gev-gl-on #north-up-view,
+html.gev-gl-on #reset-globe-view,
+html.gev-gl-on #lg-glass-trigger,
+html.gev-gl-on #gev-gfx-fab,
+html.gev-gl-on #gev-locate-btn,
+html.gev-gl-on #gev-perf-wrap,
+html.gev-gl-on #gev-lang-toggle,
+html.gev-gl-on #gev-pw-reset,
+html.gev-gl-on #key-setup-chip,
+html.gev-gl-on #sdr-locate-btn,
+html.gev-gl-on .map-stack-chip,
+html.gev-gl-on #location-bar-toggle,
+html.gev-gl-on #control-panel-toggle,
+html.gev-gl-on .dock-tray-toggle {
+  background: linear-gradient(155deg, rgba(255,255,255,0.30), rgba(255,255,255,0.10)) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.30) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -1px 0 rgba(0,0,0,0.12), 0 8px 22px -10px rgba(0,0,0,0.5) !important;
+}
+/* ===== 二·布局修正 #1/#2/#6/#9 ===== */
+/* #1 顶部卡片下移，避开左上 GOD'S EYE Logo(占 y32–90)与贴边；padding 容器 inset 布局改 top 无效 */
+/* 三·P0-4 左右栏整体上移（top 被 App 高优先级占用，改用 transform 位移；pad0 已生效首卡 190→再上移96→≈94，避开 Logo） */
+html.gev-gl-on #left-panel-stack { padding-top: 0 !important; transform: translateY(-96px) !important; transition: none !important; }
+html.gev-gl-on #right-context-rail { padding-top: 0 !important; transition: none !important; }
+/* #7 4个状态组件(定位/FPS/性能/中EN)钉到顶部「重置镜头」右侧一行（CSS!important 稳压 App 回写） */
+html.gev-gl-on #gev-locate-btn { position:fixed !important; top:35px !important; left:914px !important; right:auto !important; bottom:auto !important; height:30px !important; margin:0 !important; z-index:2147480000 !important; }
+html.gev-gl-on #gev-perf-wrap { position:fixed !important; top:35px !important; left:985px !important; right:auto !important; bottom:auto !important; height:30px !important; margin:0 !important; z-index:2147480000 !important; }
+html.gev-gl-on #gev-lang-toggle { position:fixed !important; top:35px !important; left:1142px !important; right:auto !important; bottom:auto !important; height:30px !important; margin:0 !important; z-index:2147480000 !important; }
+/* #1 展开面板滚轮滚动：卡片自身滚动 + 阻止滚动链传到地图 */
+html.gev-gl-on .gev-lc.gev-lc-floating { overflow-y: auto !important; overscroll-behavior: contain; }
+/* #8 画面设置菜单里的「重置布局」做成整行选项样式 */
+html.gev-gl-on #gev-menu-resetlayout { width:100%; text-align:center; }
+/* #6 底部/语音区文字提亮+强描边，解决发虚低对比 */
+html.gev-gl-on #command-dock,
+html.gev-gl-on #command-dock *,
+html.gev-gl-on .indicator-label,
+html.gev-gl-on #gev-voice-control,
+html.gev-gl-on #gev-voice-control * {
+  text-shadow: 0 1px 2px rgba(0,0,0,1), 0 0 4px rgba(0,0,0,0.9), 0 0 1px rgba(0,0,0,1);
+}
+
+/* ===== 三·P0 级修复 ===== */
+/* P0-3 右栏三卡展开高度封顶（JS 另做位置钳制，双保险），避免覆盖右下 明暗/齿轮/启动引擎 */
+html.gev-gl-on #pp-toggles.gev-lc-floating,
+html.gev-gl-on #cctv-panel.gev-lc-floating,
+html.gev-gl-on #global-context-panel.gev-lc-floating { max-height: calc(100vh - 158px) !important; }
+
+/* P0-2 「显示」面板内部控件统一玻璃（去掉发黑实底/黑边），与其它模块一致 */
+html.gev-gl-on #pp-toggles .pp-toggle-btn,
+html.gev-gl-on #pp-toggles .pp-mode-btn,
+html.gev-gl-on #pp-toggles .pp-select,
+html.gev-gl-on #pp-toggles .pp-text-input,
+html.gev-gl-on #pp-toggles .lg-glass-skin,
+html.gev-gl-on #data-panel .data-toggle-btn,
+html.gev-gl-on #data-panel .lg-glass-skin {
+  background: linear-gradient(155deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05)) !important;
+  background-image: linear-gradient(155deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05)) !important;
+  border: 1px solid rgba(255,255,255,0.22) !important;
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.22) !important;
+}
+/* 发黑的滑块行(原 bg rgba(12,12,20,.72)) 改半透 */
+html.gev-gl-on #pp-toggles .pp-slider-row {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+/* 激活态用半透强调玻璃（密集/弹性），不再不透明塑料块 */
+html.gev-gl-on #pp-toggles .pp-toggle-btn.active,
+html.gev-gl-on #pp-toggles .pp-mode-btn.active {
+  background: linear-gradient(155deg, rgba(0,210,160,0.40), rgba(0,150,110,0.22)) !important;
+  background-image: linear-gradient(155deg, rgba(0,210,160,0.40), rgba(0,150,110,0.22)) !important;
+  border-color: rgba(90,255,205,0.55) !important;
+}
+/* P0-1 展开卡作为唯一滚动容器：内层不再自成滚动/裁切，让卡片自身可滚（配合 JS 驱动 scrollTop） */
+html.gev-gl-on .gev-lc-floating .data-panel-inner,
+html.gev-gl-on .gev-lc-floating .scene-panel-inner,
+html.gev-gl-on .gev-lc-floating .cctv-panel-inner,
+html.gev-gl-on .gev-lc-floating .global-context-panel-inner,
+html.gev-gl-on .gev-lc-floating .data-toggle-list {
+  overflow: visible !important;
+  height: auto !important;
+  max-height: none !important;
+}
+
+/* ===== 三·P1 级修复 ===== */
+/* P1-6 GPS/定位来源气泡移到 command-dock 上方居中，不再压住语音卡/位置框 */
+html.gev-gl-on #gev-toast {
+  position: fixed !important;
+  bottom: 118px !important; top: auto !important;
+  left: 50% !important; transform: translateX(-50%) !important;
+  z-index: 2147480000 !important;
+}
+/* P1-7 上下文条目撑满面板宽度（父级是 grid，用 :has 改两等列 + 按钮 100%） */
+html.gev-gl-on #global-context-panel :has(> .context-mode-button) {
+  grid-template-columns: 1fr 1fr !important; gap: 10px !important;
+}
+html.gev-gl-on #global-context-panel .context-mode-button {
+  width: 100% !important; min-width: 0 !important; box-sizing: border-box !important;
+}
+/* P1-8 上下文/监控 面板底加深，提升明亮底图下文字可读性 */
+html.gev-gl-on #global-context-panel .global-context-panel-inner,
+html.gev-gl-on #cctv-panel .cctv-panel-inner {
+  background: transparent !important;
+}
+/* P1-9 数据图层滚到底，最后一项/水印不被裁 */
+html.gev-gl-on .gev-lc-floating .data-toggle-list { padding-bottom: 16px !important; }
+
+/* ===== 三·P2 级修复（观感） ===== */
+/* P2-13 右上「当前风格」加底色板，亮背景下不糊 */
+html.gev-gl-on #style-indicator {
+  background: rgba(10, 16, 22, 0.42) !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  border-radius: 8px !important; padding: 2px 8px !important;
+}
+/* P2-10 Cesium/Google 版权右移入安全边（再右移，避免贴左边缘） */
+html.gev-gl-on .cesium-widget-credits,
+html.gev-gl-on .cesium-credit-expand-link,
+html.gev-gl-on .cesium-credit-logoContainer { margin-left: 34px !important; }
+/* P2-11 启动引擎统一为沉稳深玻璃（去掉亮白渐变），与右下 太阳/齿轮 一致 */
+html.gev-gl-on #key-setup-chip {
+  background: rgba(16, 24, 32, 0.62) !important;
+  background-image: none !important;
+  border: 1px solid rgba(255,255,255,0.22) !important;
+  color: #d6e6ef !important;
+  box-shadow: 0 6px 18px -8px rgba(0,0,0,0.5) !important;
+  -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+}
+html.gev-gl-on #key-setup-chip * { color: #d6e6ef !important; }
+/* P2-12 上下文面板头部「电台」旁的小方块改为规整状态圆点（不再像断线） */
+html.gev-gl-on #global-context-panel .radio-layer-state {
+  width: 8px !important; height: 8px !important; min-width: 8px !important;
+  border-radius: 50% !important;
+  background: rgba(255,255,255,0.30) !important;
+  border: 1px solid rgba(255,255,255,0.55) !important;
+}

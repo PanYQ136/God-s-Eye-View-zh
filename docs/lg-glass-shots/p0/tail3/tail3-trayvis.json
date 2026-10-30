@@ -1,0 +1,168 @@
+{
+ "A_current": {
+  "collapsed": false,
+  "rect": {
+   "x": 496,
+   "y": 494,
+   "w": 544,
+   "h": 117
+  },
+  "center": {
+   "cx": 768,
+   "cy": 553
+  },
+  "topAtCenter": "BUTTON.location-pill",
+  "topIsTrayOrChild": true,
+  "trayStyle": {
+   "display": "flex",
+   "visibility": "visible",
+   "opacity": "1",
+   "zIndex": "5",
+   "bg": "rgba(6, 10, 16, 0.22)",
+   "transform": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  "chain": [
+   {
+    "tag": "DIV#location-bar-popover.dock-popover-content",
+    "zIndex": "5",
+    "position": "absolute",
+    "overflow": "visible",
+    "transform": "yes",
+    "opacity": "1",
+    "visibility": "visible",
+    "display": "flex"
+   },
+   {
+    "tag": "DIV.location-inner",
+    "zIndex": "auto",
+    "position": "relative",
+    "overflow": "visible",
+    "transform": "none",
+    "opacity": "1",
+    "visibility": "visible",
+    "display": "flex"
+   },
+   {
+    "tag": "DIV#location-bar.panel-collapsible.gev-lc",
+    "zIndex": "100",
+    "position": "relative",
+    "overflow": "visible",
+    "transform": "none",
+    "opacity": "1",
+    "visibility": "visible",
+    "display": "block"
+   },
+   {
+    "tag": "DIV#command-dock.gev-win",
+    "zIndex": "145",
+    "position": "fixed",
+    "overflow": "visible",
+    "transform": "none",
+    "opacity": "1",
+    "visibility": "visible",
+    "display": "flex"
+   },
+   {
+    "tag": "BODY.gev-zh",
+    "zIndex": "auto",
+    "position": "static",
+    "overflow": "hidden",
+    "transform": "none",
+    "opacity": "1",
+    "visibility": "visible",
+    "display": "block"
+   }
+  ],
+  "glassLayer": {
+   "zIndex": "4",
+   "position": "fixed",
+   "pointerEvents": "none",
+   "display": "block"
+  },
+  "trayAreaMeanLum": 0.0801,
+  "openAtStart": false
+ },
+ "B_oldBehaviour": {
+  "collapsed": false,
+  "rect": {
+   "x": 496,
+   "y": 494,
+   "w": 544,
+   "h": 117
+  },
+  "center": {
+   "cx": 768,
+   "cy": 553
+  },
+  "topAtCenter": "BUTTON.location-pill",
+  "topIsTrayOrChild": true,
+  "trayStyle": {
+   "display": "flex",
+   "visibility": "visible",
+   "opacity": "1",
+   "zIndex": "5",
+   "bg": "rgba(6, 10, 16, 0.22)",
+   "transform": "matrix(1, 0, 0, 1, 0, 0)"
+  },
+  "chain": [
+   {
+    "tag": "DIV#location-bar-popover.dock-popover-content",
+    "zIndex": "5",
+    "position": "absolute",
+    "overflow": "visible",
+    "transform": "yes",
+    "opacity": "1",
+    "visibility": "visible",
+    "display": "flex"
+   },
+   {
+    "tag": "DIV.location-inner",
+    "zIndex": "auto",
+    "position": "relative",
+    "overflow": "visible",
+    "transform": "none",
+    "opacity": "1",
+    "visibility": "visible",
+    "display": "flex"
+   },
+   {
+    "tag": "DIV#location-bar.panel-collapsible.gev-lc",
+    "zIndex": "100",
+    "position": "relative",
+    "overflow": "visible",
+    "transform": "none",
+    "opacity": "1",
+    "visibility": "visible",
+    "display": "block"
+   },
+   {
+    "tag": "DIV#command-dock.gev-win",
+    "zIndex": "145",
+    "position": "fixed",
+    "overflow": "visible",
+    "transform": "none",
+    "opacity": "1",
+    "visibility": "visible",
+    "display": "flex"
+   },
+   {
+    "tag": "BODY.gev-zh",
+    "zIndex": "auto",
+    "position": "static",
+    "overflow": "hidden",
+    "transform": "none",
+    "opacity": "1",
+    "visibility": "visible",
+    "display": "block"
+   }
+  ],
+  "glassLayer": {
+   "zIndex": "4",
+   "position": "fixed",
+   "pointerEvents": "none",
+   "display": "block"
+  },
+  "trayAreaMeanLum": 0.081,
+  "openAtStart": false
+ }
+}

@@ -1,0 +1,248 @@
+{
+ "onMap": {
+  "tag": "真实地图(0.52)",
+  "rows": [
+   {
+    "card": "data-panel",
+    "text": "数据图层",
+    "colorRGB": [
+     234,
+     244,
+     255
+    ],
+    "bgLum": 75,
+    "contrast": 7.89
+   },
+   {
+    "card": "scene-panel",
+    "text": "场景",
+    "colorRGB": [
+     234,
+     244,
+     255
+    ],
+    "bgLum": 62,
+    "contrast": 9.67
+   },
+   {
+    "card": "pp-toggles",
+    "text": "显示",
+    "colorRGB": [
+     234,
+     244,
+     255
+    ],
+    "bgLum": 56,
+    "contrast": 10.57
+   },
+   {
+    "card": "cctv-panel",
+    "text": "监控",
+    "colorRGB": [
+     234,
+     244,
+     255
+    ],
+    "bgLum": 57,
+    "contrast": 10.33
+   },
+   {
+    "card": "global-context-panel",
+    "text": "上下文",
+    "colorRGB": [
+     234,
+     244,
+     255
+    ],
+    "bgLum": 86,
+    "contrast": 6.63
+   },
+   {
+    "card": "location-bar",
+    "text": "位置",
+    "colorRGB": [
+     234,
+     244,
+     255
+    ],
+    "bgLum": 33,
+    "contrast": 14.53
+   },
+   {
+    "card": "control-panel",
+    "text": "视觉预设",
+    "colorRGB": [
+     234,
+     244,
+     255
+    ],
+    "bgLum": 38,
+    "contrast": 13.61
+   }
+  ]
+ },
+ "onWhite": {
+  "tag": "纯白底(0.52)",
+  "rows": [
+   {
+    "card": "data-panel",
+    "text": "数据图层",
+    "colorRGB": [
+     234,
+     244,
+     255
+    ],
+    "bgLum": 162,
+    "contrast": 2.29
+   },
+   {
+    "card": "scene-panel",
+    "text": "场景",
+    "colorRGB": [
+     234,
+     244,
+     255
+    ],
+    "bgLum": 179,
+    "contrast": 1.89
+   },
+   {
+    "card": "pp-toggles",
+    "text": "显示",
+    "colorRGB": [
+     234,
+     244,
+     255
+    ],
+    "bgLum": 184,
+    "contrast": 1.79
+   },
+   {
+    "card": "cctv-panel",
+    "text": "监控",
+    "colorRGB": [
+     234,
+     244,
+     255
+    ],
+    "bgLum": 167,
+    "contrast": 2.17
+   },
+   {
+    "card": "global-context-panel",
+    "text": "上下文",
+    "colorRGB": [
+     234,
+     244,
+     255
+    ],
+    "bgLum": 255,
+    "contrast": 1.11
+   },
+   {
+    "card": "location-bar",
+    "text": "位置",
+    "colorRGB": [
+     234,
+     244,
+     255
+    ],
+    "bgLum": 71,
+    "contrast": 8.4
+   },
+   {
+    "card": "control-panel",
+    "text": "视觉预设",
+    "colorRGB": [
+     234,
+     244,
+     255
+    ],
+    "bgLum": 71,
+    "contrast": 8.4
+   }
+  ]
+ },
+ "onWhiteBright": {
+  "tag": "纯白底(bright 0.72)",
+  "rows": [
+   {
+    "card": "data-panel",
+    "text": "数据图层",
+    "colorRGB": [
+     255,
+     255,
+     255
+    ],
+    "bgLum": 255,
+    "contrast": 1
+   },
+   {
+    "card": "scene-panel",
+    "text": "场景",
+    "colorRGB": [
+     234,
+     244,
+     255
+    ],
+    "bgLum": 189,
+    "contrast": 1.69
+   },
+   {
+    "card": "pp-toggles",
+    "text": "显示",
+    "colorRGB": [
+     234,
+     244,
+     255
+    ],
+    "bgLum": 198,
+    "contrast": 1.54
+   },
+   {
+    "card": "cctv-panel",
+    "text": "监控",
+    "colorRGB": [
+     234,
+     244,
+     255
+    ],
+    "bgLum": 168,
+    "contrast": 2.15
+   },
+   {
+    "card": "global-context-panel",
+    "text": "上下文",
+    "colorRGB": [
+     234,
+     244,
+     255
+    ],
+    "bgLum": 221,
+    "contrast": 1.22
+   },
+   {
+    "card": "location-bar",
+    "text": "位置",
+    "colorRGB": [
+     234,
+     244,
+     255
+    ],
+    "bgLum": 71,
+    "contrast": 8.4
+   },
+   {
+    "card": "control-panel",
+    "text": "视觉预设",
+    "colorRGB": [
+     234,
+     244,
+     255
+    ],
+    "bgLum": 71,
+    "contrast": 8.4
+   }
+  ]
+ }
+}

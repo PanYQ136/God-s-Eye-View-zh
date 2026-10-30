@@ -7,7 +7,6 @@
           <span class="panel-title">WEATHER</span>
           <span id="weather-panel-count" aria-label="Active weather products">0</span>
           <span class="panel-divider"></span>
-          <button class="panel-collapse-btn" data-collapse-target="weather-panel" type="button" title="Collapse panel">▼</button>
         </div>
         <div id="weather-panel-body" data-rail-scroller></div>
       </div>
@@ -19,7 +18,6 @@
           <span class="panel-title">RECENT IMAGERY</span>
           <span id="recent-imagery-panel-count" aria-label="Imagery days in the box"></span>
           <span class="panel-divider"></span>
-          <button class="panel-collapse-btn" data-collapse-target="recent-imagery-panel" type="button" title="Collapse panel">▼</button>
         </div>
         <div id="recent-imagery-panel-body" data-rail-scroller></div>
       </div>
@@ -49,9 +47,9 @@
               </div>
               <button id="context-radio-mini-enable-btn" class="panel-layer-toggle" type="button" aria-pressed="false">ENABLE</button>
               <div class="context-radio-mini-transport">
-                <button id="context-radio-mini-prev-btn" type="button" aria-label="Previous filtered radio station" title="Previous station" disabled>◀◀</button>
-                <button id="context-radio-mini-play-btn" type="button" aria-label="Play selected radio station" title="Play" disabled>▶</button>
-                <button id="context-radio-mini-next-btn" type="button" aria-label="Next filtered radio station" title="Next station" disabled>▶▶</button>
+                <button id="context-radio-mini-prev-btn" type="button" aria-label="Previous filtered radio station" title="Previous station" disabled><span class="lc-tri lc-tri--l" aria-hidden="true"></span><span class="lc-tri lc-tri--l" aria-hidden="true"></span></button>
+                <button id="context-radio-mini-play-btn" type="button" aria-label="Play selected radio station" title="Play" disabled><span class="lc-tri lc-tri--r" aria-hidden="true"></span></button>
+                <button id="context-radio-mini-next-btn" type="button" aria-label="Next filtered radio station" title="Next station" disabled><span class="lc-tri lc-tri--r" aria-hidden="true"></span><span class="lc-tri lc-tri--r" aria-hidden="true"></span></button>
               </div>
               <label class="context-radio-mini-volume" for="context-radio-mini-volume">
                 <span>VOLUME</span>
@@ -60,7 +58,6 @@
               </label>
             </div>
           </div>
-          <button class="panel-collapse-btn" data-collapse-target="global-context-panel" title="Expand panel">▶</button>
         </div>
         <div class="cyber-panel-body" data-rail-scroller>
         <div class="global-context-modes" role="tablist" aria-label="Context mode">
@@ -116,7 +113,6 @@
               <span class="panel-title">RADIO</span>
               <span id="radio-layer-state" class="radio-layer-state">OFF</span>
               <span class="panel-divider"></span>
-              <button class="panel-collapse-btn" data-collapse-target="radio-panel" title="Expand Radio" aria-label="Expand Radio section">+</button>
             </div>
             <div class="radio-directory-row">
               <button id="radio-enable-btn" class="panel-layer-toggle" type="button" aria-pressed="false">ENABLE</button>
@@ -225,8 +221,8 @@
                 <button id="sdr-tune-btn" type="button">TUNE</button>
               </div>
               <div class="sdr-seek-row" role="group" aria-label="Seek broadcast FM stations">
-                <button id="sdr-seek-back-btn" type="button" disabled>◀ SEEK</button>
-                <button id="sdr-seek-forward-btn" type="button" disabled>SEEK ▶</button>
+                <button id="sdr-seek-back-btn" type="button" disabled><span class="lc-tri lc-tri--l" aria-hidden="true"></span><span>SEEK</span></button>
+                <button id="sdr-seek-forward-btn" type="button" disabled><span>SEEK</span><span class="lc-tri lc-tri--r" aria-hidden="true"></span></button>
               </div>
               <label class="radio-volume-row" for="sdr-volume">
                 <span>SDR VOL</span>

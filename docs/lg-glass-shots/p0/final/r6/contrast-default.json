@@ -1,0 +1,241 @@
+{
+ "contrastSummary": {
+  "textMin": 7.66,
+  "textUnder45": [],
+  "iconMin": 4.77,
+  "iconUnder3": [],
+  "notPainted": []
+ },
+ "reduced": {
+  "cards": [
+   {
+    "id": "data-panel",
+    "bg": "rgb(11, 17, 24)",
+    "alpha": 1,
+    "backdrop": "none",
+    "image": "none",
+    "hasInsetRing": true,
+    "shadow": "rgba(255, 255, 255, 0.16) 0px 0px 0px 1px inset",
+    "solid": true
+   },
+   {
+    "id": "scene-panel",
+    "bg": "rgb(11, 17, 24)",
+    "alpha": 1,
+    "backdrop": "none",
+    "image": "none",
+    "hasInsetRing": true,
+    "shadow": "rgba(255, 255, 255, 0.16) 0px 0px 0px 1px inset",
+    "solid": true
+   },
+   {
+    "id": "pp-toggles",
+    "bg": "rgb(11, 17, 24)",
+    "alpha": 1,
+    "backdrop": "none",
+    "image": "none",
+    "hasInsetRing": true,
+    "shadow": "rgba(255, 255, 255, 0.16) 0px 0px 0px 1px inset",
+    "solid": true
+   },
+   {
+    "id": "cctv-panel",
+    "bg": "rgb(11, 17, 24)",
+    "alpha": 1,
+    "backdrop": "none",
+    "image": "none",
+    "hasInsetRing": true,
+    "shadow": "rgba(255, 255, 255, 0.16) 0px 0px 0px 1px inset",
+    "solid": true
+   },
+   {
+    "id": "global-context-panel",
+    "bg": "rgb(11, 17, 24)",
+    "alpha": 1,
+    "backdrop": "none",
+    "image": "none",
+    "hasInsetRing": true,
+    "shadow": "rgba(255, 255, 255, 0.16) 0px 0px 0px 1px inset",
+    "solid": true
+   },
+   {
+    "id": "location-bar",
+    "bg": "rgb(11, 17, 24)",
+    "alpha": 1,
+    "backdrop": "none",
+    "image": "none",
+    "hasInsetRing": true,
+    "shadow": "rgba(255, 255, 255, 0.16) 0px 0px 0px 1px inset",
+    "solid": true
+   },
+   {
+    "id": "gev-gfx-fab",
+    "bg": "rgb(11, 17, 24)",
+    "alpha": 1,
+    "backdrop": "none",
+    "image": "none",
+    "hasInsetRing": true,
+    "shadow": "rgba(255, 255, 255, 0.16) 0px 0px 0px 1px inset",
+    "solid": true
+   },
+   {
+    "id": "control-panel",
+    "bg": "rgb(11, 17, 24)",
+    "alpha": 1,
+    "backdrop": "none",
+    "image": "none",
+    "hasInsetRing": true,
+    "shadow": "rgba(255, 255, 255, 0.16) 0px 0px 0px 1px inset",
+    "solid": true
+   },
+   {
+    "id": "gev-voice-control",
+    "bg": "rgb(11, 17, 24)",
+    "alpha": 1,
+    "backdrop": "none",
+    "image": "none",
+    "hasInsetRing": true,
+    "shadow": "rgba(255, 255, 255, 0.16) 0px 0px 0px 1px inset",
+    "solid": true
+   },
+   {
+    "id": "top-center-actions",
+    "bg": "rgb(11, 17, 24)",
+    "alpha": 1,
+    "backdrop": "none",
+    "image": "none",
+    "hasInsetRing": true,
+    "shadow": "rgba(255, 255, 255, 0.16) 0px 0px 0px 1px inset",
+    "solid": true
+   }
+  ],
+  "skins": [
+   {
+    "cls": "dock-tray-toggle lg-glass-skin",
+    "bg": "rgba(0, 0, 0, 0)",
+    "alpha": 0,
+    "backdrop": "none"
+   },
+   {
+    "cls": "gev-voice-tier-btn lg-glass-skin",
+    "bg": "rgb(18, 26, 36)",
+    "alpha": 1,
+    "backdrop": "none"
+   },
+   {
+    "cls": "lg-glass-skin",
+    "bg": "rgb(18, 26, 36)",
+    "alpha": 1,
+    "backdrop": "none"
+   },
+   {
+    "cls": "panel-header dock-tray-toggle lg-glass-s",
+    "bg": "rgba(0, 0, 0, 0)",
+    "alpha": 0,
+    "backdrop": "none"
+   }
+  ],
+  "glassCanvasDisplay": "none",
+  "glassCanvasHidden": true,
+  "matches": true
+ },
+ "audit": {
+  "surfaces": 13,
+  "scale": 2,
+  "canvas": [
+   3072,
+   1460
+  ],
+  "cards": [
+   {
+    "id": "data-panel",
+    "isGevLc": true,
+    "bg": "rgba(6, 10, 16, 0.22)",
+    "innerBd": null,
+    "scrollers": 0,
+    "black": 8,
+    "missing": false
+   },
+   {
+    "id": "scene-panel",
+    "isGevLc": true,
+    "bg": "rgba(6, 10, 16, 0.22)",
+    "innerBd": null,
+    "scrollers": 0,
+    "black": 0,
+    "missing": false
+   },
+   {
+    "id": "pp-toggles",
+    "isGevLc": true,
+    "bg": "rgba(6, 10, 16, 0.22)",
+    "innerBd": null,
+    "scrollers": 0,
+    "black": 11,
+    "missing": false
+   },
+   {
+    "id": "cctv-panel",
+    "isGevLc": true,
+    "bg": "rgba(6, 10, 16, 0.22)",
+    "innerBd": null,
+    "scrollers": 0,
+    "black": 0,
+    "missing": false
+   },
+   {
+    "id": "global-context-panel",
+    "isGevLc": true,
+    "bg": "rgba(6, 10, 16, 0.22)",
+    "innerBd": null,
+    "scrollers": 0,
+    "black": 1,
+    "missing": false
+   },
+   {
+    "id": "location-bar",
+    "isGevLc": true,
+    "bg": "rgba(6, 10, 16, 0.22)",
+    "innerBd": null,
+    "scrollers": 0,
+    "black": 1,
+    "missing": false
+   },
+   {
+    "id": "gev-gfx-fab",
+    "isGevLc": true,
+    "bg": "rgba(6, 10, 16, 0.22)",
+    "innerBd": null,
+    "scrollers": 0,
+    "black": 0,
+    "missing": false
+   },
+   {
+    "id": "control-panel",
+    "isGevLc": true,
+    "bg": "rgba(6, 10, 16, 0.22)",
+    "innerBd": "none",
+    "scrollers": 0,
+    "black": 12,
+    "missing": false
+   },
+   {
+    "id": "gev-voice-control",
+    "isGevLc": true,
+    "bg": "rgba(5, 9, 14, 0.48)",
+    "innerBd": null,
+    "scrollers": 0,
+    "black": 0,
+    "missing": false
+   }
+  ]
+ },
+ "morph": {
+  "sceneDisplay": "block",
+  "sceneVis": "visible",
+  "sceneH": 41,
+  "collapsed": true,
+  "dpH": 41
+ },
+ "errors": []
+}

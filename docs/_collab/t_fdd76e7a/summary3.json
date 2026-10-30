@@ -1,0 +1,229 @@
+{
+ "rows": [
+  {
+   "phase": "dark",
+   "lum": "dark",
+   "mat": null,
+   "worst": 3.09,
+   "pass": "8/10",
+   "bad": [
+    "gev-voice-control:标准=3.7",
+    "gev-voice-control:ON/OFF=3.09"
+   ],
+   "chipWorst": 5.36,
+   "chipBad": []
+  },
+  {
+   "phase": "dark-before",
+   "lum": "dark",
+   "mat": null,
+   "worst": 3.02,
+   "pass": "8/10",
+   "bad": [
+    "gev-voice-control:标准=3.61",
+    "gev-voice-control:ON/OFF=3.02"
+   ],
+   "chipWorst": 7.02,
+   "chipBad": []
+  },
+  {
+   "phase": "light",
+   "lum": "dark",
+   "mat": "light",
+   "worst": 1.12,
+   "pass": "5/10",
+   "bad": [
+    "global-context-panel:radio=1.25",
+    "gev-voice-control:关=1.25",
+    "gev-voice-control:标准=1.12",
+    "gev-voice-control:ON/OFF=1.19",
+    "gev-voice-control:语音待命=1.82"
+   ],
+   "chipWorst": 5.46,
+   "chipBad": []
+  },
+  {
+   "phase": "bright",
+   "lum": "dark",
+   "mat": null,
+   "worst": 3.09,
+   "pass": "7/10",
+   "bad": [
+    "gev-voice-control:关=4.24",
+    "gev-voice-control:标准=3.57",
+    "gev-voice-control:ON/OFF=3.09"
+   ],
+   "chipWorst": 2.95,
+   "chipBad": [
+    "#gev-locate-btn:⌖=2.95",
+    "#gev-locate-btn:定位=2.95",
+    "#gev-lang-toggle:/=3.11",
+    "#gev-lang-toggle:EN=3.11"
+   ]
+  },
+  {
+   "phase": "bright-before",
+   "lum": "dark",
+   "mat": null,
+   "worst": 3.03,
+   "pass": "5/10",
+   "bad": [
+    "global-context-panel:radio=3.84",
+    "gev-voice-control:关=3.62",
+    "gev-voice-control:标准=3.35",
+    "gev-voice-control:ON/OFF=3.03",
+    "gev-voice-control:语音待命=4.41"
+   ],
+   "chipWorst": 4.76,
+   "chipBad": []
+  },
+  {
+   "phase": "bright-probe",
+   "lum": "bright",
+   "mat": null,
+   "worst": 3.41,
+   "pass": "8/10",
+   "bad": [
+    "gev-voice-control:标准=4.13",
+    "gev-voice-control:ON/OFF=3.41"
+   ],
+   "chipWorst": 5.85,
+   "chipBad": []
+  },
+  {
+   "phase": "white",
+   "lum": null,
+   "mat": null,
+   "worst": 3.04,
+   "pass": "5/10",
+   "bad": [
+    "global-context-panel:radio=3.14",
+    "gev-voice-control:关=3.3",
+    "gev-voice-control:标准=3.46",
+    "gev-voice-control:ON/OFF=3.04",
+    "gev-voice-control:语音待命=3.99"
+   ],
+   "chipWorst": 2.76,
+   "chipBad": [
+    "#gev-locate-btn:⌖=2.76",
+    "#gev-locate-btn:定位=2.76",
+    "#gev-lang-toggle:/=2.76",
+    "#gev-lang-toggle:EN=2.76",
+    "#key-setup-chip:bolt=3.08"
+   ]
+  },
+  {
+   "phase": "white-before",
+   "lum": "dark",
+   "mat": null,
+   "worst": 2.43,
+   "pass": "0/10",
+   "bad": [
+    "data-panel:数据图层=3.53",
+    "scene-panel:场景=4.01",
+    "pp-toggles:显示=3.87",
+    "cctv-panel:监控=4",
+    "global-context-panel:上下文=4",
+    "global-context-panel:radio=2.43",
+    "gev-voice-control:关=2.67",
+    "gev-voice-control:标准=3.24"
+   ],
+   "chipWorst": 3.08,
+   "chipBad": [
+    "#key-setup-chip:bolt=3.08"
+   ]
+  },
+  {
+   "phase": "white-probe",
+   "lum": "bright",
+   "mat": null,
+   "worst": 3.36,
+   "pass": "8/10",
+   "bad": [
+    "gev-voice-control:标准=4.07",
+    "gev-voice-control:ON/OFF=3.36"
+   ],
+   "chipWorst": 5.58,
+   "chipBad": []
+  }
+ ],
+ "layoutCards": {
+  "dark vs dark-before": {
+   "fieldsOff": 0,
+   "maxDelta": 0
+  },
+  "bright vs bright-before": {
+   "fieldsOff": 0,
+   "maxDelta": 0
+  },
+  "white vs white-before": {
+   "fieldsOff": 0,
+   "maxDelta": 0
+  }
+ },
+ "layoutUi": {
+  "dark vs dark-before": {
+   "count": 14,
+   "mismatches": 3,
+   "sample": [
+    {
+     "k": "#gev-perf-fps#0",
+     "d": [
+      0,
+      0,
+      5.3,
+      0
+     ],
+     "overflowDelta": [
+      5,
+      5,
+      0,
+      0
+     ]
+    },
+    {
+     "k": "#gev-lang-toggle#0",
+     "d": [
+      5.3,
+      0,
+      0,
+      0
+     ],
+     "overflowDelta": [
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "k": "#gev-perf-btn#0",
+     "d": [
+      5.3,
+      0,
+      0,
+      0
+     ],
+     "overflowDelta": [
+      0,
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  "white vs white-before": {
+   "count": 14,
+   "mismatches": 0,
+   "sample": []
+  }
+ },
+ "uiCount": 14,
+ "errors": [],
+ "errorCount": 0,
+ "trays": {
+  "control": true,
+  "location": true
+ }
+}

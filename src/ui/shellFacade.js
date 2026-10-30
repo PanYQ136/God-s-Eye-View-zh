@@ -1074,13 +1074,13 @@ export class ShellFacade {
   }
 
   /**
-   * Updates collapse button glyphs based on panel state. Right-rail panels
-   * use directional arrows; left-stack panels use +/- symbols.
+   * Syncs disclosure state that is not a collapse button (dock handle aria,
+   * Radio / Context launchers). The 7 card collapse buttons no longer exist.
    * @param {HTMLElement} panelEl - The panel DOM element.
    * @returns {void}
    */
-  _syncPanelCollapseButton(panelEl) {
-    return this._panelChrome._syncPanelCollapseButton(...arguments);
+  _syncPanelDisclosureState(panelEl) {
+    return this._panelChrome._syncPanelDisclosureState(...arguments);
   }
 
   /**

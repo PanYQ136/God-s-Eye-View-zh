@@ -1,0 +1,66 @@
+{
+ "darkAfter": [
+  {
+   "id": "location-bar",
+   "t": "位置",
+   "pixel": 8.09,
+   "bg": 0.057,
+   "fg": 0.812
+  },
+  {
+   "id": "control-panel",
+   "t": "视觉预设",
+   "pixel": 6.98,
+   "bg": 0.075,
+   "fg": 0.822
+  }
+ ],
+ "darkBefore": [
+  {
+   "id": "location-bar",
+   "t": "位置",
+   "pixel": 9.82,
+   "bg": 0.038,
+   "fg": 0.812
+  },
+  {
+   "id": "control-panel",
+   "t": "视觉预设",
+   "pixel": 8.83,
+   "bg": 0.049,
+   "fg": 0.822
+  }
+ ],
+ "brightAfter": [
+  {
+   "id": "location-bar",
+   "t": "位置",
+   "pixel": 6.15,
+   "bg": 0.09,
+   "fg": 0.813
+  },
+  {
+   "id": "control-panel",
+   "t": "视觉预设",
+   "pixel": 8.22,
+   "bg": 0.056,
+   "fg": 0.821
+  }
+ ],
+ "brightBefore": [
+  {
+   "id": "location-bar",
+   "t": "位置",
+   "pixel": 12.31,
+   "bg": 0.019,
+   "fg": 0.804
+  },
+  {
+   "id": "control-panel",
+   "t": "视觉预设",
+   "pixel": 13.58,
+   "bg": 0.014,
+   "fg": 0.814
+  }
+ ]
+}

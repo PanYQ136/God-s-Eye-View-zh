@@ -1,0 +1,198 @@
+{
+ "probe": "qa-lg-r5-responsive",
+ "rows": [
+  {
+   "rects": {
+    "gev-locate-btn": {
+     "x": 886,
+     "y": 35,
+     "w": 63,
+     "h": 30
+    },
+    "gev-perf-wrap": {
+     "x": 961,
+     "y": 35,
+     "w": 153.6,
+     "h": 30
+    },
+    "gev-lang-toggle": {
+     "x": 1126.6,
+     "y": 35,
+     "w": 82.8,
+     "h": 30
+    }
+   },
+   "overlaps": {
+    "locate_perf": false,
+    "perf_lang": false,
+    "locate_lang": false
+   },
+   "scrollW": 1536,
+   "innerW": 1536,
+   "overflowX": 0,
+   "langW": 82.8,
+   "width": 1536
+  },
+  {
+   "rects": {
+    "gev-locate-btn": {
+     "x": 838,
+     "y": 35,
+     "w": 63,
+     "h": 30
+    },
+    "gev-perf-wrap": {
+     "x": 913,
+     "y": 35,
+     "w": 153.6,
+     "h": 30
+    },
+    "gev-lang-toggle": {
+     "x": 1078.6,
+     "y": 35,
+     "w": 82.8,
+     "h": 30
+    }
+   },
+   "overlaps": {
+    "locate_perf": false,
+    "perf_lang": false,
+    "locate_lang": false
+   },
+   "scrollW": 1440,
+   "innerW": 1440,
+   "overflowX": 0,
+   "langW": 82.8,
+   "width": 1440
+  },
+  {
+   "rects": {
+    "gev-locate-btn": {
+     "x": 758,
+     "y": 35,
+     "w": 63,
+     "h": 30
+    },
+    "gev-perf-wrap": {
+     "x": 833,
+     "y": 35,
+     "w": 153.6,
+     "h": 30
+    },
+    "gev-lang-toggle": {
+     "x": 998.6,
+     "y": 35,
+     "w": 82.8,
+     "h": 30
+    }
+   },
+   "overlaps": {
+    "locate_perf": false,
+    "perf_lang": false,
+    "locate_lang": false
+   },
+   "scrollW": 1280,
+   "innerW": 1280,
+   "overflowX": 0,
+   "langW": 82.8,
+   "width": 1280
+  },
+  {
+   "rects": {
+    "gev-locate-btn": {
+     "x": 630,
+     "y": 35,
+     "w": 63,
+     "h": 30
+    },
+    "gev-perf-wrap": {
+     "x": 705,
+     "y": 35,
+     "w": 153.6,
+     "h": 30
+    },
+    "gev-lang-toggle": {
+     "x": 870.6,
+     "y": 35,
+     "w": 82.8,
+     "h": 30
+    }
+   },
+   "overlaps": {
+    "locate_perf": false,
+    "perf_lang": false,
+    "locate_lang": false
+   },
+   "scrollW": 1024,
+   "innerW": 1024,
+   "overflowX": 0,
+   "langW": 82.8,
+   "width": 1024
+  },
+  {
+   "rects": {
+    "gev-locate-btn": {
+     "x": 502,
+     "y": 35,
+     "w": 63,
+     "h": 30
+    },
+    "gev-perf-wrap": {
+     "x": 577,
+     "y": 35,
+     "w": 153.6,
+     "h": 30
+    },
+    "gev-lang-toggle": {
+     "x": 742.6,
+     "y": 35,
+     "w": 82.8,
+     "h": 30
+    }
+   },
+   "overlaps": {
+    "locate_perf": false,
+    "perf_lang": false,
+    "locate_lang": false
+   },
+   "scrollW": 768,
+   "innerW": 768,
+   "overflowX": 0,
+   "langW": 82.8,
+   "width": 768
+  },
+  {
+   "rects": {
+    "gev-locate-btn": {
+     "x": 377,
+     "y": 11,
+     "w": 51,
+     "h": 30
+    },
+    "gev-perf-wrap": {
+     "x": 440,
+     "y": 11,
+     "w": 107.7,
+     "h": 30
+    },
+    "gev-lang-toggle": {
+     "x": 559.7,
+     "y": 11,
+     "w": 82.8,
+     "h": 30
+    }
+   },
+   "overlaps": {
+    "locate_perf": false,
+    "perf_lang": false,
+    "locate_lang": false
+   },
+   "scrollW": 375,
+   "innerW": 375,
+   "overflowX": 0,
+   "langW": 82.8,
+   "width": 375
+  }
+ ],
+ "errors": []
+}

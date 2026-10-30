@@ -2186,3 +2186,54 @@ body.cockpit-mode #intel-hud .hud-right-edge {
     animation: none;
   }
 }
+
+/* ── 旧 ◀ / ▶ / Ⅱ 字符已删除：改用纯 CSS 图形（不依赖图标字体，零网络依赖）──
+   2026-10-29 Phase4C：模板与运行时绑定里的 Unicode 三角/方块字符全部退场，
+   这里只负责把 .lc-tri（方向三角）与 .lc-pause（暂停双竖条）画出来。 */
+.lc-tri {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-top: 4.5px solid transparent;
+  border-bottom: 4.5px solid transparent;
+  vertical-align: -1px;
+}
+.lc-tri--l {
+  border-right: 7px solid currentColor;
+}
+.lc-tri--r {
+  border-left: 7px solid currentColor;
+}
+.lc-tri + .lc-tri {
+  margin-left: 1.5px;
+}
+.lc-pause {
+  display: inline-block;
+  width: 8px;
+  height: 10px;
+  border-left: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+  vertical-align: -1px;
+}
+/* 折叠开关（原 ◀/▶ 字符）：收起向左，展开向右 */
+.cockpit-utility-glyph::after {
+  content: '';
+  display: block;
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-right: 5.5px solid currentColor;
+}
+.cockpit-utility-glyph[aria-expanded='true']::after {
+  border-right: 0;
+  border-left: 5.5px solid currentColor;
+}
+/* SEEK 按钮：图形 + 文字并排 */
+#sdr-seek-back-btn,
+#sdr-seek-forward-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}

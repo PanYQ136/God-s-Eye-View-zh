@@ -1,0 +1,568 @@
+{
+  "url": "http://localhost:5183/",
+  "viewport": [
+    1536,
+    730
+  ],
+  "errors": [],
+  "cards": [
+    {
+      "id": "data-panel",
+      "present": true,
+      "lc": true,
+      "collapsed": true,
+      "floating": false,
+      "rect": [
+        52,
+        94,
+        176,
+        41
+      ],
+      "display": "block",
+      "opacity": "1",
+      "border": "0px none rgb(238, 247, 255)",
+      "outline": "3px",
+      "boxShadow": "none",
+      "background": "rgba(0, 0, 0, 0) | none",
+      "backdrop": "none",
+      "radius": "16px",
+      "scrollbars": {
+        "sw": 0,
+        "sh": 0,
+        "ox": "hidden",
+        "oy": "hidden"
+      },
+      "innerBg": "rgba(0, 0, 0, 0)",
+      "innerShadow": "none",
+      "innerBackdrop": "none",
+      "cssVarMarks": "panel-collapsible collapsed active gev-lc"
+    },
+    {
+      "id": "scene-panel",
+      "present": true,
+      "lc": true,
+      "collapsed": true,
+      "floating": false,
+      "rect": [
+        52,
+        143,
+        176,
+        41
+      ],
+      "display": "block",
+      "opacity": "1",
+      "border": "0px none rgb(238, 247, 255)",
+      "outline": "3px",
+      "boxShadow": "none",
+      "background": "rgba(0, 0, 0, 0) | none",
+      "backdrop": "none",
+      "radius": "16px",
+      "scrollbars": {
+        "sw": 0,
+        "sh": 0,
+        "ox": "hidden",
+        "oy": "hidden"
+      },
+      "innerBg": "rgba(0, 0, 0, 0)",
+      "innerShadow": "none",
+      "innerBackdrop": "none",
+      "cssVarMarks": "panel-collapsible collapsed gev-lc"
+    },
+    {
+      "id": "pp-toggles",
+      "present": true,
+      "lc": true,
+      "collapsed": true,
+      "floating": false,
+      "rect": [
+        1308,
+        94,
+        176,
+        50
+      ],
+      "display": "flex",
+      "opacity": "1",
+      "border": "0px none rgb(238, 247, 255)",
+      "outline": "3px",
+      "boxShadow": "none",
+      "background": "rgba(0, 0, 0, 0) | none",
+      "backdrop": "none",
+      "radius": "16px",
+      "scrollbars": {
+        "sw": 0,
+        "sh": 0,
+        "ox": "hidden",
+        "oy": "hidden"
+      },
+      "innerBg": "rgba(0, 0, 0, 0)",
+      "innerShadow": "none",
+      "innerBackdrop": "none",
+      "cssVarMarks": "panel-collapsible collapsed gev-lc"
+    },
+    {
+      "id": "cctv-panel",
+      "present": true,
+      "lc": true,
+      "collapsed": true,
+      "floating": false,
+      "rect": [
+        1308,
+        152,
+        176,
+        50
+      ],
+      "display": "block",
+      "opacity": "1",
+      "border": "0px none rgb(238, 247, 255)",
+      "outline": "3px",
+      "boxShadow": "none",
+      "background": "rgba(0, 0, 0, 0) | none",
+      "backdrop": "none",
+      "radius": "16px",
+      "scrollbars": {
+        "sw": 0,
+        "sh": 0,
+        "ox": "hidden",
+        "oy": "hidden"
+      },
+      "innerBg": "rgba(0, 0, 0, 0)",
+      "innerShadow": "none",
+      "innerBackdrop": "none",
+      "cssVarMarks": "panel-collapsible collapsed gev-lc"
+    },
+    {
+      "id": "global-context-panel",
+      "present": true,
+      "lc": true,
+      "collapsed": true,
+      "floating": false,
+      "rect": [
+        1308,
+        210,
+        176,
+        50
+      ],
+      "display": "block",
+      "opacity": "1",
+      "border": "0px none rgb(238, 247, 255)",
+      "outline": "3px",
+      "boxShadow": "none",
+      "background": "rgba(0, 0, 0, 0) | none",
+      "backdrop": "none",
+      "radius": "16px",
+      "scrollbars": {
+        "sw": 0,
+        "sh": 0,
+        "ox": "hidden",
+        "oy": "hidden"
+      },
+      "innerBg": "rgba(0, 0, 0, 0)",
+      "innerShadow": "none",
+      "innerBackdrop": "none",
+      "cssVarMarks": "panel-collapsible collapsed gev-lc"
+    },
+    {
+      "id": "location-bar",
+      "present": true,
+      "lc": true,
+      "collapsed": true,
+      "floating": false,
+      "rect": [
+        530,
+        632,
+        168,
+        86
+      ],
+      "display": "block",
+      "opacity": "1",
+      "border": "0px none rgb(238, 247, 255)",
+      "outline": "3px",
+      "boxShadow": "none",
+      "background": "rgba(0, 0, 0, 0) | none",
+      "backdrop": "blur(18px) saturate(1.4)",
+      "radius": "16px",
+      "scrollbars": {
+        "sw": 334,
+        "sh": 0,
+        "ox": "visible",
+        "oy": "visible"
+      },
+      "innerBg": "rgba(0, 0, 0, 0)",
+      "innerShadow": "none",
+      "innerBackdrop": "none",
+      "cssVarMarks": "panel-collapsible collapsed gev-lc"
+    },
+    {
+      "id": "control-panel",
+      "present": true,
+      "lc": true,
+      "collapsed": true,
+      "floating": false,
+      "rect": [
+        838,
+        632,
+        168,
+        86
+      ],
+      "display": "block",
+      "opacity": "1",
+      "border": "0px none rgb(238, 247, 255)",
+      "outline": "3px",
+      "boxShadow": "none",
+      "background": "rgba(0, 0, 0, 0) | none",
+      "backdrop": "blur(18px) saturate(1.4)",
+      "radius": "16px",
+      "scrollbars": {
+        "sw": 34,
+        "sh": 0,
+        "ox": "visible",
+        "oy": "visible"
+      },
+      "innerBg": "rgba(0, 0, 0, 0)",
+      "innerShadow": "none",
+      "innerBackdrop": "none",
+      "cssVarMarks": "panel-collapsible collapsed gev-lc"
+    },
+    {
+      "id": "gev-voice-control",
+      "present": true,
+      "lc": true,
+      "collapsed": false,
+      "floating": false,
+      "rect": [
+        698,
+        632,
+        140,
+        86
+      ],
+      "display": "grid",
+      "opacity": "1",
+      "border": "0px none rgb(232, 234, 237)",
+      "outline": "3px",
+      "boxShadow": "rgba(0, 0, 0, 0.4) 0px 4px 14px 0px, rgba(0, 212, 255, 0.06) 0px 0px 0px 1px inset",
+      "background": "rgba(0, 0, 0, 0) | none",
+      "backdrop": "blur(18px) saturate(1.4)",
+      "radius": "16px",
+      "scrollbars": {
+        "sw": 119,
+        "sh": 0,
+        "ox": "visible",
+        "oy": "visible"
+      },
+      "innerBg": null,
+      "innerShadow": null,
+      "innerBackdrop": null,
+      "cssVarMarks": "gev-lc"
+    },
+    {
+      "id": "gev-gfx-fab",
+      "present": true,
+      "lc": true,
+      "collapsed": false,
+      "floating": false,
+      "rect": [
+        1482,
+        592,
+        42,
+        42
+      ],
+      "display": "block",
+      "opacity": "1",
+      "border": "0px none rgb(191, 233, 255)",
+      "outline": "3px",
+      "boxShadow": "none",
+      "background": "rgba(0, 0, 0, 0) | none",
+      "backdrop": "blur(4px)",
+      "radius": "16px",
+      "scrollbars": {
+        "sw": 0,
+        "sh": 0,
+        "ox": "hidden",
+        "oy": "hidden"
+      },
+      "innerBg": null,
+      "innerShadow": null,
+      "innerBackdrop": null,
+      "cssVarMarks": "gev-lc"
+    }
+  ],
+  "glass": {
+    "present": true,
+    "size": [
+      1536,
+      730
+    ],
+    "zIndex": "4",
+    "on": true,
+    "lum": "dark"
+  },
+  "stats": {
+    "fps": 164,
+    "frames": 930,
+    "scale": 1,
+    "count": 13,
+    "max": 16,
+    "surfaces": [
+      {
+        "id": "data-panel",
+        "tag": "data-panel",
+        "variant": "regular",
+        "lum": 0,
+        "dim": 0,
+        "interior": 0.9,
+        "fill": 0.1,
+        "rect": [
+          52,
+          94,
+          176,
+          41
+        ],
+        "radius": 16
+      },
+      {
+        "id": "scene-panel",
+        "tag": "scene-panel",
+        "variant": "regular",
+        "lum": 0,
+        "dim": 0,
+        "interior": 0.9,
+        "fill": 0.1,
+        "rect": [
+          52,
+          143,
+          176,
+          41
+        ],
+        "radius": 16
+      },
+      {
+        "id": "pp-toggles",
+        "tag": "pp-toggles",
+        "variant": "regular",
+        "lum": 0,
+        "dim": 0,
+        "interior": 0.9,
+        "fill": 0.1,
+        "rect": [
+          1308,
+          94,
+          176,
+          50
+        ],
+        "radius": 16
+      },
+      {
+        "id": "cctv-panel",
+        "tag": "cctv-panel",
+        "variant": "regular",
+        "lum": 0,
+        "dim": 0,
+        "interior": 0.9,
+        "fill": 0.1,
+        "rect": [
+          1308,
+          152,
+          176,
+          50
+        ],
+        "radius": 16
+      },
+      {
+        "id": "global-context-panel",
+        "tag": "global-context-panel",
+        "variant": "regular",
+        "lum": 0,
+        "dim": 0,
+        "interior": 0.9,
+        "fill": 0.1,
+        "rect": [
+          1308,
+          210,
+          176,
+          50
+        ],
+        "radius": 16
+      },
+      {
+        "id": "location-bar",
+        "tag": "location-bar",
+        "variant": "regular",
+        "lum": 0,
+        "dim": 0,
+        "interior": 0.9,
+        "fill": 0.1,
+        "rect": [
+          530,
+          632,
+          168,
+          86
+        ],
+        "radius": 16
+      },
+      {
+        "id": "control-panel",
+        "tag": "control-panel",
+        "variant": "regular",
+        "lum": 0,
+        "dim": 0,
+        "interior": 0.9,
+        "fill": 0.1,
+        "rect": [
+          838,
+          632,
+          168,
+          86
+        ],
+        "radius": 16
+      },
+      {
+        "id": "gev-voice-control",
+        "tag": "gev-voice-control",
+        "variant": "regular",
+        "lum": 0,
+        "dim": 0,
+        "interior": 0.9,
+        "fill": 0.1,
+        "rect": [
+          698,
+          632,
+          140,
+          86
+        ],
+        "radius": 16
+      },
+      {
+        "id": "gev-gfx-fab",
+        "tag": "gev-gfx-fab",
+        "variant": "clear",
+        "lum": 0,
+        "dim": 0.35,
+        "interior": 0.75,
+        "fill": 0.05,
+        "rect": [
+          1482,
+          592,
+          42,
+          42
+        ],
+        "radius": 21
+      },
+      {
+        "id": "topbar",
+        "tag": "topbar",
+        "variant": "regular",
+        "lum": 0,
+        "dim": 0,
+        "interior": 0.9,
+        "fill": 0.1,
+        "rect": [
+          662,
+          32,
+          212,
+          36
+        ],
+        "radius": 18
+      },
+      {
+        "id": "locate-chip",
+        "tag": "locate-chip",
+        "variant": "clear",
+        "lum": 0,
+        "dim": 0.35,
+        "interior": 0.75,
+        "fill": 0.05,
+        "rect": [
+          886,
+          35,
+          61,
+          30
+        ],
+        "radius": 15
+      },
+      {
+        "id": "perf-chip",
+        "tag": "perf-chip",
+        "variant": "clear",
+        "lum": 0,
+        "dim": 0.35,
+        "interior": 0.75,
+        "fill": 0.05,
+        "rect": [
+          959,
+          35,
+          154,
+          30
+        ],
+        "radius": 15
+      },
+      {
+        "id": "lang-chip",
+        "tag": "lang-chip",
+        "variant": "clear",
+        "lum": 0,
+        "dim": 0.35,
+        "interior": 0.75,
+        "fill": 0.05,
+        "rect": [
+          1125,
+          35,
+          71,
+          30
+        ],
+        "radius": 15
+      }
+    ],
+    "config": {
+      "edge": 12,
+      "thick": 22,
+      "refract": 1.35,
+      "dispPx": 2,
+      "dispCoeff": [
+        0.82,
+        1,
+        1.22
+      ],
+      "blurCenter": 10,
+      "blurEdge": 16,
+      "rimWhite": 0.27,
+      "interiorRegular": 0.9,
+      "interiorClear": 0.75,
+      "dimClear": 0.35,
+      "tint": 0.02
+    }
+  },
+  "sb": {
+    "docScrollW": 1536,
+    "winW": 1536
+  },
+  "blackText": [
+    "pp-toggles pp-icon rgb(0, 0, 0)",
+    "pp-toggles pp-label rgb(13, 16, 21)",
+    "pp-toggles pp-icon rgb(0, 0, 0)",
+    "pp-toggles pp-label rgb(13, 16, 21)",
+    "pp-toggles pp-icon material-symbols-outlined rgb(0, 0, 0)",
+    "pp-toggles pp-label rgb(13, 16, 21)",
+    "pp-toggles pp-icon material-symbols-outlined rgb(0, 0, 0)",
+    "pp-toggles pp-label rgb(13, 16, 21)",
+    "pp-toggles pp-icon material-symbols-outlined rgb(0, 0, 0)",
+    "pp-toggles pp-label rgb(13, 16, 21)",
+    "pp-toggles pp-icon rgb(0, 0, 0)",
+    "pp-toggles pp-label rgb(13, 16, 21)",
+    "pp-toggles pp-icon rgb(0, 0, 0)",
+    "pp-toggles pp-label rgb(13, 16, 21)",
+    "pp-toggles pp-icon rgb(0, 0, 0)",
+    "pp-toggles gev-gfx-launch rgb(0, 0, 0)",
+    "global-context-panel tr3b-toggle rgb(0, 0, 0)",
+    "location-bar SPAN rgb(0, 0, 0)"
+  ],
+  "dpr": 1,
+  "title": "上帝之眼 · God's Eye View",
+  "glPerf": {
+    "frames": 469,
+    "ms": 3016,
+    "fps": 155.5,
+    "statsFps": 164
+  },
+  "longTasks": [],
+  "at": "2026-10-26T07:21:59.997Z"
+}

@@ -1,0 +1,214 @@
+{
+ "cards": {
+  "data-panel": {
+   "before": [
+    52,
+    94,
+    176,
+    43
+   ],
+   "expanded": [
+    52,
+    94,
+    320,
+    380
+   ],
+   "after": [
+    52,
+    94,
+    176,
+    43
+   ],
+   "restored": true,
+   "overlapPx": 0,
+   "surfaces": {
+    "count": 8,
+    "rings": "data-panel:16,pp-toggles:10,cctv-panel:10,global-context-panel:10,location-bar:16,control-panel:16,gev-voice-control:16,gev-gfx-fab:8.4",
+    "err": null
+   }
+  },
+  "scene-panel": {
+   "before": [
+    52,
+    145,
+    176,
+    43
+   ],
+   "expanded": [
+    52,
+    145,
+    320,
+    340
+   ],
+   "after": [
+    52,
+    145,
+    176,
+    43
+   ],
+   "restored": true,
+   "overlapPx": 0,
+   "surfaces": {
+    "count": 9,
+    "rings": "data-panel:8.6,scene-panel:16,pp-toggles:10,cctv-panel:10,global-context-panel:10,location-bar:16,control-panel:16,gev-voice-control:16,gev-gfx-fab:8.4",
+    "err": null
+   }
+  },
+  "pp-toggles": {
+   "before": [
+    1308,
+    94,
+    176,
+    50
+   ],
+   "expanded": [
+    1184,
+    94,
+    300,
+    430
+   ],
+   "after": [
+    1308,
+    94,
+    176,
+    50
+   ],
+   "restored": true,
+   "overlapPx": 0,
+   "surfaces": {
+    "count": 7,
+    "rings": "data-panel:8.6,scene-panel:8.6,pp-toggles:16,location-bar:16,control-panel:16,gev-voice-control:16,gev-gfx-fab:8.4",
+    "err": null
+   }
+  },
+  "cctv-panel": {
+   "before": [
+    1308,
+    152,
+    176,
+    50
+   ],
+   "expanded": [
+    1144,
+    152,
+    340,
+    412
+   ],
+   "after": [
+    1308,
+    152,
+    176,
+    50
+   ],
+   "restored": true,
+   "overlapPx": 0,
+   "surfaces": {
+    "count": 8,
+    "rings": "data-panel:8.6,scene-panel:8.6,pp-toggles:10,cctv-panel:16,location-bar:16,control-panel:16,gev-voice-control:16,gev-gfx-fab:8.4",
+    "err": null
+   }
+  },
+  "global-context-panel": {
+   "before": [
+    1308,
+    210,
+    176,
+    50
+   ],
+   "expanded": [
+    1164,
+    210,
+    320,
+    354
+   ],
+   "after": [
+    1308,
+    210,
+    176,
+    50
+   ],
+   "restored": true,
+   "overlapPx": 0,
+   "surfaces": {
+    "count": 9,
+    "rings": "data-panel:8.6,scene-panel:8.6,pp-toggles:10,cctv-panel:10,global-context-panel:16,location-bar:16,control-panel:16,gev-voice-control:16,gev-gfx-fab:8.4",
+    "err": null
+   }
+  },
+  "location-bar": {
+   "before": [
+    530,
+    632,
+    168,
+    86
+   ],
+   "expanded": [
+    530,
+    478,
+    380,
+    240
+   ],
+   "after": [
+    530,
+    632,
+    168,
+    86
+   ],
+   "restored": true,
+   "overlapPx": 0,
+   "surfaces": {
+    "count": 7,
+    "rings": "data-panel:8.6,scene-panel:8.6,pp-toggles:10,cctv-panel:10,global-context-panel:10,location-bar:16,gev-gfx-fab:8.4",
+    "err": null
+   }
+  },
+  "control-panel": {
+   "before": [
+    838,
+    632,
+    168,
+    86
+   ],
+   "expanded": [
+    838,
+    338,
+    465,
+    380
+   ],
+   "after": [
+    838,
+    632,
+    168,
+    86
+   ],
+   "restored": true,
+   "overlapPx": 0,
+   "surfaces": {
+    "count": 9,
+    "rings": "data-panel:8.6,scene-panel:8.6,pp-toggles:10,cctv-panel:10,global-context-panel:10,location-bar:16,control-panel:16,gev-voice-control:16,gev-gfx-fab:8.4",
+    "err": null
+   }
+  }
+ },
+ "errors": [],
+ "pageAfterAll": {
+  "scrollWidth": 1536,
+  "innerWidth": 1536,
+  "hidden": 0,
+  "floating": 0
+ },
+ "narrow": {
+  "scrollWidth": 768,
+  "innerWidth": 768,
+  "st": {
+   "count": 9,
+   "err": null,
+   "scale": 1,
+   "canvas": [
+    768,
+    900
+   ]
+  }
+ },
+ "narrowErrors": []
+}

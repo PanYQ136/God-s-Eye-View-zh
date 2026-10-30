@@ -96,9 +96,21 @@
   display: none;
 }
 
+/* 悬停/聚焦时把数值放回来，但**不留在标题行里**：140px 卡片的文本列只有 75px，
+   关(10)+标准(48)+数值(38)+两个间隙 ≈ 105px → 行内容撑到 111/75，成本簇右缘落到
+   767（卡右缘 738），数值被右侧邻卡（control-panel 起点 744）挡住＝审计里的「被裁」。
+   这里改成绝对定位到卡片第三行（底部 0.85rem 那条空行：紧凑形态下 readout 是
+   display:contents，整行是空的），左边界从麦克风列之后开始，右边界贴卡内缘 →
+   行内宽度回到 关+标准 ≈ 64/75，数值仍在卡内可见、不压邻卡。 */
 #command-dock #gev-voice-control:hover .gev-voice-cost-value,
 #command-dock #gev-voice-control:focus-within .gev-voice-cost-value {
   display: block;
+  position: absolute;
+  left: 3.4rem;
+  right: 0.4rem;
+  bottom: 0.24rem;
+  text-align: right;
+  line-height: 1;
 }
 
 /* 预算数值隐藏后行内空出 ≈6px，flex 会把已经收缩到 0 的 kicker 撑回一点，

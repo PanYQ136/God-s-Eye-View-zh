@@ -1,0 +1,416 @@
+{
+ "probe": "review-lg-probe18",
+ "url": "http://127.0.0.1:4173/",
+ "errors": [],
+ "scenes": [
+  {
+   "pos": "P1 福州城区",
+   "moved": {
+    "ok": true
+   },
+   "rows": [
+    {
+     "text": "关",
+     "color": "rgb(255, 255, 255)",
+     "pad2": {
+      "bg": 0.043,
+      "fg": 1,
+      "contrast": 11.34
+     },
+     "pad5": {
+      "bg": 0.04,
+      "fg": 1,
+      "contrast": 11.63
+     }
+    },
+    {
+     "text": "标准",
+     "color": "rgb(255, 255, 255)",
+     "pad2": {
+      "bg": 0.046,
+      "fg": 1,
+      "contrast": 10.93
+     },
+     "pad5": {
+      "bg": 0.045,
+      "fg": 1,
+      "contrast": 11.05
+     }
+    },
+    {
+     "text": "~$0.00",
+     "color": "rgb(207, 224, 238)",
+     "pad2": {
+      "bg": 0.038,
+      "fg": 0.689,
+      "contrast": 8.43
+     },
+     "pad5": {
+      "bg": 0.041,
+      "fg": 0.689,
+      "contrast": 8.11
+     }
+    },
+    {
+     "text": "ON/OFF",
+     "color": "rgb(255, 255, 255)",
+     "pad2": {
+      "bg": 0.023,
+      "fg": 1,
+      "contrast": 14.32
+     },
+     "pad5": {
+      "bg": 0.024,
+      "fg": 1,
+      "contrast": 14.15
+     }
+    },
+    {
+     "text": "语音待命",
+     "color": "rgb(207, 224, 238)",
+     "pad2": {
+      "bg": 0.038,
+      "fg": 0.727,
+      "contrast": 8.79
+     },
+     "pad5": {
+      "bg": 0.038,
+      "fg": 0.727,
+      "contrast": 8.84
+     }
+    }
+   ],
+   "cardLum": "dark"
+  },
+  {
+   "pos": "P2 青海盐湖（亮地形）",
+   "moved": {
+    "ok": true
+   },
+   "rows": [
+    {
+     "text": "关",
+     "color": "rgb(255, 255, 255)",
+     "pad2": {
+      "bg": 0.06,
+      "fg": 1,
+      "contrast": 9.51
+     },
+     "pad5": {
+      "bg": 0.064,
+      "fg": 1,
+      "contrast": 9.19
+     }
+    },
+    {
+     "text": "标准",
+     "color": "rgb(255, 255, 255)",
+     "pad2": {
+      "bg": 0.064,
+      "fg": 1,
+      "contrast": 9.23
+     },
+     "pad5": {
+      "bg": 0.064,
+      "fg": 1,
+      "contrast": 9.23
+     }
+    },
+    {
+     "text": "~$0.00",
+     "color": "rgb(207, 224, 238)",
+     "pad2": {
+      "bg": 0.022,
+      "fg": 0.838,
+      "contrast": 12.41
+     },
+     "pad5": {
+      "bg": 0.022,
+      "fg": 0.838,
+      "contrast": 12.41
+     }
+    },
+    {
+     "text": "ON/OFF",
+     "color": "rgb(255, 255, 255)",
+     "pad2": {
+      "bg": 0.035,
+      "fg": 1,
+      "contrast": 12.38
+     },
+     "pad5": {
+      "bg": 0.03,
+      "fg": 1,
+      "contrast": 13.1
+     }
+    },
+    {
+     "text": "语音待命",
+     "color": "rgb(207, 224, 238)",
+     "pad2": {
+      "bg": 0.055,
+      "fg": 0.844,
+      "contrast": 8.49
+     },
+     "pad5": {
+      "bg": 0.055,
+      "fg": 0.844,
+      "contrast": 8.53
+     }
+    }
+   ],
+   "cardLum": "bright"
+  },
+  {
+   "pos": "P3 夜间海面（深色）",
+   "moved": {
+    "ok": true
+   },
+   "rows": [
+    {
+     "text": "关",
+     "color": "rgb(255, 255, 255)",
+     "pad2": {
+      "bg": 0.03,
+      "fg": 1,
+      "contrast": 13.11
+     },
+     "pad5": {
+      "bg": 0.031,
+      "fg": 1,
+      "contrast": 12.93
+     }
+    },
+    {
+     "text": "标准",
+     "color": "rgb(255, 255, 255)",
+     "pad2": {
+      "bg": 0.034,
+      "fg": 1,
+      "contrast": 12.5
+     },
+     "pad5": {
+      "bg": 0.033,
+      "fg": 1,
+      "contrast": 12.7
+     }
+    },
+    {
+     "text": "~$0.00",
+     "color": "rgb(207, 224, 238)",
+     "pad2": {
+      "bg": 0.043,
+      "fg": 0.684,
+      "contrast": 7.92
+     },
+     "pad5": {
+      "bg": 0.043,
+      "fg": 0.684,
+      "contrast": 7.92
+     }
+    },
+    {
+     "text": "ON/OFF",
+     "color": "rgb(255, 255, 255)",
+     "pad2": {
+      "bg": 0.028,
+      "fg": 1,
+      "contrast": 13.51
+     },
+     "pad5": {
+      "bg": 0.028,
+      "fg": 1,
+      "contrast": 13.38
+     }
+    },
+    {
+     "text": "语音待命",
+     "color": "rgb(207, 224, 238)",
+     "pad2": {
+      "bg": 0.032,
+      "fg": 0.727,
+      "contrast": 9.44
+     },
+     "pad5": {
+      "bg": 0.032,
+      "fg": 0.727,
+      "contrast": 9.44
+     }
+    }
+   ],
+   "cardLum": "dark"
+  },
+  {
+   "pos": "P4 沙漠（高反照）",
+   "moved": {
+    "ok": true
+   },
+   "rows": [
+    {
+     "text": "关",
+     "color": "rgb(255, 255, 255)",
+     "pad2": {
+      "bg": 0.036,
+      "fg": 1,
+      "contrast": 12.23
+     },
+     "pad5": {
+      "bg": 0.037,
+      "fg": 1,
+      "contrast": 12.03
+     }
+    },
+    {
+     "text": "标准",
+     "color": "rgb(255, 255, 255)",
+     "pad2": {
+      "bg": 0.04,
+      "fg": 1,
+      "contrast": 11.69
+     },
+     "pad5": {
+      "bg": 0.04,
+      "fg": 1,
+      "contrast": 11.65
+     }
+    },
+    {
+     "text": "~$0.00",
+     "color": "rgb(207, 224, 238)",
+     "pad2": {
+      "bg": 0.017,
+      "fg": 0.792,
+      "contrast": 12.48
+     },
+     "pad5": {
+      "bg": 0.018,
+      "fg": 0.792,
+      "contrast": 12.47
+     }
+    },
+    {
+     "text": "ON/OFF",
+     "color": "rgb(255, 255, 255)",
+     "pad2": {
+      "bg": 0.04,
+      "fg": 1,
+      "contrast": 11.65
+     },
+     "pad5": {
+      "bg": 0.04,
+      "fg": 1,
+      "contrast": 11.66
+     }
+    },
+    {
+     "text": "语音待命",
+     "color": "rgb(207, 224, 238)",
+     "pad2": {
+      "bg": 0.044,
+      "fg": 0.844,
+      "contrast": 9.48
+     },
+     "pad5": {
+      "bg": 0.044,
+      "fg": 0.844,
+      "contrast": 9.48
+     }
+    }
+   ],
+   "cardLum": "bright"
+  }
+ ],
+ "perf": {
+  "idle": {
+   "n": 395,
+   "p50": 6.1,
+   "p95": 6.2,
+   "max": 24.3,
+   "fpsP50": 164
+  },
+  "expand": {
+   "n": 217,
+   "p50": 6.1,
+   "p95": 6.3,
+   "max": 24.3,
+   "fpsP50": 164
+  },
+  "glassStats": {
+   "fps": 164,
+   "scale": 2
+  }
+ },
+ "rapid": {
+  "samples": [
+   [
+    52,
+    94,
+    176,
+    41
+   ],
+   [
+    52,
+    94,
+    176,
+    41
+   ],
+   [
+    52,
+    94,
+    176,
+    41
+   ],
+   [
+    52,
+    94,
+    176,
+    41
+   ],
+   [
+    52,
+    94,
+    176,
+    41
+   ],
+   [
+    52,
+    94,
+    176,
+    41
+   ],
+   [
+    52,
+    94,
+    176,
+    41
+   ],
+   [
+    52,
+    94,
+    176,
+    41
+   ],
+   [
+    52,
+    94,
+    176,
+    41
+   ],
+   [
+    52,
+    94,
+    176,
+    41
+   ]
+  ],
+  "jumps": [],
+  "consoleErrors": 0
+ },
+ "reducedTransparency": {
+  "glassDisplay": "none",
+  "shellBg": "rgb(11, 17, 24)",
+  "shellBackdrop": "none",
+  "shellShadow": "rgba(255, 255, 255, 0.16) 0px 0px 0px 1px inset",
+  "matches": true
+ }
+}

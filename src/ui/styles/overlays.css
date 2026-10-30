@@ -247,9 +247,15 @@
   font-size: 11px;
   letter-spacing: 1.2px;
   opacity: 0.88;
-  white-space: nowrap;
+  /* 摘要是一条由 `|` 分段的 94 字遥测串（实测渲染宽 651px、scrollWidth 764），
+     原来 nowrap+ellipsis 在 420px 的 wrap 里只显示前 ~60%，其余整段被省略号吃掉
+     （audit P1-3 的 764/420）。HUD 默认 visibility:hidden，只有 cockpit 模式 +
+     #intel-hud.active 才可见；可见时按段折行（2 行）比单行截断更可读，且
+     scrollWidth 回到 == clientWidth，不再有「横向溢出」这种假象。 */
+  white-space: normal;
+  overflow-wrap: anywhere;
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: clip;
 }
 
 .hud-rec {

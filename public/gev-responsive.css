@@ -17,12 +17,15 @@ html #gev-dossier { max-width: min(340px, calc(100vw - 24px)); }
   #title-bar .frame-rate-readout { display: none !important; }
 
   /* GEV 控件行：放在顶栏(标题 + 圆形按钮，约 y0–48)正下方的空档，排成一行 */
-  #gev-locate-btn     { top: 54px; left: 16px;  right: auto; bottom: auto; }
-  html #gev-perf-wrap { top: 54px; left: 94px;  right: auto; bottom: auto; }
-  #gev-lang-toggle    { top: 54px; right: 16px; left: auto;  bottom: auto; }
+  html #gev-locate-btn { top: 54px; left: 16px;  right: auto; bottom: auto; }
+  html #gev-lang-toggle { top: 54px; right: 16px; left: auto;  bottom: auto; }
+  /* 性能条在 375 宽度下塞不下「定位 + 性能 + 中/EN」一行（实测 wrap 353px 溢出视口、
+     且 left/right 同时生效把中/EN 拉成 347×670）。改成独立第二行，谁都不压谁（P0-6）。 */
+  html #gev-perf-wrap  { top: 90px; left: 16px;  right: 16px; bottom: auto; max-width: none; }
+  html #gev-gpu-chip   { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-  /* 左面板从控件行下方起，避免被 GEV 控件压住 */
-  #left-panel-stack   { top: 90px; }
+  /* 左面板从控件行（两行）下方起，避免被 GEV 控件压住 */
+  #left-panel-stack   { top: 126px; }
 
   /* 右栏底缘抬高，给 ⚙ 留位（⚙ 落在栏下方、密钥提示上方）*/
   #right-context-rail { bottom: calc(2vh + 12rem); }
@@ -90,10 +93,20 @@ html #gev-dossier { max-width: min(340px, calc(100vw - 24px)); }
    根因修复：原 top:104 正压 #data-panel(top:101)，导致 中/EN、定位、性能 按钮与
    数据图层重叠（长期未解——它们此前在 左下档案框 与 左上数据图层 之间来回撞）。
    现移到两侧面板之间、命令坞(y≈796)之上的空旷带，水平居中、随宽自适应。 */
+/* ═══ 桌面宽屏(≥1124)：GEV 控件行 → 命令坞上方「状态带」，右锚定成一排 ═══
+   根因修复 1（P0-6）：原来三个控件都用 `left:50%` + 固定 margin-left 定位，而
+   #gev-perf-wrap 加了 GPU chip 后从 ~230px 涨到 394px，中/EN 的 margin-left:78px
+   直接落进 GPU chip 盒子下面（z 151 < wrap 的 2147482000）→ 中/EN 点不动。
+   根因修复 2（P0-5）：一开始改成「居中链式」后，性能条右端伸到 x≈1213，正好压进
+   右轨展开卡（右轨 x≈1144、卡底 582）的矩形里 —— Layout 把 cctv 卡顶上去 15px，
+   反过来压住 pp 的 mini（mini-overlap 1214）。所以整排必须整体待在右轨左侧。
+   现固定为「右轨左缘 − 8px」起，从右往左：中/EN → 性能 → 定位，槽位互不重叠、
+   也不进右轨列；性能条限宽 340，GPU 名字超长走省略号。 */
 @media (min-width: 1124px) and (min-height: 561px) {
-  html #gev-locate-btn  { left: 50%; right: auto; top: auto; bottom: 128px; margin-left: -150px; }
-  html #gev-perf-wrap   { left: 50%; right: auto; top: auto; bottom: 124px; margin-left: -80px; }
-  html #gev-lang-toggle { left: 50%; right: auto; top: auto; bottom: 128px; margin-left: 78px; }
+  html #gev-lang-toggle { left: auto; right: 390px; top: auto; bottom: 128px; margin-left: 0; }
+  html #gev-perf-wrap   { left: auto; right: 469px; top: auto; bottom: 124px; margin-left: 0; max-width: 500px; }
+  html #gev-locate-btn  { left: auto; right: 977px; top: auto; bottom: 128px; margin-left: 0; }
+  html #gev-gpu-chip    { min-width: 0; max-width: 360px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
 
 /* ═══ 中宽桌面(721–1123 且非矮横屏)：控件行 → 顶栏右侧、右 rail(top:101)之上空档 ═══

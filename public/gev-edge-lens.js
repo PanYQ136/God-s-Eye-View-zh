@@ -38,35 +38,93 @@
     if (!kv) return; var i = kv.indexOf('='); Q[decodeURIComponent(i < 0 ? kv : kv.slice(0, i))] = i < 0 ? '1' : decodeURIComponent(kv.slice(i + 1));
   });
   var MODE = Q.gevEdge === '0' ? 0 : (Q.gevEdge === '2' ? 2 : 1);
+  /* Phase6C2：?gevEdgePdb=0 关掉 preserveDrawingBuffer（A/B 用）。
+     每帧都下发 GL（见 draw() 里的 Phase6C1 说明）时理论不再需要 pdb。 */
+  var PDB = Q.gevEdgePdb !== '0';
 
   window.__gevEdgeLens = { mode: MODE, loading: true };
   if (MODE === 0) return;
 
+  /* 本脚本启动时刻（performance.now 时基）：stats.drawFirstMs 相对它，用来判断
+     250–300ms 的那次 draw 是首帧还是稳态（Round-2 评审 #1）。 */
+  var BOOT_AT = (window.performance && performance.now) ? +performance.now().toFixed(1) : 0;
+
   var CFG = {
-    band: 16,          // 折射环最大宽度（CSS px，0–16）
+    /* Phase 4（2026-10-29）：恢复「可控」液态玻璃 —— 单层位移 + 克制的边缘色散。
+       历史候选 C 是 gain 1.10 / dispPx 2.4（约 65fps）但会在大色块上出现彩虹/锯齿带；
+       Phase 3 把两者归零后卡片变成纯平面（无色散也无位移 = 只剩一条高光）。
+       本次取中间受控值：位移有（gain 0.85）但边缘色散只有 1.24px 上限，
+       R/G/B 三条光线的最大间距 = 0.4 × dispPx ≈ 0.5 CSS px —— 远小于「能看出彩边」的 2px 阈值。
+       ① gain 0.85 → dBase ≈ 0.5 device px（内缘 → 0，Snell 真位移，非贴图平移）
+       ② dispPx 1.24 → 只在最外 1px 有 ~0.5px 的通道间距（无彩虹带、无锯齿）
+       ③ innerDark 0 → 仍不压暗最外圈（禁外圈灰线）
+       ④ 只画单层环：band 内 alpha 1 → 内缘羽化到 0，中心 discard（不磨砂、不暗底） */
+    band: 10,          // 高光带宽度（CSS px，0–16）
     bandFrac: 0.20,    // 小卡按短边比例收窄（52px 高的头卡 → 10px，避免「粗边框」感）
     bandMin: 7,
-    feather: 7,        // 内缘羽化：depth band-7→band 之间 alpha 1→0
-    thick: 26,         // 玻璃厚度（斜面坡度）
+    feather: 6,        // 内缘羽化：depth band-6→band 之间 alpha 1→0
+    thick: 6,          // 玻璃厚度（px）：进入 Snell 位移 dBase 的坡度尺度（Phase 4：4→6，倒角更明显）
     ior: 1.52,         // 物理玻璃折射率
-    gain: 0.9,
-    dispPx: 4.6,       // 色散基准位移（CSS px）；R/B 差 ≈ 1.8px
-    blurPx: 1.5,       // 环内采样模糊（3:25 的斜面是透镜不是镜面，太锐会像「贴片」）
+    gain: 1.0,         // Phase 4：0.6–1.0 受控折射位移（不再是 0 = 平面）
+    /* Phase6C2（2026-10-29）：1.2 → 1.0。带内 max|ΔR−ΔB| 在「与通道间距同尺度」的 2px
+       高频底衬上实测：dp1.2 → 顶40/下54/左53/右50（超出 6–45 上界）；dp1.0 → 顶33/下42/左~44/右~41。
+       8px 棋盘对该间距是瞎的（读数 1–2），实时地图梯度更缓，两个口径都记录在 gate JSON 里。 */
+    /* Phase6C5（2026-10-30）：1.0 → 2.4。C2 gate 的 6–45 判据是「灰阶 2px 条纹上的 ΔR−ΔB」
+       标定的，它只证明 shader 在硬边上会分色，**不等于肉眼可见**。真实地图上（不冻结、正常态）
+       实测：dp1.0 的边缘 on/off Δ(R−B) 只有 1.0–1.2 灰阶（低于 JND ≈3–4），所以用户看不到色散。
+       0.4×dispPx = R/B 采样间距：dp2.4 → 0.96 CSS px（C5 目标 0.8–1.2px，仍 <2px 不出彩带）。 */
+    dispPx: 2.4,
+    /* 色散对比度补偿：真实地图在 1px 尺度上是平滑梯度，把三个通道沿法线错开 ~1px 只产生
+       1–3 灰阶的 ΔR−B（再被 bandAlpha 0.55 与卡壳半透各稀释一次 → 屏上 ~1 灰阶，肉眼无感）。
+       这里把「R/B 相对 G 的偏移」按 dispGain 放大并限幅 dispCap（0–1 色阶，12/255 ≈ 12 级），
+       这是**单轴棱镜**（R 与 B 反向），不是多级光谱 → 不会出彩虹带；限幅保证硬边最坏情况有界。
+       dispGain 1.0 = 完全等于旧行为（A/B 用）。 */
+    dispGain: 8.0,
+    /* Phase7B（2026-10-30）：12/255 → 20/255。真实地图实测（A/B dispGain 8↔1，36 边）：
+       cap12 → 带内 max 12 灰阶 / 边均值最强 2.41；cap20 → max 15–20 灰阶（36/36 边）。
+       限幅只钉硬边最坏值：2px 条纹硬边实测 顶22/下21/左23/右23 灰阶（gate T13 区间 6–45 内，
+       但在旧 C6-visual 的 T3e「≤20」上界溢出 2–3 灰阶 —— 已记录，未产生多级光谱/彩虹带）。
+       注意：带**均值**过 3 灰阶不靠 cap 也不靠 gain（实测 gain 8→64 只把均值 0.83→1.34），
+       因为色散宽度被 0.96px 间距锁死在 1–2px，均值被 10px 带宽稀释 —— 见 PROGRESS.md 记录。 */
+    dispCap: 20 / 255,
+    /* Phase7D3（2026-10-30，lead 决策「扩大可见带」）：色散在 band 内的**深度覆盖**。
+       旧 shader 是 edgeBand = 1 - smoothstep(0,1,t)：只有最外 ~2px 有满幅色散，
+       10px band 的均值被大量近零段稀释（真实地图 band 均值 JND 4/36）。
+       现在改成 edgeBand = 1 - smoothstep(dispBandStart, 1, t)：
+         dispBandStart = 0.0  → 与旧行为逐像素一致（A/B 用，默认保留可回退）
+         dispBandStart = 0.85 → 外侧 85% 带宽都拿满 dispPx，只在最内 15% 收尾
+       只改**空间覆盖**，不改 dispPx（R/B 间距仍 0.4×2.4 = 0.96px，在 0.8–1.2px 硬规内）。
+       Phase7D3 实测（冻结地图 A/B，36 边，scripts/lc/_diag/p7d3-disp-band.mjs）：
+         e0 0    → |bandMean| 0.931，band 内 |Δ| 均值 4.79 灰阶，|Δ|≥3 的边 32/36
+         e0 0.85 → |bandMean| 0.755，band 内 |Δ| 均值 5.18 灰阶，|Δ|≥3 的边 34/36
+       即「扩大可见带」把**色散幅度的覆盖**做上去了，但 gate 用的**带符号均值**反而更低
+       （83% 符号抵消：沿边/沿深的梯度正负交替，见 .gev-logs/lc/phase7d3 报告 §3）。 */
+    dispBandStart: 0.85,
+    blurPx: 0.7,       // 斜面透镜的轻微柔化（只在 band 内，<1px；中心不采样）
     lod: 0.0,          // 采样 LOD（0=最锐；1 略柔）
-    rimAmt: 0.13,      // 边缘高光（真实法线高光，不是假彩边贴图）
+    rimAmt: 0.80,      // 边缘高光强度（单一光源；只在上沿/右沿，不成闭合线）
     curvature: 1.7, spread: 1.59, smoothness: 8.0,
-    innerDark: 0.06,   // 最外 1–2px 轻微压暗（玻璃倒角）
+    innerDark: 0,      // 0 = 无内圈压暗（禁内圈灰线）
     aa: 1.2,           // 外轮廓抗锯齿（CSS px）
+    bandAlpha: 0.55,   // Phase 4：band 半透系数（1 = 实心替换底图 → 会读出双灰圈；0.55 = 玻璃斜面）
     scale: 0,          // 0 = auto（min(dpr,1.5)）
     maxScale: 1.5,
     cap: 0,            // 0 = 跟着 Cesium postRender 每帧画（同帧合成 → 边缘内容与地图零延迟）；
                        // 也可 __gevEdge.cap(60) 半速画（省 ~10% 页面 fps，但移动时会慢 1 帧）
     only: null,        // null = 9 卡全画；['data-panel'] = 只画一张
-    testBg: false, testBgCss: 8,
+    testBg: false, testBgCss: 8, testBgFlat: null, testBgGrid: 0,
+    /* Phase6C2 Round-2：三态底衬（代码与标签一致）
+       testBgMode 0 = 棋盘（两个方向都有边界，C1 主判据）
+                  1 = 横条纹（梯度沿 y，量 顶/下 的色散）
+                  2 = 竖条纹（梯度沿 x，量 左/右 的色散）
+       旧代码只有「横条纹 / 棋盘」两态，axis=0 实际画的是棋盘却标成竖条纹（评审 #3）。*/
+    testBgMode: 0,
+
     enabled: MODE !== 2,      // ?gevEdge=2 = 挂钩但画 0 个面（隔离成本用）
+    strips: true,             // Phase 4A：只栅格化边框条（false = 整卡 quad，用于像素级 A/B 对照）
   };
 
-  /* 玻璃面：9 张卡（与 gev-gl-glass.js 的 SURF 保持一致，去掉顶部功能条） */
+  /* 玻璃面：9 张卡（与 src/lc/cards.js 的卡片表一致，去掉顶部功能条） */
   var SURF = [
     { id: 'data-panel',           sel: '#data-panel',            radius: 16 },
     { id: 'scene-panel',          sel: '#scene-panel',           radius: 16 },
@@ -79,7 +137,13 @@
     { id: 'gev-gfx-fab',          sel: '#gev-gfx-fab',           radius: 999 },
   ];
 
-  var stats = { frames: 0, skip: 0, fps: 0, fpsRaw: 0, p50: 0, p90: 0, surfaces: [], scale: 1, err: null, tex: null, gpuMs: null, post: 0, raf: 0 };
+  var stats = { frames: 0, skip: 0, fps: 0, fpsRaw: 0, p50: 0, p90: 0, p95: 0, drawFps: 0, drawP50: 0, drawP95: 0, surfaces: [], scale: 1, err: null, tex: null, gpuMs: null, post: 0, raf: 0,
+  /* Phase6C2 Round-2 回修：drawMax/upMax 只给一个「全会话最大」无法归因（gate 记录到
+     250–300ms 的 draw，却不知道是首帧还是稳态）。现在同时记：首次出现的时间戳
+     （drawMaxAt）+ 首帧 draw 时刻（drawFirstMs）+ 慢帧日志（drawLog，>40ms 逐条）
+     + resetPeaks() 可分段清零并把上一段存进 peakWindows（不丢证据）。 */
+    drawMax: 0, drawMaxAt: 0, drawFirstMs: 0, drawLog: [], drawN: 0,
+    upMax: 0, upMaxAt: 0, peakWindows: [] };
   var ready = false, cv = null, gl = null, texValid = false;
   /* ── 空闲去重（t_834a621c · 2026-10-28）──────────────────────────────────
      Cesium 在 requestRenderMode 下空闲时 postRender 不再触发（实测 1.5s 内 0 次），
@@ -94,7 +158,34 @@
   /* ── 帧驱动 ──────────────────────────────────────────────────────────────
      主驱动 = Cesium scene.postRender（刚画完、缓冲有效 → 可 texImage2D）
      兜底   = 自己的 rAF（Cesium 空闲时用旧纹理只重画几何；卡片动画不脱节） ── */
-  var lastDrawT = 0, lastPost = -1e9, ft = [];
+  var lastDrawT = 0, lastPost = -1e9, lastFallbackT = 0, lastRafT = 0, ft = [], rafFt = [];
+  /* Phase 4A（2026-10-29）：stats().fps 恒 0 的根因 —— 旧代码只在「画过 ≥24 次」
+     或「frames%30==0」时才算 fps，而 fps 又取自 draw 间隔。页面一卡（Cesium 空闲、
+     兜底被去重跳过），采样样本永远攒不够 → fps 永久停在 0，读数与实际无关。
+     现在分成两条互不干扰的采样：
+       stats.fps    = 页面 rAF 帧率（每帧都采，与是否重画无关）→ 真实页面帧率
+       stats.drawFps= 折射 pass 自己的重画率（去重后）
+     两者都是 p50 口径，另给 p95 让「卡顿」看得见。 */
+  function quantile(arr, p) {
+    if (!arr.length) return 0;
+    var s = arr.slice().sort(function (a, b) { return a - b; });
+    return s[Math.min(s.length - 1, Math.floor(s.length * p))];
+  }
+  function sampleRaf(ts) {
+    if (lastRafT) { rafFt.push(ts - lastRafT); if (rafFt.length > 180) rafFt.shift(); }
+    lastRafT = ts;
+    if (!rafFt.length || rafFt.length % 15) return;
+    var p50 = quantile(rafFt, 0.5);
+    stats.p50 = +p50.toFixed(2);
+    stats.p95 = +quantile(rafFt, 0.95).toFixed(2);
+    stats.fps = p50 ? +(1000 / p50).toFixed(1) : 0;
+  }
+  function sampleDraw() {
+    var p50 = quantile(ft, 0.5);
+    stats.drawP50 = +p50.toFixed(2);
+    stats.drawP95 = +quantile(ft, 0.95).toFixed(2);
+    stats.drawFps = p50 ? +(1000 / p50).toFixed(1) : 0;
+  }
   function gate(ts) {
     /* 4ms 去重：Cesium 在一帧里可能触发两次 postRender（实测环速率 161/s > 页面 87fps），
        同帧重复的 texImage2D 上传纯属浪费。4ms 既能去重，又不影响 144Hz。 */
@@ -105,18 +196,29 @@
     if (gate(ts)) return;
     if (lastDrawT) { ft.push(ts - lastDrawT); if (ft.length > 120) ft.shift(); }
     lastDrawT = ts;
-    if (ft.length >= 24) {
-      var s = ft.slice().sort(function (a, b) { return a - b; });
-      stats.p50 = +s[Math.floor(s.length * 0.5)].toFixed(2);
-      stats.p90 = +s[Math.floor(s.length * 0.9)].toFixed(2);
-      stats.fps = +(1000 / stats.p50).toFixed(1);
-    }
+    var _t = (window.performance && performance.now) ? performance.now() : 0;
+    if (!stats.drawFirstMs) stats.drawFirstMs = +_t.toFixed(1);
     try { draw(ts, capture || CFG.testBg); } catch (e) { if (!stats.err) stats.err = String(e && e.message || e); }
+    if (_t) {
+      var _d = +(performance.now() - _t).toFixed(2);
+      stats.drawMs = _d; stats.drawN = (stats.drawN || 0) + 1;
+      if (_d > (stats.drawMax || 0)) { stats.drawMax = _d; stats.drawMaxAt = +_t.toFixed(1); }
+      if (_d > 40) {
+        (stats.drawLog || (stats.drawLog = [])).push([+_t.toFixed(1), _d, capture ? 'post' : 'raf', stats.tex, stats.drawN]);
+        if (stats.drawLog.length > 40) stats.drawLog.shift();
+      }
+    }
   }
   function loop(ts) {
     requestAnimationFrame(loop);
+    /* rAF 帧率采样：与是否重画无关，页面卡死时它也会掉下去（不是自证清白） */
+    sampleRaf(ts);
     if (ts - lastPost < 45) return;          // postRender 正在驱动，不重复画
     stats.raf++;
+    /* 兜底重画上限 60Hz：Cesium 空闲时 rAF 可能是 144/165Hz，每帧都去碰
+       getComputedStyle/几何签名纯属白烧主线程（相位不变，像素也不会变）。 */
+    if (ts - lastFallbackT < 15.5) return;
+    lastFallbackT = ts;
     tick(ts, false);
   }
   function onPostRender() {
@@ -127,8 +229,10 @@
 
   /* ── shader ───────────────────────────────────────────────────────────── */
   var VS = ['#version 300 es', 'in vec2 aUV;',
-    'uniform vec4 uRect; uniform vec2 uRes;', 'out vec2 vPx;',
-    'void main(){ vec2 pos = uRect.xy + aUV * uRect.zw; vPx = pos;',
+    /* uQuad = 本趟绘制的矩形（可以只是卡片的「边框条」，见 strips()）；
+       uRect = 卡片整体矩形（SDF/法线/圆角都按它算，所以条带边界上像素值不变）。 */
+    'uniform vec4 uQuad; uniform vec2 uRes;', 'out vec2 vPx;',
+    'void main(){ vec2 pos = uQuad.xy + aUV * uQuad.zw; vPx = pos;',
     '  gl_Position = vec4(pos.x / uRes.x * 2.0 - 1.0, 1.0 - pos.y / uRes.y * 2.0, 0.0, 1.0); }'].join('\n');
 
   /* 只画边缘环：
@@ -142,8 +246,8 @@
     'uniform sampler2D uMap;',
     'uniform vec2 uRes;',
     'uniform vec4 uRect;',
-    'uniform float uRadius, uCornerN, uBand, uFeather, uThick, uIOR, uGain, uDispPx, uLod,',
-    '              uRimAmt, uCurv, uSpread, uSmooth, uInnerDark, uAA, uScale, uBlurPx;',
+    'uniform float uRadius, uCornerN, uBand, uFeather, uThick, uIOR, uGain, uDispPx, uDispGain, uDispCap, uDispE0, uLod,',
+    '              uRimAmt, uCurv, uSpread, uSmooth, uInnerDark, uAA, uScale, uBlurPx, uBandAlpha;',
     'float sdRound(vec2 p, vec2 hs, float r){',
     '  vec2 q = abs(p) - hs + vec2(r);',
     '  return length(max(q, vec2(0.0))) + min(max(q.x, q.y), 0.0) - r;',
@@ -195,8 +299,8 @@
     '      sdShape(p + vec2(1.0, 0.0), hs, uRadius, uCornerN) - sdShape(p - vec2(1.0, 0.0), hs, uRadius, uCornerN),',
     '      sdShape(p + vec2(0.0, 1.0), hs, uRadius, uCornerN) - sdShape(p - vec2(0.0, 1.0), hs, uRadius, uCornerN)) + 1e-6);',
     '  vec2 dir = -n;',                                       // 向内取样（倒角把外景折进来）
-    '  float edgeBand = 1.0 - smoothstep(0.0, 1.0, t);',
-    '  float dEdge = uDispPx * edgeBand;',
+    '  float edgeBand = 1.0 - smoothstep(uDispE0, 1.0, t);',
+        '  float dEdge = uDispPx * edgeBand;',
     '  vec2 uv = vPx / uRes;',
     '  vec2 uvR = uv + dir * (dBase + dEdge * 0.82) / uRes;',
     '  vec2 uvG = uv + dir * (dBase + dEdge * 1.00) / uRes;',
@@ -206,18 +310,34 @@
     '  vec3 sG = blur3(uMap, uvG, bpx);',
     '  vec3 sB = blur3(uMap, uvB, bpx);',
     '  vec3 col = vec3(sR.r, sG.g, sB.b);',
-    /* 边缘高光（真实法线，双侧 45°/-135°）：只在最外 ~4px，量很小，不是假彩边 */
-    '  vec2 d1 = normalize(vec2(0.7071, -0.7071));',
+    /* Phase6C5 色散对比度补偿：以 G（无偏移基准）为轴，把 R/B 的色散偏移放大 dispGain 倍并限幅。
+       只改「色散分量」，不动位移/亮度/alpha；限幅 dispCap 让硬边最坏情况也只是一层淡彩边。 */
+    '  vec3 base = vec3(sG.r, sG.g, sG.b);',
+    '  vec3 sp = col - base;',
+    '  sp.rb = clamp(sp.rb * uDispGain, vec2(-uDispCap), vec2(uDispCap));',
+    '  col = base + sp;',
+    /* 边缘高光：Phase 4 改为「单一光源方向」的镜面反射（上沿 + 右沿），
+       不再用互为反向的两条 45° 法线（那样四条边的 hl 都是 0.55 → 一圈闭合亮线 = 描边）。 */
+    '  vec2 L = normalize(vec2(0.45, -0.89));',
     '  float bandf = exp(-pow(t / 0.22, 2.0));',
-    '  float hl = pow(max(dot(n, d1), 0.0), uCurv) + pow(max(dot(n, -d1), 0.0), uCurv);',
-    '  float line = smoothstep(2.2 * uScale, 0.2 * uScale, depth) * 0.07;',
-    '  col = mix(col, vec3(1.0), clamp(hl * bandf * uRimAmt + line, 0.0, 0.4));',
+    '  float ndl = max(dot(n, L), 0.0);',
+    '  float rim = pow(ndl, 2.0) * bandf;',
+    '  col = mix(col, vec3(1.0), clamp(rim * uRimAmt, 0.0, 0.5));',
     '  col *= 1.0 - uInnerDark * (1.0 - smoothstep(0.0, uBand * 0.5, depth));',
     '  float aOut = smoothstep(0.0, uAA, depth);',             // 外轮廓 AA
     '  float aIn  = 1.0 - smoothstep(uBand - uFeather, uBand, depth);',  // 内缘羽化
-    '  float a = aOut * aIn;',
+    /* Phase 4：band 是「半透折射层」而不是「替换底图的实心环」。
+       实心替换（uBandAlpha=1）会把底图在 1–2px 位移后的边缘重影原样贴回来，
+       差值图上就是外亮+内暗两圈（双灰圈）。半透后重影只剩 ~50% 对比，读成玻璃斜面。
+       镜面高光另给一份不透明度（受光边才 opaque）→ 上/右沿是「擦亮的一条边」，
+       背光边（下/左）只有半透折射，四周不闭合。 */
+    '  float a = max(aOut * aIn * uBandAlpha, rim * aOut);',
     '  if (a < 0.004) discard;',
-    '  o = vec4(col, a);',
+    /* Phase 4 修复：context 声明 premultipliedAlpha:true 后必须输出「预乘」颜色。
+       旧代码在 premultipliedAlpha:false 的 context 里写 col*a（预乘值），合成器又按
+       straight-alpha 再乘一次 a → band 亮度被平方衰减（白色 255 → 屏上 140 → 再 ×0.55 ≈ 77），
+       4 边一圈均匀变暗，正是「灰圈/灰带」的数值来源（白底实测 117 vs 应有 183）。 */
+    '  o = vec4(col * a, a);',
     '}'
   ].join('\n');
 
@@ -237,7 +357,7 @@
   /* ── 地图源 ───────────────────────────────────────────────────────────── */
   function mapCanvas() {
     var v = window.__gevViewer;
-    if (v && v.canvas && v.canvas.width > 400) return v.canvas;
+    if (v && v.canvas && v.canvas.width > 400) { stats.src = 'viewer:' + v.canvas.id + ':' + v.canvas.width + 'x' + v.canvas.height; return v.canvas; }
     var cs = document.querySelectorAll('canvas'), best = null, area = 0;
     for (var i = 0; i < cs.length; i++) {
       var c = cs[i];
@@ -245,14 +365,17 @@
       if (c.width < 400 || c.height < 300) continue;
       var a = c.width * c.height; if (a > area) { area = a; best = c; }
     }
+    stats.src = best ? ('scan:' + (best.id || best.className || '?') + ':' + best.width + 'x' + best.height) : 'none';
     return best;
   }
 
   function pickScale() {
     if (CFG.scale > 0) return CFG.scale;
     var s = Math.min(window.devicePixelRatio || 1, CFG.maxScale);
-    var MAXW = 4096;
-    if (innerWidth * s > MAXW) s = MAXW / innerWidth;
+    /* Phase 4A：只夹宽度会在 4K/竖屏上把画布拉成非等比（宽被夹扁、高不夹）→ 边缘环错位。
+       宽高同时夹，比例不变。 */
+    var MAXW = 4096, MAXH = 4096;
+    s = Math.min(s, MAXW / Math.max(1, innerWidth), MAXH / Math.max(1, innerHeight));
     return Math.max(0.75, +s.toFixed(3));
   }
 
@@ -267,6 +390,8 @@
     if (snap) { snap.width = W; snap.height = H; }
     stats.scale = scale;
     lastSig = '';            // 画布重建 = 内容丢失，下一帧必须重画
+    texSrcW = 0; texSrcH = 0; // 纹理尺寸可能随内核分辨率变 → 下一帧重新 texImage2D
+    geoDirty = true;         // 布局一定变了 → 几何重采
   }
 
   function boot() {
@@ -290,9 +415,16 @@
     cv.id = 'gev-edge-lens';
     cv.style.cssText = 'position:fixed;left:0;top:0;pointer-events:none;z-index:4;opacity:0;transition:opacity .25s linear;';
     document.body.appendChild(cv);
+    /* Phase6C1（2026-10-29）：**必须**开 preserveDrawingBuffer。
+       本 canvas 是「按需重画」（Cesium postRender 或几何/纹理变化时才 draw，其余帧靠
+       stats.skip 完全不碰 GL），而没有 pdb 的 WebGL canvas 在合成一次后绘制缓冲即被清空
+       → 下一帧合成到的是空缓冲，屏幕上等于什么都没有（实测：canvas 自读 alpha 140，
+       屏幕 on/off Δ ≈ 1 灰阶）。这就是 Phase6C 整轮「参数扫不出效果」的根因。
+       pdb 只影响这块 1348×774 的小 canvas 的缓冲保留，不做额外整屏拷贝；
+       Cesium 那只 canvas 仍然不开 pdb（走 postRender 同帧 texImage2D）。 */
     gl = cv.getContext('webgl2', {
-      premultipliedAlpha: false, alpha: true, antialias: false, depth: false, stencil: false,
-      powerPreference: 'high-performance',
+      premultipliedAlpha: true, alpha: true, antialias: false, depth: false, stencil: false,
+      powerPreference: 'high-performance', preserveDrawingBuffer: PDB,
     });
     if (!gl) { stats.err = 'no-webgl2'; return false; }
     prog = program(gl, VS, FS);
@@ -304,8 +436,8 @@
     var loc = gl.getAttribLocation(prog, 'aUV');
     gl.enableVertexAttribArray(loc);
     gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-    ['uMap', 'uRes', 'uRect', 'uRadius', 'uCornerN', 'uBand', 'uFeather', 'uThick', 'uIOR', 'uGain', 'uDispPx',
-      'uLod', 'uRimAmt', 'uCurv', 'uSpread', 'uSmooth', 'uInnerDark', 'uAA', 'uScale']
+    ['uMap', 'uRes', 'uQuad', 'uRect', 'uRadius', 'uCornerN', 'uBand', 'uFeather', 'uThick', 'uIOR', 'uGain', 'uDispPx', 'uDispGain', 'uDispCap', 'uDispE0',
+      'uLod', 'uRimAmt', 'uCurv', 'uSpread', 'uSmooth', 'uInnerDark', 'uAA', 'uScale', 'uBandAlpha']
       .forEach(function (k) { u[k] = gl.getUniformLocation(prog, k); });
 
     mapTex = gl.createTexture();
@@ -320,12 +452,17 @@
     sctx = snap.getContext('2d', { alpha: false });
     resize();
     window.addEventListener('resize', resize);
+    /* 几何缓存失效信号：拖拽/滚动/滚轮都会改卡片位置或命中面，不能等 150ms 兜底 */
+    ['pointermove', 'pointerdown', 'wheel', 'scroll', 'touchmove'].forEach(function (ev) {
+      window.addEventListener(ev, markGeoDirty, { passive: true, capture: true });
+    });
 
     gl.useProgram(prog);
     gl.uniform2f(u.uRes, W, H);
     gl.uniform1i(u.uMap, 0);
     gl.uniform1f(u.uScale, scale);
-    gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    /* 预乘合成：源 (col*a, a) = ONE，背景乘 (1-a) */
+    gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.enable(gl.BLEND);
 
     ready = true;
@@ -346,8 +483,59 @@
     return true;
   }
 
-  /* 合成条纹（验收：底图 R=G=B 时，卡边出现 RGB 不等只能来自本 shader 的色散） */
+  /* 合成条纹（验收：底图 R=G=B 时，卡边出现 RGB 不等只能来自本 shader 的色散）
+     Phase6C2 Round-2：**底衬必须便宜**。旧实现按格 fillRect（2px 格 = 674×387 = 26 万个
+     rect/次），而 uploadMap 每次 capture 都会重画一次 → drawLog 里满是 170–240ms 的 draw
+     （tex=testbg）。gate v4 记录的 250.2/295.9ms drawMax 就是**它**，不是首帧 shader 编译，
+     也不是产品路径（CFG.testBg 只在验收时打开）。现在改成 2×2 格的 pattern 平铺：
+     构建一次、每帧一次 fillRect → 实测 <2ms，且像素与旧实现一致。 */
+  var bgTile = null, bgKey = '';
+  function testBgTile(g, mode) {
+    var key = g + '|' + mode;
+    if (bgTile && bgKey === key) return bgTile;
+    var c = document.createElement('canvas');
+    c.width = g * 2; c.height = g * 2;
+    var cx = c.getContext('2d');
+    for (var y = 0; y < 2; y++) {
+      for (var x = 0; x < 2; x++) {
+        var light = mode === 1 ? (y % 2 === 0)
+          : mode === 2 ? (x % 2 === 0)
+            : ((x + y) % 2 === 0);
+        cx.fillStyle = light ? '#eeeeee' : '#0e0e0e';
+        cx.fillRect(x * g, y * g, g, g);
+      }
+    }
+    bgTile = c; bgKey = key;
+    return c;
+  }
+
   function paintTestBg(w, h) {
+    /* Phase6C：testBgFlat = 平坦中性灰（0–255）—— 底图纹理无任何结构时，
+       band 内的任何亮度/色度偏离都只能来自本 shader（斜面/镜面/色散），
+       用于客观量「边缘是否可见」；不影响真实运行路径。 */
+    if (CFG.testBgGrid > 0) {
+      /* Phase6C1 评审 #4：平灰对「纯位移」是瞎的（位移纯色仍是纯色 → 左/下恒 ≈0）。
+         棋盘是高频二维纹理：横/竖两个方向的位移都会改变采样值 → 四条边在确定性
+         条件下都可测，不依赖带噪声的真地图。格宽 = testBgGrid CSS px。
+         Phase6C2 Round-2 回修：旧代码只有「横条纹 / 棋盘」两态，axis=0 画的其实是棋盘，
+         但注释/报告/JSON 键都写成「竖条纹」（评审 #3）。现在三态，代码与标签一致：
+           testBgMode 0 = 棋盘（两个方向都有边界）· 1 = 横条纹（梯度沿 y，量顶/下）
+                       2 = 竖条纹（梯度沿 x，量左/右）
+         像素与原按格 fillRect 实现逐格等价（2×2 平铺，格宽 g 设备 px）。 */
+      var g = Math.max(2, Math.round(CFG.testBgGrid * scale));
+      var mode = CFG.testBgMode | 0;
+      var pat = null;
+      try { pat = sctx.createPattern(testBgTile(g, mode), 'repeat'); } catch (e) {}
+      sctx.fillStyle = pat || '#eeeeee';
+      sctx.fillRect(0, 0, w, h);
+      return;
+    }
+    if (CFG.testBgFlat != null) {
+      var v = Math.max(0, Math.min(255, Math.round(CFG.testBgFlat)));
+      sctx.fillStyle = 'rgb(' + v + ',' + v + ',' + v + ')';
+      sctx.fillRect(0, 0, w, h);
+      return;
+    }
     if (CFG.testBgCss < 0) { sctx.fillStyle = '#ffffff'; sctx.fillRect(0, 0, w, h); return; }
     var pw = Math.max(2, Math.round(CFG.testBgCss * scale));
     sctx.fillStyle = '#eeeeee'; sctx.fillRect(0, 0, w, h);
@@ -382,6 +570,21 @@
     return 2;
   }
 
+  /* Phase 4A：几何采集缓存。
+     旧代码每帧对 9 张卡做 getComputedStyle + getBoundingClientRect（visible() 里还有一次
+     getComputedStyle）→ 每帧 18 次样式解析 + 9 次强制布局。复杂 DOM 上这是主线程的大头，
+     而卡片几何在「没有动画、没有拖拽、没 resize」时根本不变。
+     现在只在可能变化时重采：有动画在跑 / 指针或滚轮动作 / resize / 每 150ms 兜底一次。 */
+  var geoCache = null, geoAt = 0, geoDirty = true;
+  function markGeoDirty() { geoDirty = true; }
+  function collectCached(now) {
+    var animating = false;
+    try { animating = document.getAnimations().length > 0; } catch (e) { animating = true; }
+    if (geoCache && !geoDirty && !animating && now - geoAt < 150) return geoCache;
+    geoCache = collect(); geoAt = now; geoDirty = false;
+    return geoCache;
+  }
+
   function collect() {
     var out = [];
     for (var i = 0; i < SURF.length; i++) {
@@ -405,6 +608,7 @@
     return out;
   }
 
+  var texSrcW = 0, texSrcH = 0, lastSnapT = 0;
   function uploadMap(map) {
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, mapTex);
@@ -417,26 +621,66 @@
       return true;
     }
     /* 首选：直接把 Cesium canvas 传成纹理（GPU→GPU，不经 2D 中转）。
-       只在 postRender 里调用 —— 那时绘制缓冲还有效（pdb 关着）。 */
+       只在 postRender 里调用 —— 那时绘制缓冲还有效（pdb 关着）。
+       Phase 4A：源码尺寸不变时改用 texSubImage2D —— texImage2D 每次都按规范「重新定义」
+       纹理（丢弃旧存储 → 驱动可能重新分配整张纹理再拷一次）；尺寸稳定后 subst 只做一次拷贝。
+       Phase6C2 已实测排除：**纹理重分配不是长帧原因**。同一页 20s settle 后交错 A/B
+       （固定纹理池 on/off 各两轮）worst 24–55ms、0 长帧，两种写法无差别；早期看到的
+       100–200ms 长帧是 Cesium 首屏瓦片上传/自适应分辨率收敛期，与上传路径无关。 */
     try {
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, map);
-      stats.tex = 'cesium-direct';
+      var mw = map.width | 0, mh = map.height | 0;
+      if (mw === texSrcW && mh === texSrcH) {
+        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, map);
+        stats.tex = 'cesium-subload';
+      } else {
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, map);
+        texSrcW = mw; texSrcH = mh;
+        stats.tex = 'cesium-direct';
+      }
       texValid = true;
       TEX_STAMP++;
       return true;
     } catch (e) {
+      texSrcW = 0; texSrcH = 0;                 // subst 失败 → 下一帧回退 texImage2D
       stats.tex = 'snapshot-fallback';
       stats.lastErr = String(e && e.message || e);
     }
+    /* Phase 4A · 兜底限速：走 2D 读回（canvas → canvas → 纹理）时每帧一次整屏读回，
+       在核显上是「1fps 级」的灾难，而它本来只是「GPU→GPU 不可用」时的降级路径。
+       限到 4Hz：卡顿消失（地图边缘折射最多慢 250ms，视觉上只是略滞后），有可用路径时不受影响。 */
+    var nowms = (window.performance && performance.now) ? performance.now() : Date.now();
+    if (nowms - lastSnapT < 250) return false;
+    lastSnapT = nowms;
     var mr = map.getBoundingClientRect();
     sctx.fillStyle = '#000';
     sctx.fillRect(0, 0, W, H);
     try { sctx.drawImage(map, mr.left * scale, mr.top * scale, mr.width * scale, mr.height * scale); }
     catch (e2) { stats.err = 'drawImage: ' + (e2 && e2.message || e2); return false; }
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, snap);
+    texSrcW = 0; texSrcH = 0;
     texValid = true;
     TEX_STAMP++;
     return true;
+  }
+
+  /* 把一张卡拆成 4 条互不重叠的「边框条」（上/下 = band + 圆角半径，左/右 = band）。
+     依据：片元只在 depth ≤ band 时输出，而 depth ≤ band ⇒ (dy ≤ band + r) 或 (dx ≤ band)
+     （圆角区域内到弧线的距离恒小于到直边的轴距），所以这 4 条覆盖了全部会被绘制的像素，
+     卡片中间的大块面积（展开卡 320×380 里 87% 的像素）连 SDF 都不用跑。
+     条带之间严格不重叠 → 混合不会被叠加两次，像素值与整卡 quad 完全一致。 */
+  function quadStrips(s) {
+    var full = [s.x, s.y, s.w, s.h];
+    var band = Math.min(s.band, s.w * 0.5, s.h * 0.5);
+    var T = Math.min(s.band + s.radius, s.h * 0.5, s.w * 0.5);
+    if (!(T > 0) || s.h <= T * 2 || s.w <= band * 2) return [full];
+    var midH = s.h - T * 2;
+    var out = [
+      [s.x, s.y, s.w, T],
+      [s.x, s.y + s.h - T, s.w, T],
+      [s.x, s.y + T, band, midH],
+      [s.x + s.w - band, s.y + T, band, midH],
+    ];
+    return out;
   }
 
   function draw(ts, capture) {
@@ -445,7 +689,7 @@
     if (!map) return;
     if (cv.width !== Math.round(innerWidth * scale) || cv.height !== Math.round(innerHeight * scale)) resize();
 
-    var list = collect();
+    var list = collectCached(ts);
     if (!list.length) {
       if (!lastSig) return;          // 已经空过一轮：不再每帧 clear 一张全屏画布
       lastSig = '';
@@ -457,7 +701,15 @@
        不会有任何差别，直接返回；不 clear、不 drawArrays，画布保持上一帧内容。
        capture=true 表示 Cesium 刚重绘（postRender），纹理必须重新上传并重画。 */
     if (capture) {
+      var tu = (window.performance && performance.now) ? performance.now() : 0;
       if (!uploadMap(map)) return;
+      if (tu) {
+        stats.upMs = +(performance.now() - tu).toFixed(2);
+        if (stats.upMs > stats.upMax) { stats.upMax = stats.upMs; stats.upMaxAt = +tu.toFixed(1); }
+        stats.upN = (stats.upN || 0) + 1;
+        (stats.upLog || (stats.upLog = [])).push([Math.round(performance.now()), stats.upMs, stats.tex]);
+        if (stats.upLog.length > 60) stats.upLog.shift();
+      }
     } else if (!texValid) {
       return;                                   // 还没有可用的地图纹理 → 不画（避免黑边）
     }
@@ -466,7 +718,14 @@
       var q0 = list[si];
       sig += '|' + Math.round(q0.x) + ',' + Math.round(q0.y) + ',' + Math.round(q0.w) + ',' + Math.round(q0.h) + ',' + Math.round(q0.band) + ',' + (q0.cornerN || 2) + ',' + Math.round(q0.radius);
     }
-    if (!capture && sig === lastSig) { stats.skip++; return; }
+    /* Phase6C1（2026-10-29）：**不能因为签名没变就整帧不下发 GL**。
+       实测（Chrome + RTX 3060）：只要某帧一个 GL 命令都不下发，Chromium 就把这块 layer
+       按空缓冲合成 —— 屏幕 on/off Δ ≈ 1 灰阶，而 canvas 自读 alpha 140（图是画好的）。
+       一旦每帧真下发一次 drawArrays，屏幕立刻正确（同点 [4,6,6] → [56,75,54]），
+       停手后靠 pdb 保持。这正是 Phase6C 扫了 1.2h 参数却"看不到效果"的真因：
+       效果一直在画，只是没上屏。
+       去重只保留**纹理上传**（texImage2D/texSubImage2D 才是大头），几何重画每帧都发。 */
+    if (!capture && sig === lastSig) stats.skip++;
     lastSig = sig;
     stats.frames++;
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -484,6 +743,10 @@
     gl.uniform1f(u.uIOR, CFG.ior);
     gl.uniform1f(u.uGain, CFG.gain);
     gl.uniform1f(u.uDispPx, CFG.dispPx * scale);
+    gl.uniform1f(u.uDispGain, CFG.dispGain);
+    gl.uniform1f(u.uDispCap, CFG.dispCap);
+    /* Phase7D3：色散深度覆盖起点（0 = 旧行为；smoothstep 两端相等在 GLSL 未定义 → 夹到 0.98） */
+    gl.uniform1f(u.uDispE0, Math.min(Math.max(CFG.dispBandStart, 0), 0.98));
     gl.uniform1f(u.uLod, CFG.lod);
     gl.uniform1f(u.uRimAmt, CFG.rimAmt);
     gl.uniform1f(u.uCurv, CFG.curvature);
@@ -492,6 +755,7 @@
     gl.uniform1f(u.uInnerDark, CFG.innerDark);
     gl.uniform1f(u.uAA, CFG.aa * scale);
     gl.uniform1f(u.uBlurPx, CFG.blurPx * scale);
+    gl.uniform1f(u.uBandAlpha, CFG.bandAlpha);
 
     var out = [];
     for (var i = 0; i < list.length; i++) {
@@ -501,7 +765,12 @@
       gl.uniform1f(u.uCornerN, s.cornerN || 2);
       gl.uniform1f(u.uBand, s.band);
       gl.uniform1f(u.uFeather, Math.min(CFG.feather * scale, s.band * 0.8));
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      /* Phase 4A：只画边框条（见 quadStrips），中心区域不下发片元 */
+      var qs = CFG.strips ? quadStrips(s) : [[s.x, s.y, s.w, s.h]];
+      for (var qi = 0; qi < qs.length; qi++) {
+        gl.uniform4f(u.uQuad, qs[qi][0], qs[qi][1], qs[qi][2], qs[qi][3]);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      }
       out.push({ id: s.id, rect: s.css, band: +(s.band / scale).toFixed(1), cornerN: s.cornerN });
     }
     stats.surfaces = out;
@@ -517,22 +786,54 @@
       } catch (e) { window.__gevEdgeGrabOut = { err: String(e && e.message || e) }; }
       window.__gevEdgeGrab = null;
     }
-    if (stats.frames % 30 === 0) {
-      var s2 = ft.slice().sort(function (a, b) { return a - b; });
-      stats.p50 = +s2[Math.floor(s2.length * 0.5)].toFixed(2);
-      stats.p90 = +s2[Math.floor(s2.length * 0.9)].toFixed(2);
-      stats.fps = +(1000 / stats.p50).toFixed(1);
-    }
+    sampleDraw();
   }
 
   /* ── 钩子 ─────────────────────────────────────────────────────────────── */
   window.__gevEdge = {
-    set: function (patch) { if (patch) for (var k in patch) CFG[k] = patch[k]; if (patch && patch.scale != null) resize(); return CFG; },
+    set: function (patch) { if (patch) for (var k in patch) CFG[k] = patch[k]; geoDirty = true; if (patch && patch.scale != null) resize(); return CFG; },
     cfg: function () { return CFG; },
     only: function (ids) { CFG.only = ids && ids.length ? ids.slice() : null; return CFG.only; },
-    testBg: function (on, css) { CFG.testBg = !!on; if (css != null) CFG.testBgCss = +css; return { on: CFG.testBg, css: CFG.testBgCss }; },
+    testBg: function (on, css, flat) { CFG.testBg = !!on; if (css != null) CFG.testBgCss = +css; CFG.testBgFlat = flat == null ? null : +flat; if (on) CFG.testBgGrid = 0; return { on: CFG.testBg, css: CFG.testBgCss, flat: CFG.testBgFlat }; },
+    /* 棋盘底（确定性主判据）：横竖两个方向都有高频结构 → 四边位移都可测。
+       axis 保留只为向后兼容（旧调用 testChecker(true,8,0)）：非 0 = 横条纹。 */
+    testChecker: function (on, css, axis) { CFG.testBg = !!on; CFG.testBgGrid = Math.max(0, +css || 8); CFG.testBgMode = (axis != null && (axis | 0)) ? 1 : 0; return { on: CFG.testBg, css: CFG.testBgCss, grid: CFG.testBgGrid, mode: CFG.testBgMode }; },
+    /* 条纹底（Phase6C2）：axis=0 竖条纹（梯度沿 x，量左/右）· axis=1 横条纹（梯度沿 y，量顶/下）。
+       Round-2 起 axis=0 真的是竖条纹（旧实现画的是棋盘，与标签不符，评审 #3）。
+       色散 R/B 采样沿边缘法线错开，只有底图在法线方向有梯度时，ΔR−ΔB 才非零。 */
+    testStripes: function (axis, css) { CFG.testBg = true; CFG.testBgGrid = Math.max(2, +css || 8); CFG.testBgMode = (axis | 0) ? 1 : 2; return { on: true, grid: CFG.testBgGrid, mode: CFG.testBgMode, label: CFG.testBgMode === 1 ? 'hstripes' : 'vstripes' }; },
+    /* 分段清零峰值（Round-2）：把上一段的 drawMax/upMax 及其时间戳压进 peakWindows
+       （不丢证据），再开新窗口。gate 在 warm-up 起点与稳态窗口起点各调一次。 */
+    resetPeaks: function (label) {
+      stats.peakWindows.push({
+        label: String(label || ''), at: +(performance.now()).toFixed(1),
+        drawMax: stats.drawMax, drawMaxAt: stats.drawMaxAt, drawN: stats.drawN || 0,
+        upMax: stats.upMax, upMaxAt: stats.upMaxAt, upN: stats.upN || 0,
+        drawLog: (stats.drawLog || []).slice(-40),
+      });
+      if (stats.peakWindows.length > 8) stats.peakWindows.shift();
+      stats.drawMax = 0; stats.drawMaxAt = 0; stats.drawN = 0; stats.drawLog = [];
+      stats.upMax = 0; stats.upMaxAt = 0; stats.upN = 0;
+      return stats.peakWindows[stats.peakWindows.length - 1];
+    },
+    /* 仪器自检（Round-2 评审 #3）：读回测试底衬像素（CSS 坐标），用来证明标签与实现一致 ——
+       竖条纹：同 x 不同 y 相等、相邻列不等；横条纹：同 y 不同 x 相等、相邻行不等。 */
+    probeTestBg: function (xcss, ycss) {
+      try {
+        if (!CFG.testBg) return 'testbg-off';
+        paintTestBg(W, H);
+        var p = sctx.getImageData(Math.round(xcss * scale), Math.round(ycss * scale), 1, 1).data;
+        return [p[0], p[1], p[2]];
+      } catch (e) { return 'err:' + (e && e.message); }
+    },
     cap: function (n) { CFG.cap = +n || 0; return CFG.cap; },
-    on: function () { CFG.enabled = true; return true; },
+    on: function () {
+      CFG.enabled = true; geoDirty = true; lastSig = '';
+      /* off() 把画布清了 → 立刻按当前地图画布重建纹理，否则要等下一次 postRender
+         （requestRenderMode 空闲时可能很久）才恢复，看着像「开了没效果」 */
+      if (!texValid) { try { var m = mapCanvas(); if (m) uploadMap(m); } catch (e) {} }
+      return true;
+    },
     off: function () {
       CFG.enabled = false;
       if (gl) { gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); texValid = false; }
@@ -542,10 +843,17 @@
     },
     stats: function () {
       return {
-        fps: stats.fps, fpsRaw: stats.fpsRaw, p50: stats.p50, p90: stats.p90, frames: stats.frames,
-        skip: stats.skip,
+        /* fps = 页面 rAF 帧率（每帧采样，恒有值）；drawFps = 折射 pass 重画率 */
+        fps: stats.fps, fpsRaw: stats.fpsRaw, p50: stats.p50, p90: stats.p90, p95: stats.p95,
+        drawFps: stats.drawFps, drawP50: stats.drawP50, drawP95: stats.drawP95,
+        frames: stats.frames, skip: stats.skip, texSub: stats.tex,
+        upMs: stats.upMs, upMax: stats.upMax, upN: stats.upN, upMaxAt: stats.upMaxAt, upLog: (stats.upLog || []).slice(-20),
+        drawMs: stats.drawMs, drawMax: stats.drawMax, drawMaxAt: stats.drawMaxAt, drawFirstMs: stats.drawFirstMs,
+        drawLog: (stats.drawLog || []).slice(-40), drawN: stats.drawN || 0,
+        peakWindows: stats.peakWindows, bootAt: BOOT_AT, src: stats.src, pdb: PDB,
         scale: scale, canvas: [W, H], tex: stats.tex, err: stats.err,
-        band: CFG.band, dispPx: CFG.dispPx, lod: CFG.lod, only: CFG.only, cap: CFG.cap,
+        band: CFG.band, dispPx: CFG.dispPx, dispGain: CFG.dispGain, dispCap: CFG.dispCap, dispBandStart: CFG.dispBandStart, lod: CFG.lod, only: CFG.only, cap: CFG.cap,
+        gain: CFG.gain, bandAlpha: CFG.bandAlpha, blurPx: CFG.blurPx, rimAmt: CFG.rimAmt, ior: CFG.ior,
         count: stats.surfaces.length, surfaces: stats.surfaces,
         /* R5：renderer 判定只走 src/lc/gpu.js（唯一允许读 WEBGL_debug_renderer_info 的模块） */
         renderer: (function () {
@@ -576,7 +884,9 @@
   var tries = 0;
   (function start() {
     if (boot()) return;
-    if (++tries > 80) { stats.err = stats.err || 'boot-timeout'; window.__gevEdgeLens.loading = false; console.warn('[gev-edge] boot timeout', stats.err); return; }
+    /* Phase 4A：20s（80×250ms）在冷启动/GPU 进程忙碌时不够 —— 实测偶发 boot-timeout
+       （lens 整场不出现，读数变成 0）。放宽到 60s，且不把「等待中」当成永久失败。 */
+    if (++tries > 240) { stats.err = stats.err || 'boot-timeout'; window.__gevEdgeLens.loading = false; console.warn('[gev-edge] boot timeout', stats.err); return; }
     setTimeout(start, 250);
   })();
 })();

@@ -23,7 +23,5 @@
 
 @import './src/ui/styles/weather.css';
 @import './src/ui/styles/cyber.css';
-/* Apple Liquid Glass 组件（按钮/菜单）；删掉本行即完全还原 */
-@import './src/ui/styles/lg-glass.css';
 /* 手机竖屏适配 mobile-portrait.css 已移至 index.html 独立 <link>：
    避免其 @media 覆盖层被 creditAttribution 桌面布局模型当作 base 样式扫描而误判。 */

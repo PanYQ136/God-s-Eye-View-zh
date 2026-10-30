@@ -1,0 +1,961 @@
+{
+ "url": "http://127.0.0.1:4173/",
+ "started": "2026-10-26T18:23:20.426Z",
+ "phases": {
+  "auditAfter": {
+   "rows": [
+    {
+     "id": "data-panel",
+     "radius": "16px",
+     "cornerShape": "superellipse(2)",
+     "innerRadius": "16px",
+     "innerShape": "superellipse(2)",
+     "rect": [
+      52,
+      93.9,
+      176,
+      42.8
+     ]
+    },
+    {
+     "id": "scene-panel",
+     "radius": "16px",
+     "cornerShape": "superellipse(2)",
+     "innerRadius": "16px",
+     "innerShape": "superellipse(2)",
+     "rect": [
+      52,
+      144.7,
+      176,
+      42.8
+     ]
+    },
+    {
+     "id": "pp-toggles",
+     "radius": "16px",
+     "cornerShape": "superellipse(2)",
+     "innerRadius": "0px",
+     "innerShape": "superellipse(2)",
+     "rect": [
+      1308,
+      93.9,
+      176,
+      50
+     ]
+    },
+    {
+     "id": "cctv-panel",
+     "radius": "16px",
+     "cornerShape": "superellipse(2)",
+     "innerRadius": "16px",
+     "innerShape": "superellipse(2)",
+     "rect": [
+      1308,
+      151.9,
+      176,
+      50
+     ]
+    },
+    {
+     "id": "global-context-panel",
+     "radius": "16px",
+     "cornerShape": "superellipse(2)",
+     "innerRadius": "16px",
+     "innerShape": "superellipse(2)",
+     "rect": [
+      1308,
+      209.9,
+      176,
+      50
+     ]
+    },
+    {
+     "id": "location-bar",
+     "radius": "16px",
+     "cornerShape": "superellipse(2)",
+     "innerRadius": "0px",
+     "innerShape": "superellipse(2)",
+     "rect": [
+      530,
+      632,
+      168,
+      86
+     ]
+    },
+    {
+     "id": "control-panel",
+     "radius": "16px",
+     "cornerShape": "superellipse(2)",
+     "innerRadius": "0px",
+     "innerShape": "superellipse(2)",
+     "rect": [
+      838,
+      632,
+      168,
+      86
+     ]
+    },
+    {
+     "id": "gev-voice-control",
+     "radius": "16px",
+     "cornerShape": "superellipse(2)",
+     "innerRadius": null,
+     "innerShape": null,
+     "rect": [
+      698,
+      632,
+      140,
+      85.6
+     ]
+    },
+    {
+     "id": "gev-gfx-fab",
+     "radius": "50%",
+     "cornerShape": "superellipse(1)",
+     "innerRadius": null,
+     "innerShape": null,
+     "rect": [
+      1482,
+      592.4,
+      42,
+      42
+     ]
+    }
+   ],
+   "tray": {
+    "radius": "6.72px",
+    "cornerShape": "superellipse(2)",
+    "visible": false,
+    "rect": null,
+    "inCommandDock": true
+   },
+   "trays": [
+    {
+     "radius": "6.72px",
+     "cornerShape": "superellipse(2)",
+     "visible": false,
+     "rect": null,
+     "inCommandDock": true
+    },
+    {
+     "radius": "6.72px",
+     "cornerShape": "superellipse(2)",
+     "visible": false,
+     "rect": null,
+     "inCommandDock": true
+    }
+   ],
+   "fab": {
+    "radius": "50%",
+    "cornerShape": "superellipse(1)"
+   },
+   "lens": {
+    "frames": 848,
+    "err": null,
+    "surf": [
+     [
+      "data-panel",
+      4
+     ],
+     [
+      "scene-panel",
+      4
+     ],
+     [
+      "pp-toggles",
+      4
+     ],
+     [
+      "cctv-panel",
+      4
+     ],
+     [
+      "global-context-panel",
+      4
+     ],
+     [
+      "location-bar",
+      4
+     ],
+     [
+      "control-panel",
+      4
+     ],
+     [
+      "gev-voice-control",
+      4
+     ],
+     [
+      "gev-gfx-fab",
+      2
+     ]
+    ]
+   },
+   "support": {
+    "squircle": true,
+    "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+   },
+   "cesium": {
+    "rs": 1.46,
+    "canvas": [
+     4494,
+     2136
+    ],
+    "error": "(object)"
+   }
+  },
+  "lensRound": [
+   [
+    "data-panel",
+    2
+   ],
+   [
+    "scene-panel",
+    2
+   ],
+   [
+    "pp-toggles",
+    2
+   ],
+   [
+    "cctv-panel",
+    2
+   ],
+   [
+    "global-context-panel",
+    2
+   ],
+   [
+    "location-bar",
+    2
+   ],
+   [
+    "control-panel",
+    2
+   ],
+   [
+    "gev-voice-control",
+    2
+   ],
+   [
+    "gev-gfx-fab",
+    2
+   ]
+  ],
+  "auditBefore": {
+   "rows": [
+    {
+     "id": "data-panel",
+     "radius": "16px",
+     "cornerShape": "superellipse(1)",
+     "innerRadius": "16px",
+     "innerShape": "superellipse(1)",
+     "rect": [
+      52,
+      93.9,
+      176,
+      42.8
+     ]
+    },
+    {
+     "id": "scene-panel",
+     "radius": "16px",
+     "cornerShape": "superellipse(1)",
+     "innerRadius": "16px",
+     "innerShape": "superellipse(1)",
+     "rect": [
+      52,
+      144.7,
+      176,
+      42.8
+     ]
+    },
+    {
+     "id": "pp-toggles",
+     "radius": "16px",
+     "cornerShape": "superellipse(1)",
+     "innerRadius": "0px",
+     "innerShape": "superellipse(1)",
+     "rect": [
+      1308,
+      93.9,
+      176,
+      50
+     ]
+    },
+    {
+     "id": "cctv-panel",
+     "radius": "16px",
+     "cornerShape": "superellipse(1)",
+     "innerRadius": "16px",
+     "innerShape": "superellipse(1)",
+     "rect": [
+      1308,
+      151.9,
+      176,
+      50
+     ]
+    },
+    {
+     "id": "global-context-panel",
+     "radius": "16px",
+     "cornerShape": "superellipse(1)",
+     "innerRadius": "16px",
+     "innerShape": "superellipse(1)",
+     "rect": [
+      1308,
+      209.9,
+      176,
+      50
+     ]
+    },
+    {
+     "id": "location-bar",
+     "radius": "16px",
+     "cornerShape": "superellipse(1)",
+     "innerRadius": "0px",
+     "innerShape": "superellipse(1)",
+     "rect": [
+      530,
+      632,
+      168,
+      86
+     ]
+    },
+    {
+     "id": "control-panel",
+     "radius": "16px",
+     "cornerShape": "superellipse(1)",
+     "innerRadius": "0px",
+     "innerShape": "superellipse(1)",
+     "rect": [
+      838,
+      632,
+      168,
+      86
+     ]
+    },
+    {
+     "id": "gev-voice-control",
+     "radius": "16px",
+     "cornerShape": "superellipse(1)",
+     "innerRadius": null,
+     "innerShape": null,
+     "rect": [
+      698,
+      632,
+      140,
+      85.6
+     ]
+    },
+    {
+     "id": "gev-gfx-fab",
+     "radius": "50%",
+     "cornerShape": "superellipse(1)",
+     "innerRadius": null,
+     "innerShape": null,
+     "rect": [
+      1482,
+      592.4,
+      42,
+      42
+     ]
+    }
+   ],
+   "tray": {
+    "radius": "6.72px",
+    "cornerShape": "superellipse(1)",
+    "visible": false,
+    "rect": null,
+    "inCommandDock": true
+   },
+   "trays": [
+    {
+     "radius": "6.72px",
+     "cornerShape": "superellipse(1)",
+     "visible": false,
+     "rect": null,
+     "inCommandDock": true
+    },
+    {
+     "radius": "6.72px",
+     "cornerShape": "superellipse(1)",
+     "visible": false,
+     "rect": null,
+     "inCommandDock": true
+    }
+   ],
+   "fab": {
+    "radius": "50%",
+    "cornerShape": "superellipse(1)"
+   },
+   "lens": {
+    "frames": 1024,
+    "err": null,
+    "surf": [
+     [
+      "data-panel",
+      2
+     ],
+     [
+      "scene-panel",
+      2
+     ],
+     [
+      "pp-toggles",
+      2
+     ],
+     [
+      "cctv-panel",
+      2
+     ],
+     [
+      "global-context-panel",
+      2
+     ],
+     [
+      "location-bar",
+      2
+     ],
+     [
+      "control-panel",
+      2
+     ],
+     [
+      "gev-voice-control",
+      2
+     ],
+     [
+      "gev-gfx-fab",
+      2
+     ]
+    ]
+   },
+   "support": {
+    "squircle": true,
+    "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+   },
+   "cesium": {
+    "rs": 1.46,
+    "canvas": [
+     4494,
+     2136
+    ],
+    "error": "(object)"
+   }
+  },
+  "corners": {
+   "after": {
+    "data-panel-tl": "docs/_collab/t_3e129970/after-corner-tl-44.png",
+    "cctv-panel-tr": "docs/_collab/t_3e129970/after-corner-tr-44.png",
+    "global-context-panel-bl": "docs/_collab/t_3e129970/after-corner-bl-44.png",
+    "control-panel-tl": "docs/_collab/t_3e129970/after-corner-tl-44.png"
+   },
+   "before": {
+    "data-panel-tl": "docs/_collab/t_3e129970/before-corner-tl-44.png",
+    "cctv-panel-tr": "docs/_collab/t_3e129970/before-corner-tr-44.png",
+    "global-context-panel-bl": "docs/_collab/t_3e129970/before-corner-bl-44.png",
+    "control-panel-tl": "docs/_collab/t_3e129970/before-corner-tl-44.png"
+   },
+   "rectsA": {
+    "data-panel": [
+     52,
+     93.9000015258789,
+     176,
+     42.79999923706055
+    ],
+    "scene-panel": [
+     52,
+     144.6999969482422,
+     176,
+     42.79999923706055
+    ],
+    "pp-toggles": [
+     1308,
+     93.9000015258789,
+     176,
+     50
+    ],
+    "cctv-panel": [
+     1308,
+     151.90000915527344,
+     176,
+     50
+    ],
+    "global-context-panel": [
+     1308,
+     209.90000915527344,
+     176,
+     50
+    ],
+    "location-bar": [
+     530,
+     632,
+     168,
+     86
+    ],
+    "control-panel": [
+     838,
+     632,
+     168,
+     86
+    ],
+    "gev-voice-control": [
+     698,
+     632,
+     140,
+     85.5999984741211
+    ],
+    "gev-gfx-fab": [
+     1482,
+     592.4000244140625,
+     42,
+     42
+    ]
+   },
+   "rectsB": {
+    "data-panel": [
+     52,
+     93.9000015258789,
+     176,
+     42.79999923706055
+    ],
+    "scene-panel": [
+     52,
+     144.6999969482422,
+     176,
+     42.79999923706055
+    ],
+    "pp-toggles": [
+     1308,
+     93.9000015258789,
+     176,
+     50
+    ],
+    "cctv-panel": [
+     1308,
+     151.90000915527344,
+     176,
+     50
+    ],
+    "global-context-panel": [
+     1308,
+     209.90000915527344,
+     176,
+     50
+    ],
+    "location-bar": [
+     530,
+     632,
+     168,
+     86
+    ],
+    "control-panel": [
+     838,
+     632,
+     168,
+     86
+    ],
+    "gev-voice-control": [
+     698,
+     632,
+     140,
+     85.5999984741211
+    ],
+    "gev-gfx-fab": [
+     1482,
+     592.4000244140625,
+     42,
+     42
+    ]
+   }
+  },
+  "geometry": {
+   "r": 16,
+   "squircle": [
+    {
+     "id": "data-panel",
+     "fit": {
+      "n": 4.78,
+      "e": 0.22,
+      "eCircle": 3.394,
+      "eSq4": 0.515,
+      "points": 33
+     }
+    },
+    {
+     "id": "cctv-panel",
+     "fit": {
+      "n": 4.24,
+      "e": 0.122,
+      "eCircle": 3.117,
+      "eSq4": 0.199,
+      "points": 33
+     }
+    },
+    {
+     "id": "global-context-panel",
+     "fit": {
+      "n": 4.78,
+      "e": 0.22,
+      "eCircle": 3.394,
+      "eSq4": 0.515,
+      "points": 33
+     }
+    }
+   ],
+   "round": [
+    {
+     "id": "data-panel",
+     "fit": {
+      "n": 2.24,
+      "e": 0.303,
+      "eCircle": 0.714,
+      "eSq4": 2.306,
+      "points": 33
+     }
+    },
+    {
+     "id": "cctv-panel",
+     "fit": {
+      "n": 2.1,
+      "e": 0.2,
+      "eCircle": 0.343,
+      "eSq4": 2.684,
+      "points": 33
+     }
+    },
+    {
+     "id": "global-context-panel",
+     "fit": {
+      "n": 2.24,
+      "e": 0.303,
+      "eCircle": 0.714,
+      "eSq4": 2.306,
+      "points": 33
+     }
+    }
+   ]
+  },
+  "layout": {
+   "rectsAfter": {
+    "data-panel": [
+     52,
+     93.9,
+     176,
+     42.8
+    ],
+    "scene-panel": [
+     52,
+     144.7,
+     176,
+     42.8
+    ],
+    "pp-toggles": [
+     1308,
+     93.9,
+     176,
+     50
+    ],
+    "cctv-panel": [
+     1308,
+     151.9,
+     176,
+     50
+    ],
+    "global-context-panel": [
+     1308,
+     209.9,
+     176,
+     50
+    ],
+    "location-bar": [
+     530,
+     632,
+     168,
+     86
+    ],
+    "control-panel": [
+     838,
+     632,
+     168,
+     86
+    ],
+    "gev-voice-control": [
+     698,
+     632,
+     140,
+     85.6
+    ],
+    "gev-gfx-fab": [
+     1482,
+     592.4,
+     42,
+     42
+    ],
+    "__tray": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "rectsBefore": {
+    "data-panel": [
+     52,
+     93.9,
+     176,
+     42.8
+    ],
+    "scene-panel": [
+     52,
+     144.7,
+     176,
+     42.8
+    ],
+    "pp-toggles": [
+     1308,
+     93.9,
+     176,
+     50
+    ],
+    "cctv-panel": [
+     1308,
+     151.9,
+     176,
+     50
+    ],
+    "global-context-panel": [
+     1308,
+     209.9,
+     176,
+     50
+    ],
+    "location-bar": [
+     530,
+     632,
+     168,
+     86
+    ],
+    "control-panel": [
+     838,
+     632,
+     168,
+     86
+    ],
+    "gev-voice-control": [
+     698,
+     632,
+     140,
+     85.6
+    ],
+    "gev-gfx-fab": [
+     1482,
+     592.4,
+     42,
+     42
+    ],
+    "__tray": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "identical": true
+  },
+  "hitCorner": {
+   "after": {
+    "data-panel": {
+     "inCard": true,
+     "hit": "gev-lc-edge gev-lc-edge-nw"
+    },
+    "scene-panel": {
+     "inCard": true,
+     "hit": "gev-lc-edge gev-lc-edge-nw"
+    },
+    "pp-toggles": {
+     "inCard": true,
+     "hit": "gev-lc-edge gev-lc-edge-nw"
+    },
+    "cctv-panel": {
+     "inCard": true,
+     "hit": "gev-lc-edge gev-lc-edge-nw"
+    },
+    "global-context-panel": {
+     "inCard": true,
+     "hit": "gev-lc-edge gev-lc-edge-nw"
+    },
+    "location-bar": {
+     "inCard": true,
+     "hit": "gev-lc-edge gev-lc-edge-nw"
+    },
+    "control-panel": {
+     "inCard": true,
+     "hit": "gev-lc-edge gev-lc-edge-nw"
+    },
+    "gev-voice-control": {
+     "inCard": true,
+     "hit": "gev-lc-edge gev-lc-edge-nw"
+    },
+    "gev-gfx-fab": {
+     "inCard": false,
+     "hit": ""
+    }
+   },
+   "before": {
+    "data-panel": {
+     "inCard": false,
+     "hit": ""
+    },
+    "scene-panel": {
+     "inCard": false,
+     "hit": ""
+    },
+    "pp-toggles": {
+     "inCard": false,
+     "hit": ""
+    },
+    "cctv-panel": {
+     "inCard": false,
+     "hit": ""
+    },
+    "global-context-panel": {
+     "inCard": false,
+     "hit": ""
+    },
+    "location-bar": {
+     "inCard": true,
+     "hit": "gev-lc-edge gev-lc-edge-nw"
+    },
+    "control-panel": {
+     "inCard": true,
+     "hit": "gev-lc-edge gev-lc-edge-nw"
+    },
+    "gev-voice-control": {
+     "inCard": true,
+     "hit": "gev-lc-edge gev-lc-edge-nw"
+    },
+    "gev-gfx-fab": {
+     "inCard": false,
+     "hit": ""
+    }
+   }
+  },
+  "interactions": {
+   "cards": [
+    {
+     "id": "data-panel",
+     "h": {
+      "collapsed": 42.8,
+      "open": 380,
+      "restored": 42.8
+     },
+     "floating": true,
+     "restored": true,
+     "overflowX": 1,
+     "canScroll": true,
+     "scrollMoved": true
+    },
+    {
+     "id": "scene-panel",
+     "h": {
+      "collapsed": 42.8,
+      "open": 340,
+      "restored": 42.8
+     },
+     "floating": true,
+     "restored": true,
+     "overflowX": 1,
+     "canScroll": true,
+     "scrollMoved": true
+    },
+    {
+     "id": "pp-toggles",
+     "h": {
+      "collapsed": 50,
+      "open": 430,
+      "restored": 50
+     },
+     "floating": true,
+     "restored": true,
+     "overflowX": 0,
+     "canScroll": false,
+     "scrollMoved": false
+    },
+    {
+     "id": "cctv-panel",
+     "h": {
+      "collapsed": 50,
+      "open": 412,
+      "restored": 50
+     },
+     "floating": true,
+     "restored": true,
+     "overflowX": 1,
+     "canScroll": true,
+     "scrollMoved": true
+    },
+    {
+     "id": "global-context-panel",
+     "h": {
+      "collapsed": 50,
+      "open": 354,
+      "restored": 50
+     },
+     "floating": true,
+     "restored": true,
+     "overflowX": 1,
+     "canScroll": true,
+     "scrollMoved": true
+    }
+   ],
+   "button": {
+    "found": 12,
+    "centerHit": true,
+    "rect": [
+     1192,
+     141,
+     284,
+     38
+    ],
+    "label": "◎\n        HUD",
+    "changed": true,
+    "tray": {
+     "radius": "0px",
+     "shape": "superellipse(2)",
+     "rect": [
+      550.8,
+      522.8,
+      338.4,
+      32.8
+     ],
+     "visible": true
+    }
+   }
+  },
+  "expanded": {
+   "rect": [
+    52,
+    169,
+    320,
+    380
+   ],
+   "corner": "docs/_collab/t_3e129970/expanded-corner-tl-44.png",
+   "computed": {
+    "radius": "16px",
+    "shape": "superellipse(2)",
+    "innerRadius": "8px",
+    "scrollH": 2075,
+    "clientH": 380,
+    "overX": 1,
+    "worstOverflowXpx": 20,
+    "scrollable": true,
+    "scrolledToEnd": false,
+    "bottomReachable": true
+   }
+  }
+ },
+ "errors": [],
+ "finished": "2026-10-26T18:24:30.861Z"
+}

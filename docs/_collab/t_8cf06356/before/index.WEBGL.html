@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>God's Eye View</title>
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/src/ui/styles/mobile-portrait.css" />
+  <link rel="stylesheet" href="/gev-cn.css" />
+  <link rel="stylesheet" href="/gev-responsive.css" />
+  <link rel="stylesheet" href="/gev-fix.css" />
+  <link rel="stylesheet" href="/gev-panel-win.css" />
+  <link rel="stylesheet" href="/gev-liquid-cards.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <!-- Icon font subset to the glyphs this app renders. Keep `icon_names` in sync
+       with the sources: src/materialSymbolsSubset.test.mjs fails when a source
+       names a glyph this list is missing, because a missing glyph does not draw
+       a box — the ligature never forms and the element renders the literal word. -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0&icon_names=adjust,arrow_drop_down,arrow_forward,arrow_left,arrow_right,bolt,chevron_left,chevron_right,close,close_fullscreen,dark_mode,draw,east,flare,flight,layers_clear,light_mode,local_fire_department,my_location,navigation,normal,on,open_in_full,public,radar,radio,right_panel_close,right_panel_open,rocket_launch,skip_next,skip_previous,view_in_ar" rel="stylesheet" />
+</head>
+<body>
+  <!-- gev:template scene-chrome -->
+
+  <!-- gev:template cockpit -->
+
+  <!-- gev:template display-controls -->
+
+  <!-- gev:template command-dock -->
+
+  <!-- gev:template layer-panels -->
+
+  <!-- gev:template context -->
+
+  <!-- gev:template welcome -->
+
+  <!-- gev:template provider-settings -->
+
+  <!-- gev:template hud-loading -->
+
+  <script type="module" src="/src/main.js"></script>
+  <!-- GEV 中文增强包（界面汉化 + 美化钩子）；删掉本行即完全还原 -->
+  <script type="module" src="/src/gev-cn.js"></script>
+  <!-- GEV 定位当前设备位置；删掉本行即移除该功能 -->
+  <script type="module" src="/src/gev-locate.js"></script>
+  <!-- GEV 打开即显示航班（默认开启 flights 图层）；删掉本行即还原图层默认全关 -->
+  <script type="module" src="/src/gev-autolocate.js"></script>
+  <!-- GEV 交通工具详细档案框（型号/性能 + 实时位置）；删掉本行即完全还原 -->
+  <script type="module" src="/src/gev-dossier.js"></script>
+  <script type="module" src="/src/gev-perf.js"></script>
+  <!-- GEV 数据图层「渲染上限」控件（滑动条 0–999 + 数值框）；删掉本行即完全还原 -->
+  <script type="module" src="/src/gev-layer-limits.js"></script>
+  <!-- GEV「画面设置」面板（画质预设/渲染分辨率/锐化/抗锯齿 + FSR 风格放大）；删掉本行即完全还原 -->
+  <script type="module" src="/src/gev-graphics.js"></script>
+  <!-- GEV Apple Liquid Glass 组件（顶栏玻璃按钮 + 玻璃菜单）；删掉本行即完全还原 -->
+  <script type="module" src="/src/ui/lgGlass.js"></script>
+  <!-- 手机竖屏抽屉触发；删掉本行 + style.css 的 mobile-portrait.css import 即回滚 -->
+  <script type="module" src="/src/ui/mobile-ui.js"></script>
+  <!-- GEV 面板自由拖拽/缩放层（移动/缩放/吸附/持久化/玻璃）；删掉本行 + gev-panel-win.css 的 <link> 即完全回滚 -->
+  <script type="module" src="/src/gev-panel-win.js"></script>
+  <!-- 液态玻璃折射滤镜（移植 rdev/liquid-glass-react v1.1.1 位移图，注入 #gev-lg-filter） -->
+  <script src="/gev-lg-filter.js"></script>
+  <!-- GEV 液态玻璃卡片层（玻璃皮/边框悬停缩放/空白展开收起/弹簧/持久化）；删本行 + gev-liquid-cards.css 的 <link> 即完全回滚 -->
+  <script type="module" src="/src/gev-liquid-cards.js"></script>
+  <!-- 真·WebGL 液态玻璃折射层（采样 Cesium 画布做透镜折射）；删本行 + public/gev-gl-glass.js + CSS 的 html.gev-gl-on 段 即回滚 -->
+  <script src="/gev-gl-glass.js"></script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+{
+ "errs": [],
+ "moved": "ok",
+ "diag": {
+  "fps": 164,
+  "count": 13,
+  "scale": 1,
+  "lum": "bright",
+  "probe": {
+   "readable": true,
+   "dsLum": 0.713,
+   "dsMax": 250,
+   "mapSize": [
+    1382,
+    656
+   ],
+   "dsSize": [
+    768,
+    365
+   ],
+   "sample": 0.7866015196078431
+  },
+  "surfaces": [
+   {
+    "id": "data-panel",
+    "v": "regular",
+    "lum": 0.795,
+    "fill": 0.079,
+    "dim": 0
+   },
+   {
+    "id": "scene-panel",
+    "v": "regular",
+    "lum": 0.806,
+    "fill": 0.08,
+    "dim": 0
+   },
+   {
+    "id": "pp-toggles",
+    "v": "regular",
+    "lum": 0.829,
+    "fill": 0.08,
+    "dim": 0
+   },
+   {
+    "id": "cctv-panel",
+    "v": "regular",
+    "lum": 0.797,
+    "fill": 0.08,
+    "dim": 0
+   },
+   {
+    "id": "global-context-panel",
+    "v": "regular",
+    "lum": 0.714,
+    "fill": 0.069,
+    "dim": 0
+   },
+   {
+    "id": "location-bar",
+    "v": "regular",
+    "lum": 0.772,
+    "fill": 0.076,
+    "dim": 0
+   },
+   {
+    "id": "control-panel",
+    "v": "regular",
+    "lum": 0.78,
+    "fill": 0.077,
+    "dim": 0
+   },
+   {
+    "id": "gev-voice-control",
+    "v": "regular",
+    "lum": 0.581,
+    "fill": 0.051,
+    "dim": 0
+   },
+   {
+    "id": "gev-gfx-fab",
+    "v": "clear",
+    "lum": 0.55,
+    "fill": 0.02,
+    "dim": 0.35
+   },
+   {
+    "id": "topbar",
+    "v": "regular",
+    "lum": 0.87,
+    "fill": 0.08,
+    "dim": 0
+   },
+   {
+    "id": "locate-chip",
+    "v": "clear",
+    "lum": 0.956,
+    "fill": 0.02,
+    "dim": 0.35
+   },
+   {
+    "id": "perf-chip",
+    "v": "clear",
+    "lum": 0.961,
+    "fill": 0.02,
+    "dim": 0.35
+   },
+   {
+    "id": "lang-chip",
+    "v": "clear",
+    "lum": 0.92,
+    "fill": 0.02,
+    "dim": 0.35
+   }
+  ]
+ }
+}

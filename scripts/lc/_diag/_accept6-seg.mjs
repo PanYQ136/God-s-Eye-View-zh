@@ -1,0 +1,20 @@
+import { readFileSync } from 'node:fs';
+const d = JSON.parse(readFileSync('.gev-logs/lc/boot/accept6-final.json', 'utf8'));
+const med = (xs) => {
+  const s = [...xs].sort((a, b) => a - b);
+  const m = s.length >> 1;
+  return s.length % 2 ? s[m] : +((s[m - 1] + s[m]) / 2).toFixed(1);
+};
+const cols = ['frame:first', 'tileset:added', 'cine:go(tileset)', 'cine:done', 'view:content', 'view:settled', 'mask:gone'];
+console.log('run      ' + cols.map((c) => c.padStart(18)).join(''));
+for (const r of d.rows) console.log(r.runId.padEnd(9) + cols.map((c) => String(r.marks[c] ?? '-').padStart(18)).join(''));
+const seg = (a, b) => med(d.rows.map((r) => (r.marks[b] != null && r.marks[a] != null ? r.marks[b] - r.marks[a] : NaN)).filter(Number.isFinite));
+console.log('\n中位分段:');
+console.log(' nav→tileset:added      ', seg('frame:first', 'tileset:added'));
+console.log(' tileset:added→cine:go  ', seg('tileset:added', 'cine:go(tileset)'));
+console.log(' cine:go→cine:done      ', seg('cine:go(tileset)', 'cine:done'));
+console.log(' cine:done→view:content ', seg('cine:done', 'view:content'));
+console.log(' tileset:added→content  ', seg('tileset:added', 'view:content'));
+console.log(' content→settled        ', seg('view:content', 'view:settled'));
+console.log(' settled→mask:gone      ', seg('view:settled', 'mask:gone'));
+console.log(' nav→mask:gone(marks)   ', seg('frame:first', 'mask:gone'));

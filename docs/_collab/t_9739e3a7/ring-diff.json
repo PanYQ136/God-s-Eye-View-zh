@@ -1,0 +1,26 @@
+{
+ "card": [
+  52,
+  94,
+  320,
+  380
+ ],
+ "changedThreshold": 3,
+ "band_0_16": {
+  "px": 21376,
+  "hit": 10434,
+  "pct": 48.8,
+  "maxDelta": 14
+ },
+ "center": {
+  "px": 100224,
+  "hit": 0,
+  "pct": 0,
+  "maxDelta": 3
+ },
+ "outsideCard": {
+  "px": 999680,
+  "hit": 16882,
+  "pct": 1.69
+ }
+}

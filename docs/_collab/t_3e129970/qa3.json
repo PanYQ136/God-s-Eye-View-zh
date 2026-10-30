@@ -1,0 +1,28 @@
+{
+ "overXAfter": {
+  "n": 1,
+  "worst": 20,
+  "rect": [
+   52,
+   94,
+   320,
+   380
+  ]
+ },
+ "overXBefore": {
+  "n": 1,
+  "worst": 20,
+  "rect": [
+   52,
+   94,
+   320,
+   380
+  ]
+ },
+ "files": [
+  "cmp-corners-4x.png",
+  "cmp-expanded-4x.png",
+  "cmp-full-1536x730.png",
+  "cmp-shape-math.png"
+ ]
+}

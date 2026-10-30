@@ -1,0 +1,186 @@
+{
+ "probe": "qa-lg-chip-beforeafter",
+ "scenes": {
+  "dark-福州": {
+   "after": [
+    {
+     "label": "定位",
+     "color": "rgb(143, 227, 255)",
+     "chipBg": "rgba(8, 20, 30, 0.72)",
+     "chipBorder": "rgb(43, 74, 99)",
+     "fg": 0.68,
+     "bg": 0.024,
+     "contrast": 9.86
+    },
+    {
+     "label": "中",
+     "color": "rgb(255, 255, 255)",
+     "chipBg": "rgba(8, 20, 30, 0.72)",
+     "chipBorder": "rgb(43, 74, 99)",
+     "fg": 1,
+     "bg": 0.019,
+     "contrast": 15.15
+    },
+    {
+     "label": "EN",
+     "color": "rgb(143, 227, 255)",
+     "chipBg": "rgba(8, 20, 30, 0.72)",
+     "chipBorder": "rgb(43, 74, 99)",
+     "fg": 0.68,
+     "bg": 0.018,
+     "contrast": 10.67
+    }
+   ],
+   "before": [
+    {
+     "label": "定位",
+     "color": "rgb(0, 212, 255)",
+     "chipBg": "rgba(0, 0, 0, 0)",
+     "chipBorder": "rgb(0, 212, 255)",
+     "fg": 0.543,
+     "bg": 0.146,
+     "contrast": 3.02
+    },
+    {
+     "label": "中",
+     "color": "rgb(255, 255, 255)",
+     "chipBg": "rgba(0, 0, 0, 0)",
+     "chipBorder": "rgb(0, 212, 255)",
+     "fg": 1,
+     "bg": 0.125,
+     "contrast": 6
+    },
+    {
+     "label": "EN",
+     "color": "rgb(0, 212, 255)",
+     "chipBg": "rgba(0, 0, 0, 0)",
+     "chipBorder": "rgb(0, 212, 255)",
+     "fg": 0.543,
+     "bg": 0.089,
+     "contrast": 4.27
+    }
+   ]
+  },
+  "bright-盐湖": {
+   "after": [
+    {
+     "label": "定位",
+     "color": "rgb(143, 227, 255)",
+     "chipBg": "rgba(8, 20, 30, 0.72)",
+     "chipBorder": "rgb(43, 74, 99)",
+     "fg": 0.68,
+     "bg": 0.039,
+     "contrast": 8.16
+    },
+    {
+     "label": "中",
+     "color": "rgb(255, 255, 255)",
+     "chipBg": "rgba(8, 20, 30, 0.72)",
+     "chipBorder": "rgb(43, 74, 99)",
+     "fg": 1,
+     "bg": 0.024,
+     "contrast": 14.13
+    },
+    {
+     "label": "EN",
+     "color": "rgb(143, 227, 255)",
+     "chipBg": "rgba(8, 20, 30, 0.72)",
+     "chipBorder": "rgb(43, 74, 99)",
+     "fg": 0.68,
+     "bg": 0.029,
+     "contrast": 9.24
+    }
+   ],
+   "before": [
+    {
+     "label": "定位",
+     "color": "rgb(0, 212, 255)",
+     "chipBg": "rgba(0, 0, 0, 0)",
+     "chipBorder": "rgb(0, 212, 255)",
+     "fg": 0.543,
+     "bg": 0.322,
+     "contrast": 1.59
+    },
+    {
+     "label": "中",
+     "color": "rgb(255, 255, 255)",
+     "chipBg": "rgba(0, 0, 0, 0)",
+     "chipBorder": "rgb(0, 212, 255)",
+     "fg": 1,
+     "bg": 0.151,
+     "contrast": 5.22
+    },
+    {
+     "label": "EN",
+     "color": "rgb(0, 212, 255)",
+     "chipBg": "rgba(0, 0, 0, 0)",
+     "chipBorder": "rgb(0, 212, 255)",
+     "fg": 0.543,
+     "bg": 0.211,
+     "contrast": 2.27
+    }
+   ]
+  },
+  "bright-沙漠": {
+   "after": [
+    {
+     "label": "定位",
+     "color": "rgb(143, 227, 255)",
+     "chipBg": "rgba(8, 20, 30, 0.72)",
+     "chipBorder": "rgb(43, 74, 99)",
+     "fg": 0.68,
+     "bg": 0.029,
+     "contrast": 9.28
+    },
+    {
+     "label": "中",
+     "color": "rgb(255, 255, 255)",
+     "chipBg": "rgba(8, 20, 30, 0.72)",
+     "chipBorder": "rgb(43, 74, 99)",
+     "fg": 1,
+     "bg": 0.03,
+     "contrast": 13.16
+    },
+    {
+     "label": "EN",
+     "color": "rgb(143, 227, 255)",
+     "chipBg": "rgba(8, 20, 30, 0.72)",
+     "chipBorder": "rgb(43, 74, 99)",
+     "fg": 0.68,
+     "bg": 0.029,
+     "contrast": 9.28
+    }
+   ],
+   "before": [
+    {
+     "label": "定位",
+     "color": "rgb(0, 212, 255)",
+     "chipBg": "rgba(0, 0, 0, 0)",
+     "chipBorder": "rgb(0, 212, 255)",
+     "fg": 0.543,
+     "bg": 0.202,
+     "contrast": 2.36
+    },
+    {
+     "label": "中",
+     "color": "rgb(255, 255, 255)",
+     "chipBg": "rgba(0, 0, 0, 0)",
+     "chipBorder": "rgb(0, 212, 255)",
+     "fg": 1,
+     "bg": 0.204,
+     "contrast": 4.14
+    },
+    {
+     "label": "EN",
+     "color": "rgb(0, 212, 255)",
+     "chipBg": "rgba(0, 0, 0, 0)",
+     "chipBorder": "rgb(0, 212, 255)",
+     "fg": 0.543,
+     "bg": 0.197,
+     "contrast": 2.4
+    }
+   ]
+  }
+ },
+ "errors": []
+}

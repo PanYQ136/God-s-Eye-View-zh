@@ -96,7 +96,4 @@
     top: calc(var(--m-safe-t) + 8px) !important;
     right: calc(10px + var(--m-safe-r)) !important;
   }
-
-  /* ── 玻璃菜单竖屏不越界 ── */
-  .lg-glass-menu { max-width: calc(100vw - 24px) !important; }
 }

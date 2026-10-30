@@ -1,0 +1,66 @@
+{
+ "probe": "qa-lg-chip-worstcase",
+ "rows": {
+  "bright-沙漠-玻璃on": [
+   {
+    "label": "定位",
+    "fg": 0.68,
+    "bg": 0.029,
+    "contrast": 9.28
+   },
+   {
+    "label": "中",
+    "fg": 1,
+    "bg": 0.03,
+    "contrast": 13.16
+   },
+   {
+    "label": "EN",
+    "fg": 0.68,
+    "bg": 0.029,
+    "contrast": 9.28
+   }
+  ],
+  "bright-沙漠-玻璃off(最坏底)": [
+   {
+    "label": "定位",
+    "fg": 0.68,
+    "bg": 0.052,
+    "contrast": 7.17
+   },
+   {
+    "label": "中",
+    "fg": 1,
+    "bg": 0.052,
+    "contrast": 10.26
+   },
+   {
+    "label": "EN",
+    "fg": 0.68,
+    "bg": 0.051,
+    "contrast": 7.25
+   }
+  ],
+  "bright-盐湖-玻璃off(最坏底)": [
+   {
+    "label": "定位",
+    "fg": 0.68,
+    "bg": 0.078,
+    "contrast": 5.71
+   },
+   {
+    "label": "中",
+    "fg": 1,
+    "bg": 0.036,
+    "contrast": 12.16
+   },
+   {
+    "label": "EN",
+    "fg": 0.68,
+    "bg": 0.049,
+    "contrast": 7.35
+   }
+  ]
+ },
+ "errors": []
+}

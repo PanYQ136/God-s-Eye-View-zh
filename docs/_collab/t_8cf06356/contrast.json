@@ -1,0 +1,124 @@
+{
+ "onMap": {
+  "tag": "真实地图",
+  "rows": [
+   {
+    "card": "data-panel",
+    "sel": ".panel-title",
+    "text": "数据图层",
+    "textL": 191,
+    "bgL": 187,
+    "contrast": 1.04
+   },
+   {
+    "card": "scene-panel",
+    "sel": ".panel-title",
+    "text": "场景",
+    "textL": 72,
+    "bgL": 68,
+    "contrast": 1.06
+   },
+   {
+    "card": "pp-toggles",
+    "sel": ".pp-header-label",
+    "text": "显示",
+    "textL": 233,
+    "bgL": 70,
+    "contrast": 7.83
+   },
+   {
+    "card": "cctv-panel",
+    "sel": ".panel-title",
+    "text": "监控",
+    "textL": 79,
+    "bgL": 76,
+    "contrast": 1.04
+   },
+   {
+    "card": "global-context-panel",
+    "sel": ".panel-title",
+    "text": "上下文",
+    "textL": 84,
+    "bgL": 84,
+    "contrast": 1
+   },
+   {
+    "card": "location-bar",
+    "sel": ".dock-tray-toggle, .location-pill, .panel-title",
+    "text": "位置",
+    "textL": 129,
+    "bgL": 118,
+    "contrast": 1.16
+   },
+   {
+    "card": "control-panel",
+    "sel": ".dock-tray-toggle, .location-pill, .panel-title",
+    "text": "视觉预设",
+    "textL": 134,
+    "bgL": 118,
+    "contrast": 1.26
+   }
+  ]
+ },
+ "onWhite": {
+  "tag": "纯白底(最坏)",
+  "rows": [
+   {
+    "card": "data-panel",
+    "sel": ".panel-title",
+    "text": "数据图层",
+    "textL": 255,
+    "bgL": 255,
+    "contrast": 1
+   },
+   {
+    "card": "scene-panel",
+    "sel": ".panel-title",
+    "text": "场景",
+    "textL": 239,
+    "bgL": 177,
+    "contrast": 1.86
+   },
+   {
+    "card": "pp-toggles",
+    "sel": ".pp-header-label",
+    "text": "显示",
+    "textL": 233,
+    "bgL": 185,
+    "contrast": 1.62
+   },
+   {
+    "card": "cctv-panel",
+    "sel": ".panel-title",
+    "text": "监控",
+    "textL": 241,
+    "bgL": 232,
+    "contrast": 1.08
+   },
+   {
+    "card": "global-context-panel",
+    "sel": ".panel-title",
+    "text": "上下文",
+    "textL": 255,
+    "bgL": 255,
+    "contrast": 1
+   },
+   {
+    "card": "location-bar",
+    "sel": ".dock-tray-toggle, .location-pill, .panel-title",
+    "text": "位置",
+    "textL": 129,
+    "bgL": 118,
+    "contrast": 1.16
+   },
+   {
+    "card": "control-panel",
+    "sel": ".dock-tray-toggle, .location-pill, .panel-title",
+    "text": "视觉预设",
+    "textL": 134,
+    "bgL": 118,
+    "contrast": 1.26
+   }
+  ]
+ }
+}

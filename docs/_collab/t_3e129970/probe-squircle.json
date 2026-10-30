@@ -1,0 +1,439 @@
+{
+ "support": {
+  "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+  "squircle": true,
+  "round": true,
+  "superellipse": true
+ },
+ "computed": [
+  {
+   "shape": "superellipse(1)",
+   "radius": "40px"
+  },
+  {
+   "shape": "superellipse(2)",
+   "radius": "40px"
+  },
+  {
+   "shape": "superellipse(1)",
+   "radius": "40px"
+  },
+  {
+   "shape": "superellipse(2)",
+   "radius": "40px"
+  },
+  {
+   "shape": "superellipse(3)",
+   "radius": "40px"
+  },
+  {
+   "shape": "superellipse(4)",
+   "radius": "40px"
+  }
+ ],
+ "meta": {
+  "W": 6400,
+  "H": 2000,
+  "CH": 3
+ },
+ "boxes": [
+  {
+   "name": "round",
+   "shape": "superellipse(1)",
+   "x0": 80,
+   "y0": 160,
+   "x1": 879,
+   "y1": 959,
+   "w": 800,
+   "h": 800,
+   "scale": 4
+  },
+  {
+   "name": "squircle",
+   "shape": "superellipse(2)",
+   "x0": 1000,
+   "y0": 160,
+   "x1": 1799,
+   "y1": 959,
+   "w": 800,
+   "h": 800,
+   "scale": 4
+  },
+  {
+   "name": "superellipse(1)",
+   "shape": "superellipse(1)",
+   "x0": 1920,
+   "y0": 160,
+   "x1": 2719,
+   "y1": 959,
+   "w": 800,
+   "h": 800,
+   "scale": 4
+  },
+  {
+   "name": "superellipse(2)",
+   "shape": "superellipse(2)",
+   "x0": 2840,
+   "y0": 160,
+   "x1": 3639,
+   "y1": 959,
+   "w": 800,
+   "h": 800,
+   "scale": 4
+  },
+  {
+   "name": "superellipse(3)",
+   "shape": "superellipse(3)",
+   "x0": 3760,
+   "y0": 160,
+   "x1": 4559,
+   "y1": 959,
+   "w": 800,
+   "h": 800,
+   "scale": 4
+  },
+  {
+   "name": "superellipse(4)",
+   "shape": "superellipse(4)",
+   "x0": 4680,
+   "y0": 160,
+   "x1": 5479,
+   "y1": 959,
+   "w": 800,
+   "h": 800,
+   "scale": 4
+  }
+ ],
+ "results": [
+  {
+   "name": "round",
+   "computedShape": "superellipse(1)",
+   "scale": 4,
+   "fit": {
+    "n": 2.02,
+    "e": 0.111,
+    "eCircle": 0.181
+   },
+   "insetSumPx": 1371.8,
+   "insets": [
+    {
+     "vCss": 4,
+     "u": 22.25,
+     "uRound": 22.56,
+     "uSq4": 9.37
+    },
+    {
+     "vCss": 8,
+     "u": 15.75,
+     "uRound": 16,
+     "uSq4": 4.94
+    },
+    {
+     "vCss": 12,
+     "u": 11.25,
+     "uRound": 11.43,
+     "uSq4": 2.65
+    },
+    {
+     "vCss": 16,
+     "u": 8,
+     "uRound": 8,
+     "uSq4": 1.36
+    },
+    {
+     "vCss": 20,
+     "u": 5.25,
+     "uRound": 5.36,
+     "uSq4": 0.64
+    },
+    {
+     "vCss": 28,
+     "u": 1.75,
+     "uRound": 1.84,
+     "uSq4": 0.08
+    },
+    {
+     "vCss": 36,
+     "u": 0.25,
+     "uRound": 0.2,
+     "uSq4": 0
+    }
+   ]
+  },
+  {
+   "name": "squircle",
+   "computedShape": "superellipse(2)",
+   "scale": 4,
+   "fit": {
+    "n": 4.09,
+    "e": 0.123,
+    "eCircle": 7.531
+   },
+   "insetSumPx": 464.3,
+   "insets": [
+    {
+     "vCss": 4,
+     "u": 9.25,
+     "uRound": 22.56,
+     "uSq4": 9.37
+    },
+    {
+     "vCss": 8,
+     "u": 4.75,
+     "uRound": 16,
+     "uSq4": 4.94
+    },
+    {
+     "vCss": 12,
+     "u": 2.5,
+     "uRound": 11.43,
+     "uSq4": 2.65
+    },
+    {
+     "vCss": 16,
+     "u": 1.25,
+     "uRound": 8,
+     "uSq4": 1.36
+    },
+    {
+     "vCss": 20,
+     "u": 0.5,
+     "uRound": 5.36,
+     "uSq4": 0.64
+    },
+    {
+     "vCss": 28,
+     "u": 0,
+     "uRound": 1.84,
+     "uSq4": 0.08
+    },
+    {
+     "vCss": 36,
+     "u": 0,
+     "uRound": 0.2,
+     "uSq4": 0
+    }
+   ]
+  },
+  {
+   "name": "superellipse(1)",
+   "computedShape": "superellipse(1)",
+   "scale": 4,
+   "fit": {
+    "n": 2.02,
+    "e": 0.111,
+    "eCircle": 0.181
+   },
+   "insetSumPx": 1371.8,
+   "insets": [
+    {
+     "vCss": 4,
+     "u": 22.25,
+     "uRound": 22.56,
+     "uSq4": 9.37
+    },
+    {
+     "vCss": 8,
+     "u": 15.75,
+     "uRound": 16,
+     "uSq4": 4.94
+    },
+    {
+     "vCss": 12,
+     "u": 11.25,
+     "uRound": 11.43,
+     "uSq4": 2.65
+    },
+    {
+     "vCss": 16,
+     "u": 8,
+     "uRound": 8,
+     "uSq4": 1.36
+    },
+    {
+     "vCss": 20,
+     "u": 5.25,
+     "uRound": 5.36,
+     "uSq4": 0.64
+    },
+    {
+     "vCss": 28,
+     "u": 1.75,
+     "uRound": 1.84,
+     "uSq4": 0.08
+    },
+    {
+     "vCss": 36,
+     "u": 0.25,
+     "uRound": 0.2,
+     "uSq4": 0
+    }
+   ]
+  },
+  {
+   "name": "superellipse(2)",
+   "computedShape": "superellipse(2)",
+   "scale": 4,
+   "fit": {
+    "n": 4.09,
+    "e": 0.123,
+    "eCircle": 7.531
+   },
+   "insetSumPx": 464.3,
+   "insets": [
+    {
+     "vCss": 4,
+     "u": 9.25,
+     "uRound": 22.56,
+     "uSq4": 9.37
+    },
+    {
+     "vCss": 8,
+     "u": 4.75,
+     "uRound": 16,
+     "uSq4": 4.94
+    },
+    {
+     "vCss": 12,
+     "u": 2.5,
+     "uRound": 11.43,
+     "uSq4": 2.65
+    },
+    {
+     "vCss": 16,
+     "u": 1.25,
+     "uRound": 8,
+     "uSq4": 1.36
+    },
+    {
+     "vCss": 20,
+     "u": 0.5,
+     "uRound": 5.36,
+     "uSq4": 0.64
+    },
+    {
+     "vCss": 28,
+     "u": 0,
+     "uRound": 1.84,
+     "uSq4": 0.08
+    },
+    {
+     "vCss": 36,
+     "u": 0,
+     "uRound": 0.2,
+     "uSq4": 0
+    }
+   ]
+  },
+  {
+   "name": "superellipse(3)",
+   "computedShape": "superellipse(3)",
+   "scale": 4,
+   "fit": {
+    "n": 8.32,
+    "e": 0.065,
+    "eCircle": 10.69
+   },
+   "insetSumPx": 134.8,
+   "insets": [
+    {
+     "vCss": 4,
+     "u": 2.5,
+     "uRound": 22.56,
+     "uSq4": 9.37
+    },
+    {
+     "vCss": 8,
+     "u": 0.75,
+     "uRound": 16,
+     "uSq4": 4.94
+    },
+    {
+     "vCss": 12,
+     "u": 0.25,
+     "uRound": 11.43,
+     "uSq4": 2.65
+    },
+    {
+     "vCss": 16,
+     "u": 0,
+     "uRound": 8,
+     "uSq4": 1.36
+    },
+    {
+     "vCss": 20,
+     "u": 0,
+     "uRound": 5.36,
+     "uSq4": 0.64
+    },
+    {
+     "vCss": 28,
+     "u": 0,
+     "uRound": 1.84,
+     "uSq4": 0.08
+    },
+    {
+     "vCss": 36,
+     "u": 0,
+     "uRound": 0.2,
+     "uSq4": 0
+    }
+   ]
+  },
+  {
+   "name": "superellipse(4)",
+   "computedShape": "superellipse(4)",
+   "scale": 4,
+   "fit": {
+    "n": 12,
+    "e": 0.439,
+    "eCircle": 11.734
+   },
+   "insetSumPx": 36.8,
+   "insets": [
+    {
+     "vCss": 4,
+     "u": 0.5,
+     "uRound": 22.56,
+     "uSq4": 9.37
+    },
+    {
+     "vCss": 8,
+     "u": 0,
+     "uRound": 16,
+     "uSq4": 4.94
+    },
+    {
+     "vCss": 12,
+     "u": 0,
+     "uRound": 11.43,
+     "uSq4": 2.65
+    },
+    {
+     "vCss": 16,
+     "u": 0,
+     "uRound": 8,
+     "uSq4": 1.36
+    },
+    {
+     "vCss": 20,
+     "u": 0,
+     "uRound": 5.36,
+     "uSq4": 0.64
+    },
+    {
+     "vCss": 28,
+     "u": 0,
+     "uRound": 1.84,
+     "uSq4": 0.08
+    },
+    {
+     "vCss": 36,
+     "u": 0,
+     "uRound": 0.2,
+     "uSq4": 0
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,99 @@
+{
+ "mode": "white3",
+ "whiteSetup": {
+  "ok": true,
+  "hook": {
+   "on": true,
+   "css": -1
+  }
+ },
+ "whiteState": {
+  "regionsMin": 0.061,
+  "glDsLum": 1,
+  "surfacesAllWhite": true,
+  "ok": false
+ },
+ "whiteProof": {
+  "leftUpper": 0.061,
+  "midUpper": 0.131,
+  "rightUpper": 0.28,
+  "bottomLeft": 0.145
+ },
+ "glSample": {
+  "readable": true,
+  "dsLum": 1,
+  "dsMax": 255,
+  "mapSize": [
+   3265,
+   1552
+  ],
+  "dsSize": [
+   1536,
+   730
+  ],
+  "sample": 0.9999999999999999
+ },
+ "surfaces": [
+  [
+   "data-panel",
+   1
+  ],
+  [
+   "scene-panel",
+   1
+  ],
+  [
+   "pp-toggles",
+   1
+  ],
+  [
+   "cctv-panel",
+   1
+  ],
+  [
+   "global-context-panel",
+   1
+  ],
+  [
+   "location-bar",
+   1
+  ],
+  [
+   "control-panel",
+   1
+  ],
+  [
+   "gev-voice-control",
+   1
+  ],
+  [
+   "gev-gfx-fab",
+   1
+  ],
+  [
+   "topbar",
+   1
+  ],
+  [
+   "locate-chip",
+   1
+  ],
+  [
+   "perf-chip",
+   1
+  ],
+  [
+   "lang-chip",
+   1
+  ]
+ ],
+ "htmlLum": "bright",
+ "summary": {
+  "painted": 16,
+  "textUnder4_5": [],
+  "iconUnder3": [],
+  "minText": 5.69,
+  "minIcon": 3.47
+ },
+ "errors": []
+}

@@ -1,0 +1,504 @@
+{
+ "label": "prod-final",
+ "viewport": [
+  1536,
+  730
+ ],
+ "dsf": 2,
+ "scene": {
+  "lon": -73.9857,
+  "lat": 40.7484,
+  "hgt": 2000
+ },
+ "errors": [],
+ "pass": {
+  "cards_glass": "9/9",
+  "glass_surfaces": 13,
+  "glass_fps": 164,
+  "issueCount": 0
+ },
+ "issues": [],
+ "cards": [
+  {
+   "id": "data-panel",
+   "lc": true,
+   "collapsed": true,
+   "rect": [
+    52,
+    94,
+    176,
+    41
+   ],
+   "cardBg": "rgba(0, 0, 0, 0)",
+   "cardBorder": "0px",
+   "cardShadow": "none",
+   "cardBackdrop": "none",
+   "innerBg": "rgba(6, 10, 16, 0.22)",
+   "innerShadow": "none",
+   "innerBorder": "0px",
+   "innerBackdrop": "none",
+   "radius": "16px",
+   "scrollW": 0,
+   "scrollH": 0,
+   "surgeGlassCount": 0,
+   "children": 300
+  },
+  {
+   "id": "scene-panel",
+   "lc": true,
+   "collapsed": true,
+   "rect": [
+    52,
+    143,
+    176,
+    41
+   ],
+   "cardBg": "rgba(0, 0, 0, 0)",
+   "cardBorder": "0px",
+   "cardShadow": "none",
+   "cardBackdrop": "none",
+   "innerBg": "rgba(6, 10, 16, 0.22)",
+   "innerShadow": "none",
+   "innerBorder": "0px",
+   "innerBackdrop": "none",
+   "radius": "16px",
+   "scrollW": 0,
+   "scrollH": 0,
+   "surgeGlassCount": 0,
+   "children": 218
+  },
+  {
+   "id": "pp-toggles",
+   "lc": true,
+   "collapsed": true,
+   "rect": [
+    1308,
+    94,
+    176,
+    50
+   ],
+   "cardBg": "rgba(0, 0, 0, 0)",
+   "cardBorder": "0px",
+   "cardShadow": "none",
+   "cardBackdrop": "none",
+   "innerBg": "rgba(6, 10, 16, 0.22)",
+   "innerShadow": "none",
+   "innerBorder": "0px",
+   "innerBackdrop": "none",
+   "radius": "16px",
+   "scrollW": 0,
+   "scrollH": 0,
+   "surgeGlassCount": 0,
+   "children": 135
+  },
+  {
+   "id": "cctv-panel",
+   "lc": true,
+   "collapsed": true,
+   "rect": [
+    1308,
+    152,
+    176,
+    50
+   ],
+   "cardBg": "rgba(0, 0, 0, 0)",
+   "cardBorder": "0px",
+   "cardShadow": "none",
+   "cardBackdrop": "none",
+   "innerBg": "rgba(6, 10, 16, 0.22)",
+   "innerShadow": "none",
+   "innerBorder": "0px",
+   "innerBackdrop": "none",
+   "radius": "16px",
+   "scrollW": 0,
+   "scrollH": 0,
+   "surgeGlassCount": 0,
+   "children": 51
+  },
+  {
+   "id": "global-context-panel",
+   "lc": true,
+   "collapsed": true,
+   "rect": [
+    1308,
+    210,
+    176,
+    50
+   ],
+   "cardBg": "rgba(0, 0, 0, 0)",
+   "cardBorder": "0px",
+   "cardShadow": "none",
+   "cardBackdrop": "none",
+   "innerBg": "rgba(6, 10, 16, 0.22)",
+   "innerShadow": "none",
+   "innerBorder": "0px",
+   "innerBackdrop": "none",
+   "radius": "16px",
+   "scrollW": 0,
+   "scrollH": 0,
+   "surgeGlassCount": 0,
+   "children": 177
+  },
+  {
+   "id": "location-bar",
+   "lc": true,
+   "collapsed": true,
+   "rect": [
+    530,
+    632,
+    168,
+    86
+   ],
+   "cardBg": "rgba(0, 0, 0, 0)",
+   "cardBorder": "0px",
+   "cardShadow": "none",
+   "cardBackdrop": "none",
+   "innerBg": "rgba(6, 10, 16, 0.22)",
+   "innerShadow": "none",
+   "innerBorder": "0px",
+   "innerBackdrop": "none",
+   "radius": "16px",
+   "scrollW": 334,
+   "scrollH": 0,
+   "surgeGlassCount": 0,
+   "children": 38
+  },
+  {
+   "id": "control-panel",
+   "lc": true,
+   "collapsed": true,
+   "rect": [
+    838,
+    632,
+    168,
+    86
+   ],
+   "cardBg": "rgba(0, 0, 0, 0)",
+   "cardBorder": "0px",
+   "cardShadow": "none",
+   "cardBackdrop": "none",
+   "innerBg": "rgba(6, 10, 16, 0.22)",
+   "innerShadow": "none",
+   "innerBorder": "0px",
+   "innerBackdrop": "none",
+   "radius": "16px",
+   "scrollW": 34,
+   "scrollH": 0,
+   "surgeGlassCount": 0,
+   "children": 86
+  },
+  {
+   "id": "gev-voice-control",
+   "lc": true,
+   "collapsed": false,
+   "rect": [
+    698,
+    632,
+    140,
+    86
+   ],
+   "cardBg": "rgba(0, 0, 0, 0)",
+   "cardBorder": "0px",
+   "cardShadow": "none",
+   "cardBackdrop": "none",
+   "innerBg": null,
+   "innerShadow": null,
+   "innerBorder": null,
+   "innerBackdrop": null,
+   "radius": "16px",
+   "scrollW": 29,
+   "scrollH": 0,
+   "surgeGlassCount": 0,
+   "children": 45
+  },
+  {
+   "id": "gev-gfx-fab",
+   "lc": true,
+   "collapsed": false,
+   "rect": [
+    1482,
+    592,
+    42,
+    42
+   ],
+   "cardBg": "rgba(0, 0, 0, 0)",
+   "cardBorder": "0px",
+   "cardShadow": "none",
+   "cardBackdrop": "none",
+   "innerBg": null,
+   "innerShadow": null,
+   "innerBorder": null,
+   "innerBackdrop": null,
+   "radius": "50%",
+   "scrollW": 0,
+   "scrollH": 0,
+   "surgeGlassCount": 0,
+   "children": 8
+  }
+ ],
+ "contrast": [
+  {
+   "text": "data-panel/title",
+   "textLum": 0.853,
+   "bgLum": 0.072,
+   "ratio": 7.41,
+   "pass": true
+  },
+  {
+   "text": "pp-toggles/header",
+   "textLum": 0.82,
+   "bgLum": 0.061,
+   "ratio": 7.85,
+   "pass": true
+  }
+ ],
+ "scrollContainers": [],
+ "siblingOnExpand": {
+  "display": "block",
+  "visibility": "visible",
+  "opacity": "1",
+  "collapsed": true,
+  "h": 41,
+  "visible": true
+ },
+ "glassSurfaces": [
+  {
+   "id": "data-panel",
+   "tag": "data-panel",
+   "variant": "regular",
+   "lum": 0.364,
+   "bezel": 9,
+   "dim": 0,
+   "interior": 0.9,
+   "fill": 0.022,
+   "rect": [
+    52,
+    94,
+    176,
+    41
+   ],
+   "radius": 16
+  },
+  {
+   "id": "scene-panel",
+   "tag": "scene-panel",
+   "variant": "regular",
+   "lum": 0.245,
+   "bezel": 9,
+   "dim": 0,
+   "interior": 0.9,
+   "fill": 0.02,
+   "rect": [
+    52,
+    143,
+    176,
+    41
+   ],
+   "radius": 16
+  },
+  {
+   "id": "pp-toggles",
+   "tag": "pp-toggles",
+   "variant": "regular",
+   "lum": 0.189,
+   "bezel": 11,
+   "dim": 0,
+   "interior": 0.9,
+   "fill": 0.02,
+   "rect": [
+    1308,
+    94,
+    176,
+    50
+   ],
+   "radius": 16
+  },
+  {
+   "id": "cctv-panel",
+   "tag": "cctv-panel",
+   "variant": "regular",
+   "lum": 0.241,
+   "bezel": 11,
+   "dim": 0,
+   "interior": 0.9,
+   "fill": 0.02,
+   "rect": [
+    1308,
+    152,
+    176,
+    50
+   ],
+   "radius": 16
+  },
+  {
+   "id": "global-context-panel",
+   "tag": "global-context-panel",
+   "variant": "regular",
+   "lum": 0.303,
+   "bezel": 11,
+   "dim": 0,
+   "interior": 0.9,
+   "fill": 0.02,
+   "rect": [
+    1308,
+    210,
+    176,
+    50
+   ],
+   "radius": 16
+  },
+  {
+   "id": "location-bar",
+   "tag": "location-bar",
+   "variant": "regular",
+   "lum": 0.327,
+   "bezel": 18,
+   "dim": 0,
+   "interior": 0.9,
+   "fill": 0.02,
+   "rect": [
+    530,
+    632,
+    168,
+    86
+   ],
+   "radius": 16
+  },
+  {
+   "id": "control-panel",
+   "tag": "control-panel",
+   "variant": "regular",
+   "lum": 0.375,
+   "bezel": 18,
+   "dim": 0,
+   "interior": 0.9,
+   "fill": 0.023,
+   "rect": [
+    838,
+    632,
+    168,
+    86
+   ],
+   "radius": 16
+  },
+  {
+   "id": "gev-voice-control",
+   "tag": "gev-voice-control",
+   "variant": "regular",
+   "lum": 0.444,
+   "bezel": 18,
+   "dim": 0,
+   "interior": 0.9,
+   "fill": 0.033,
+   "rect": [
+    698,
+    632,
+    140,
+    86
+   ],
+   "radius": 16
+  },
+  {
+   "id": "gev-gfx-fab",
+   "tag": "gev-gfx-fab",
+   "variant": "clear",
+   "lum": 0.142,
+   "bezel": 9.2,
+   "dim": 0.35,
+   "interior": 0.75,
+   "fill": 0.02,
+   "rect": [
+    1482,
+    592,
+    42,
+    42
+   ],
+   "radius": 21
+  },
+  {
+   "id": "topbar",
+   "tag": "topbar",
+   "variant": "regular",
+   "lum": 0.322,
+   "bezel": 7.9,
+   "dim": 0,
+   "interior": 0.9,
+   "fill": 0.02,
+   "rect": [
+    662,
+    32,
+    212,
+    36
+   ],
+   "radius": 18
+  },
+  {
+   "id": "locate-chip",
+   "tag": "locate-chip",
+   "variant": "clear",
+   "lum": 0.364,
+   "bezel": 6.6,
+   "dim": 0.35,
+   "interior": 0.75,
+   "fill": 0.02,
+   "rect": [
+    886,
+    35,
+    61,
+    30
+   ],
+   "radius": 15
+  },
+  {
+   "id": "perf-chip",
+   "tag": "perf-chip",
+   "variant": "clear",
+   "lum": 0.505,
+   "bezel": 6.6,
+   "dim": 0.35,
+   "interior": 0.75,
+   "fill": 0.02,
+   "rect": [
+    959,
+    35,
+    154,
+    30
+   ],
+   "radius": 15
+  },
+  {
+   "id": "lang-chip",
+   "tag": "lang-chip",
+   "variant": "clear",
+   "lum": 0.495,
+   "bezel": 6.6,
+   "dim": 0.35,
+   "interior": 0.75,
+   "fill": 0.02,
+   "rect": [
+    1125,
+    35,
+    71,
+    30
+   ],
+   "radius": 15
+  }
+ ],
+ "lum": "dark",
+ "state": {
+  "htmlClass": "gev-gl-on",
+  "voiceShadow": "none",
+  "ppLabel": "rgb(234, 244, 255)",
+  "bodyBgCards": [
+   "location-bar:rgba(0, 0, 0, 0)",
+   "gev-voice-control:rgba(0, 0, 0, 0)",
+   "control-panel:rgba(0, 0, 0, 0)",
+   "data-panel:rgba(0, 0, 0, 0)",
+   "scene-panel:rgba(0, 0, 0, 0)",
+   "pp-toggles:rgba(0, 0, 0, 0)",
+   "cctv-panel:rgba(0, 0, 0, 0)",
+   "global-context-panel:rgba(0, 0, 0, 0)",
+   "gev-gfx-fab:rgba(0, 0, 0, 0)"
+  ]
+ }
+}

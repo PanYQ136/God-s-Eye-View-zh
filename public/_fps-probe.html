@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>fps probe</title>
+<style>
+  html,body{margin:0;height:100%;background:#101418;overflow:hidden;font-family:system-ui}
+  #cv{position:fixed;inset:0;width:100vw;height:100vh}
+  .glass{position:fixed;width:300px;height:180px;border-radius:22px;background:rgba(255,255,255,.05);
+         border:1px solid rgba(255,255,255,.25);backdrop-filter:blur(18px) saturate(1.4)}
+</style></head>
+<body>
+<canvas id="cv"></canvas>
+<script>
+const q = new URLSearchParams(location.search);
+const mode = q.get("mode") || "plain";
+const cv = document.getElementById("cv");
+let ctx = null;
+if (mode !== "plain") {
+  cv.width = innerWidth * devicePixelRatio; cv.height = innerHeight * devicePixelRatio;
+  ctx = cv.getContext("2d");
+}
+if (mode === "glass") {
+  for (let i = 0; i < 9; i++) {
+    const d = document.createElement("div");
+    d.className = "glass";
+    d.style.left = (40 + (i % 3) * 340) + "px";
+    d.style.top = (60 + Math.floor(i / 3) * 220) + "px";
+    document.body.appendChild(d);
+  }
+}
+window.__mode = mode;
+window.__sample = (dur) => new Promise((res) => {
+  const ts = []; let stop = false;
+  const tick = (t) => {
+    ts.push(t);
+    if (ctx) { ctx.fillStyle = "hsl(" + ((t / 20) % 360) + ",60%,20%)"; ctx.fillRect(0, 0, cv.width, cv.height); }
+    if (!stop) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+  setTimeout(() => { stop = true; res(ts); }, dur);
+});
+</script>
+</body></html>

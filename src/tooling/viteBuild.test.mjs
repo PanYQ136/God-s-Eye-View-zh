@@ -12,7 +12,10 @@ test('explicit build inputs preserve browser-only defines, plugin order and loop
     googleApiKey: 'browser-fixture',
     cesiumToken: 'ion-fixture',
   });
-  assert.equal(config.plugins[2], plugin);
+  assert.equal(config.plugins[3], plugin);
+  /* [0] vite-plugin-cesium / [1] 组件模板展开 / [2] Phase7A-A：Cesium.js defer 注入 /
+     [3] 调用方插件（断言上面一行） */
+  assert.equal(config.plugins[2].name, 'gev-defer-cesium-script');
   assert.equal(config.server.host, 'localhost');
   assert.equal(config.server.port, 4173);
   assert.deepEqual(config.server.allowedHosts, [
@@ -51,7 +54,7 @@ test('build helper does not discover environment values or construct local provi
       config.define['import.meta.env.GOOGLE_MAPS_API_KEY'],
       undefined,
     );
-    assert.equal(config.plugins.length, 2);
+    assert.equal(config.plugins.length, 3);
   } finally {
     if (before === undefined) delete process.env.GOOGLE_MAPS_API_KEY;
     else process.env.GOOGLE_MAPS_API_KEY = before;
@@ -64,10 +67,13 @@ test('root config retains existing named exports and standalone provider order',
   // The root config factory is async since it awaits the local-proxy bootstrap.
   const config = await standaloneConfig({ mode: 'test' });
   assert.deepEqual(
-    config.plugins.slice(2, -1).map((plugin) => plugin.name),
+    config.plugins.slice(3, -2).map((plugin) => plugin.name),
     providers.localProviderPlugins().map((plugin) => plugin.name),
   );
-  assert.equal(config.plugins.at(-2).name, 'gev-key-setup');
+  /* 尾巴两家：warmupPlugin（server/standalone/mini-speedup.js）+ apiNotFoundPlugin。
+     这条断言在 warmup 插件引入后一直落后于实现（slice 到 -1 会把 gev-warmup 算进
+     provider 列表），Phase7A-A 顺带对齐。 */
+  assert.equal(config.plugins.at(-2).name, 'gev-warmup');
   assert.equal(config.plugins.at(-1).name, 'api-not-found');
 });
 

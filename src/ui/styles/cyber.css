@@ -292,7 +292,7 @@
 }
 
 :root[data-ui-theme='cyber']
-  :is(.panel-collapse-btn, body.cockpit-mode .cockpit-utility-glyph) {
+  body.cockpit-mode .cockpit-utility-glyph {
   display: grid;
   width: var(--cyber-panel-control-size);
   min-width: var(--cyber-panel-control-size);
@@ -389,12 +389,6 @@
   background-image: var(--cyber-panel-surface-detail);
   box-shadow: var(--cyber-panel-shadow);
   clip-path: var(--cyber-panel-frame);
-}
-
-:root[data-ui-theme='cyber'] #pp-toggles > .pp-header-row .pp-collapse-btn {
-  width: var(--cyber-panel-control-size);
-  min-width: var(--cyber-panel-control-size);
-  height: var(--cyber-panel-control-size);
 }
 
 :root[data-ui-theme='cyber'] :where(button, select, input, textarea) {
@@ -502,8 +496,7 @@
     .pp-icon,
     .btn-icon,
     .dock-label-icon,
-    .first-run-arrow,
-    .panel-collapse-btn
+    .first-run-arrow
   ) {
   color: #f2f5f4;
   text-shadow: none;
@@ -725,20 +718,14 @@
 /* These controls are clipped to a chamfered tag. Keep focus inside that shape;
    an outside outline/shadow is clipped away, including in cockpit launchers. */
 :root[data-ui-theme='cyber']
-  :is(.panel-collapse-btn, body.cockpit-mode .cockpit-utility-glyph):is(
-    :hover,
-    :focus-visible
-  ) {
+  body.cockpit-mode .cockpit-utility-glyph:is(:hover, :focus-visible) {
   border-color: var(--cyber-red-bright);
   color: var(--text-primary);
   background-color: rgba(64, 45, 46, 0.94);
 }
 
 :root[data-ui-theme='cyber']
-  :is(
-    .panel-collapse-btn,
-    body.cockpit-mode .cockpit-utility-glyph
-  ):focus-visible {
+  body.cockpit-mode .cockpit-utility-glyph:focus-visible {
   outline: 2px solid var(--cyber-red-bright) !important;
   outline-offset: -3px;
   box-shadow: none;
@@ -1572,15 +1559,6 @@
     .cockpit-utility-control:not(.is-expanded)
     .cockpit-utility-launcher::after {
     bottom: 6px;
-  }
-
-  :root[data-ui-theme='cyber']
-    body:not(.cockpit-mode)
-    :is(#data-panel, #scene-panel)
-    .panel-collapse-btn {
-    width: var(--cyber-panel-control-size);
-    min-width: var(--cyber-panel-control-size);
-    height: var(--cyber-panel-control-size);
   }
 
   :root[data-ui-theme='cyber'] #right-context-rail {
