@@ -1,3 +1,4 @@
+@layer material {
 /* ============================================================================
    src/lc/material.css —— 材质层唯一来源（token + 3 层绘制）
    架构 §6：① 卡壳（顶部 1px 高光 + 单层外投影；0 fill / 0 blur / 0 border / 0 outline / 0 inset）
@@ -7,8 +8,13 @@
    ========================================================================== */
 /* ── 0) token（唯一来源；与 src/lc/tokens.json 一一对应，单测校验）────────── */
 .gev-lc, .lc-stage {
-  --lc-radius: 16px; --lc-shell-fill: transparent; --lc-shell-shadow: 0 2px 10px rgba(0, 0, 0, 0.14);
-  --lc-gloss: rgba(255, 255, 255, 0.1); --lc-text: #eaf4ff; --lc-text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  --lc-radius: 16px; --lc-shell-fill: transparent; --lc-shell-shadow: 0 2px 10px rgba(var(--lc-shadow-rgb, 0, 0, 0), var(--lc-shadow-a, 0.14));
+  --lc-shadow-a: 0.14; --lc-gloss: rgba(255, 255, 255, 0.1); --lc-gloss-x: 50%; --lc-gloss-a: 0.1;
+  --lc-text: #eaf4ff; --lc-text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  --lc-text-scrim-a: 0.3; --lc-text-scrim-px: 24px; --lc-scrim-a: 0; --lc-scrim-a-max: 0.35; --lc-fg-flip: #eaf4ff;
+  --lc-inset: 8px; --lc-fg-flip-ms: 120ms;
+  --lc-radius-inner: max(0px, calc(var(--lc-radius) - var(--lc-inset, 0px)));
+  --lc-shadow-rgb: 0, 0, 0; --lc-tint-rgb: 255, 255, 255; --lc-tint-a: 0;
   --lc-control-fill: transparent; --lc-control-active: rgba(0, 212, 255, 0.12);
   --lc-soft-fill: rgba(8, 12, 18, 0.55); --lc-refract-band: 16px;
   --lc-safe-top: 84px; --lc-safe-bottom: 158px; --lc-push-x: 0px; --lc-push-y: 0px;
@@ -30,14 +36,25 @@
   max-width: none; max-height: none; min-width: 0; min-height: 0; transition: none; box-sizing: border-box;
   translate: var(--lc-push-x) var(--lc-push-y); /* 让位用独立属性 translate，不与 App 的 transform 抢写者 */
 }
-/* 顶部 1px 高光：只画上沿、不闭合（灰圈的反面） */
+/* 顶部 1px 高光：只画上沿、不闭合（灰圈的反面）。
+   Phase8B / D2·G6：由「静态长渐变」改为**随指针的弧段**——峰值位置由
+   --lc-gloss-x（0–100%，render.js 玻璃状态按指针 x 归一化到卡宽写入）、
+   强度由 --lc-gloss-a（基础 0.10、指针在卡内最高 0.25）驱动；仍是同一条 1px 发丝，
+   不新增带、不闭合、不加第二层。指针不在卡附近时退回 50% / 0.10 ≈ 旧观感。 */
 :is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc::before {
   content: ''; position: absolute; inset: 0 0 auto 0; height: 1px; border-radius: inherit; pointer-events: none;
-  background: linear-gradient(90deg, transparent, var(--lc-gloss) 18%, var(--lc-gloss) 82%, transparent);
+  background-image: radial-gradient(88px 100% at var(--lc-gloss-x, 50%) 50%, rgba(255, 255, 255, var(--lc-gloss-a, 0.1)) 0%, rgba(255, 255, 255, 0) 100%);
 }
 /* ── 3) 内容层（③）：零填充/零 blur/零 filter/零描边（通配，不靠名单）──── */
 :is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc * {
   border: 0; outline: 0; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; filter: none; background-image: none;
+}
+/* Phase8D #13：§3 的 `background-image:none` 会连 1px 装饰分隔线的渐变一起抹掉。
+   分隔线不是第二层玻璃；用 revert-layer 只把该属性退回到 components 层的原值
+   （= 8D 前 controls.css 靠 (1,2,0) 特异性赢下来的那条渐变），outline/border/box-shadow
+   的归零保持不变 —— 渐变回来了，灰圈不会。 */
+:is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc .param-panel-divider {
+  background-image: revert-layer;
 }
 :is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc :is(div,section,ul,ol,li,span,p,h1,h2,h3,h4,table,tr,td) { background-color: transparent; }
 :is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc :is(.panel-inner,.location-inner,.pp-panel-body,.panel-glow,[class$='-panel-inner']) { background: transparent; box-shadow: none; }
@@ -90,7 +107,25 @@
 :is(#data-panel,#scene-panel).gev-lc[data-lc-phase='mini'] > :is(.data-panel-inner,.scene-panel-inner,[class$='-panel-inner']) {
   height: 100%; padding-top: 0; padding-bottom: 0; display: flex; flex-direction: column; justify-content: center;
 }
+/* 滚动条：2026-11-01 保持「不显示滚动条」（用户明确要求），但滚动能力必须完整。
+   前提是「只有卡壳一个滚动容器」——见下方 .data-toggle-list 收口那段。
+   隐藏用两套属性：Firefox 的 scrollbar-width:none + WebKit 的宽度 0。 */
+:is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc[data-lc-phase='open'] { scrollbar-width: none; }
 :is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc[data-lc-phase='open']::-webkit-scrollbar { width: 0; height: 0; }
+
+/* 滚动容器收口（2026-11-01）：§5.3 写的「卡壳是唯一滚动容器 + sticky 标题」没被兑现 ——
+   layers.css 的 .data-toggle-list 自己也是 overflow-y:auto（缩略实测 sh 1935 / ch 470），
+   于是出现两个滚动容器：滚轮先被内层吃掉，而内层的 6px 青色滚动条又被 380px 的卡壳
+   裁在可视区外 → 用户既看不到「下面还有」，也滚不到其余 5 组（摄像头/基础设施/事件/
+   天气/公共事业），观感就是「数据只剩移动目标」。
+   这里把内层交还给卡壳：不滚、不裁、不占 gutter，只保留卡壳那一条 6px 滚动条。 */
+:is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc[data-lc-phase='open'] :is(.data-toggle-list,.pp-panel-body,.cctv-panel-inner,.context-panel-body) {
+  overflow: visible;
+  max-height: none;
+  flex: 0 0 auto;
+  scrollbar-gutter: auto;
+  scrollbar-width: none;
+}
 /* ── 7) 显示（pp）展开流：行行分开、分段按钮换行（§19 收口为 6 条）──────── */
 :is(#pp-toggles).gev-lc[data-lc-phase='open'] { display: flex; flex-direction: column; row-gap: 8px; }
 /* §7 收口：.pp-toggle-group 是 #pp-toggles 的直接 flex 子项（.pp-panel-body 为 display:contents）。
@@ -156,7 +191,9 @@
   box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none;
   color: var(--lc-text); text-shadow: var(--lc-text-shadow);
 }
-#gev-lang-toggle { left: 12px; bottom: 88px; }
+/* Phase8D #13：位置（left:12/bottom:88）已归位到 public/gev-cn.css 的 components 层。
+   留在 material 层会靠「层 > 特异性」反压 gev-responsive 的 html #id 媒体查询，
+   把中/EN 药丸拉成整行宽。material 只负责材质（透明 / 零描边 / 单层文字投影）。 */
 #gev-lang-toggle:hover { border: 0; box-shadow: none; }
 #gev-locate-btn:hover { border: 0; box-shadow: none; }
 
@@ -178,12 +215,86 @@
    Phase6C1b：原规则把 ::before 撑到 12px / rgba(255,255,255,0.4)（板面覆盖 lens 的 band 10），
    hover 时顶沿 Δ 从 56.11 掉到 28.18 —— 卡壳第二圈高光压住折射顶沿，违反 AGENTS §3
    「每张卡只有一层玻璃 / 卡内无第二圈高光」。镜头带本身就是顶沿高光，hover 不该再叠一层；
-   hover 提示交给 box-shadow 的弥散外辉光 + 壳内柔光（上面那条，非边缘亮带）。
-   实测（RTX3060 棋盘态）：hover 顶沿 Δ 回到 ≥40，四边单带。 */
+   hover 提示交给 box-shadow 的弥散外辉光 + 壳内柔光（下面那条，非边缘亮带）。
+   Phase8B / D2：位置改为跟随指针（同一径向弧段、同一 1px），峰值钉在上限 0.25。 */
 :is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc:hover::before {
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.62) 18%, rgba(255, 255, 255, 0.62) 82%, transparent);
+  background-image: radial-gradient(120px 100% at var(--lc-gloss-x, 50%) 50%, rgba(255, 255, 255, var(--lc-gloss-a, 0.1)) 0%, rgba(255, 255, 255, 0) 100%);
 }
 @media (prefers-reduced-motion: reduce) {
   :is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc { transition: none; }
+}
+
+/* ── 17) 文字局部 scrim（Phase8B / #6·D6）────────────────────────────────
+   透明壳 + 卫星底图时，浅底图上的标题行会糊掉。这里在**卡壳自己的背景层**上铺一条
+   24px 垂直渐变（顶部 alpha 0.30 → 24px 处 0）：文字区落在薄暗带上，其余区域全透明。
+   · 单层：就是卡壳的 background-image，不加伪元素、不加第二层玻璃、不加额外盒子；
+   · 局部：24px 后归零，不是整卡压暗（整卡压暗只属于 D1 的 Clear+亮底 scrim，见 §18）；
+   · 不嵌套：早先把渐变同时挂到 .panel-header 和里面的 .panel-title 会叠成两条
+     （实测 header+30px 处多压暗 24 灰阶），所以只在卡壳上画一条。
+   特异性 (1,2,0) 压过 §2 卡壳的 `background-image: none`。 */
+:is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc[data-lc-phase] {
+  /* Phase8C / D4·G8·G9：第 1 层是**自适应 tint**（整卡薄薄一层背后色，alpha 0.01–0.05，
+     由 lens 写 --lc-tint-rgb/--lc-tint-a）；第 2 层是 §17 的文字 scrim。
+     两层同属卡壳的同一个 background-image（一个绘制层、0 blur、0 第二圈），不是第二层玻璃。 */
+  background-image: linear-gradient(rgba(var(--lc-tint-rgb, 255, 255, 255), var(--lc-tint-a, 0)), rgba(var(--lc-tint-rgb, 255, 255, 255), var(--lc-tint-a, 0))), linear-gradient(180deg, rgba(0, 0, 0, var(--lc-text-scrim-a, 0.3)) 0, rgba(0, 0, 0, 0) var(--lc-text-scrim-px, 24px));
+}
+/* 符号前景翻转位（D9 兜底钩子 + 8C 落地）：8C 的 lens 按卡背后亮度把 --lc-fg-flip 写成
+   深/浅两色，本文件只负责「图标吃这个变量 + 120ms 过渡」，不写翻转逻辑、不加描边。 */
+:is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc :is(.pp-icon,.btn-icon,.dock-label-icon,.gev-locate-icon) {
+  color: var(--lc-fg-flip, #eaf4ff); transition: color var(--lc-fg-flip-ms, 120ms) linear;
+}
+
+/* ── 18) 材质变体枚举（Phase8B / D1·G12）───────────────────────────────────
+   枚举只有两个（与 tokens.json material.variants 一致）：
+     regular —— 现状透明壳，不叠 scrim。
+     clear   —— 玻璃中心透明（事实上的全场景）；当「背后平均亮度 > 0.6」且
+                data-lc-scrim='on' 时叠 35% 黑 scrim（--lc-scrim-a 由 render.js
+                玻璃状态接口按亮度断言写入，默认 0）。
+   默认 = clear + scrim off → 观感与 Phase7 逐像素一致（D1 要求先只做断言/日志）。
+   scrim 是 D1 规范要的**单层整卡压暗**，只在亮底兜底时出现；文字可读性用 §17 的局部 scrim。
+   注意：仍不允许 backdrop-filter / border / inset 环 —— scrim 只是背景色。 */
+:is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc[data-lc-material='regular'] { --lc-scrim-a: 0; }
+:is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc[data-lc-material='clear'][data-lc-scrim='on']::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: -1;
+  background-color: rgba(0, 0, 0, var(--lc-scrim-a, 0.35));
+}
+
+/* ── 19) 同心圆角（Phase8C / D7·G15）────────────────────────────────────────
+   外壳 r=16、内边距 8 → 内层只能是 8，否则内层一旦有底/描边就会出现「双弧线」。
+   公式进 token（--lc-radius-inner = max(0, radius − inset)），内层一律引用它，不写死数值。 */
+:is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc :is(.panel-inner,.location-inner,.pp-panel-body,.dock-popover-content,[class$='-panel-inner']) {
+  border-radius: var(--lc-radius-inner);
+}
+
+/* ── 20) 玻璃内正文 ≥500（Phase8C / D8·G17）────────────────────────────────
+   只约束「玻璃上的正文/标签」，不改 App 全局字重、不动标题（标题由 App 定 600）。
+   .gev-lc-body 是给后续正文容器的显式钩子（当前 DOM 里没有，落地即可用）。 */
+.gev-lc-body,
+:is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc :is(.pp-label,.pp-slider-mini-label,.pp-slider-value,.data-toggle-meta,.scene-shot-meta,.location-pill,.panel-mini-value,.btn-label,.dock-tray-toggle,.gev-voice-readout) {
+  font-weight: 500;
+}
+
+/* ── 21) pp 行：不收缩 + 行距 8 + 命中区 44（Phase8C / D12·#12·G16）─────────
+   §7 已经给组盒 flex:0 0 auto，但**组内行**仍可能被压（历史 minGap −268px 的残留路径）。
+   这里把行钉成不可收缩、行高 ≥36、行距 8；命中区用 ::after 上下各扩 4px 到 44px，
+   只扩「行框外」的空白，不覆盖行内控件（覆盖会抢走 slider 的指针事件）。 */
+:is(#pp-toggles).gev-lc[data-lc-phase='open'] .pp-toggle-group { row-gap: 8px; }
+:is(#pp-toggles).gev-lc[data-lc-phase='open'] .pp-toggle-group > * { flex: 0 0 auto; }
+:is(#pp-toggles).gev-lc[data-lc-phase='open'] .pp-toggle-group > :is(.pp-toggle-btn,.pp-slider-row) { position: relative; min-height: 36px; }
+:is(#pp-toggles).gev-lc[data-lc-phase='open'] .pp-toggle-group > :is(.pp-toggle-btn,.pp-slider-row)::after {
+  content: ''; position: absolute; left: 0; right: 0; top: -4px; bottom: -4px; pointer-events: auto;
+}
+
+/* ── 22) 无障碍第三态：prefers-contrast: more → 实色接管（Phase8C / D5·G18）──
+   CSS 侧只有两态（默认 / reduced-transparency），prefers-contrast 全仓此前 0 命中。
+   more 时卡壳转实色 + 文字投影加深；lens 侧同条件进入 solid 态并整层关闭（见 gev-edge-lens.js）。 */
+@media (prefers-contrast: more) {
+  :is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc {
+    background: var(--lc-soft-fill); --lc-text: #ffffff; --lc-text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95);
+    --lc-text-scrim-a: 0.34;
+  }
+  .lc-stage > .dock-panel { background: var(--lc-soft-fill); }
+}
+
 }
