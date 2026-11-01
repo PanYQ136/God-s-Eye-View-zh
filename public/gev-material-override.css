@@ -1,0 +1,57 @@
+/* Phase8D #13 · 材质层例外（显式、集中、可审计）
+   分层之后，cross-layer 的竞争不再由 specificity 决定：material 层（src/lc/material.css）
+   在 components 之上，会把 dock 里「压平卡壳」的既定视觉抹掉。
+   这里只放**必须压过 material 层**的少数声明 —— 它们在改动前是靠 id specificity 赢的，
+   现在改为显式放在 overrides 层（index.html 里排在 material.css 之后）。
+   任何新声明想进这个文件，必须先回答：为什么它必须压过材质层？
+   层序（style.css 声明）：vendor < foundation < components < material < overrides */
+@layer overrides {
+  /* 1) dock 把卡片朝内的角落压平（卡壳在 dock 里是托盘，不是独立玻璃卡；
+     只压 dock 内侧两角，外侧保留材质圆角 —— 与改动前逐角一致） */
+  #command-dock > #location-bar {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  #command-dock > #control-panel {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  #command-dock .panel-inner,
+  #command-dock .location-inner,
+  #command-dock #control-panel.collapsed .panel-inner,
+  #command-dock #location-bar.collapsed .location-inner {
+    border-radius: 0;
+  }
+
+  /* 2) dock 内标题的阴影用材质 token（material 层在动效/亮度里维护它） */
+  #command-dock .panel-title,
+  #command-dock .location-toolbar-label {
+    text-shadow: var(--lc-text-shadow);
+  }
+
+  /* 3) dock 的托盘按钮：字重/描边跟随按钮自身（material 会把玻璃正文压成 500、
+     并把 outline 归零） */
+  #command-dock .dock-tray-toggle {
+    font-weight: inherit;
+    outline-width: initial;
+  }
+
+  /* 4) 语音波纹与麦克风图标：dock 内的「信号条」视觉，不属材质层管辖 */
+  #command-dock .gev-voice-visualizer span {
+    background: linear-gradient(to top, #28b9db, #71eaff);
+    box-shadow: 0 0 0.35rem rgba(54, 220, 255, 0.28);
+  }
+
+  #command-dock .gev-mic-orbit img {
+    filter: grayscale(1) saturate(0) brightness(1.65);
+  }
+
+  /* 5) dock 弹出层里的样式按钮：gev-fix 进 overrides 后，组件层的 auto 会盖掉 0；
+     这里按原值锁回（该层内 source order 最靠后 → 稳定胜出） */
+  #command-dock .dock-popover-content .style-btn {
+    /* 白名单 !important：gev-cn 的 flex 简写在本层内更靠前，且这是「压过补丁层」的既有结果 */
+    flex-basis: 0 !important;
+  }
+}

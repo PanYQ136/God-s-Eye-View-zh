@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 export const MAP_STACKS = [
   {
     id: 'photoreal',

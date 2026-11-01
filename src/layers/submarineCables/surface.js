@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import {
   CABLE_GLOBE_STACK_IDS,
   MARKER_COLLECTION_EXPECTATIONS,

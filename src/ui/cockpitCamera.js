@@ -1,5 +1,5 @@
 /** Camera placement, ground acquisition and motion correction for the Cockpit controller. */
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 import {
   cockpitAnchorCorrectionStep,
   cockpitGroundSafeHeight,

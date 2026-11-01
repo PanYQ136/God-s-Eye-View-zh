@@ -1,5 +1,5 @@
 import { displayedKinematics } from '../../data/motionModel.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { isExplicitLayerStateOrigin } from '../../data/layerState.js';
 import { aircraftIncludedInNearby } from '../../data/aircraftNearbyPolicy.js';
 import { modelVisualAnchor } from '../../data/modelVisualAnchor.js';

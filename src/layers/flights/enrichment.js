@@ -1,6 +1,6 @@
 import { classifyAircraft } from '../../data/aircraftClass.js';
 import { horizonOccluder } from '../../data/iconOrientation.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import {
   ENRICH_MAX_INFLIGHT,
   ENRICH_DISPATCH_GAP_MS,

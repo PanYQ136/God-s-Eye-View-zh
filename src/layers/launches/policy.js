@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 
 export const WINDOW_DAYS = 30;
 

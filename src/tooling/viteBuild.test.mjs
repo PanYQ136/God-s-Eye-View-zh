@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createBrowserViteConfig } from '../../build/vite.js';
-import standaloneConfig, * as compatibility from '../../vite.config.js';
+import standaloneConfig from '../../vite.config.js';
 import * as providers from '../../server/providers/local.js';
 
 test('explicit build inputs preserve browser-only defines, plugin order and loopback protections', () => {
@@ -12,10 +12,11 @@ test('explicit build inputs preserve browser-only defines, plugin order and loop
     googleApiKey: 'browser-fixture',
     cesiumToken: 'ion-fixture',
   });
-  assert.equal(config.plugins[3], plugin);
+  assert.equal(config.plugins[4], plugin);
   /* [0] vite-plugin-cesium / [1] 组件模板展开 / [2] Phase7A-A：Cesium.js defer 注入 /
-     [3] 调用方插件（断言上面一行） */
+     [3] #21 模型产物闸门 / [4] 调用方插件（断言上面一行） */
   assert.equal(config.plugins[2].name, 'gev-defer-cesium-script');
+  assert.equal(config.plugins[3].name, 'gev-models-prune');
   assert.equal(config.server.host, 'localhost');
   assert.equal(config.server.port, 4173);
   assert.deepEqual(config.server.allowedHosts, [
@@ -54,20 +55,25 @@ test('build helper does not discover environment values or construct local provi
       config.define['import.meta.env.GOOGLE_MAPS_API_KEY'],
       undefined,
     );
-    assert.equal(config.plugins.length, 3);
+    assert.equal(config.plugins.length, 4);
   } finally {
     if (before === undefined) delete process.env.GOOGLE_MAPS_API_KEY;
     else process.env.GOOGLE_MAPS_API_KEY = before;
   }
 });
 
-test('root config retains existing named exports and standalone provider order', async () => {
+test('root config stays config-only and providers re-export from providers/index.js', async () => {
+  // #18：配置文件只导出 Vite 配置本身（单一职责）。
+  const root = await import('../../vite.config.js');
+  assert.deepEqual(Object.keys(root), ['default']);
+  // provider 的再导出面搬到了 server/providers/index.js，名字与实现保持一致。
+  const reexported = await import('../../server/providers/index.js');
   for (const [name, value] of Object.entries(providers))
-    assert.equal(compatibility[name], value, name);
+    assert.equal(reexported[name], value, name);
   // The root config factory is async since it awaits the local-proxy bootstrap.
   const config = await standaloneConfig({ mode: 'test' });
   assert.deepEqual(
-    config.plugins.slice(3, -2).map((plugin) => plugin.name),
+    config.plugins.slice(4, -2).map((plugin) => plugin.name),
     providers.localProviderPlugins().map((plugin) => plugin.name),
   );
   /* 尾巴两家：warmupPlugin（server/standalone/mini-speedup.js）+ apiNotFoundPlugin。

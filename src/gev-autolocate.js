@@ -17,7 +17,8 @@
    零侵入可还原：删本文件 + index.html 那行 <script> + controls.js 取消注释。
    ═══════════════════════════════════════════════════════════════ */
 
-import * as Cesium from 'cesium';
+import * as bridge from './bridge.js';
+import { Cesium } from './cesium.js';
 import {
   holdContinuousRender,
   releaseContinuousRender,
@@ -477,7 +478,7 @@ import { announceBootCenter } from './maps/tileWarmup.js';
        「相机落到最终视角 + 瓦片流静默」之后才收。于是冷启动的 shader link /
        瓦片 JSON 解析 burst 全部发生在遮罩期内，用户看不到长帧。
        就绪门缺失时退回旧行为（等遮罩收起后再跑电影镜头）。 */
-    const bg = window.__gevBoot;
+    const bg = bridge.get('boot');
     const gated = !!(bg && typeof bg.whenCineMayStart === 'function');
     await (gated ? bg.whenCineMayStart(14000) : waitForLoaderHidden(30000));
     CINE.stage = 'space-set';

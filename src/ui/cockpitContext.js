@@ -1,5 +1,5 @@
 /** Contact readouts and nearby-signal presentation for the Cockpit controller. */
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 import {
   bearingBetweenCoordinates,
   formatCockpitContextScope,

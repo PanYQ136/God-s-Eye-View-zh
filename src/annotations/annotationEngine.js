@@ -1,5 +1,5 @@
 import { defaultGeospatial } from '../search/defaults.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 import {
   holdContinuousRender,
   releaseContinuousRender,

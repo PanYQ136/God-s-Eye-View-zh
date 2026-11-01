@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 
 export function createFirmsState({ services, config }) {
   const layerState = {};

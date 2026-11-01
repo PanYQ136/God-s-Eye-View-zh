@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { createWindRendering } from './rendering.js';
 import { WIND_FIELDS } from './fields.js';
 import {

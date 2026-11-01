@@ -1,3 +1,4 @@
+@layer components {
 /* ── Control Panel ────────────────────────────── */
 #control-panel {
   position: fixed;
@@ -1248,4 +1249,5 @@ body.ui-clean-view #scene-runtime.active {
   min-width: 32px;
   text-align: right;
   flex-shrink: 0;
+}
 }

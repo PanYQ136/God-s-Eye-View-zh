@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { staticFrameRefreshMs } from '../../data/cctvLod.js';
 import { frameFetchDue, cardFetchPolicy } from '../../data/cctvCards.js';
 import { DEFAULT_CAMERA_CALIBRATION } from './policy.js';

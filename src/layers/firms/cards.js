@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import {
   FIRMS_OVERLAY_SOURCE_ID,
   FIRMS_AMBIENT_COHORT_LIMIT,

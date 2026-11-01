@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import {
   REPLAY_ASCENT_FALLBACK_SEC,
   REPLAY_ASCENT_MIN_SEC,

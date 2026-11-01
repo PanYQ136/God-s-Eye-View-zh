@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import {
   MISSION_CLOSE_VIEW_RANGE_M,
   MISSION_GLOBE_VIEW_RANGE_M,

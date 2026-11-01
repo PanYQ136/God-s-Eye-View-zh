@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>God's Eye View</title>
   <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <!-- Phase8D #13 · 层序：必须排在**所有**样式表之前。CSS 的层顺序在某个层名
+       「首次出现」时就锁定，之后的 `@layer a, b, c;` 语句无法重排已存在的层。
+       构建后 public/gev-*.css 排在 bundle 之前（它们先创建 components/overrides），
+       所以层序必须在这里以无层样式表提前声明，否则 foundation 会被排到 components 之上，
+       通配 reset 就会压掉所有组件的 padding/margin。 -->
+  <style>@layer vendor, foundation, components, material, overrides;</style>
   <link rel="stylesheet" href="/style.css" />
   <link rel="stylesheet" href="/src/ui/styles/mobile-portrait.css" />
   <link rel="stylesheet" href="/gev-cn.css" />
@@ -13,14 +19,13 @@
   <link rel="stylesheet" href="/gev-panel-win.css" />
   <!-- src/lc 材质层（唯一材质来源，必须排在所有 App CSS 之后）；删掉本行即回滚材质 -->
   <link rel="stylesheet" href="/src/lc/material.css" />
+  <!-- Phase8D #13：必须压过材质层的少量声明（层序见 style.css） -->
+  <link rel="stylesheet" href="/gev-material-override.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <!-- Icon font subset to the glyphs this app renders. Keep `icon_names` in sync
-       with the sources: src/materialSymbolsSubset.test.mjs fails when a source
-       names a glyph this list is missing, because a missing glyph does not draw
-       a box — the ligature never forms and the element renders the literal word. -->
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0&icon_names=adjust,arrow_drop_down,arrow_forward,arrow_left,arrow_right,bolt,chevron_left,chevron_right,close,close_fullscreen,dark_mode,draw,east,flare,flight,layers_clear,light_mode,local_fire_department,my_location,navigation,normal,on,open_in_full,public,radar,radio,right_panel_close,right_panel_open,rocket_launch,skip_next,skip_previous,view_in_ar" rel="stylesheet" />
+  <!-- 字体表已迁到 /style.css 的 @import ... layer(vendor)（Phase8D #13）：
+       未分层的第三方 CSS 会压掉所有分层 App 规则，字体表必须一起进层。
+       preconnect 保留；icon_names 子集随迁移一起搬到 style.css 的 URL 上。 -->
   <!-- Phase7A3 · 卡壳/LC 前置（先于 Cesium 求值，唯一能把「卡片可点」压进 ≤5s 的路径）。
        module 脚本与 classic defer 脚本按**文档顺序**执行：这两行在 head 里、而建置期注入的
        `/cesium/Cesium.js` 由 build/vite.js 挪到 head 末尾并改成「按需注入求值」，

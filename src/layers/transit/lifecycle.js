@@ -1,5 +1,5 @@
 import { destroyTrack } from '../../data/contactPlayback.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import {
   claimCameraSensitivity,
   releaseCameraSensitivity,

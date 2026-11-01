@@ -3,7 +3,7 @@ import {
   featureReference,
   normalizeFeatures,
 } from './geometry.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 
 export function createIngestion({ state, parts, source }) {
   async function load(viewer) {

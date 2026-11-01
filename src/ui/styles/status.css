@@ -1,3 +1,4 @@
+@layer components {
 /* ── Top-center Globe Actions ────────────────── */
 #top-center-actions {
   position: fixed;
@@ -414,4 +415,5 @@
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
+}
 }

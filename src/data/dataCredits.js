@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 
 /**
  * Per-layer data attribution registered into Cesium's credit display.

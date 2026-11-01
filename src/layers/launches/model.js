@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { WINDOW_DAYS } from './policy.js';
 
 export function createModel({ state: layerState, services, parts, source }) {

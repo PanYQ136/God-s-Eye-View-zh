@@ -2,7 +2,7 @@ import {
   AWARENESS_RADIUS_M,
   AWARENESS_RELATIONSHIP,
 } from '../../data/militaryAwarenessEngine.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import {
   AWARENESS_QUERY_LIMIT,
   SOURCE_LABEL,

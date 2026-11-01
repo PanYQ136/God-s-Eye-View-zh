@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { CCTV_FOCUS_RESULT } from './policy.js';
 
 export function createNavigation({

@@ -14,7 +14,7 @@ import { applicationServices } from './services/application.js';
  * Color theming is driven by the active shader mode via CSS custom properties.
  */
 
-import * as Cesium from 'cesium';
+import { Cesium } from './cesium.js';
 import { forward as toMGRS } from 'mgrs';
 import { CITY_POIS } from './locations.js';
 import { composeLocalityTag } from './hudLocality.js';

@@ -1,3 +1,4 @@
+import * as bridge from '../bridge.js';
 import { initFirstRunExperience } from '../firstRunExperience.js';
 
 /* 观测（boot-timeline）：无 window/无时间线时是空操作；不 import 是为了让
@@ -62,7 +63,7 @@ export function startApplicationChrome({
        （src/gev-boot-gate.js：最终视角真的有影像 + 相机落位）。
        window.__gevBoot 缺失时立即 resolve，等价旧行为。 */
     (() => {
-      const gate = globalThis.__gevBoot;
+      const gate = bridge.get('boot');
       if (!gate || typeof gate.whenReadyToHide !== 'function')
         return Promise.resolve(null);
       bootMark('mask:gate-wait:begin');

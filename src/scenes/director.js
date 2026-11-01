@@ -18,7 +18,7 @@ import { createStateChannel } from '../app/stateChannel.js';
 import { SceneControls } from '../ui/scenes.js';
 import { buildPlaybackQueue, playSceneQueue } from '../director/playback.js';
 import { createScenePlaybackAdapter } from './playbackAdapter.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 import {
   SCENE_APPEND_RECIPES,
   SCENE_RECIPES,

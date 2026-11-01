@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { installationFeedback } from '../../data/installationFeedback.js';
 import { LAYER_ID, DISTANCE_PREFILTER_MARGIN_M } from './policy.js';
 

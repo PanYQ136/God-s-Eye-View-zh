@@ -6,7 +6,7 @@ export {
   MISSING_POLL_LIMIT,
   ERROR_BACKOFF_INTERVAL,
 } from './recordPolicy.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 
 export const FOCUS_EVIDENCE_DEV = import.meta.env?.DEV === true;
 

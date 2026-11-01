@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { createSubmarineCableLayer } from '../../layers/submarineCables/index.js';
 import { overlayHost } from './overlayHost.js';
 /** Wire cable source geometry to the application overlay host. */

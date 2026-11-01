@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 /**
  * Model-space visual centres measured from the shipped GLBs' scene-space AABBs.
  *

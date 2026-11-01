@@ -5,7 +5,7 @@ export {
   MISSING_POLL_LIMIT,
   ERROR_BACKOFF_INTERVAL,
 } from './recordPolicy.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 
 /**
  * @module militaryFlights

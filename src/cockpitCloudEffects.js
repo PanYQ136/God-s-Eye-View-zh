@@ -1,5 +1,5 @@
 import { applicationServices } from './services/application.js';
-import * as Cesium from 'cesium';
+import { Cesium } from './cesium.js';
 import {
   deriveWeatherEffectProfile,
   weatherAltitudeFactors,

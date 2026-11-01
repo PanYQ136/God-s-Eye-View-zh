@@ -1,5 +1,5 @@
 import { installationResponseSaturated } from './source.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import {
   EARTH_MEAN_RADIUS_M,
   COLOR_BY_CLASS,

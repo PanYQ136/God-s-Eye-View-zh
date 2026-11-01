@@ -1,5 +1,5 @@
 import { twoline2satrec } from 'satellite.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { CATALOG_GROUPS, ISS_NORAD, POINT_STYLES } from './policy.js';
 import { vehicleIcon } from '../../data/vehicleIcons.js';
 

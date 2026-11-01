@@ -67,7 +67,7 @@ test('the catalog hands transit the same surface it hands everything else', asyn
   const lifetime = new AbortController();
   t.after(() => lifetime.abort());
   const surface = fixtureSurface(lifetime.signal, 5);
-  const catalog = createApplicationCatalog({
+  const catalog = await createApplicationCatalog({
     sources: createStandaloneLayerSources(),
     signal: lifetime.signal,
     surface,

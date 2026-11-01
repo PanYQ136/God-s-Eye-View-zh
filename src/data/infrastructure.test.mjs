@@ -182,11 +182,24 @@ test('consumer build includes only infrastructure code and resolves assets under
   const output = result.output;
   const entry = output.find((item) => item.type === 'chunk' && item.isEntry);
   const sources = Object.keys(entry.modules).filter((id) => id.endsWith('.js'));
+  // Phase8E #14: Cesium reaches this entry through the repository's single
+  // egress (`src/cesium.js`), which is a pure re-export — no logic of ours.
+  // It is the only module allowed to name the `cesium` package.
   assert.deepEqual(sources.map((id) => id.split('/').at(-1)).sort(), [
+    'cesium.js',
     'infrastructure.js',
     'localGeojsonCore.js',
     'localGeojsonLod.js',
   ]);
+  const egress = Object.keys(entry.modules).find((id) =>
+    id.endsWith('/cesium.js'),
+  );
+  assert.match(
+    readFileSync(new URL('./../cesium.js', import.meta.url), 'utf8'),
+    /^import \* as cesiumNamespace from 'cesium';$/m,
+    'the egress is one namespace import, not a second implementation',
+  );
+  assert.ok(egress, 'the egress module is part of the consumer graph');
   assert.deepEqual(
     entry.imports,
     ['cesium'],

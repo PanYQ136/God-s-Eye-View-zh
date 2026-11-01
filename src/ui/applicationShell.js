@@ -28,7 +28,7 @@ import {
   setCyberSonarControls,
 } from './cyberSonarControls.js';
 
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 
 import { aircraftTrackingTarget } from '../cockpitTracking.js';
 

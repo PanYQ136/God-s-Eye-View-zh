@@ -1,6 +1,6 @@
 import { createVesselFeed } from './ingestion.js';
 import { VesselRecords } from './records.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { DEFAULT_AIS_RUNTIME, RENDER_LIMIT_UNLIMITED } from './policy.js';
 
 export function createVesselState({ source, services }) {

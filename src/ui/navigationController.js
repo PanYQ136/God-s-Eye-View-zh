@@ -1,5 +1,5 @@
 import { createStateChannel } from '../app/stateChannel.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 import {
   beginDeferredNavigation,
   reassertNavigationHandoff,

@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 import { createStateChannel } from '../app/stateChannel.js';
 import { LocationControls } from './location.js';
 

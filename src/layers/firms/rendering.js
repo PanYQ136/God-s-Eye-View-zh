@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { FIRMS_OVERLAY_SOURCE_ID } from '../../data/firmsLabels.js';
 import { horizonOccluder } from '../../data/iconOrientation.js';
 import { LOD_LEVELS, CONTEXT_TOP_N } from './policy.js';

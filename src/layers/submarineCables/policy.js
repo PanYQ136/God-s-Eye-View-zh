@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 
 export const BASE_CABLE_COLOR = '#39d5ff';
 

@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { nextCockpitNearContacts } from '../../data/cockpitAirLod.js';
 import { aircraftIcon, TRACKED_ICON_PX } from '../../data/aircraftIcons.js';
 import { trackedModelZoomActive } from '../../data/trackedModelRegime.js';

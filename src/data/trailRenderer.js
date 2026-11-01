@@ -19,7 +19,7 @@
  * no entity equivalent; the polyline entity is excluded from clicks by never
  * carrying a pick id the layers' click handlers resolve.
  */
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 import { registerPickOwner } from './pickRegistry.js';
 
 // Round 6: trail ENTITIES are pickable (the old Primitive had

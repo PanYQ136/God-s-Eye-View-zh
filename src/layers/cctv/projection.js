@@ -1,5 +1,5 @@
 import { attachCctvVideo } from './videoPlayback.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import {
   CCTV_PROJECTION_OVERLAY_SOURCE_ID,
   CCTV_PROJECTION_OVERLAY_SOURCE_OPTIONS,

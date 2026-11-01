@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import {
   COURSE_HOLD_SPEED_MPS,
   lerpAngleDeg,

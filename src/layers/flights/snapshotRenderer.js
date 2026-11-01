@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { cyberSonarBaseAlpha } from '../../cyberSonar.js';
 import {
   turnRateFromFixHistory,

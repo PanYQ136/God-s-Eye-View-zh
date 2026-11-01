@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { LAUNCH_PAD_ZONE_RADIUS_M } from './policy.js';
 
 export function createLaunchPad({

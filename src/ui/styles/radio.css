@@ -1,3 +1,4 @@
+@layer components {
 /* ── Radio companion section inside Context ── */
 #radio-panel {
   position: relative;
@@ -1027,4 +1028,5 @@
 }
 .sdr-feed-status[hidden] {
   display: none;
+}
 }

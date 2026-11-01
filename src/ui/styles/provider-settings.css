@@ -1,3 +1,4 @@
+@layer components {
 /* ============================================================
    POWER UP — in-app key setup (dev server only, src/keySetup.js)
    Same voice as the first-run launcher: glass card, cyan trim,
@@ -392,4 +393,5 @@ body.scene-playback-mode #key-setup {
   color: rgba(255, 190, 170, 1);
   border-color: rgba(255, 170, 150, 0.65);
   outline: none;
+}
 }

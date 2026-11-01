@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { flowBucket } from '../../data/trafficFlowStyle.js';
 import { trafficStyleProfile } from '../../data/trafficPresetStyle.js';
 import {

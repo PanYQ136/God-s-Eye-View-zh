@@ -1,3 +1,4 @@
+@layer components {
 /* ═══════════════════════════════════════════════════════════════
    GEV 响应式增强层 v2（手机横竖屏布局优化）
    非侵入：删除 index.html 中引用本文件的 <link> 即完全还原。
@@ -14,7 +15,7 @@ html #gev-dossier { max-width: min(340px, calc(100vw - 24px)); }
 @media (max-width: 720px) {
   /* App 自带 FPS 与 GEV「性能」按钮重复显示 FPS → 隐藏 App 的，避免与
      GEV 控件行叠在一起 */
-  #title-bar .frame-rate-readout { display: none !important; }
+  #title-bar .frame-rate-readout { display: none; }
 
   /* GEV 控件行：放在顶栏(标题 + 圆形按钮，约 y0–48)正下方的空档，排成一行 */
   html #gev-locate-btn { top: 54px; left: 16px;  right: auto; bottom: auto; }
@@ -34,12 +35,12 @@ html #gev-dossier { max-width: min(340px, calc(100vw - 24px)); }
   html #gev-gfx-fab   { bottom: 132px; }
 
   /* 顶部 "LOAD CANCELLED" 状态条会压住面板/控件 → 隐藏 */
-  #global-loading-status { display: none !important; }
+  #global-loading-status { display: none; }
 
   /* 底部遥测角标易与面板/控件叠 → 隐藏（与核心 responsive.css 一致） */
   .hud-corner.hud-bottom-left,
   .hud-corner.hud-bottom-right,
-  .hud-corner.hud-top-left  { display: none !important; }
+  .hud-corner.hud-top-left  { display: none; }
 
   /* 档案框：窄屏压成全宽 + 限高 */
   html #gev-dossier   { left: 12px; width: calc(100vw - 24px); max-height: 42vh; }
@@ -55,9 +56,9 @@ html #gev-dossier { max-width: min(340px, calc(100vw - 24px)); }
   #title-bar          { top: 8px; left: 12px; transform: none; }
   #title-bar h1       { font-size: 15px; letter-spacing: 2px; }
   #title-bar .subtitle { display: none; }
-  #style-indicator    { display: none !important; }
+  #style-indicator    { display: none; }
   #top-center-actions { top: 6px; right: 12px; left: auto; transform: none; gap: 5px; }
-  #global-loading-status { display: none !important; }
+  #global-loading-status { display: none; }
 
   /* GEV 控件行：顶栏下方，横排一行（不再掉到左下互相重叠） */
   #gev-locate-btn     { top: 46px; left: 12px;  right: auto; bottom: auto; }
@@ -129,4 +130,6 @@ html #gev-dossier { max-width: min(340px, calc(100vw - 24px)); }
 /* ── 超宽屏：限制档案框宽度 ──────────────────────────────────── */
 @media (min-width: 1800px) {
   html #gev-dossier { width: 340px; }
+}
+
 }

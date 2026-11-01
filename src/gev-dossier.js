@@ -101,7 +101,8 @@
     if (document.getElementById('gev-dossier-style')) return;
     const s = document.createElement('style');
     s.id = 'gev-dossier-style';
-    s.textContent = STYLE;
+    /* Phase8D #13：运行时注入的样式表也要进层 */
+    s.textContent = '@layer components {\n' + STYLE + '\n}';
     document.head.appendChild(s);
   }
 

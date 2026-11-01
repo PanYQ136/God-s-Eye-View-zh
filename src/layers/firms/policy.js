@@ -1,5 +1,5 @@
 import { FIRMS_AMBIENT_COHORT_LIMIT } from '../../data/firmsLabels.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 
 /** Client poll interval; the proxy's 30 min TTL is what guards upstream quota. */
 

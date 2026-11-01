@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { MAX_VIEWPORT_DEGREES, REQUEST_DEBOUNCE_MS } from './policy.js';
 
 export function createViewport({ state: layerState, services, parts, source }) {

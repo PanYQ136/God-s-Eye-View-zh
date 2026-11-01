@@ -4,7 +4,7 @@ import {
   presetDotRgba,
   presetDotOutline,
 } from '../../data/trafficPresetStyle.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import {
   SIZE_BY_TYPE,
   STYLED_MIN_BASE_PX,

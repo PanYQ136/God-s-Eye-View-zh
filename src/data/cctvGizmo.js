@@ -23,7 +23,7 @@
  * throttled hover picks while ADJUST mode is on) — the layer's zero-steady-state-query
  * invariant is untouched.
  */
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 import { isPointerFree } from './inputOwnership.js';
 
 // Grazing guard (spec §5): reject plane intersections when the view ray is

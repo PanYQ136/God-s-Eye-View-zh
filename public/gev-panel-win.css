@@ -1,3 +1,4 @@
+@layer components {
 /* GEV 面板窗口（拖拽/缩放）样式 gev-panel-win.css
    删除 index.html 中本行 <link> 即回滚样式（脚本单独一行控制功能）。
    设计：容器本身不额外加圆角/阴影/边框，保持内部卡片原有玻璃观感（避免"多余外框"）；
@@ -7,12 +8,17 @@
   transition: outline-color .18s ease;
   will-change: left, top, width, height;
 }
-.gev-win:hover { outline: none !important; }
+/* Phase8D #13：去 !important —— 与本文件 `.gev-win{outline:0 solid transparent}` 同层同源，
+   `.gev-win:hover` 靠 (0,2,0) 特异性已稳赢，强制权重是历史遗留。 */
+.gev-win:hover { outline: none; }
 .gev-win > * { min-height: 0; }
 
 /* 交互态（P2-1：hover 不描边；拖动/缩放用淡实线；P2-2：右下缩放手柄已移除） */
 .gev-win-dragging { user-select: none; cursor: move; }
-.gev-win-dragging, .gev-win-resizing { outline: 1px solid rgba(0, 212, 255, .30) !important; outline-offset: 2px; }
+.gev-win-dragging, .gev-win-resizing { outline: 1px solid rgba(0, 212, 255, .30); outline-offset: 2px; }
 .gev-win-resizing { cursor: nwse-resize; }
 
-#gev-pw-reset:hover { border-color: #00d4ff !important; color: #fff !important; }
+/* Phase8D #13：去 !important —— `#gev-pw-reset:hover` 是 (1,1,0)，基底规则都是类级。 */
+#gev-pw-reset:hover { border-color: #00d4ff; color: #fff; }
+
+}

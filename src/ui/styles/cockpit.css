@@ -1,3 +1,4 @@
+@layer components {
 /* ── Aircraft Cockpit View ─────────────────── */
 #cockpit-entry {
   position: fixed;
@@ -2236,4 +2237,5 @@ body.cockpit-mode #intel-hud .hud-right-edge {
   align-items: center;
   justify-content: center;
   gap: 5px;
+}
 }

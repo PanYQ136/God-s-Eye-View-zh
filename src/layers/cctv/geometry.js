@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { createFrustumVolumePrimitive } from '../../data/cctvViewshed.js';
 import {
   PROJECTION_VERT_ASPECT,

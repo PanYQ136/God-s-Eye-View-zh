@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import createViteConfig, {
+import createViteConfig from '../../vite.config.js';
+import {
   adsbLolFallbackAnchor,
   coalesceProxyRequest,
   launchLibraryRequestHeaders,
@@ -10,7 +11,7 @@ import createViteConfig, {
   regionalBriefHasAnySource,
   validMilitaryInstallationBox,
   validRegionalPoint,
-} from '../../vite.config.js';
+} from '../../server/providers/index.js';
 
 test('missing Google place context is a quiet keyless capability, not a 503', () => {
   assert.deepEqual(keylessGooglePlacesResponse(undefined), {

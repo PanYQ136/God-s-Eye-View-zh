@@ -13,6 +13,7 @@ import { createCollapsePort } from './collapse-port.js';
 import { createRenderer } from './render.js';
 import { createInteraction } from './interaction.js';
 import { layout } from './layout.js';
+import * as bridge from '../bridge.js';
 
 const BOOT_MAX_FRAMES = 900; // ≈15s（rAF 计帧，不用 setTimeout）
 const SETTLE_FRAMES = 90; // ≈1.5s：App 启动期会搬容器/恢复状态，沉降后强制全 mini（D1）
@@ -52,8 +53,9 @@ function writeStore(offsets) {
 }
 
 export function boot() {
-  if (typeof window === 'undefined' || window.__lcBooted) return window.__lc && window.__lc.api;
-  window.__lcBooted = true;
+  /* Phase8D #15：启动幂等标记与对外 API 都走 bridge 槽位（window.__lcBooted / __lc 只是兼容面） */
+  if (typeof window === 'undefined' || bridge.get('lc.booted')) return bridge.get('lc.api');
+  bridge.register('lc.booted', true, { global: '__lcBooted', owner: 'src/lc/index.js' });
 
   const adapter = createAdapter();
   let lastSnapshot = null;
@@ -62,8 +64,9 @@ export function boot() {
   let queued = false;
 
   const api = { version: '2.0.0' };
-  window.__lc = window.__lc || {};
-  window.__lc.api = api;
+  const LC = bridge.ensure('lc', { global: '__lc', owner: 'src/lc/index.js' });
+  LC.api = api;
+  bridge.register('lc.api', api, { owner: 'src/lc/index.js' });
 
   const controller = createController({ onEffect: handleEffects });
   const renderer = createRenderer({
@@ -133,10 +136,10 @@ export function boot() {
     frames += 1;
     if (settleLeft > 0) settleLeft -= 1;
 
-    window.__lc.result = result;
-    window.__lc.violations = result.violations;
-    window.__lc.snapshot = { viewport: snapshot.viewport, dock: snapshot.dock, protected: snapshot.protected, minis: Object.fromEntries(Object.entries(snapshot.cards).map(([k, v]) => [k, v.mini])) };
-    window.__lc.lastFrameAt = performance.now();
+    LC.result = result;
+    LC.violations = result.violations;
+    LC.snapshot = { viewport: snapshot.viewport, dock: snapshot.dock, protected: snapshot.protected, minis: Object.fromEntries(Object.entries(snapshot.cards).map(([k, v]) => [k, v.mini])) };
+    LC.lastFrameAt = performance.now();
   }
 
   function handleEffects(state, effects) {
@@ -308,7 +311,7 @@ export function boot() {
        （遮罩退化成顶部胶囊 + 只盖 canvas 的暗纱；卡片 rail 不再被挡）。
        不等 rAF 轮询：Cesium 求值一开始就占住主线程 3s，rAF 唤醒会被推迟。 */
     try {
-      const gate = window.__gevBoot;
+      const gate = bridge.get('boot');
       if (gate && typeof gate.releaseInputEarly === 'function')
         api.inputReleasedAt = gate.releaseInputEarly('lc-mounted-sync');
     } catch (_) {}
@@ -339,7 +342,7 @@ export function boot() {
       api.readyAt = +(performance.now()).toFixed(1);
       api.ready = true;
     };
-    const bootGate = window.__gevBoot;
+    const bootGate = bridge.get('boot');
     if (bootGate && typeof bootGate.whenInteractive === 'function') {
       bootGate.whenInteractive(30000).then(markReady, markReady);
     } else {
@@ -366,13 +369,13 @@ export function boot() {
     state: () => { const s = controller.state(); const o = {}; for (const id of CARD_IDS) o[id] = { ...s.cards[id], offset: { ...s.cards[id].offset } }; return { cards: o, openOrder: s.openOrder.slice() }; },
     phases: () => phaseMap().phases,
     assert: () => ({
-      violations: (window.__lc.violations || []).slice(0, 8),
+      violations: ((bridge.get('lc') || {}).violations || []).slice(0, 8),
       groups: controller.assert(),
       port: port.stats(),
       renderer: renderer.stats(),
     }),
-    gpu: () => (window.__gevGpu && typeof window.__gevGpu.probe === 'function' ? window.__gevGpu.probe() : null),
-    morph: () => (window.__lc.morph && window.__lc.morph.last) || null,
+    gpu: () => { const g = bridge.get('gpu'); return g && typeof g.probe === 'function' ? g.probe() : null; },
+    morph: () => ((bridge.get('lc') || {}).morph && bridge.get('lc').morph.last) || null,
     port: () => port.stats(),
     dispatch: (a) => controller.dispatch(a),
   });

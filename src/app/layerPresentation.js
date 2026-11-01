@@ -2,6 +2,11 @@ import { LayerPanel } from '../ui/layers.js';
 import { governorRequestRender } from '../renderGovernor.js';
 import { markDetectionSourcesChanged } from '../data/detection.js';
 
+const defaultFrame = (fn) =>
+  typeof requestAnimationFrame === 'function'
+    ? requestAnimationFrame(fn)
+    : setTimeout(fn, 0);
+
 /** Own the layer panel and application reactions to lifecycle activity. */
 export class LayerPresentation {
   constructor(
@@ -10,15 +15,27 @@ export class LayerPresentation {
       weatherClock,
       requestRender = governorRequestRender,
       invalidateDetection = markDetectionSourcesChanged,
+      requestFrame = defaultFrame,
     } = {},
   ) {
     this.manager = manager;
     this.weatherClock = weatherClock;
     this._panel = null;
+    this._requestRender = requestRender;
+    this._invalidateDetection = invalidateDetection;
+    this._requestFrame = requestFrame;
+    this._pendingRebuild = null;
     this.pendingVisible = false;
     this._unsubscribe = manager.subscribeActivity((change) => {
       if (change.type === 'status') this.refresh();
-      else if (change.type === 'destroy-all') this.destroy();
+      else if (change.type === 'layer-registered') {
+        // Phase8E2: a deferred layer just became real. Its toggle row does not
+        // exist yet (`_refreshTogglePanel` only updates existing rows), so the
+        // rebuild is coalesced to one frame — 24 registrations, one render.
+        this.scheduleRebuild();
+        requestRender(`layer-registered:${change.layerId}`);
+        invalidateDetection(`layer-registered:${change.layerId}`);
+      } else if (change.type === 'destroy-all') this.destroy();
       else {
         const reason =
           change.type === 'data-updated'
@@ -76,6 +93,18 @@ export class LayerPresentation {
     if (factory) this.panel.attachRecentImagery(factory);
     else this._panel?.attachRecentImagery(null);
   }
+  /** Rebuild the layer rows once on the next frame (deferred registrations). */
+  scheduleRebuild() {
+    if (this._pendingRebuild) return;
+    this._pendingRebuild = this._requestFrame(() => {
+      this._pendingRebuild = null;
+      this.rebuild();
+    });
+  }
+  /** Rebuild every row now, including layers registered after mount. */
+  rebuild() {
+    this._panel?.rebuild();
+  }
   refresh() {
     this._panel?._refreshTogglePanel();
   }
@@ -88,6 +117,7 @@ export class LayerPresentation {
     this._panel?.destroy();
     this._panel = null;
     this.pendingVisible = false;
+    this._pendingRebuild = null;
     this._unsubscribe?.();
     this._unsubscribe = null;
   }

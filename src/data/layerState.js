@@ -925,6 +925,13 @@ export class LayerStateCoordinator {
       this.dataManager.subscribeVisibilityRequests((change) =>
         this._handleVisibilityRequest(change),
       );
+    // Phase8E2: layers whose factory chunk arrives after startup keep their
+    // restore intent here and apply it the moment the instance registers.
+    this._deferredLayerState = new Map();
+    this._unsubscribeActivity = this.dataManager.subscribeActivity((change) => {
+      if (change?.type === 'layer-registered')
+        void this._applyDeferredLayerState(change.layerId);
+    });
     this.restorePromise = Promise.resolve([]);
     this.lastRestoreResults = [];
   }
@@ -1023,6 +1030,32 @@ export class LayerStateCoordinator {
     if (!clearSelection) return false;
     const selected = this._selectedShareTrackingTarget();
     return selected ? this._passivelyClearTrackingSelection(selected) : false;
+  }
+
+  /**
+   * Apply a restore intent that had to wait for a deferred layer instance.
+   * Called from the manager's `layer-registered` activity, i.e. after the
+   * manager entry exists and before the layer can be enabled by anything else.
+   */
+  async _applyDeferredLayerState(layerId) {
+    if (this._destroyed) return;
+    const intent = this._deferredLayerState.get(layerId);
+    if (!intent) return;
+    this._deferredLayerState.delete(layerId);
+    try {
+      const options = intent.options;
+      if (options && Object.keys(options).length)
+        this.dataManager.setLayerParams(layerId, options, {
+          origin: intent.origin,
+        });
+      await this.dataManager.restoreLayerState(
+        layerId,
+        { enabled: intent.targetEnabled, params: null },
+        { origin: intent.origin },
+      );
+    } catch (error) {
+      console.warn(`[Data] deferred layer restore failed for ${layerId}:`, error);
+    }
   }
 
   _handleManagerChange(change) {
@@ -1158,6 +1191,33 @@ export class LayerStateCoordinator {
               errorClass: 'cancelled',
               persistenceWrite: false,
               succeeded: false,
+            };
+          }
+          // Phase8E2: the instance is declared by the sealed registry but its
+          // factory chunk has not arrived yet. Keep the intent; the manager's
+          // `layer-registered` activity applies it once the layer exists.
+          if (this.dataManager.isPendingLayer?.(entry.id)) {
+            const deferredOptions =
+              options && Object.keys(options).length ? { ...options } : null;
+            if (targetEnabled || deferredOptions) {
+              this._deferredLayerState.set(entry.id, {
+                targetEnabled,
+                options: deferredOptions,
+                origin,
+              });
+            }
+            return {
+              layerId: entry.id,
+              targetEnabled,
+              origin,
+              phase: 'deferred',
+              settledEnabled: false,
+              lifecycleState: 'pending',
+              lifecycleUncertain: false,
+              appliedOptions: {},
+              errorClass: null,
+              persistenceWrite: false,
+              succeeded: true,
             };
           }
           // Reserve passive option state before any asynchronous lifecycle work.
@@ -1565,6 +1625,9 @@ export class LayerStateCoordinator {
     this._unsubscribe = null;
     this._unsubscribeVisibilityRequests?.();
     this._unsubscribeVisibilityRequests = null;
+    this._unsubscribeActivity?.();
+    this._unsubscribeActivity = null;
+    this._deferredLayerState?.clear();
     this.shareLinkManager?.setLayerStateProvider?.(null);
     this.onDurableStateChange = null;
     this.onTrackingRestoreStatus = null;

@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 import { isPointerFree } from './inputOwnership.js';
 
 export const MAX_TRACKING_CLICK_TRAVEL_PX = 6;

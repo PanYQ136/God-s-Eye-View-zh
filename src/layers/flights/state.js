@@ -1,6 +1,6 @@
 import { FlightRecords } from './records.js';
 import { createFlightFeed } from './ingestion.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { ENRICH_AMBIENT_BUDGET_CEIL } from './policy.js';
 
 export function createFlightState({ source, services }) {

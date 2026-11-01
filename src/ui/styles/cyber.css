@@ -1,3 +1,4 @@
+@layer components {
 /* Cyber is selected from DISPLAY > HUD > Layout. It skins the application
    shell while map imagery and source media retain their original colours. */
 
@@ -2689,4 +2690,5 @@
     min-height: 54px;
     padding: 10px 12px 18px 18px;
   }
+}
 }

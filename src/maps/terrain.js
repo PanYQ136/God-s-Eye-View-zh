@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 
 /** These factories are lazy: a hidden globe must not trigger terrain loading. */
 export async function createWorldTerrain(accessToken, { signal } = {}) {

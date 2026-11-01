@@ -1,3 +1,4 @@
+@layer components {
 /* ── Recording Mode ─────────────────────────── */
 body.recording-mode #title-bar,
 body.recording-mode #style-indicator,
@@ -35,4 +36,5 @@ body.scene-playback-mode
     #reset-globe-view
   ) {
   display: none !important;
+}
 }

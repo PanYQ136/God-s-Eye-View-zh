@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import {
   HORIZON_CAMERA_MOVE_EPSILON_M,
   GLOBAL_RADIO_ALTITUDE_M,

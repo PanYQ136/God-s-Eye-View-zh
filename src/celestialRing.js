@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from './cesium.js';
 import { governorRequestRender } from './renderGovernor.js';
 
 /** Outer edge of the existing NVG/FLIR keyhole in normalized shader space. */

@@ -1,3 +1,4 @@
+@layer components {
 /* ── First-run mission launcher ───────────────────────────────────
    Compact and non-modal: it gives a new visitor a meaningful starting
    choice without blocking manual map interaction or spending API quota. */
@@ -380,4 +381,5 @@ body.scene-playback-mode #first-run-launcher {
   .first-run-choices {
     scroll-behavior: auto;
   }
+}
 }
