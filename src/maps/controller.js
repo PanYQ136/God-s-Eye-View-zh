@@ -327,10 +327,18 @@ export class MapSourceController {
           if (result.terrain) this.viewer.scene.setTerrain(result.terrain);
           else this.viewer.terrainProvider = result.provider;
           this._terrainMode = terrain.id;
-          /* setTerrain 的重建发生在随后 1–2 帧，busy 要盖住这段空窗再放开。 */
-          await new Promise((r) =>
-            requestAnimationFrame(() => requestAnimationFrame(r)),
-          );
+          /* setTerrain 的重建发生在随后 1–2 帧，busy 要盖住这段空窗再放开。
+             2026-11-01：这里原本裸调 requestAnimationFrame —— 非浏览器环境（node:test、
+             SSR、无 rAF 的 WebView）直接 ReferenceError，导致整条 setStack 判失败并回退。
+             按仓内既有约定（app/deferredCatalog.js、app/layerPresentation.js 等同款写法）
+             做能力守卫；没有 rAF 时退化为「等一个宏任务」，语义同样是等下一轮绘制。 */
+          await new Promise((r) => {
+            if (typeof requestAnimationFrame === 'function') {
+              requestAnimationFrame(() => requestAnimationFrame(r));
+            } else {
+              setTimeout(r, 0);
+            }
+          });
         } finally {
           busy(false);
         }
