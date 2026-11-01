@@ -1,3 +1,4 @@
+@layer components {
 /* ═══════════════════════════════════════════════════════════════
    GEV 中文增强包 —— 汉化排版 + UI 美化 + 性能提示（非侵入式覆盖层）
    由 index.html 引用；删除该 <link> 即完全还原。
@@ -22,7 +23,17 @@
 .context-radio-mini,
 .key-setup,
 .first-run-launcher {
+  /* Phase8D #13：描边仍要压过 Cesium 未分层表（未分层 > 任何 @layer，只有 important 能反压） */
   border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Phase8D #13：大阴影只给「卡片块」；`.pp-header-row` 是 dock/侧栏的压扁标题行，
+   阴影由 gev-fix（overrides 层）显式置 none —— 拆开之后两边都不再互压。 */
+.pp-toggle-btn,
+#param-slider-panel,
+.context-radio-mini,
+.key-setup,
+.first-run-launcher {
   box-shadow:
     0 10px 40px rgba(0, 0, 0, 0.55),
     0 0 0 1px rgba(255, 255, 255, 0.035) inset,
@@ -97,32 +108,36 @@ body.gev-zh .panel-layer-toggle {
 body.gev-zh #title-bar .subtitle { letter-spacing: 3px; }
 body.gev-zh .btn-label { font-size: 12px; }
 
-/* 8) 中 / EN 切换药丸 */
+/* 8) 中 / EN 切换药丸（Phase8C · D11/#11：源规则里的 20px 背景模糊 + 饱和、以及玻璃化
+   box-shadow 全部删除 —— 双层玻璃不能靠 material.css 后置覆盖压住；材质只剩 material.css 单层 */
 #gev-lang-toggle {
   position: fixed;
-  left: 36px;
-  bottom: 74px;
+  /* Phase8D #13：12px/88px 原本写在 material 层（`#gev-lang-toggle{left:12px;bottom:88px}`），
+     8D 之前它只在「gev-responsive 的 html #id 媒体查询不命中」时生效；进层之后
+     「层 > 特异性」会让它反压 `html #gev-lang-toggle{left:auto;right:390px}`，
+     把药丸拉成 946px 宽。位置属于 App chrome，归位到 components 层并写死最终值：
+     桌面媒体查询仍按特异性赢（right:390/bottom:128），窄屏回落到 12/88 —— 与改前一致。 */
+  left: 12px;
+  bottom: 88px;
   z-index: 151;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 1px;
+  /* 2026-11-01：中文/中英混排不走等宽（JetBrains Mono 的中文回退字形宽度不稳），
+     提到 12px 无衬线；mono 只留给纯数字读数。 */
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 0.5px;
   color: var(--accent);
   background: var(--glass-bg);
   border: 1px solid rgba(0, 212, 255, 0.28);
   border-radius: 999px;
   cursor: pointer;
-  backdrop-filter: blur(20px) saturate(1.4);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5), 0 0 18px rgba(0, 212, 255, 0.08);
   transition: all 0.18s ease;
 }
 #gev-lang-toggle:hover {
   border-color: var(--accent);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5), 0 0 22px rgba(0, 212, 255, 0.22);
 }
 #gev-lang-toggle .gev-zh-on { color: #ffffff; font-weight: 600; }
 
@@ -194,22 +209,19 @@ option {
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 1px;
+  /* 2026-11-01：同 #gev-lang-toggle，中文走无衬线 12px。 */
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 0.5px;
   color: var(--accent);
   background: var(--glass-bg);
   border: 1px solid rgba(0, 212, 255, 0.28);
   border-radius: 999px;
   cursor: pointer;
-  backdrop-filter: blur(20px) saturate(1.4);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5), 0 0 18px rgba(0, 212, 255, 0.08);
   transition: all 0.18s ease;
 }
 #gev-locate-btn:hover {
   border-color: var(--accent);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5), 0 0 22px rgba(0, 212, 255, 0.22);
 }
 #gev-locate-btn .gev-locate-icon {
   font-size: 13px;
@@ -228,8 +240,6 @@ option {
   background: rgba(3, 20, 28, 0.86);
   border: 1px solid rgba(0, 212, 255, 0.32);
   border-radius: 10px;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease, transform 0.2s ease;
@@ -248,11 +258,14 @@ option {
   max-width: min(94vw, 760px);
   justify-content: flex-start;
 }
+/* Phase8D #13：去 !important —— 本文件在 components 层，分层内的 important 会
+   反压 overrides 层（重要声明按层序**反向**取胜），所以这类「补丁式压制」改成普通声明，
+   由 gev-material-override.css 里的显式例外兜底。 */
 #command-dock .style-btn,
 #command-dock .dock-popover-content .style-btn {
-  flex: 1 1 auto !important;
-  width: auto !important;
-  min-width: max-content !important;
+  flex: 1 1 auto;
+  width: auto;
+  min-width: max-content;
   max-width: 9.5rem;
 }
 #command-dock .style-btn .btn-label {
@@ -266,4 +279,6 @@ option {
   min-width: 22px;
   min-height: 22px;
   cursor: pointer;
+}
+
 }
