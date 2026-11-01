@@ -28,3 +28,9 @@ pinokio/.installed
 
 .vercel
 .env*
+
+# 2026-11-01 清理：归档区与改动前备份。两者都可手工删除，不该进版本库。
+# dist-* 覆盖历史构建副本（dist-8e / dist-8e2 / dist-baseline-8e 等）。
+.gev-trash/
+.gev-backup/
+dist-*/

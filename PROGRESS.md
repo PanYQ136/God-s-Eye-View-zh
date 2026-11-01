@@ -1280,3 +1280,260 @@ Win11 就地升级把 Tailscale 状态弄坏：`C:\ProgramData\Tailscale\` 无 `
   实测 data-panel 悬停 Δmean **10.93** → 移开 0ms 即 **0.018**、其后 ≤0.16（max 1，阈值 0.6）
   → **悬停高光无残留，7C 的 0.706 属未冻结画布时两帧间地图运动污染**（其「同状态噪声 0」用的是相邻帧，口径不自洽）。
   建议 T5c 在 useDefaultRenderLoop=false 下量，噪声底用同间隔（≥700ms）定标。
+
+
+## 2026-10-30 Phase8A · 24+D1-D12 工作分解与文件所有权（只读审计）
+
+- 产出：`docs/Phase8-工作分解与文件所有权-20261030.md`（282 行）。
+- 基线：`main @ ac6d09b`（2026-10-30 16:49:10），工作区干净 / 0 stash / 唯一 worktree；**无任何产品代码改动**。
+- 归属：24 条 → B6 / C5 / D4 / E6 / ENV3；D1–D12 → B6 / C5 / D1（自检脚本校验 24/24、12/12，无重复）。
+- 文件所有权：按「层」重切而非按 P0/P1 横切 —— B=`src/lc/{material.css,tokens.json,morph.js,render.js}`；C=`public/gev-edge-lens.js`；
+  D=`public/*.css`+`src/ui/styles/*.css`+`style.css`+`src/ui.js`+新增`src/bridge.js`；E=`index.html`+`vite.config.js`+`build/vite.js`+
+  `src/cesium-boot.js`+新增`src/cesium.js`+懒加载/拆分/构建/`docs/architecture/rollback`；F 只读；ENV 无文件。
+- 冲突（只列不改，见 §7）：C-1 8B/8C 卡体都写 material.css/tokens.json/lens（违反互斥）；C-2 gev-cn.css 双写（#11/D11 判归 D）；
+  C-3 index.html（判归 E，D 的层顺序写 style.css）；C-4 material.css 是否进 @layer（默认不进）；C-5 codemod 排除 src/lc（实测 0 引用）；
+  C-6 #12/D12 主因已被 t_2fdb18f0 修掉（material.css:100）；C-7 文档数字过期；C-8 #15/#14 codemod 交集 22 文件（唯一登记例外）。
+- 实测修正（文档旧数 → 实测）：`!important` 231→**198**（gev-fix 98→**70**）；public CSS 5→**4**；`window.__*` 49→**42 名字/209 次**；
+  `gev-cn.css` backdrop-filter 1→**3 处 6 行**；Cesium 2,564/210→**3,138/293**；巨型文件行数 ↑（4,480/2,946/2,481/2,324）；
+  Cesium 注入不在 index.html 而在 `build/vite.js:23`+`src/cesium-boot.js`。
+- 结论：无未提交改动 → **无回滚项**；`ac6d09b` 必须保留（含 7A3/7B/7D1）；禁止拿 `docs/_collab/**`、`docs/lg-glass-shots/**` 旧 CSS 当现状。
+- 下一步：lead 按 §4 修订 8B/8C 卡体文件清单后，串行 B→C→D→E→F。
+
+
+## 2026-10-30 Phase8B · 玻璃 P0 光学（D1/D2/D3 + #2/#3/#6）
+
+- **现象**：液态玻璃规范 G6/G7/G12/G22 全 FAIL —— 上沿高光是 `material.css` 一条静态 1px 长渐变、
+  阴影是固定 `rgba(0,0,0,.14)`、没有 material 变体概念（事实全场景 = Clear 且无亮底兜底）、
+  `src/lc` 全域 0 处调 `__gevEdge`（变形期玻璃不降级）；浅底图上标题行发糊（无文字局部底衬）。
+- **根因**：① 材质层只有「壳」没有「状态」——`src/lc` 没有任何模块持有「变体/亮度/指针/变形」这四类状态，
+  所以光学量只能写成常量；② morph 与 lens 分属两个加载期（morph 是 ESM、lens 是 classic script），
+  从未约定「变形期降级」这条生命周期；③ 文字可读性此前靠 `--lc-text-shadow` 单打，浅底无效。
+- **改动**（4 文件，均在 Phase8A 的 B 层所有权内；`public/gev-edge-lens.js` 0 改动，归 8C）：
+  ① `src/lc/render.js` 新增 `createGlass()`：material 枚举 `regular|clear`（默认 clear）、Cesium canvas
+  8×8 降采样求背后平均亮度（5Hz）、阴影 alpha `min+(max-min)*luma` 5Hz 50% lerp、指针 x → `--lc-gloss-x`、
+  Clear 亮度 >0.6 的 scrim **断言/日志**（`auto:false`，默认观感不变）、`morphBegin/End`（关闭 lens，
+  结束 1 帧后按进入时 cfg 原值恢复），全部状态经 `window.__lc.glass.state()` 对外只读。
+  ② `src/lc/morph.js`：`run()/runShift()` 的既有唯一动画兼作 morph 生命周期 → `edgeBegin/edgeEnd`（嵌套计数，0 新增定时器）。
+  ③ `src/lc/material.css`：上沿 1px 高光改**径向弧段**（`--lc-gloss-x/--lc-gloss-a`，峰值 ≤0.25，半径 88px / hover 120px）；
+  新增 §17 文字局部 scrim（卡壳 background-image 24px 竖渐变 alpha .30，24px 后归零）、§18 material 枚举 + Clear 亮底
+  `::after` 单层压暗（默认 off）、`--lc-fg-flip` 图标前景兜底。227 行 / `!important` 0 / `font-weight` 0 / 双 ID 0。
+  ④ `src/lc/tokens.json`：新 token 8 个 + `material` 段（threshold .6 / alpha .35 / auto false / 5Hz / restoreFrames 1）。
+- **验证**（RTX3060 Laptop，真实 Chrome 非 headless，`127.0.0.1:4173`）：
+  `scripts/lc/phase8b-gate.mjs` **9/9 PASS** —— A0 renderer=`RTX 3060 Laptop GPU`；
+  A1 页面 GLASS 与 tokens.json 逐值 diff=0；A2 8/8 卡默认 clear + 双向切换 + 非法值回落；
+  A3 指针 20%↔80% → gloss-x 20↔80、gloss-a 卡内 .250 / 离卡 .100、差值像素质心 **0.2316**（3 次 0.2315–0.2318）；
+  A4 注入 .15→阴影 .13、注入 .85→.27（目标值精确命中，单调，computed `rgba(0,0,0,.27)`，真采样 84 次）；
+  A5 文字 scrim 顶部带 24.64 灰阶、卡顶+30px 处 −1.27（不越界）；
+  A6 亮度 .8 → 断言 1→2、默认仍 off（只日志）、`auto` 后 on 且压暗 36.5 灰阶；A7 morph 期 enabled=false 45 帧、
+  draw frames 冻结 0、结束后恢复、duration 445ms、视觉峰值 1.035/1.035；A8 收尾 clear+off。
+  回归 `phase6c6-visual.mjs p8b2` **21/21 PASS**（T3 四边色散 36/36、无多级彩虹、T5 hover、T6 文字、T7 pp）；
+  单测 `src/lc/*.test.mjs` **81/81 PASS**。
+  视觉（强制）：1x 全图 + 4x/8x 合成图 4 组全部经 vision 复核 → 玻璃中心透明、单层边缘、无双灰圈/彩虹/整卡压暗；
+  高光弧段 20% vs 80%「明显不同，错开约 60 个百分点」；文字 scrim「顶部 24px 暗带，24px 以下两半亮度完全一致」。
+- **踩坑（写下来省下一轮）**：① 注入亮度验证必须先 `glass.setSampling(false)`，否则 5Hz 真采样下一拍就把注入值冲掉
+  （首轮 A4/A6 就是这么假失败的）；② 阴影 lerp 必须放在 **5Hz tick** 里而不是采样回调里，否则「注入一次 = 只 lerp 一步」；
+  ③ 文字 scrim 早期同时挂在 `.panel-header` 和嵌套的 `.panel-title` 上 → 叠成两条（header+30px 处多压暗 24 灰阶），
+  改为只画在卡壳 background-image 一条；④ 高光半径 140px 在 400px 宽的卡上几乎铺满 → 位移人眼不可读，
+  收到 88px 后 vision 才判「明显不同」；像素证明要用 `__gevEdge.testChecker` 静态底衬，别拿会动的地图当参考底。
+- **回滚**：`git checkout -- src/lc/material.css src/lc/tokens.json src/lc/render.js src/lc/morph.js`；
+  运行时软退：`__lc.glass.setScrim('off')`（默认）/ `setSampling(false)` / `setPointer(-1,-1)`。
+- **报告**：`.gev-logs/lc/phase8b/Phase8B-报告-20261030.md`（含 gate JSON 与截图清单）。
+
+## 2026-10-30 · Phase8C：玻璃 P1/P2 与 STATS 同源（D4–D12 + #4/#5/#7/#8/#9/#10/#11/#12）
+
+- **现象**：8B 之后 P0 光学到位，但 P1/P2 全缺 —— 无自适应 tint / 无 spill、WebGL 层完全无视系统无障碍设置
+  （`prefers-reduced-transparency` 只在 CSS 侧生效、`prefers-contrast` 全仓 0 命中）、内层没有同心圆角公式、
+  玻璃正文无字重下限、≤40px 图标不会随背景明暗翻转、`stats()` 只报运行时值（门禁读到 12/1.5/1.5 与源码 10/2.4/1.0 对不上）、
+  `gev-cn.css` 还留着 3 块 backdrop-filter 源规则靠 material 后置覆盖压住、pp 行内控件仍可能被压且命中区不到 44px。
+- **根因**：材质层缺「持续跟随背景」的反馈链路（无采样、无 CSS 变量出口）；无障碍只在 CSS 侧做了分支而折射是 WebGL 画的；
+  门禁读数取的是运行有效值而非配置常量；灰圈的第二个来源（旧 CSS 源规则）一直没删。
+- **改动**（4 文件，均在 8C 卡体清单内；`src/lc/render.js`、`morph.js` 0 改动）：
+  ① `public/gev-edge-lens.js`（+221）：把已有 `mapTex` 挂到 8×8 FBO → 5Hz、9 卡轮转读 5 个 8×8 小块
+  （背后中心 + 卡外四向环带），中心亮度写 `--lc-tint-a`（0.01–0.05，色 = 中心色**保色相提饱和 ×2.5**）、
+  环带平均色写 `--lc-shadow-rgb`（黑向环带色混合，权重 ≤0.15）、中心亮度写 `--lc-fg-flip`（>0.62 深墨，迟滞 0.10）；
+  a11y 三态 `full|reduced|solid`（四条 matchMedia + change 监听，reduced→dispPx 0/bandAlpha .75，solid→整层关闭）；
+  `stats()` 增加 `cfg`（冻结的源码常量）/`eff`（运行有效值）/`a11y`/`look`，旧字段全部保留。
+  ② `src/lc/material.css`（227→270 行，`!important` 0、双 ID 0）：§17 卡壳 background-image 第一层改 tint、
+  图标加 `transition: color 120ms`；新增 §19 同心圆角（`--lc-radius-inner = max(0, r − inset)`，内层 8px）、
+  §20 玻璃正文 `font-weight: 500`（只约束玻璃内，body 仍 400）、§21 pp 行 `flex:0 0 auto / min-height 36 / row-gap 8`
+  + `::after` 只向行框外扩 4px（44px 命中区，不覆盖行内 slider）、§22 `prefers-contrast: more` 实色分支。
+  ③ `src/lc/tokens.json`：`--lc-radius-inner/--lc-inset/--lc-shadow-rgb/--lc-tint-rgb/--lc-tint-a/--lc-fg-flip-ms`
+  六个 token + `material.tint/spill/a11y/fgFlip/radiusInner/pp` 段；`--lc-shell-shadow` 改用 `rgba(var(--lc-shadow-rgb…))`。
+  ④ `public/gev-cn.css`（+2/−11）：删 `#gev-lang-toggle`/`#gev-locate-btn`/`#gev-toast` 三块的 6 行 backdrop-filter
+  与 4 行玻璃化 box-shadow —— 不再依赖层叠顺序纠错。
+- **验证**（RTX3060 Laptop，真实 Chrome 非 headless，`127.0.0.1:4173`）：`scripts/lc/phase8c-gate.mjs` **14/14 PASS** ——
+  A0 renderer=`RTX 3060 Laptop GPU`；A1 cfg 与 tokens 常量 diff=0、`set({band:12,dispPx:1.5,gain:1.5})` 后 **cfg 仍 10/2.4/1.0** 而 eff 跟随；
+  A2 tint 9 卡 0.016–0.035、注入 1.0/0.0 → **0.050/0.010**，像素 A/B（off↔.05）**mean 1.07 / p99 4.14 / max 6.50 灰阶**、三次稳定；
+  A3 spill 0.068–0.124 ≤0.15、computed 阴影 `rgba(10, 10, 8, 0.176)`（alpha 仍走 8B 的 lerp）；
+  A4 图标注入亮底 → 深墨 `rgb(11,17,22)`、8x 像素 max 188 灰阶、过渡 0.12s；
+  A5/A5b **真实 CDP `prefers-contrast: more` → solid**（enabled false / count 0 / 卡底 `rgba(8,12,18,.55)` / lens alpha 0 / 9 卡 rect 逐值不变）、
+  **`prefers-reduced-transparency: reduce` → reduced**（dispPx 0 / bandAlpha .75），退出即复原 full；
+  A6 内层半径 8px；A7 pp-label 500 且 body 400；A8 9 组 gap 8/8、重叠 0、行高 36、命中 12/12（`::after` computed 44px）；
+  A9 `gev-cn.css` backdrop-filter 声明 0 处；A10 9 面卡体 backdrop-filter none / border 0；A11 8s：fps 163.9、p95 12.1ms、
+  窗口内 drawMax 21.6ms、look 采样 39 次（≈5Hz）。
+  回归 `phase8b-gate p8c2` **9/9 PASS**、`phase6c6-visual p8c` **21/21 PASS**、单测 `src/lc/*.test.mjs` **81/81 PASS**，控制台 0 error。
+  视觉（强制）：1x 全图 + 6x tint A/B + 8x 图标 A/B + 4x pp 卡 + 4x solid 全部经 vision 复核 → 单层/中心透明/无双灰圈彩虹；
+  tint「极轻微色偏、不是整块变暗」；图标「明显一浅一深」；pp「行行分开无重叠」；solid「实色底 + 对比度显著提升」。
+- **踩坑（写下来省下一轮）**：① Cesium canvas 在 postRender 之外读回是**全黑**（pdb 关着），采样必须挂在 draw 里
+  且用**已上传的 mapTex + FBO**，不要再去 drawImage 那只 canvas；② 9 卡 5Hz 轮转时单卡 ~1.8s 才轮到一次，
+  门禁读数要轮询 `look.per[id].at` 变化，否则读到的是上一拍（也解释了一开始 tint 恒 0.01 的假象）；
+  ③ tint 直接回填「中心平均色」等于把背景再平均一遍，5% 下不可测（p99 2.3）→ 必须保色相提饱和；
+  ④ `::after` 命中区**不能覆盖行内控件**（positioned 伪元素会抢 slider 的指针事件），要只向行框外扩；
+  ⑤ 图标在 pp 未展开时是隐藏的：computed 有值但没像素，A/B 必须先真实点击展开再截图。
+- **回滚**：`git checkout -- public/gev-edge-lens.js src/lc/material.css src/lc/tokens.json public/gev-cn.css`；
+  运行时软退 `__gevEdge.look({tint:false,spill:false,fgFlip:false})` / `__gevEdge.a11y('full')`。
+- **报告**：`.gev-logs/lc/phase8c/Phase8C-报告-20261030.md`（含 gate JSON 与截图清单）。
+
+## 2026-10-31 · Phase8D：样式层叠显式化 + window 总线收敛（#13/#15/#20）
+
+- **结论**：`@layer` 已显式化到**文件内**，层序 `vendor < foundation < components < material < overrides` 在 `index.html`
+  顶部以无层 `<style>` 提前锁定；`!important` **123 → 15**（−87.8%，本卡范围达成 <20）；`window.__*` **186 → 124**（−33%），
+  迁移项 0 处直连。过程中修掉两个会让整张卡白干的真问题（见下「坑」）。
+- **改动**（只在本卡范围）：
+  ① `index.html` +4：`<style>@layer vendor, foundation, components, material, overrides;</style>` 排在**所有样式表之前**；
+  ② `style.css` +22/−5：层序注释、Google Fonts 改 `@import … layer(vendor)`、`src/ui/styles` 改文件自包层；
+  ③ `public/gev-fix.css` **97 → 0** `!important`（98 条逐条归类进 `overrides`）；`gev-panel-win` 4 → 0；`gev-responsive` 5 → 0；
+  `gev-cn` 17 → 14 且 `#gev-lang-toggle` 定位从 material 层迁回此处；新增 `public/gev-material-override.css`（`overrides`，1 条）；
+  ④ `src/lc/material.css` 修掉双重 `@layer material` 包裹、删 lang-toggle 规则、通用规则排除 `.param-panel-divider` + `revert-layer`；
+  ⑤ 24 个 `src/ui/styles/*.css` 文件内自包层；5 个运行时注入 `<style>` 包 `@layer components`；
+  ⑥ 新增 `src/bridge.js`（8420B，register/get/has/dispose/list + JSDoc）+ `src/bridge.test.mjs`（7 用例）；`src/ui.js` 标 `@deprecated`；
+  新增 `scripts/check-window-globals.mjs`（1199 文件 / 26 名字 / 迁移项 0 直连）。
+- **验证**（RTX 3060 Laptop，真实 Chrome 非 headless，**生产构建** `dist-8d3` + `vite preview:4183`）：
+  指纹 桌面 **1572 元素 / 0 error**、移动 390×844 **1575 元素 / 0 error**；`check-import-directions` **EXIT 0**
+  （`{"modules":872,"portableEntries":61}`，同时修掉 HEAD 上就存在的 `src/bootstrap.js` 误判）、`check-window-globals` **✅**、
+  `bridge.test` **7/7**、`bridge+importDirections+symbolSubset` **25/25**、`src/lc/*.test.mjs` **81/81**、`vite build` `built in 13.51s`。
+  A/B（prod base vs prod 8D）`diffElements=1347`，其中 **1344 是 font-family**、其余 41 个 `_box` + 少量 `letter-spacing/text-shadow`，
+  **全部同一根因**：`gev-cn.css` 的覆盖在 base 生产包里因为「排在 foundation 之前」一直在输，8D 归层后恢复生效 —— prod 终于与 dev 一致
+  （`#title-bar h1` letter-spacing 8px → **6px** = `gev-cn.css:83` 声明值；`body` font-family 补回中文栈 = `gev-cn.css:152`）。
+  视觉（强制）：1x 全图 + 4x 玻璃卡裁剪经 vision 复核 → 标题无重影无裁切、各控件独立成块无压字、**单层细边无双层描边/灰圈/糊块**、
+  无越界；4x 下内部透明可见影像、无环带。像素：全屏 1.59%、dock 2.02%、card 2.01%（差异集中在玻璃背后活地图透明区）。
+- **坑（写下来省好几轮）**：
+  ① `@import '…' layer(x)` 在 **dev 生效、`vite build` 后被静默丢弃**（内联后不再是顶层 at-rule）→ 必须**文件内自包 `@layer`**；
+  ② **层顺序在层名首次出现时就锁定**，之后的 `@layer a,b,c;` 不能重排已有层。生产包里 `public/*.css` 排在 bundle 之前，
+  先创建了 `components/overrides`，于是 bundle 里那句层序把 **foundation 排到了 components 之上**，通配 reset `*{margin:0;padding:0}`
+  压掉整站 padding（实测 `#traffic-sync-chip` 6px→0，1347 处偏差）→ 层序必须在 `index.html` 顶部提前声明；
+  ③ 因此**任何层叠断言必须在生产构建上跑**，dev 服务器会把 ① ② 同时藏起来（此前基于 dev 的 A/B 结论全部作废）；
+  ④ 未分层 `<style>`（运行时注入的 5 处）会整体压过任何 `@layer`，必须包 `@layer components`，否则改 pp 行距/卡内边距；
+  ⑤ 8x NEAREST 裁切叠在卫星图上，vision **不可判读**（如实记为无效证据），改用 4x LANCZOS + 平坦背景。
+- **回滚**：`git checkout -- index.html style.css public/gev-cn.css public/gev-fix.css public/gev-panel-win.css public/gev-responsive.css src/ui/styles src/lc/material.css && rm public/gev-material-override.css`；
+  8D 基线快照 `.gev-logs/lc/phase8d/cur/`，pre-8D 备份 `.gev-logs/lc/phase8d/bak/*.orig`，可重复应用 `python .gev-logs/lc/phase8d/apply8d_v2.py`
+  （**注意脚本不含 index.html 的层序 `<style>`**，回滚后再应用需手工补，否则退回坑②故障态）。
+- **报告**：`.gev-logs/lc/phase8d/Phase8D-报告-20261030.md`（含验收表、A/B 数字、截图与 vision 结论、给 8E 的硬要求）。
+
+## 2026-10-31 · Phase8E：Cesium 单一出口 + 图层懒加载 + 拆分 + 构建职责（#14/16/17/18/19/21）
+
+- **结论**：#14 达成（198 处 Cesium 直连 → 1 个出口，`check-import-directions` 由 warn 升级为 **error** 且 EXIT 0，负向用例 EXIT 1）；
+  #18/#19/#21 达成；#17 按「先纯函数再状态」拆出两批 497 行；#16 **部分达成**（入口 chunk 与首屏不再含图层代码，
+  但波次 2 的 22 个非默认图层仍在启动期被请求，见下「未做到」）。`check:boundaries` 从**红的**（HEAD 就缺 5 处登记）修到 **EXIT 0，112/112 组**。
+- **改动**：
+  ① 新增 `src/cesium.js`（唯一出口，用 `cesiumNamespace → cesium → export { cesium as Cesium }` 规避构建期 `externalGlobals` 自引用）；
+  codemod `.gev-logs/lc/phase8e/codemod-cesium.mjs` 改 144 个运行时模块的导入行，`*.test.mjs` 保留裸 `cesium`（node 测试图不经浏览器出口）；
+  ② `constructCatalog.js` 改 async：`await import('./catalogFactoriesCore.js')`（默认组 343 kB）→ 实例化 →`await import('./catalogFactoriesRest.js')`（22 个非默认图层 779 kB）；
+  ③ `worldOverlay.js` 2946→2808 行（`worldOverlay/primitives.js` 192 行常量/纯函数）、`gevActions.js` 4480→4209 行（`actions/vocabulary.js` 305 行）；
+  ④ `vite.config.js` 只剩 `export { default }`，provider 再导出移到 `server/providers/index.js`（+守卫用例）；
+  ⑤ `build/models.mjs` 清单 + `closeBundle` 裁剪 + `--sync` 出 sha256 清单；`GEV_KEEP_ALL_MODELS=1` 回退；
+  ⑥ `docs/architecture/rollback/gev-edge-lens.phase3.js` 补版本头（内容/时间/对照 commit f16cd41/替换范围/禁止）。
+- **验证**（真实 Chrome 非 headless，RTX 3060 Laptop，生产构建 `dist-8e` + preview:4175；基线 `dist-baseline-8e` + 4176）：
+  `bootstrap` 2539.38→**1400.18 kB**；`dist` 377.9→**36 MB**、`dist/models` 346.7→**3.4 MB/12 文件**（`pruned 8 entries, 343.4 MB`）；
+  首屏 resource timing：FCP 1712 ms 时**无任何图层 chunk**，两个工厂 chunk 在 4038/4297 ms 各拉一次（107 kB / 252 kB gzip）；
+  启动 `bootInteractive` 10.01 s（基线 10.67 s）、遮罩消失 10.31 s（基线 10.93 s）；8 s FPS **87.0**（基线 76.2）、长帧 0；
+  computed-style 指纹 **1572 元素 diffElements=0**（8E build vs 8E 前 build）；一层玻璃计数 0、edge-lens cfg 未降级；
+  真实鼠标点卡头展开/收起均 true，`pageerror`/`console.error` = 0。全量单测 **5091 pass / 63 fail**，
+  与 HEAD worktree 基线（5093/51）差集 = **新增 12 个，全部落在 8B/C/D 改过的 CSS/bridge 文件上**（8E 足迹内 0 新增失败）。
+- **未做到（如实记录）**：`createLayerCatalog` 一次性校验「实例 ↔ 元数据」并冻结，波次 2 必须在构造前到位，
+  所以「首屏完全不请求非默认 layers」没有做到（只是把 779 kB 从入口 chunk 挪成并行 chunk）→ 需 catalog 后置注册，已开后续卡。
+- **坑（写下来省一轮）**：
+  ① 出口模块里不能写 `export const Cesium = …`：构建期 `externalGlobals` 把命名空间导入整体改写成全局 `Cesium`，会变成 `const Cesium = Cesium` 自引用；
+  ② 真 `deviceScaleFactor=4`（画布 5392×3096）会让 Cesium 大气 shader 编译失败、渲染停止（`renderer: n/a`）——
+    **基线构建同样失败**，是本机环境限制，视觉取证要退回「1x 裁剪 + LANCZOS 4x」（8D 同口径）；
+  ③ `check-package-boundaries` 是「按组枚举 rollup 实际解析到的模块」的硬清单，任何新增模块都要登记，
+    手工枚举会漏（HEAD 就漏了 5 个）；用 `.gev-logs/lc/phase8e/fix-boundaries.py` 按报错迭代补齐最省事；
+  ④ 首启引导（「选择你的第一视角」）会盖住 9 张卡，视觉取证必须先按 ESC 再截，否则 vision 只能判「卡片不可见」。
+- **回滚**：`rm src/cesium.js src/app/catalogFactories*.js build/models.mjs server/providers/index.js && git checkout -- src vite.config.js build/vite.js scripts/check-import-directions.mjs src/overlays/worldOverlay.js src/voice/gevActions.js`；
+  基线产物 `dist-baseline-8e/`、基线指纹 `.gev-logs/lc/phase8e/fp-base.json`、基线单测日志 `D:\Hermes\.tmp\tests-base.log` 保留可 A/B。
+- **报告**：`.gev-logs/lc/phase8e/Phase8E-报告-20261031.md`（验收表、构建/启动/FPS/指纹数字、截图与 vision 结论、12 个继承失败的归属证据）。
+
+## 2026-10-31 · Phase8E2：波次 2 图层推迟到首屏之后（catalog 后置注册）
+
+- **结论**：8E 遗留的「波次 2（`catalogFactoriesRest` 779 kB）仍在启动期 4.3 s 被请求」已消除。
+  `catalogFactoriesRest` 的请求起点现在**三次运行都等于 `hydration.idleAt + 3 ms`**（8106/8103、7613/7612、7400/7397），
+  即 `app:ready` 之后的 `requestAnimationFrame` + `requestIdleCallback` 才发起；FCP 时图层 chunk 数 **0/0/0**；
+  水合在遮罩收起前完成（本次 `hydrate:done 8392` vs `mask:gone 9885`），`pendingBefore 24 → pendingAfter 0`，29 层全到位。
+- **路线**：选「catalog 后置注册」而不是「惰性 stub」。理由：启动期 `dataManager.registerDeferred` 会立刻读层方法
+  （`id/subscribe/setParams/getDiagnostics`），stub 要回答就必须在 register 时 `import()` 真实工厂，推迟被吃掉（register 在 5.3 s，仍在关键路径）；
+  且 stub 会破坏实例身份与「行为不变」约束。后置注册 = 实例唯一身份 + 显式 pending 相位 + `?layerdefer=0` 一键回退。
+- **改动**：`catalog.js` 增 `createDeferredLayerCatalog`（`layers/metadata/get` 语义不变，`add/subscribeLayers/resolve/hydrate` 新增）、
+  `pendingLayer.js`（身份稳定的 pending 句柄，订阅入队 + 属性转发 + 访问面记录）、`deferredCatalog.js`（rAF → rIC → `hydrate()`，`__bootTimeline` 打点 `catalog:hydrate:*`）、
+  `constructCatalog.js`（`deferRest`，默认 false）、`lifecycle.js`（`finalizeRegistrations({allowPending})` + `registerDeferred`，pending 层 `phase:'pending'` 不算错）、
+  `layerState.js`（恢复意图存 `_deferredLayerState`，`layer-registered` 即应用）、`data.js`（`subscribeLayers` 补注册）、
+  `layerPresentation.js`/`layerPanel.js`（`rebuild()` 合并到一帧）、`tools.js`（幂等接线）、`standalone/{catalog,application}.js`（默认开、`?layerdefer=0` 关）。
+- **验证**（真实 Chrome 非 headless，RTX 3060 Laptop，生产 `dist-8e2` rebuilt，hash 与上轮一致 `DLcOyih0/C6ETonk8/BPdof9Nd`）：
+  本次验收 FCP 3052 ms / Core 5242 / Rest **8106** / idle 8103 / done 8392 / 面板 26 行 / 卡 9 张 / `pageerror`+`console.error` = 0；
+  computed-style 指纹 `dist-8e` vs `dist-8e2` = **1572 元素 diffElements 0**（本次亲测，另有 03:30 同口径一对照样为 0）；
+  单测：改动相关 6 文件 **72/72**、`manager+layerPresentation+ui/layers` **114/114**、全量 **5173 / pass 5115 / fail 48**，
+  与 8E（5164 / 5091 / 63）差集 = **0 新增失败**（`comm -13` 为空）；门禁 `check-import-directions` EXIT 0（879/61/0）、
+  `check-package-boundaries` EXIT 0、`check-window-globals` EXIT 0（1208 文件/26 名字）。
+- **坑（省下一轮）**：
+  ① 别用 `terminal(background=true)` 起 preview/vite：本机后台命令被 winpty 包了一层，直接 `bash: winpty: command not found`；
+     改成「验收脚本自带静态服务器」（`scripts/lc/_8e2-accept2.mjs --serve=dist-8e2`）或前台一条命令里跑完；
+  ② `pendingLayer` 句柄对未到位图层的属性一律返回 `undefined`（只放行 `id/pending/subscribe`）——这是刻意的「显式空」，
+     启动期 detection 读 `getDetectableObjects` 199 次/`getUIState` 1 次（时间窗 5.3–5.8 s），图层到位后靠 `layer-registered` 触发重算；
+  ③ `check-window-globals` 的 R2 只匹配字面量 `window.__*`：用 `globalThis.__*` 写仪器（`__gevPendingLayerAccesses`、`__gevCatalogHydration`）会绕过登记规则，下一轮要把 R2 扩到 `globalThis.__*`。
+- **回滚**：运行时 `?layerdefer=0`；源码级 `rm src/app/pendingLayer.js src/app/deferredCatalog.js` + `git checkout -- src/app/{catalog,constructCatalog,data,layerPresentation,tools}.js src/data/{lifecycle,layerState}.js src/standalone/{catalog,application}.js src/ui/layerPanel.js`（退回 8E 行为，其余 8E 改动不受影响）。
+- **未做（有意）**：`npm run format:check` 整仓 119 个文件为红（HEAD 起既有、不在 gate 内），8E2 自己动过的 5 个文件也在名单里；没有顺手格式化，以免改动已验收构建对应的产物 hash（否则要连带重跑指纹与 resource timing）。
+- **报告**：`.gev-logs/lc/phase8e2/Phase8E2-报告-20261031.md`（验收表、三次 resource timing、指纹、差集证据、遗留 3 条）。
+
+### 2026-10-31 Phase8F · 最终 Gate（只读）
+
+- **任务**：kanban `t_730bd5e1`。未改任何产品代码/阈值/判据；新增 3 个只读仪器（`scripts/lc/_8f-gate.mjs`、`_8f-fps.mjs`、`_8f-d.mjs`）。
+- **结论**：24 条 = 18 FIXED / 4 PARTIAL（#13 #15 #16 #17）/ 1 N/A（#12）/ 1 OPEN-ENV（#23）；D1–D12 = 11 PASS / 1 PARTIAL（D2 阴影真采样本轮未复现）；G1–G22 = 19 PASS / 3 PARTIAL（G8/G11/G20）。
+- **FAIL（4）**：
+  ① 6C6 **T3b 真实地图色散 0/36 边**（阈值 57 灰阶 = max(3, 3×噪声中位 19)，实测逐边峰值 12/19/45）——本轮未冻结 Cesium，噪声中位 19，不改判据，如实判 FAIL；
+  ② `check-window-globals` **EXIT 1**：`src/app/catalog.js:72` 残留 `PROBE-TEMP` 探针无条件写 `window.__gevProbeAccess`（未登记，2 条 R2）；`dist-8e` 不含该代码；
+  ③ **FPS 2/3 窗 <50**：3×8s = 49.5 / 36.8 / 62.2（前两窗在 photoreal ramp；`nvidia-smi pmon` 仅 ego.exe、sm 0%，非第三方占用）；
+  ④ `style.css:18` 重复 `@layer vendor,foundation,components,material,overrides;`，违反 8D §9.3「只允许 index.html 一处」。
+- **PASS 关键证据**：renderer = RTX 3060 Laptop（D3D11）；一层玻璃 9/9 卡 `backdrop-filter:none`、`border:0`、卡内后代非 none = 0；
+  `cfg` 未降级（band 10 / dispPx 2.4 / gain 1 / ior 1.52 / bandAlpha .55 / dispBandStart .85 / tint·spill·fgFlip on）；
+  tintA 0.024–0.035、spillW ≤0.106；高光 20%→80% `--lc-gloss-x` 精确跟随、alpha 0.250；morph 30 帧中 7 帧 lens 关闭且前后恢复；
+  a11y 三态 CDP 实测 solid `enabled:false/surfaces:0`、reduced `dispPx:0/.75`、full 恢复；内层圆角 8px、pp 标签 500 / body 400；
+  真实鼠标开合卡 opened/closed = true；reload 后中心区 std 34.4/55.0/45.3/46.5（**无黑帧**）；console/pageerror = 0；
+  `check-import-directions` EXIT 0（877/61/0 warn）、`check-package-boundaries` EXIT 0（112/112）；`dist-8e` 36 MB / models 12 文件 3.4 MB；
+  bootstrap 1400 kB、core 343 kB、rest 779 kB，FCP 1972 ms 时无图层 chunk；`src/lc` 单测 81/81。
+- **视觉**：1x 全图 + 右栏/左栏/命令坞 4x（LANCZOS，来自 1x 裁剪）+ 卡 8x（NEAREST）。vision：单层细高光、无双层描边/双灰圈、中心透明可透见城市、无彩虹色带、文字无裁切/压字、无越界黑块；8x NEAREST 因卫星底图不可判读，记为无效证据。
+- **未重跑（不隐瞒）**：全量单测 5091/63（>8 min）、8B/8C gate 全套、移动端 390×844 与全展开矩阵、真 DPR=4（本机 Cesium shader 崩，4x/8x 为放大口径）。
+- **报告**：`docs/Phase8F-最终Gate-20261031.md`；JSON `.gev-logs/lc/phase8f/Phase8F-gate-summary.json`（+ gate.json / fps.json / d1-d12.json / c6v-8f.log）。
+
+### 2026-10-31 Phase8B/C/D · 继承单测修复（15 条测试）
+
+- **任务**：kanban `t_5d9ba12f`。修 8E 差集里属于 8B/C/D 的失败（卡面写 12 行，实际 15 条测试）。判定结论：**全部是测试判定过时 / 夹具缺陷，产品代码 0 改动**。
+- **改了什么（全在测试侧，5 文件 +169/−24）**：`src/creditAttribution.test.mjs`（CSS 模型支持 `@layer`：语句固定层序、块入栈、`resolve` 按 重要性→层→特异性→源序 比较，并新增两处 fail-closed）、`src/testSupport/readStylesheet.mjs`（读入 CRLF→LF，与 `.gitattributes` 的 `eol=lf` 对齐）、`src/annotations/drawTool.test.mjs`（shim 判据从「< 40 行」改成「去注释后不许出现 `{`，每非空行只许 `@import`/`@layer`」）、`src/standalone/startupChrome.test.mjs`（沙箱补 `bridge.get` / `document`，新增「遮罩必须问过 boot gate」「同帧摘 boot-refining」两条断言）、`src/panelEscape.test.mjs`（断言迁到 `bridge.ensure('app.panelApi',{global:'__lcPanelApi'})` + `bridge.js` 白名单，并禁止直接写 window）。
+- **真机视觉门禁（生产构建 `dist-8e` + preview:4177，真实 Chrome，RTX 3060）**：`phase8c-gate.mjs 8bcd` **14/14 PASS**（A10 单层玻璃 bad=[]、A11 fps 163.9、a11y 三态正常）；`credit-probe.mjs` **28/28 视口** credit 都真的画出来，computed `bottom` = `12px`（>900px）/ `calc(2vh + 5rem)`（≤900px），与 CSS 规则和模型解析值逐值一致 → 8B/C/D 的层叠改造**没有**视觉回退。
+- **全量单测 A/B**：HEAD `ac6d09b` 干净 worktree **5154 tests / 5093 pass / 51 fail**（今天重跑）；当前 **5173 / 5115 / 48**。逐名差集：**新增 0，修好 15**（credit 8 + keyboard 1 + drawTool 1 + startupChrome 4 + panelChrome 1）；相对 HEAD 还额外修好 3 条 HEAD 上就红的 startupChrome（同一处 `document` 夹具缺失）。
+- **剩余 48 条**：全部在 HEAD 上同名同错，集中在数据源/代理层（FIRMS 4 / cyclones 1 / Launch Library 2 / military 5 / transit 8 / nominatim 1 / CelesTrak 1）、`maps/controller` Esri 栈 12 条、`proxyErrorResponses` 的 `new Function` 语法错 11 条、`firstRunExperience` 顺序钉 1 条、`recentImagery` 2 条 —— 逐条归类见报告 §6。
+- **坑**：① 8D 把全部 CSS 包进 `@layer` 后，任何「按源码顺序读 CSS」的模型都会读到空表，报错形态是「找不到规则」而不是「几何不合格」，这是判「测试过时」而非「实现回退」的关键判别；② 本工作副本的 CSS 是 CRLF（`.gitattributes` 写着 `eol=lf` 但没 renormalize），按 `\n` 锚定的多行选择器断言会假红，测试支撑层统一换行是正解；③ 后台 `terminal(background=True)` 在本机走 winpty 直接失败（`winpty: command not found`），长任务用前台跑（全量约 3 分钟）。
+- **报告**：`.gev-logs/lc/phase8bcd-tests/Phase8BCD-12失败判定-20261031.md`；证据日志 `unit-final.log` / `unit-head.log`、`credit-probe-final.json`、`.gev-logs/lc/phase8c/phase8c-gate-8bcd.json`、截图 `final-credit-1440x900.png` / `final-credit-800x1000.png`。
+- **回滚**：`git checkout -- src/creditAttribution.test.mjs src/testSupport/readStylesheet.mjs src/annotations/drawTool.test.mjs src/standalone/startupChrome.test.mjs src/panelEscape.test.mjs`。
+
+## 2026-11-01 · 优化落地（4 项，已跑通双端冒烟）
+
+- **范围**：只动 5 个文件，未触碰启动链路、图层注册、材质参数。改动前状态备份在
+  `.gev-backup/20261101-opt/`，回滚说明见同目录 `ROLLBACK.md`。
+- **① style.css**：删掉重复的 `@layer` 层序声明（8F FAIL ④）。层序唯一事实源回到 index.html:13。
+- **② 中英药丸**：`#gev-lang-toggle` / `#gev-locate-btn` 与 overrides 层的 effective 规则一起从
+  mono 10→11px 改为 sans 12px（`--font-mono` 虽已加中文回退，但等宽字形宽度不稳）。
+- **③ build/vite.js**：加 chunk 体积报告（写 `.gev-logs/build/chunks.json`）、告警阈值 1500→900、
+  vendor 拆包函数。**拆包当前不生效**：cesium 构建期是 external 全局，react 未进应用图，
+  所以 1.4MB 的 bootstrap 是应用代码本身，不是第三方——构建日志会打印
+  `[chunks] vendor split inactive` 以免误判。
+- **④ src/lc/render.js**：高光热路径——值未变则跳过 `setProperty`（新增 `gloss.skipped` 计数），
+  并新增 `invalidateRects()` 在 morph 起止 / 拖拽 / resize 时失效 rect 缓存，
+  修「卡片变形时高光贴在旧位置」。踩坑：`createGlass` 与 `createRenderer` 是两个作用域，
+  裸写 `invalidateRects` 会在对象字面量求值时抛 ReferenceError（冒烟当场抓到，已改为 `glass.invalidateRects()`）。
+- **验证**：lc 单测 81/81；check-import-directions EXIT 0（879/61/0）；check-package-boundaries EXIT 0；
+  生产构建 EXIT 0 / 23.1s / 17 chunk / models 裁剪 343.4MB；开发态与 `dist` 静态托管双冒烟 PASS
+  （9 卡齐、零错误、药丸 computed 12px sans、指针静止时 writes 冻结）。
+- **环境坑**：提权 shell 的 PATH 被裁剪（sed/tail/wc 不可用），`npm run build` 会 127 退出，
+  用 `node node_modules/vite/bin/vite.js build` 直调。
+- **未做（有意）**：模型外置（`build/models.mjs` 已于 Phase8E 实现裁剪）、Cesium 212 文件迁移、
+  帧率自适应治理、图层搜索、分享链接撤销提示——前三项需要真机验收或大范围迁移，
+  后两项属于功能而非优化，均未擅自改动。
