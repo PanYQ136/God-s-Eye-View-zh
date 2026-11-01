@@ -320,7 +320,9 @@ test('military fallback cancels a stalled 5xx body and starts cooldown at receip
   t.mock.method(console, 'warn', () => {});
   t.mock.method(globalThis, 'fetch', async () => {
     if (++calls === 1) return Response.json({ ac: [] });
-    now += 10000;
+    /* 「上游体阻塞期间时间流逝」按**一次尝试**推进一次。主备双上游会让一次刷新
+       打两次上游，若每次抓取都推进，时钟会被推两遍，cache-age 断言随之失真。 */
+    if (calls === 2) now += 10000;
     return new Response(
       new ReadableStream({
         cancel() {

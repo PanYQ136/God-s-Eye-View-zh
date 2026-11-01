@@ -32,7 +32,15 @@ function ruleBodyContaining(selector, declaration) {
 }
 
 test('the global keyboard ring survives local active and outline-reset rules', () => {
-  const rule = ruleText(':where(\n  button,');
+  /* 2026-11-01：原先写死格式化后的选择器字面量 `:where(\n  button,` ——
+     全仓 prettier 之后该块缩进变成 4 个空格，字面量不再命中，断言恒假。
+     改为按「焦点环声明」定位，再回溯到它所属的 :where( 选择器块：
+     语义不变（断言的是「包含该声明的规则里列出了全部交互角色」），
+     且不再受缩进/换行影响。 */
+  const marker = 'outline: 2px solid var(--text-primary) !important;';
+  const at = css.indexOf(marker);
+  assert.ok(at >= 0, 'the global focus ring declaration exists');
+  const rule = css.slice(css.lastIndexOf(':where(', at), css.indexOf('}', at) + 1);
   assert.match(rule, /outline:\s*2px solid var\(--text-primary\) !important;/);
   for (const selector of [
     "[role='button']",

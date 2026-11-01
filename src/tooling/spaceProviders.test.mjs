@@ -87,7 +87,14 @@ test('exported CelesTrak plugin coalesces refreshes, retains stale TLEs, and rea
   });
   t.mock.method(globalThis, 'fetch', async (url) => {
     calls++;
-    assert.equal(new URL(url).searchParams.get('GROUP'), 'stations');
+    /* 2026-11-01：TLE 上游改成「镜像 → 镜像 → 官方」三家依次尝试
+       （server/providers/space/celestrak.js 的 tleUpstreamUrls），只有官方 CelesTrak
+       的 URL 带 GROUP 查询参数。原先对**每次**抓取都断言 GROUP=stations，
+       镜像第一次就被断言抛错、当成抓取失败，于是计数变成 3。
+       这里只对官方 URL 校验 GROUP，镜像照常返回同一份 TLE。 */
+    const parsed = new URL(url);
+    if (parsed.hostname.endsWith('celestrak.org'))
+      assert.equal(parsed.searchParams.get('GROUP'), 'stations');
     await gate;
     return new Response(tle);
   });

@@ -16,9 +16,6 @@
 const FEED_TIMEOUT_MS = 9000;
 const COOLDOWN_MS = 10 * 60 * 1000;
 
-// feedId → 冷却截止时间戳
-const cooling = new Map();
-
 function feedIdFromUrl(rawUrl) {
   // 注意：这个中间件挂在 /api/transit 上，req.url 里已经没有前缀了，
   // 可能是 '/vehicles/xxx'，也可能是 '/api/transit/vehicles/xxx'，两种都要认。
@@ -27,6 +24,13 @@ function feedIdFromUrl(rawUrl) {
 }
 
 export function installTransitCircuit(service) {
+  /* 2026-11-01：冷却表原先挂在模块作用域，跨插件实例共享 —— 同一进程里重建一次
+     transitProxy（预览服务器、测试、热重启）会继承上一次的冷却，表现为「新实例
+     第一次请求就被熔断挡住、一次上游都没打」。改为随熔断层实例创建，状态边界
+     与 service 对齐；单进程生产行为不变。 */
+  // feedId → 冷却截止时间戳
+  const cooling = new Map();
+
   return async function handleWithCircuit(req, res) {
     const url = `/api/transit${req.url || '/'}`;
     const feedId = feedIdFromUrl(req.url);
@@ -83,7 +87,16 @@ export function installTransitCircuit(service) {
 
       const body = await response.text();
       if (response.status >= 500) {
-        if (feedId) cooling.set(feedId, Date.now() + COOLDOWN_MS);
+        /* 2026-11-01：冷却时长优先沿用上游/服务层给的 Retry-After。
+           固定 10 分钟会把 transitService 自己的指数退避（秒级阶梯）完全遮蔽 ——
+           一次瞬时 500 就让该城市十分钟不再被尝试，退避阶梯也成了死代码。
+           仍然限制在 [5s, COOLDOWN_MS] 之间，防止上游给出离谱的值。 */
+        const retryAfterSec = Number(response.headers?.get?.('retry-after'));
+        const cooldownMs =
+          Number.isFinite(retryAfterSec) && retryAfterSec > 0
+            ? Math.min(COOLDOWN_MS, Math.max(5_000, retryAfterSec * 1000))
+            : COOLDOWN_MS;
+        if (feedId) cooling.set(feedId, Date.now() + cooldownMs);
         res.writeHead(200, {
           'Content-Type': 'application/json; charset=utf-8',
           'x-transit-circuit': 'upstream-5xx',
@@ -95,7 +108,7 @@ export function installTransitCircuit(service) {
             vehicles: [],
             reason: 'upstream_error',
             upstreamStatus: response.status,
-            retryInSec: Math.round(COOLDOWN_MS / 1000),
+            retryInSec: Math.round(cooldownMs / 1000),
           }),
         );
         return;
