@@ -28,7 +28,10 @@ export function intersectArea(a, b) {
 }
 
 const inside = (b, view) =>
-  b.x >= 0 && b.y >= 0 && b.x + b.w <= view.w + 0.5 && b.y + b.h <= view.h + 0.5;
+  b.x >= 0 &&
+  b.y >= 0 &&
+  b.x + b.w <= view.w + 0.5 &&
+  b.y + b.h <= view.h + 0.5;
 
 /**
  * @param {object} snap
@@ -36,7 +39,12 @@ const inside = (b, view) =>
  */
 export function layout(snap) {
   const view = snap.viewport || { w: 0, h: 0 };
-  const safe = snap.safe || { top: GEO.SAFE_TOP, bottom: GEO.SAFE_BOTTOM, left: 0, right: 0 };
+  const safe = snap.safe || {
+    top: GEO.SAFE_TOP,
+    bottom: GEO.SAFE_BOTTOM,
+    left: 0,
+    right: 0,
+  };
   const cards = snap.cards || {};
   const phases = snap.phases || {};
   const offsets = snap.offsets || {};
@@ -50,7 +58,9 @@ export function layout(snap) {
 
   const limitY = Math.max(safe.top + GEO.MIN_EXP_H, view.h - GEO.EDGE);
 
-  const ids = CARD_IDS.filter((id) => cards[id] && cards[id].connected !== false);
+  const ids = CARD_IDS.filter(
+    (id) => cards[id] && cards[id].connected !== false,
+  );
 
   /* ── 1. 展开盒 ─────────────────────────────────────────────────────────── */
   for (const id of ids) {
@@ -63,7 +73,15 @@ export function layout(snap) {
 
     /* closing：动画目标就是自然槽位（回填） */
     if (phase === PHASE.CLOSING) {
-      boxes[id] = { x: mini.x, y: mini.y, w: mini.w, h: mini.h, radius: 16, z: 40, phase };
+      boxes[id] = {
+        x: mini.x,
+        y: mini.y,
+        w: mini.w,
+        h: mini.h,
+        radius: 16,
+        z: 40,
+        phase,
+      };
       continue;
     }
     if (!live(phase)) continue;
@@ -78,7 +96,16 @@ export function layout(snap) {
       });
       if (panel) {
         dockPanel = { id, ...panel, z: 80 };
-        boxes[id] = { x: panel.x, y: panel.y, w: panel.w, h: panel.h, radius: 16, z: 80, phase, dock: true };
+        boxes[id] = {
+          x: panel.x,
+          y: panel.y,
+          w: panel.w,
+          h: panel.h,
+          radius: 16,
+          z: 80,
+          phase,
+          dock: true,
+        };
       }
       continue;
     }
@@ -116,7 +143,9 @@ export function layout(snap) {
     const xMax = Math.max(GEO.EDGE, view.w - GEO.EDGE - w);
     const yMax = Math.max(safe.top, limitY - h);
     for (let round = 0; round < 4; round++) {
-      const hit = protAll.find((p) => intersectArea({ x, y, w, h }, p) > OVERLAP_TOL);
+      const hit = protAll.find(
+        (p) => intersectArea({ x, y, w, h }, p) > OVERLAP_TOL,
+      );
       if (!hit) break;
       const opts = [
         { k: 'up', y: clamp(hit.y - GEO.GAP - h, safe.top, yMax) },
@@ -124,7 +153,12 @@ export function layout(snap) {
         { k: 'left', x: clamp(hit.x - GEO.GAP - w, GEO.EDGE, xMax) },
         { k: 'right', x: clamp(hit.x + hit.w + GEO.GAP, GEO.EDGE, xMax) },
       ]
-        .map((o) => ({ ...o, d: Math.abs((o.x === undefined ? x : o.x) - x) + Math.abs((o.y === undefined ? y : o.y) - y) }))
+        .map((o) => ({
+          ...o,
+          d:
+            Math.abs((o.x === undefined ? x : o.x) - x) +
+            Math.abs((o.y === undefined ? y : o.y) - y),
+        }))
         .filter((o) => o.d > 0.5)
         .sort((a, b) => a.d - b.d);
       if (!opts.length) break;
@@ -133,13 +167,23 @@ export function layout(snap) {
       if (pick.y !== undefined) y = pick.y;
     }
     /* 仍相交：最后手段收高（不低于 120，内容自己滚） */
-    const still = protAll.find((p) => intersectArea({ x, y, w, h }, p) > OVERLAP_TOL);
+    const still = protAll.find(
+      (p) => intersectArea({ x, y, w, h }, p) > OVERLAP_TOL,
+    );
     if (still && still.y > y) {
       const nh = Math.max(GEO.MIN_EXP_H, still.y - y - GEO.GAP);
       if (nh < h) h = nh;
     }
 
-    boxes[id] = { x: Math.round(x), y: Math.round(y), w: Math.round(w), h: Math.round(h), radius: 16, z: 60, phase };
+    boxes[id] = {
+      x: Math.round(x),
+      y: Math.round(y),
+      w: Math.round(w),
+      h: Math.round(h),
+      radius: 16,
+      z: 60,
+      phase,
+    };
   }
 
   /* z 序：后开在上（openOrder 顺序） */
@@ -200,9 +244,19 @@ export function layout(snap) {
     for (let j = i + 1; j < liveBoxes.length; j++) {
       const a = liveBoxes[i][1];
       const b = liveBoxes[j][1];
-      if (CARDS[liveBoxes[i][0]].rail === 'dock' && CARDS[liveBoxes[j][0]].rail === 'dock') continue;
+      if (
+        CARDS[liveBoxes[i][0]].rail === 'dock' &&
+        CARDS[liveBoxes[j][0]].rail === 'dock'
+      )
+        continue;
       const area = intersectArea(a, b);
-      if (area > OVERLAP_TOL) violations.push({ rule: 'overlap', a: liveBoxes[i][0], b: liveBoxes[j][0], area });
+      if (area > OVERLAP_TOL)
+        violations.push({
+          rule: 'overlap',
+          a: liveBoxes[i][0],
+          b: liveBoxes[j][0],
+          area,
+        });
     }
   }
   for (const [id, b] of liveBoxes) {
@@ -212,14 +266,22 @@ export function layout(snap) {
       if (!oc || !oc.mini) continue;
       if (live(phases[other])) continue;
       const push = pushes[other] || { x: 0, y: 0 };
-      const mb = { x: oc.mini.x + push.x, y: oc.mini.y + push.y, w: oc.mini.w, h: oc.mini.h };
-      if (!inside(mb, view)) violations.push({ rule: 'mini-viewport', id: other, push });
+      const mb = {
+        x: oc.mini.x + push.x,
+        y: oc.mini.y + push.y,
+        w: oc.mini.w,
+        h: oc.mini.h,
+      };
+      if (!inside(mb, view))
+        violations.push({ rule: 'mini-viewport', id: other, push });
       const area = intersectArea(b, mb);
-      if (area > OVERLAP_TOL) violations.push({ rule: 'mini-overlap', open: id, mini: other, area });
+      if (area > OVERLAP_TOL)
+        violations.push({ rule: 'mini-overlap', open: id, mini: other, area });
     }
     for (const p of protAll) {
       const area = intersectArea(b, p);
-      if (area > OVERLAP_TOL) violations.push({ rule: 'protected', id, area, prot: p.id || null });
+      if (area > OVERLAP_TOL)
+        violations.push({ rule: 'protected', id, area, prot: p.id || null });
     }
   }
 

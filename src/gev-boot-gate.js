@@ -86,8 +86,8 @@ import { startCesium } from './cesium-boot.js';
      无内容时不再提前放行，交给 DEADLINE_MS 的 timeout 兜底（reason='timeout'，
      B1 照样 FAIL，但用户不会先看到一块纯色）。 */
   const SETTLE_MS = 900; // Phase7A-D：700 → 900（+ tilesLoaded 判据，见 settle 分支）。
-                          // 底图细化时有 1–2 帧「父瓦片已丢、子瓦片未到」的空 globe，
-                          // 700ms 的稳定窗口可能正好收在这个空窗里（实测 reveal 中心 std 2.58）。
+  // 底图细化时有 1–2 帧「父瓦片已丢、子瓦片未到」的空 globe，
+  // 700ms 的稳定窗口可能正好收在这个空窗里（实测 reveal 中心 std 2.58）。
   const POST_CINE_GRACE_MS = 0; // 已退役（原 14000）；SETTLE_MS + 0 = 700ms
   const POST_CINE_WAIT_BUDGET_MS = SETTLE_MS + POST_CINE_GRACE_MS; // = 700，给 gate/报告核对
   /* Phase7A：FRAMES_BEFORE_CINE / CINE_MAX_WAIT_MS 已删除 —— 相机在首帧就放行，
@@ -175,7 +175,8 @@ import { startCesium } from './cesium-boot.js';
       for (let i = 0; i < prims.length; i++) {
         const s = prims.get(i) && prims.get(i).statistics;
         if (!s) continue;
-        busy += (s.numberOfPendingRequests || 0) + (s.numberOfTilesProcessing || 0);
+        busy +=
+          (s.numberOfPendingRequests || 0) + (s.numberOfTilesProcessing || 0);
       }
       return busy;
     } catch (_) {
@@ -329,10 +330,15 @@ import { startCesium } from './cesium-boot.js';
   const releaseInputDom = () => {
     try {
       const el = maskEl();
-      if (el && !el.classList.contains('hidden') && !el.classList.contains('input-released'))
+      if (
+        el &&
+        !el.classList.contains('hidden') &&
+        !el.classList.contains('input-released')
+      )
         el.classList.add('input-released');
       const c = document.getElementById('cesiumContainer');
-      if (c && !c.classList.contains('boot-refining')) c.classList.add('boot-refining');
+      if (c && !c.classList.contains('boot-refining'))
+        c.classList.add('boot-refining');
     } catch (_) {}
   };
   const releaseInputNow = (via) => {
@@ -340,7 +346,9 @@ import { startCesium } from './cesium-boot.js';
     releaseInputDom();
     state.inputReleasedAt = mark('mask:input-released', { via });
     state.state = 'input-released';
-    console.info('[boot] input-released @ ' + state.inputReleasedAt + 'ms (' + via + ')');
+    console.info(
+      '[boot] input-released @ ' + state.inputReleasedAt + 'ms (' + via + ')',
+    );
     fire('inputRelease', true);
     nudgeRenders(10);
     /* Cesium 求值是主线程 3s 级阻塞：放行后先留一段可点击窗口（harness 与真人
@@ -688,68 +696,77 @@ import { startCesium } from './cesium-boot.js';
          tick 顶部、只认 __lc.api.mounted。别再把它挂回内容判据下面。 */
 
       if (cineDoneAt != null) {
-      /* 判定只用「真正到达的新读数」：
+        /* 判定只用「真正到达的新读数」：
          - 主线程被 100ms+ 长帧卡住时 lastProbe 不更新，quietSince 继续计时，
            不把「暂时没拿到新读数」误判成「画面变差」（按 900ms 新鲜度判的旧写法
            在长帧下会让 settle 反复清零，最后一路拖到 timeout —— C4 实测复现）；
          - 一旦有更新的读数且它不 ok（refine 掉档 / 切视角），立刻清零重计。 */
-      if (lastProbe && lastProbe !== lastProbeUsed) {
-        lastProbeUsed = lastProbe;
-        lastProbeOk = !lastProbe.err && !!lastProbe.ok;
-      }
-      const viewOk = lastProbeOk === true && !!lastProbe && lastProbe.at >= cineDoneAt;
-      const viewBad = lastProbeOk === false;
-      /* Phase7A-D：读数必须是**落位之后**才产生的。probe 现在从首帧就开始跑
+        if (lastProbe && lastProbe !== lastProbeUsed) {
+          lastProbeUsed = lastProbe;
+          lastProbeOk = !lastProbe.err && !!lastProbe.ok;
+        }
+        const viewOk =
+          lastProbeOk === true && !!lastProbe && lastProbe.at >= cineDoneAt;
+        const viewBad = lastProbeOk === false;
+        /* Phase7A-D：读数必须是**落位之后**才产生的。probe 现在从首帧就开始跑
          （为了给「卡片可点」提供非纯色证据），落位前读到的是飞行途中的星空/粗地球
          —— std 18+/uniq 8k+，与清晰影像同量级，旧写法会把这种陈旧读数当 ok，
          遮罩便在真正底图到齐前收掉（实测：4 跑 reveal 截图中心 std 2.58 全黑）。
          因此 B5 的 ok 还要求读数时间戳 ≥ cineDoneAt。 */
-      /* Phase7A：判定只看探针（base 影像）。旧的 `|| tileset.tilesLoaded` 已删除 ——
+        /* Phase7A：判定只看探针（base 影像）。旧的 `|| tileset.tilesLoaded` 已删除 ——
          那是一条「3D Tiles 一 load 完就收遮罩」的暗道，会把 B5 判据整条旁路掉
          （架构审查 B-3）。 */
-      if (viewOk) {
-        if (quietSince == null) quietSince = t;
-        if (state.viewContentAt == null) {
-          state.viewContentAt = mark('view:content', {
-            std: lastProbe.std,
-            uniq: lastProbe.uniq,
-            mean: lastProbe.mean,
-          });
+        if (viewOk) {
+          if (quietSince == null) quietSince = t;
+          if (state.viewContentAt == null) {
+            state.viewContentAt = mark('view:content', {
+              std: lastProbe.std,
+              uniq: lastProbe.uniq,
+              mean: lastProbe.mean,
+            });
+          }
+        } else if (viewBad) {
+          quietSince = null;
         }
-      } else if (viewBad) {
-        quietSince = null;
-      }
-      /* Phase7A-D：撤遮罩还必须等到**这一层细化真的结束**。
+        /* Phase7A-D：撤遮罩还必须等到**这一层细化真的结束**。
          `globe.tilesLoaded === true` 表示当前视锥内没有待加载瓦片，此后不会再出现
          「父瓦片已丢、子瓦片未到」的空帧 —— 这正是 reveal 截图偶发纯黑（std 2.58）的成因。 */
-      const tilesSettled = (() => {
-        try {
-          const g = window.__gevViewer && window.__gevViewer.scene && window.__gevViewer.scene.globe;
-          return !!(g && g.tilesLoaded);
-        } catch (_) {
-          return false;
+        const tilesSettled = (() => {
+          try {
+            const g =
+              window.__gevViewer &&
+              window.__gevViewer.scene &&
+              window.__gevViewer.scene.globe;
+            return !!(g && g.tilesLoaded);
+          } catch (_) {
+            return false;
+          }
+        })();
+        if (
+          quietSince != null &&
+          t - quietSince >= SETTLE_MS &&
+          tilesSettled &&
+          !terrainBusy
+        ) {
+          state.settledAt = mark('view:settled', {
+            via: 'base-content',
+            probe: probeSummary(lastProbe),
+          });
+          /* 判定所用的读数留档（reveal 时还会再取一次，见 decided 分支） */
+          state.probeAtDecide = probeSummary(lastProbe);
+          decide('base-ready');
+          requestAnimationFrame(tick);
+          return;
         }
-      })();
-      if (quietSince != null && t - quietSince >= SETTLE_MS && tilesSettled && !terrainBusy) {
-        state.settledAt = mark('view:settled', {
-          via: 'base-content',
-          probe: probeSummary(lastProbe),
-        });
-        /* 判定所用的读数留档（reveal 时还会再取一次，见 decided 分支） */
-        state.probeAtDecide = probeSummary(lastProbe);
-        decide('base-ready');
-        requestAnimationFrame(tick);
-        return;
-      }
-      /* grace 已退役（POST_CINE_GRACE_MS === 0）：等不到影像就不放行，
+        /* grace 已退役（POST_CINE_GRACE_MS === 0）：等不到影像就不放行，
          交给下面的 DEADLINE_MS timeout 兜底（reason='timeout'，B1 FAIL 暴露）。
          保留下面的分支形状只是为了让「把 grace 调回非 0」成为一行可回滚操作。 */
-      if (POST_CINE_GRACE_MS > 0 && t - cineDoneAt >= POST_CINE_GRACE_MS) {
-        state.settledAt = mark('view:grace', { probe: lastProbe });
-        decide('view-grace');
-        requestAnimationFrame(tick);
-        return;
-      }
+        if (POST_CINE_GRACE_MS > 0 && t - cineDoneAt >= POST_CINE_GRACE_MS) {
+          state.settledAt = mark('view:grace', { probe: lastProbe });
+          decide('view-grace');
+          requestAnimationFrame(tick);
+          return;
+        }
       }
     }
     /* 镜头没跑（分享链接跳过 / 定位卡住）也要有人收遮罩。
@@ -772,129 +789,133 @@ import { startCesium } from './cesium-boot.js';
   /* 兜底：75s 后无条件恢复瓦片调度并发（防止 interactive 永不触发时一直被压着） */
   setTimeout(restoreSchedCap, 75000);
 
-  bridge.register('boot', {
-    get version() {
-      return 1;
-    },
-    get state() {
-      return state.state;
-    },
-    get reason() {
-      return state.reason;
-    },
-    get interactive() {
-      return state.interactiveAt != null;
-    },
-    /* Phase7A-D：卡片可点（遮罩不再拦截输入）；≠ interactive（视觉撤遮罩）。 */
-    get inputReleased() {
-      return state.inputReleasedAt != null;
-    },
-    /* Phase7A：两个独立的 ready 门 —— base 决定交互，photoreal 只是后台完成。 */
-    get baseReady() {
-      return state.baseReadyAt != null;
-    },
-    get photorealReady() {
-      return state.photorealReadyAt != null;
-    },
-    whenReadyToHide: (ms) => when('readyToHide', ms),
-    /* 同义入口：base-ready 就是「遮罩可以收」的那一时刻。 */
-    whenBaseReady: (ms) => when('readyToHide', ms),
-    whenPhotorealReady: (ms) => when('photorealReady', ms),
-    whenCineMayStart: (ms) => when('cineMayStart', ms),
-    whenInteractive: (ms) => when('interactive', ms),
-    /* Phase7A-D：遮罩放行输入（卡片可点）的时刻；B5 视觉门另走 whenReadyToHide。 */
-    whenInputRelease: (ms) => when('inputRelease', ms),
-    /* Phase7A3：卡片层 mount 的一刻**同步**放行输入（LC 直接调用，不等 rAF 轮询），
+  bridge.register(
+    'boot',
+    {
+      get version() {
+        return 1;
+      },
+      get state() {
+        return state.state;
+      },
+      get reason() {
+        return state.reason;
+      },
+      get interactive() {
+        return state.interactiveAt != null;
+      },
+      /* Phase7A-D：卡片可点（遮罩不再拦截输入）；≠ interactive（视觉撤遮罩）。 */
+      get inputReleased() {
+        return state.inputReleasedAt != null;
+      },
+      /* Phase7A：两个独立的 ready 门 —— base 决定交互，photoreal 只是后台完成。 */
+      get baseReady() {
+        return state.baseReadyAt != null;
+      },
+      get photorealReady() {
+        return state.photorealReadyAt != null;
+      },
+      whenReadyToHide: (ms) => when('readyToHide', ms),
+      /* 同义入口：base-ready 就是「遮罩可以收」的那一时刻。 */
+      whenBaseReady: (ms) => when('readyToHide', ms),
+      whenPhotorealReady: (ms) => when('photorealReady', ms),
+      whenCineMayStart: (ms) => when('cineMayStart', ms),
+      whenInteractive: (ms) => when('interactive', ms),
+      /* Phase7A-D：遮罩放行输入（卡片可点）的时刻；B5 视觉门另走 whenReadyToHide。 */
+      whenInputRelease: (ms) => when('inputRelease', ms),
+      /* Phase7A3：卡片层 mount 的一刻**同步**放行输入（LC 直接调用，不等 rAF 轮询），
        并把遮罩退化成「胶囊 + 只盖 canvas 的暗纱」。幂等。 */
-    releaseInputEarly: (via) => releaseInputNow(via || 'lc-mounted-sync'),
-    snapshot: () => {
-      const photoreal = (() => {
-        try {
-          const p = globalThis.__gevPhotoreal;
-          if (!p) return null;
-          return {
-            ready: !!p.ready,
-            route: p.route || null,
-            via: p.via || null,
-            at: p.at == null ? null : p.at,
-          };
-        } catch (_) {
-          return null;
-        }
-      })();
-      return {
-        state: state.state,
-        reason: state.reason,
-        frames: state.frames,
-        startedAt: state.startedAt,
-        cineMayStartAt: state.cineMayStartAt,
-        cineDoneAt: state.cineDoneAt,
-        settledAt: state.settledAt,
-        decideAt: state.decideAt,
-        interactiveAt: state.interactiveAt,
-        inputReleasedAt: state.inputReleasedAt,
-        /* 埋点（本卡要求）：base-ready / photoreal-ready 的时间戳，单位 ms，
+      releaseInputEarly: (via) => releaseInputNow(via || 'lc-mounted-sync'),
+      snapshot: () => {
+        const photoreal = (() => {
+          try {
+            const p = globalThis.__gevPhotoreal;
+            if (!p) return null;
+            return {
+              ready: !!p.ready,
+              route: p.route || null,
+              via: p.via || null,
+              at: p.at == null ? null : p.at,
+            };
+          } catch (_) {
+            return null;
+          }
+        })();
+        return {
+          state: state.state,
+          reason: state.reason,
+          frames: state.frames,
+          startedAt: state.startedAt,
+          cineMayStartAt: state.cineMayStartAt,
+          cineDoneAt: state.cineDoneAt,
+          settledAt: state.settledAt,
+          decideAt: state.decideAt,
+          interactiveAt: state.interactiveAt,
+          inputReleasedAt: state.inputReleasedAt,
+          /* 埋点（本卡要求）：base-ready / photoreal-ready 的时间戳，单位 ms，
            基准 = 本模块求值（与 marks[].t 同口径）；navigationStart 口径见
            window.__bootTimeline（gate:base:ready / gate:photoreal:ready）。 */
-        ready: {
-          base: state.baseReadyAt,
-          inputReleased: state.inputReleasedAt,
-          interactive: state.interactiveAt,
-          photoreal: state.photorealReadyAt,
+          ready: {
+            base: state.baseReadyAt,
+            inputReleased: state.inputReleasedAt,
+            interactive: state.interactiveAt,
+            photoreal: state.photorealReadyAt,
+            baseOnlyAt: state.baseOnlyAt,
+          },
+          baseReadyAt: state.baseReadyAt,
+          photorealReadyAt: state.photorealReadyAt,
           baseOnlyAt: state.baseOnlyAt,
-        },
-        baseReadyAt: state.baseReadyAt,
-        photorealReadyAt: state.photorealReadyAt,
-        baseOnlyAt: state.baseOnlyAt,
-        photoreal,
-        maskOpacity: +maskOpacity().toFixed(3),
-        sched: schedRef()
-          ? {
-              per: schedRef().maximumRequestsPerServer,
-              all: schedRef().maximumRequests,
-              cap: SCHED_CAP,
-              orig: SCHED_ORIG,
-            }
-          : null,
-        viewContentAt: state.viewContentAt,
-        schedRestoredAt: state.schedRestoredAt,
-        probeAtDecide: state.probeAtDecide,
-        probeAtReveal: state.probeAtReveal,
-        probeConfig: {
-          area: PROBE_W + 'x' + PROBE_H,
-          stride: PROBE_STRIDE,
-          stdMin: PROBE_STD_MIN,
-          uniqMin: PROBE_UNIQ_MIN,
-          settleMs: SETTLE_MS,
-          graceMs: POST_CINE_GRACE_MS,
-          settleGraceTotalMs: POST_CINE_WAIT_BUDGET_MS,
-          freshnessMs: PROBE_FRESH_MS,
-          caliber: '与 gate B5 同口径：中心 640×420 + 8bit 唯一色',
-        },
-        viewProbe: lastProbe
-          ? {
-              atRel: lastProbe.atRel,
-              area: lastProbe.area,
-              stride: lastProbe.stride,
-              std: lastProbe.std,
-              uniq: lastProbe.uniq,
-              mean: lastProbe.mean,
-              ok: lastProbe.ok,
-              err: lastProbe.err,
-            }
-          : null,
-        viewProbeLog: probeLog.slice(-40).map((p) => ({
-          atRel: p.atRel,
-          area: p.area,
-          std: p.std,
-          uniq: p.uniq,
-          mean: p.mean,
-          ok: p.ok,
-          err: p.err,
-        })),
-        marks: marks.slice(),
-        longFrames: longFrames.slice(),
-      };
+          photoreal,
+          maskOpacity: +maskOpacity().toFixed(3),
+          sched: schedRef()
+            ? {
+                per: schedRef().maximumRequestsPerServer,
+                all: schedRef().maximumRequests,
+                cap: SCHED_CAP,
+                orig: SCHED_ORIG,
+              }
+            : null,
+          viewContentAt: state.viewContentAt,
+          schedRestoredAt: state.schedRestoredAt,
+          probeAtDecide: state.probeAtDecide,
+          probeAtReveal: state.probeAtReveal,
+          probeConfig: {
+            area: PROBE_W + 'x' + PROBE_H,
+            stride: PROBE_STRIDE,
+            stdMin: PROBE_STD_MIN,
+            uniqMin: PROBE_UNIQ_MIN,
+            settleMs: SETTLE_MS,
+            graceMs: POST_CINE_GRACE_MS,
+            settleGraceTotalMs: POST_CINE_WAIT_BUDGET_MS,
+            freshnessMs: PROBE_FRESH_MS,
+            caliber: '与 gate B5 同口径：中心 640×420 + 8bit 唯一色',
+          },
+          viewProbe: lastProbe
+            ? {
+                atRel: lastProbe.atRel,
+                area: lastProbe.area,
+                stride: lastProbe.stride,
+                std: lastProbe.std,
+                uniq: lastProbe.uniq,
+                mean: lastProbe.mean,
+                ok: lastProbe.ok,
+                err: lastProbe.err,
+              }
+            : null,
+          viewProbeLog: probeLog.slice(-40).map((p) => ({
+            atRel: p.atRel,
+            area: p.area,
+            std: p.std,
+            uniq: p.uniq,
+            mean: p.mean,
+            ok: p.ok,
+            err: p.err,
+          })),
+          marks: marks.slice(),
+          longFrames: longFrames.slice(),
+        };
+      },
     },
-  }, { global: '__gevBoot', owner: 'src/gev-boot-gate.js' });
+    { global: '__gevBoot', owner: 'src/gev-boot-gate.js' },
+  );
 })();

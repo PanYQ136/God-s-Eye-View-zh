@@ -77,7 +77,9 @@ function referencedGlyphs() {
 }
 
 /** The `icon_names` list index.html asks Google for. */
-function subsettedGlyphs(html = readFileSync(INDEX_HTML, 'utf8') + readFileSync(STYLE_CSS, 'utf8')) {
+function subsettedGlyphs(
+  html = readFileSync(INDEX_HTML, 'utf8') + readFileSync(STYLE_CSS, 'utf8'),
+) {
   const match =
     /Material\+Symbols\+Outlined[^"]*[?&]icon_names=([a-z0-9_,]+)/.exec(html);
   assert.ok(

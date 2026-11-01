@@ -2993,9 +2993,7 @@ export function createBhoteKoshiEventLayer({
     setElementProperty(
       _panelRefs.playSceneButton,
       'textContent',
-      _sceneActionPending?.type === 'scene'
-        ? '… PLAYING SCENE'
-        : 'PLAY SCENE',
+      _sceneActionPending?.type === 'scene' ? '… PLAYING SCENE' : 'PLAY SCENE',
     );
     setElementProperty(
       _panelRefs.playSceneButton,

@@ -12,7 +12,10 @@ export function warmupPlugin() {
     name: 'gev-warmup',
     configureServer(server) {
       const run = () => {
-        const port = (server.config.server && server.config.server.port) || process.env.PORT || 4173;
+        const port =
+          (server.config.server && server.config.server.port) ||
+          process.env.PORT ||
+          4173;
         const base = `http://127.0.0.1:${port}`;
         [
           '/api/wind?model=gfs',
@@ -20,9 +23,14 @@ export function warmupPlugin() {
           '/api/launches',
           '/api/celestrak/stations',
         ].forEach((u, i) => {
-          setTimeout(() => {
-            fetch(base + u).then((r) => r.text()).catch(() => {});
-          }, 1500 + i * 800);
+          setTimeout(
+            () => {
+              fetch(base + u)
+                .then((r) => r.text())
+                .catch(() => {});
+            },
+            1500 + i * 800,
+          );
         });
       };
       if (!server.httpServer) return;

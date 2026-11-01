@@ -135,7 +135,10 @@ export function adsbLolProxy() {
         _cooldownUntil =
           failedAt +
           (lastStatus
-            ? cooldownFor({ status: lastStatus, headers: { get: () => null } }, failedAt)
+            ? cooldownFor(
+                { status: lastStatus, headers: { get: () => null } },
+                failedAt,
+              )
             : RATE_LIMIT_COOLDOWN_MS);
         _cooldownStatus = lastStatus || 0;
         console.warn(

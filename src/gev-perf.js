@@ -26,8 +26,20 @@ import { mountChip } from './lc/gpu.js';
     const btn = document.getElementById('gev-perf-btn');
     if (!btn) return;
     const zh = document.body.classList.contains('gev-zh');
-    btn.textContent = st.on ? (zh ? '性能 · 开' : 'PERF · ON') : (zh ? '性能模式' : 'PERF MODE');
-    btn.title = st.on ? (zh ? '点击恢复画质' : 'Click to restore quality') : (zh ? '点击降低负载、提高帧率' : 'Reduce load · raise FPS');
+    btn.textContent = st.on
+      ? zh
+        ? '性能 · 开'
+        : 'PERF · ON'
+      : zh
+        ? '性能模式'
+        : 'PERF MODE';
+    btn.title = st.on
+      ? zh
+        ? '点击恢复画质'
+        : 'Click to restore quality'
+      : zh
+        ? '点击降低负载、提高帧率'
+        : 'Reduce load · raise FPS';
   }
   document.addEventListener('gev-lang-change', syncBtn);
 
@@ -133,13 +145,16 @@ import { mountChip } from './lc/gpu.js';
     if (document.getElementById('gev-perf-btn')) return;
     const css = document.createElement('style');
     /* Phase8D #13：运行时注入的样式表也要进层 */
-    css.textContent = '@layer components {\n' + [
-      '#gev-perf-wrap{position:fixed;left:12px;bottom:52px;z-index:2147482000;display:flex;gap:8px;align-items:center;font:12px/1.2 system-ui,"Segoe UI",sans-serif;}',
-      /* 灰圈=0（Phase 1 · §6.6）：徽标不用 border/outline/inset 描边，层级只靠底色与亮度 */
-      '#gev-perf-btn{cursor:pointer;border:0;outline:0;box-shadow:none;background:rgba(8,20,30,.72);color:#bfe9ff;padding:6px 11px;border-radius:16px;letter-spacing:.4px;backdrop-filter:blur(3px);}',
-      '#gev-perf-btn.on{background:rgba(10,58,42,.86);color:#9dffd6;}',
-      '#gev-perf-fps{border:0;outline:0;box-shadow:none;background:rgba(8,20,30,.72);color:#8fe3ff;padding:6px 10px;border-radius:16px;min-width:62px;text-align:center;font-variant-numeric:tabular-nums;}',
-    ].join('') + '\n}';
+    css.textContent =
+      '@layer components {\n' +
+      [
+        '#gev-perf-wrap{position:fixed;left:12px;bottom:52px;z-index:2147482000;display:flex;gap:8px;align-items:center;font:12px/1.2 system-ui,"Segoe UI",sans-serif;}',
+        /* 灰圈=0（Phase 1 · §6.6）：徽标不用 border/outline/inset 描边，层级只靠底色与亮度 */
+        '#gev-perf-btn{cursor:pointer;border:0;outline:0;box-shadow:none;background:rgba(8,20,30,.72);color:#bfe9ff;padding:6px 11px;border-radius:16px;letter-spacing:.4px;backdrop-filter:blur(3px);}',
+        '#gev-perf-btn.on{background:rgba(10,58,42,.86);color:#9dffd6;}',
+        '#gev-perf-fps{border:0;outline:0;box-shadow:none;background:rgba(8,20,30,.72);color:#8fe3ff;padding:6px 10px;border-radius:16px;min-width:62px;text-align:center;font-variant-numeric:tabular-nums;}',
+      ].join('') +
+      '\n}';
     document.head.appendChild(css);
     const wrap = document.createElement('div');
     wrap.id = 'gev-perf-wrap';
@@ -191,7 +206,9 @@ import { mountChip } from './lc/gpu.js';
               else if (fps > 58 && r < 0.9) r = Math.min(0.9, r + 0.03);
               if (Math.abs(r - (v.resolutionScale || 0.85)) > 0.001) {
                 v.resolutionScale = r;
-                try { v.scene.requestRender && v.scene.requestRender(); } catch (e) {}
+                try {
+                  v.scene.requestRender && v.scene.requestRender();
+                } catch (e) {}
               }
             }
           }

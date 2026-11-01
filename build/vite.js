@@ -23,13 +23,11 @@ function deferCesiumScriptPlugin() {
     name: 'gev-defer-cesium-script',
     enforce: 'post',
     transformIndexHtml(html) {
-      const tag = /<script(\s+)src="(\/cesium\/Cesium\.js)"\s*><\/script>\s*/.exec(html);
+      const tag =
+        /<script(\s+)src="(\/cesium\/Cesium\.js)"\s*><\/script>\s*/.exec(html);
       if (!tag) return html;
       const src = tag[2];
-      return (
-        html.replace(tag[0], '') +
-        ''
-      ).replace(
+      return (html.replace(tag[0], '') + '').replace(
         /<\/head>/,
         `  <!-- Phase7A3：Cesium 只预下载不求值；求值时机由 src/cesium-boot.js 决定 -->\n` +
           `  <link rel="preload" as="script" href="${src}" />\n</head>`,
@@ -46,7 +44,8 @@ function deferCesiumScriptPlugin() {
 function gevManualChunks(id) {
   if (!id.includes('node_modules')) return;
   if (id.includes('/cesium/') || id.includes('\\cesium\\')) return 'cesium';
-  if (/node_modules[\\/](react|react-dom|scheduler)[\\/]/.test(id)) return 'vendor-react';
+  if (/node_modules[\\/](react|react-dom|scheduler)[\\/]/.test(id))
+    return 'vendor-react';
   return;
 }
 
@@ -78,7 +77,9 @@ function chunkReportPlugin() {
         this.warn(`chunk report skipped: ${e.message}`);
       }
       if (!rows.some((r) => /(^|\/)(cesium|vendor-react)-/.test(r.file))) {
-        console.log('[chunks] vendor split inactive (cesium 是 external 全局，react 未进应用图)');
+        console.log(
+          '[chunks] vendor split inactive (cesium 是 external 全局，react 未进应用图)',
+        );
       }
       console.log(
         `[chunks] ${rows.length} js chunk(s); top: ` +

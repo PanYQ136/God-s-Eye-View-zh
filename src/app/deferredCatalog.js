@@ -42,7 +42,11 @@ const defaultIdle = (fn) =>
  */
 export function scheduleCatalogHydration(
   catalog,
-  { disabled = false, requestFrame = defaultFrame, requestIdle = defaultIdle } = {},
+  {
+    disabled = false,
+    requestFrame = defaultFrame,
+    requestIdle = defaultIdle,
+  } = {},
 ) {
   const state = {
     supported: typeof catalog?.hydrate === 'function',

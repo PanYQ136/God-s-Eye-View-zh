@@ -118,7 +118,8 @@ async function createIonResource(Cesium, accessToken, warmEndpoint) {
         2275207,
         { accessToken },
       );
-      if (endpointResource) return new Cesium.IonResource(endpoint, endpointResource);
+      if (endpointResource)
+        return new Cesium.IonResource(endpoint, endpointResource);
     } catch (_) {
       /* 私有静态不可用 → 回落 */
     }
@@ -167,4 +168,3 @@ export function primePhotorealTilesetLoad(Cesium, credentials) {
 export function loadPhotorealisticTilesetPrimed(Cesium, credentials) {
   return bootLoad || loadPhotorealisticTileset(Cesium, credentials);
 }
-

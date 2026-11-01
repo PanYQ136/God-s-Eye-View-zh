@@ -148,13 +148,15 @@ export function cctvProxy({ sourceRoot = process.cwd() } = {}) {
           const box = (() => {
             if (!rawBox) return null;
             const v = rawBox.split(',').map(Number);
-            if (v.length < 4 || !v.slice(0, 4).every(Number.isFinite)) return null;
+            if (v.length < 4 || !v.slice(0, 4).every(Number.isFinite))
+              return null;
             return { w: v[0], s: v[1], e: v[2], n: v[3] };
           })();
           const limitRaw = Number(url.searchParams.get('limit'));
-          const limit = Number.isFinite(limitRaw) && limitRaw > 0
-            ? Math.min(5000, Math.floor(limitRaw))
-            : 0;
+          const limit =
+            Number.isFinite(limitRaw) && limitRaw > 0
+              ? Math.min(5000, Math.floor(limitRaw))
+              : 0;
           const compact = ['1', 'true'].includes(
             String(url.searchParams.get('compact') || '').toLowerCase(),
           );
@@ -165,8 +167,14 @@ export function cctvProxy({ sourceRoot = process.cwd() } = {}) {
             list = list.filter((s) => {
               const la = Number(s.lat);
               const lo = Number(s.lon);
-              return Number.isFinite(la) && Number.isFinite(lo)
-                && la >= box.s && la <= box.n && lo >= box.w && lo <= box.e;
+              return (
+                Number.isFinite(la) &&
+                Number.isFinite(lo) &&
+                la >= box.s &&
+                la <= box.n &&
+                lo >= box.w &&
+                lo <= box.e
+              );
             });
           }
           const inBox = list.length;
@@ -174,10 +182,14 @@ export function cctvProxy({ sourceRoot = process.cwd() } = {}) {
             // 视口内太多时按离视口中心最近优先（与小程序端原有取舍一致）
             const cx = (box.w + box.e) / 2;
             const cy = (box.s + box.n) / 2;
-            list = list.slice().sort((a, b) => (
-              (Math.abs(Number(a.lat) - cy) + Math.abs(Number(a.lon) - cx))
-              - (Math.abs(Number(b.lat) - cy) + Math.abs(Number(b.lon) - cx))
-            ));
+            list = list
+              .slice()
+              .sort(
+                (a, b) =>
+                  Math.abs(Number(a.lat) - cy) +
+                  Math.abs(Number(a.lon) - cx) -
+                  (Math.abs(Number(b.lat) - cy) + Math.abs(Number(b.lon) - cx)),
+              );
           }
           if (limit && list.length > limit) list = list.slice(0, limit);
 

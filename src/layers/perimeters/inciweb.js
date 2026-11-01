@@ -104,7 +104,8 @@ export function isCurrentPublication(
 
 /** Fetch one publication's created/changed timestamps for currency checks. */
 export function createInciwebPublicationSource({
-  fetchImpl = (...args) => (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
+  fetchImpl = (...args) =>
+    (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
 } = {}) {
   return {
     async getPublication(id, { signal } = {}) {
@@ -152,7 +153,8 @@ export function findInciwebLink(publications, { name, state, complexName }) {
 
 /** Fetch the full InciWeb incident catalog. */
 export function createInciwebIndexSource({
-  fetchImpl = (...args) => (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
+  fetchImpl = (...args) =>
+    (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
 } = {}) {
   return {
     async getIndex({ signal } = {}) {

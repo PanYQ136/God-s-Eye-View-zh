@@ -30,7 +30,8 @@ function mediaUrlFor(camera) {
 }
 /** Supply catalog/health records and the existing registered camera URL families. */
 export function createCctvSource({
-  fetchImpl = (...args) => (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
+  fetchImpl = (...args) =>
+    (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
 } = {}) {
   async function read(path, key, { signal } = {}) {
     signal?.throwIfAborted();

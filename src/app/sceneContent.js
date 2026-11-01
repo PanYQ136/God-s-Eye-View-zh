@@ -34,7 +34,11 @@ export function contentStats(rgba) {
 }
 
 /** 中央取样框：按画布比例取（与 gate 的中心 640×420@1348×774 同区域）。 */
-function centerRect(width, height, { widthRatio = 0.475, heightRatio = 0.543 } = {}) {
+function centerRect(
+  width,
+  height,
+  { widthRatio = 0.475, heightRatio = 0.543 } = {},
+) {
   const w = Math.max(16, Math.min(width, Math.round(width * widthRatio)));
   const h = Math.max(16, Math.min(height, Math.round(height * heightRatio)));
   return {
@@ -94,6 +98,9 @@ export function sampleCanvasContent(viewer, options = {}) {
 }
 
 /** 与 gate 判据同尺度：中心区 std ≥18 且唯一色 ≥800 → 画面成片。 */
-export function isSceneContentVisible(sample, { minStd = 18, minUniq = 800 } = {}) {
+export function isSceneContentVisible(
+  sample,
+  { minStd = 18, minUniq = 800 } = {},
+) {
   return Boolean(sample) && sample.std >= minStd && sample.uniq >= minUniq;
 }

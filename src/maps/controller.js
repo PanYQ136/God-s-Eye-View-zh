@@ -9,7 +9,6 @@ const mark = (name, meta) => {
   } catch (_) {}
 };
 
-
 /**
  * Private `setStack` option marking a switch the controller issues itself
  * (a tile-failure fallback); outside callers cannot forge it.
@@ -169,7 +168,11 @@ export class MapSourceController {
 
   async setStack(
     id,
-    { silent = false, [AUTOMATIC]: automatic = false, deferTerrain = false } = {},
+    {
+      silent = false,
+      [AUTOMATIC]: automatic = false,
+      deferTerrain = false,
+    } = {},
   ) {
     if (this._destroyed) return this.getState();
     const stack = this.getStack(id) || this.getStack(this._registry.unknownId);
@@ -308,7 +311,8 @@ export class MapSourceController {
            让遮罩不会在这段空窗里被收起（实测 reveal 帧中心 std 2.61 → B5 FAIL）。 */
         const busy = (v) => {
           try {
-            (globalThis.__gevStackState = globalThis.__gevStackState || {}).terrainBusy = v;
+            (globalThis.__gevStackState =
+              globalThis.__gevStackState || {}).terrainBusy = v;
           } catch (_) {}
         };
         busy(true);
@@ -324,7 +328,9 @@ export class MapSourceController {
           else this.viewer.terrainProvider = result.provider;
           this._terrainMode = terrain.id;
           /* setTerrain 的重建发生在随后 1–2 帧，busy 要盖住这段空窗再放开。 */
-          await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+          await new Promise((r) =>
+            requestAnimationFrame(() => requestAnimationFrame(r)),
+          );
         } finally {
           busy(false);
         }

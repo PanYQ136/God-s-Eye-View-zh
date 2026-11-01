@@ -82,7 +82,8 @@ export function createPendingLayerHandle(id, read) {
           if (entry.unsubscribed) continue;
           try {
             const unsubscribe = layer.subscribe?.(entry.callback);
-            entry.release = typeof unsubscribe === 'function' ? unsubscribe : null;
+            entry.release =
+              typeof unsubscribe === 'function' ? unsubscribe : null;
           } catch (error) {
             console.warn(`[catalog] ${id} deferred subscribe failed:`, error);
           }

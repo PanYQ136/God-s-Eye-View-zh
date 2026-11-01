@@ -1,6 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createLayerCatalog, createDeferredLayerCatalog, catalogControlServices } from './catalog.js';
+import {
+  createLayerCatalog,
+  createDeferredLayerCatalog,
+  catalogControlServices,
+} from './catalog.js';
 import { createPendingLayerHandle } from './pendingLayer.js';
 import { createApplicationData } from './data.js';
 
@@ -210,7 +214,8 @@ test('deferred data setup seals the declared registry and registers late layers 
     const attachedTo = [];
     const late = {
       id: 'satellites',
-      attachDataManager: (manager) => attachedTo.push([...manager.layers.keys()]),
+      attachDataManager: (manager) =>
+        attachedTo.push([...manager.layers.keys()]),
     };
     const catalog = createDeferredLayerCatalog(
       [{ id: 'flights' }],

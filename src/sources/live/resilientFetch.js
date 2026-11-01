@@ -19,14 +19,24 @@ export function makeResilientFetch({
     const external = init.signal;
     let lastErr = null;
     for (let i = 0; i < attempts; i++) {
-      if (external && external.aborted) throw new DOMException('Aborted', 'AbortError');
+      if (external && external.aborted)
+        throw new DOMException('Aborted', 'AbortError');
       const ctrl = new AbortController();
       const onAbort = () => {
-        try { ctrl.abort(); } catch { /* ignore */ }
+        try {
+          ctrl.abort();
+        } catch {
+          /* ignore */
+        }
       };
-      if (external) external.addEventListener?.('abort', onAbort, { once: true });
+      if (external)
+        external.addEventListener?.('abort', onAbort, { once: true });
       const timer = setTimeout(() => {
-        try { ctrl.abort(); } catch { /* ignore */ }
+        try {
+          ctrl.abort();
+        } catch {
+          /* ignore */
+        }
       }, timeoutMs);
       try {
         const res = await fetch(input, { ...init, signal: ctrl.signal });

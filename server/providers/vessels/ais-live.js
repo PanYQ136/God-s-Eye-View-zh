@@ -122,7 +122,8 @@ export function aisLiveProxy() {
           const raw = incoming.searchParams.get('bbox');
           if (!raw) return null;
           const v = String(raw).split(',').map(Number);
-          if (v.length < 4 || !v.slice(0, 4).every(Number.isFinite)) return null;
+          if (v.length < 4 || !v.slice(0, 4).every(Number.isFinite))
+            return null;
           return { w: v[0], s: v[1], e: v[2], n: v[3] };
         })();
         const limit = (() => {
@@ -132,8 +133,15 @@ export function aisLiveProxy() {
         let rows = allRows;
         const totalRows = allRows.length;
         if (box) {
-          rows = rows.filter((r) => Number.isFinite(r.lat) && Number.isFinite(r.lon)
-            && r.lat >= box.s && r.lat <= box.n && r.lon >= box.w && r.lon <= box.e);
+          rows = rows.filter(
+            (r) =>
+              Number.isFinite(r.lat) &&
+              Number.isFinite(r.lon) &&
+              r.lat >= box.s &&
+              r.lat <= box.n &&
+              r.lon >= box.w &&
+              r.lon <= box.e,
+          );
         }
         const inBox = rows.length;
         let truncated = false;

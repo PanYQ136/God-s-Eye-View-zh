@@ -84,7 +84,9 @@ export function startApplicationChrome({
       /* 观测：遮罩收起请求（= gate 判定就绪 + App 恢复完成 + 最小展示 1s 都满足） */
       bootMark('mask:hide-request');
       /* 撤遮罩 = 底图已到 B5 清晰：暗纱瞬时移除（无 transition，保证这一帧就是地图真实样子）。 */
-      document.getElementById('cesiumContainer')?.classList.remove('boot-refining');
+      document
+        .getElementById('cesiumContainer')
+        ?.classList.remove('boot-refining');
       loadingScreen.classList.add('hidden');
       bootMark('mask:hidden');
       loadingScreen.addEventListener(

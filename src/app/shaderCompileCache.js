@@ -38,7 +38,8 @@ export function installShaderCompileCache({ enabled = true } = {}) {
   if (!enabled) return stats;
   if (typeof WebGLRenderingContext === 'undefined') return stats;
   const ctors = [WebGLRenderingContext];
-  if (typeof WebGL2RenderingContext !== 'undefined') ctors.push(WebGL2RenderingContext);
+  if (typeof WebGL2RenderingContext !== 'undefined')
+    ctors.push(WebGL2RenderingContext);
 
   for (const Ctor of ctors) {
     const P = Ctor && Ctor.prototype;
@@ -82,7 +83,11 @@ export function installShaderCompileCache({ enabled = true } = {}) {
           stats.reuses += 1;
           stats.savedMs += hit.ms;
           if (stats.hitKeys.length < 12)
-            stats.hitKeys.push({ type, len: text.length, ms: +hit.ms.toFixed(2) });
+            stats.hitKeys.push({
+              type,
+              len: text.length,
+              ms: +hit.ms.toFixed(2),
+            });
           return; // 命中：不再向这个句柄灌源码
         }
         return origSource.call(this, shader, src);

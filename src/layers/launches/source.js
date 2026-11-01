@@ -1,6 +1,7 @@
 /** Read launch records and their optional active-orbit catalog with explicit cancellation. */
 export function createLaunchSource({
-  fetchImpl = (...args) => (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
+  fetchImpl = (...args) =>
+    (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
 } = {}) {
   return {
     async getLaunches({ signal } = {}) {

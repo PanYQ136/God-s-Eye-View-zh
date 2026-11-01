@@ -12,9 +12,16 @@ import { CARDS, CARD_IDS } from './cards.js';
 import { PHASE } from './controller.js';
 
 const px = (v) => Math.round(v) + 'px';
-const same = (a, b, tol = 1) => !!a && !!b && Math.abs(a.x - b.x) <= tol && Math.abs(a.y - b.y) <= tol && Math.abs(a.w - b.w) <= tol && Math.abs(a.h - b.h) <= tol;
+const same = (a, b, tol = 1) =>
+  !!a &&
+  !!b &&
+  Math.abs(a.x - b.x) <= tol &&
+  Math.abs(a.y - b.y) <= tol &&
+  Math.abs(a.w - b.w) <= tol &&
+  Math.abs(a.h - b.h) <= tol;
 /** snapshot 用 {x,y,w,h}；Morph 用 {left,top,width,height}（FLIP 起点）。 */
-const toFlip = (r) => (r ? { left: r.x, top: r.y, width: r.w, height: r.h } : null);
+const toFlip = (r) =>
+  r ? { left: r.x, top: r.y, width: r.w, height: r.h } : null;
 
 /* ── 玻璃状态（Phase8B：D1·G12 / D2·G6·G7 / #2 / #6 / D3 的 morph 钩子）───────
    唯一驱动者，只写 CSS 变量与 data-* 属性：不改几何、不改文字布局、不加第二层玻璃。
@@ -59,7 +66,16 @@ export function createGlass({ adapter } = {}) {
     shadowA: 0.14,
     gloss: { x: 50, a: GLASS.highlight.base, writes: 0, skipped: 0, cards: {} },
     pointer: { x: -1, y: -1, moves: 0 },
-    morph: { active: 0, begins: 0, restores: 0, lastBeginAt: 0, lastRestoreAt: 0, degradeAt: 0, edge: null, why: '' },
+    morph: {
+      active: 0,
+      begins: 0,
+      restores: 0,
+      lastBeginAt: 0,
+      lastRestoreAt: 0,
+      degradeAt: 0,
+      edge: null,
+      why: '',
+    },
     assert: { scrim: 0, scrimAbove: false, lastAt: 0, lastLuma: null },
     log: [],
   };
@@ -83,7 +99,8 @@ export function createGlass({ adapter } = {}) {
 
   const cardElements = () =>
     CARD_IDS.map((id) => {
-      const el = adapter && typeof adapter.el === 'function' ? adapter.el(id) : null;
+      const el =
+        adapter && typeof adapter.el === 'function' ? adapter.el(id) : null;
       return el ? { id, el } : null;
     }).filter(Boolean);
 
@@ -96,7 +113,8 @@ export function createGlass({ adapter } = {}) {
     el.style.setProperty('--lc-shadow-a', S.shadowA.toFixed(3));
     el.style.setProperty('--lc-gloss-x', S.gloss.x.toFixed(1) + '%');
     el.style.setProperty('--lc-gloss-a', S.gloss.a.toFixed(3));
-    if (S.scrim) el.style.setProperty('--lc-scrim-a', String(GLASS.scrim.alpha));
+    if (S.scrim)
+      el.style.setProperty('--lc-scrim-a', String(GLASS.scrim.alpha));
     else el.style.removeProperty('--lc-scrim-a');
   }
   function writeAll() {
@@ -118,7 +136,12 @@ export function createGlass({ adapter } = {}) {
     S.scrimMode = m;
     if (m === 'off') setScrimFlag(false);
     else if (m === 'on') setScrimFlag(true);
-    else setScrimFlag(S.variant === 'clear' && S.luma != null && S.luma > GLASS.scrim.threshold);
+    else
+      setScrimFlag(
+        S.variant === 'clear' &&
+          S.luma != null &&
+          S.luma > GLASS.scrim.threshold,
+      );
     return m;
   }
 
@@ -127,7 +150,8 @@ export function createGlass({ adapter } = {}) {
     S.variant = m;
     for (const { el } of cardElements()) el.dataset.lcMaterial = m;
     if (m !== 'clear') setScrimFlag(false);
-    else if (S.scrimMode !== 'off') setScrimFlag(S.luma != null && S.luma > GLASS.scrim.threshold);
+    else if (S.scrimMode !== 'off')
+      setScrimFlag(S.luma != null && S.luma > GLASS.scrim.threshold);
     note('material-set', { variant: m });
     return m;
   }
@@ -136,10 +160,15 @@ export function createGlass({ adapter } = {}) {
   function mapCanvas() {
     try {
       const v = window.__gevViewer;
-      if (v && v.scene && v.scene.canvas && v.scene.canvas.width) return v.scene.canvas;
+      if (v && v.scene && v.scene.canvas && v.scene.canvas.width)
+        return v.scene.canvas;
     } catch (_) {}
     try {
-      return document.querySelector('#cesiumContainer canvas, canvas.cesium-widget-canvas') || null;
+      return (
+        document.querySelector(
+          '#cesiumContainer canvas, canvas.cesium-widget-canvas',
+        ) || null
+      );
     } catch (_) {
       return null;
     }
@@ -151,7 +180,8 @@ export function createGlass({ adapter } = {}) {
     S.lumaAt = nowMs();
     S.lumaSamples += 1;
     S.lumaSrc = src || 'cesium';
-    const target = GLASS.shadow.min + (GLASS.shadow.max - GLASS.shadow.min) * S.luma;
+    const target =
+      GLASS.shadow.min + (GLASS.shadow.max - GLASS.shadow.min) * S.luma;
     /* 阴影 alpha 的逼近由 5Hz tick（stepShadow）驱动，这里只更新目标用的 luma */
     /* D1 亮度断言：边沿触发一次日志（默认只断言，不改观感） */
     const above = S.variant === 'clear' && S.luma > GLASS.scrim.threshold;
@@ -161,7 +191,12 @@ export function createGlass({ adapter } = {}) {
       S.assert.lastLuma = S.luma;
       if (above) {
         S.assert.scrim += 1;
-        note('scrim-assert', { luma: S.luma, threshold: GLASS.scrim.threshold, alpha: GLASS.scrim.alpha, mode: S.scrimMode });
+        note('scrim-assert', {
+          luma: S.luma,
+          threshold: GLASS.scrim.threshold,
+          alpha: GLASS.scrim.alpha,
+          mode: S.scrimMode,
+        });
         try {
           console.info(
             `[lc:glass] clear-scrim assert luma=${S.luma} > ${GLASS.scrim.threshold} → rgba(0,0,0,${GLASS.scrim.alpha}) (${S.scrimMode === 'off' ? 'log-only' : 'applied:' + S.scrimMode})`,
@@ -178,11 +213,16 @@ export function createGlass({ adapter } = {}) {
 
   function stepShadow() {
     if (S.luma == null) return null;
-    const target = GLASS.shadow.min + (GLASS.shadow.max - GLASS.shadow.min) * S.luma;
-    const next = Math.abs(target - S.shadowA) < 0.002 ? target : S.shadowA + (target - S.shadowA) * GLASS.shadow.lerp;
+    const target =
+      GLASS.shadow.min + (GLASS.shadow.max - GLASS.shadow.min) * S.luma;
+    const next =
+      Math.abs(target - S.shadowA) < 0.002
+        ? target
+        : S.shadowA + (target - S.shadowA) * GLASS.shadow.lerp;
     if (next === S.shadowA) return null;
     S.shadowA = next;
-    for (const { el } of cardElements()) el.style.setProperty('--lc-shadow-a', S.shadowA.toFixed(3));
+    for (const { el } of cardElements())
+      el.style.setProperty('--lc-shadow-a', S.shadowA.toFixed(3));
     return S.shadowA;
   }
 
@@ -247,10 +287,12 @@ export function createGlass({ adapter } = {}) {
     if (sampleAcc < 1000 / GLASS.shadow.hz) return;
     sampleAcc = 0;
     stepShadow(); /* 阴影逼近 = 5Hz（阴影动画本身，采样暂停也照跑） */
-    if (!S.sampling) return; /* 验证时用 setSampling(false) 暂停真采样，注入亮度才不会被覆盖 */
+    if (!S.sampling)
+      return; /* 验证时用 setSampling(false) 暂停真采样，注入亮度才不会被覆盖 */
     if (S.morph.active > 0) return; /* morph 期镜头层关闭、画面在变形，不采样 */
     try {
-      if (document.visibilityState && document.visibilityState !== 'visible') return;
+      if (document.visibilityState && document.visibilityState !== 'visible')
+        return;
     } catch (_) {}
     sampleLumaNow();
   }
@@ -291,10 +333,16 @@ export function createGlass({ adapter } = {}) {
       const dyOut = Math.max(0, r.y - pys, pys - (r.y + r.h));
       const out = Math.max(dxOut, dyOut);
       const prox = pxs < 0 ? 0 : Math.max(0, 1 - out / GLASS.highlight.reachPx);
-      const a = GLASS.highlight.base + (GLASS.highlight.max - GLASS.highlight.base) * prox;
+      const a =
+        GLASS.highlight.base +
+        (GLASS.highlight.max - GLASS.highlight.base) * prox;
       /* 值没变就不写：视觉完全等价（CSS 变量幂等），省掉无意义的重算与重绘。 */
       const prev = lastGloss.get(r.id);
-      if (prev && Math.abs(prev.x - gx) < 0.05 && Math.abs(prev.a - a) < 0.005) {
+      if (
+        prev &&
+        Math.abs(prev.x - gx) < 0.05 &&
+        Math.abs(prev.a - a) < 0.005
+      ) {
         S.gloss.skipped += 1;
       } else {
         r.el.style.setProperty('--lc-gloss-x', gx.toFixed(1) + '%');
@@ -344,7 +392,10 @@ export function createGlass({ adapter } = {}) {
 
   /* ── D3/G22：morph ↔ lens ───────────────────────────────────────────── */
   function lensDegrade(on, why) {
-    const E = bridge.ensure('edge.lens', { global: '__gevEdge', owner: 'public/gev-edge-lens.js' });
+    const E = bridge.ensure('edge.lens', {
+      global: '__gevEdge',
+      owner: 'public/gev-edge-lens.js',
+    });
     if (!E || typeof E.set !== 'function') {
       S.morph.edge = { skipped: true, why: why || '' };
       return false;
@@ -354,7 +405,13 @@ export function createGlass({ adapter } = {}) {
       try {
         c = (typeof E.cfg === 'function' && E.cfg()) || {};
       } catch (_) {}
-      S.morph.edge = { enabled: c.enabled !== false, rimAmt: c.rimAmt, dispGain: c.dispGain, bandAlpha: c.bandAlpha, band: c.band };
+      S.morph.edge = {
+        enabled: c.enabled !== false,
+        rimAmt: c.rimAmt,
+        dispGain: c.dispGain,
+        bandAlpha: c.bandAlpha,
+        band: c.band,
+      };
       if (S.morph.edge.enabled) {
         try {
           if (typeof E.off === 'function') E.off();
@@ -381,7 +438,10 @@ export function createGlass({ adapter } = {}) {
       E.set(back);
     } catch (_) {}
     S.morph.lastRestoreAt = nowMs();
-    note('lens-restore', { ms: Math.round(S.morph.lastRestoreAt - S.morph.degradeAt), enabled: !!p.enabled });
+    note('lens-restore', {
+      ms: Math.round(S.morph.lastRestoreAt - S.morph.degradeAt),
+      enabled: !!p.enabled,
+    });
     return true;
   }
 
@@ -453,7 +513,14 @@ export function createGlass({ adapter } = {}) {
       lumaAt: S.lumaAt,
       sampling: S.sampling,
       shadowA: +S.shadowA.toFixed(4),
-      gloss: { x: S.gloss.x, a: S.gloss.a, writes: S.gloss.writes, skipped: S.gloss.skipped, card: S.gloss.card || '', cards: { ...S.gloss.cards } },
+      gloss: {
+        x: S.gloss.x,
+        a: S.gloss.a,
+        writes: S.gloss.writes,
+        skipped: S.gloss.skipped,
+        card: S.gloss.card || '',
+        cards: { ...S.gloss.cards },
+      },
       pointer: { ...S.pointer },
       morph: { ...S.morph, edge: S.morph.edge ? { ...S.morph.edge } : null },
       assert: { ...S.assert },
@@ -485,7 +552,6 @@ export function createGlass({ adapter } = {}) {
   };
 }
 
-
 export function createRenderer({ adapter, onAnimEnd, morph = Morph }) {
   const prev = new Map(); // id → {phase, box, push, staged}
   const anims = new Map(); // id → Animation
@@ -493,14 +559,23 @@ export function createRenderer({ adapter, onAnimEnd, morph = Morph }) {
   /* 玻璃状态：与几何解耦（只写 CSS 变量/data-*），本层是它唯一的启动点 */
   const glass = createGlass({ adapter });
   try {
-    const LC = bridge.ensure('lc', { global: '__lc', owner: 'src/lc/index.js' });
+    const LC = bridge.ensure('lc', {
+      global: '__lc',
+      owner: 'src/lc/index.js',
+    });
     LC.glass = glass;
     bridge.register('lc.glass', glass, { owner: 'src/lc/render.js' });
   } catch (_) {}
   glass.start();
 
   function rec(id) {
-    if (!prev.has(id)) prev.set(id, { phase: PHASE.MINI, box: null, push: { x: 0, y: 0 }, staged: false });
+    if (!prev.has(id))
+      prev.set(id, {
+        phase: PHASE.MINI,
+        box: null,
+        push: { x: 0, y: 0 },
+        staged: false,
+      });
     return prev.get(id);
   }
 
@@ -519,7 +594,18 @@ export function createRenderer({ adapter, onAnimEnd, morph = Morph }) {
   }
 
   function clearBox(el) {
-    for (const k of ['position', 'left', 'top', 'width', 'height', 'transform', 'overflowY', 'zIndex', 'willChange']) el.style[k] = '';
+    for (const k of [
+      'position',
+      'left',
+      'top',
+      'width',
+      'height',
+      'transform',
+      'overflowY',
+      'zIndex',
+      'willChange',
+    ])
+      el.style[k] = '';
     el.style.maxHeight = '';
     el.style.minHeight = '';
   }
@@ -569,7 +655,13 @@ export function createRenderer({ adapter, onAnimEnd, morph = Morph }) {
         el.style.setProperty('--lc-push-x', px(push.x));
         el.style.setProperty('--lc-push-y', px(push.y));
         if (Math.abs(dPush.x) > 0.5 || Math.abs(dPush.y) > 0.5)
-          animatePush(el, { x: -dPush.x, y: -dPush.y }, { x: 0, y: 0 }, id, cards[id] && cards[id].mini);
+          animatePush(
+            el,
+            { x: -dPush.x, y: -dPush.y },
+            { x: 0, y: 0 },
+            id,
+            cards[id] && cards[id].mini,
+          );
         r.push = { x: push.x, y: push.y };
         r.phase = PHASE.MINI;
         r.box = null;
@@ -608,10 +700,15 @@ export function createRenderer({ adapter, onAnimEnd, morph = Morph }) {
         r.staged = true;
       }
       const changing = !same(r.box, box, 0.6);
-      if (r.phase === PHASE.MINI || r.phase === PHASE.CLOSING || (r.phase !== phase && phase === PHASE.OPENING)) {
+      if (
+        r.phase === PHASE.MINI ||
+        r.phase === PHASE.CLOSING ||
+        (r.phase !== phase && phase === PHASE.OPENING)
+      ) {
         writeBox(el, box);
         el.dataset.lcPhase = PHASE.OPENING;
-        if ((CARDS[id] && CARDS[id].rail) === 'dock') el.classList.add('dock-panel');
+        if ((CARDS[id] && CARDS[id].rail) === 'dock')
+          el.classList.add('dock-panel');
         playOpen(id, el, from, box, gens[id]);
         stats.opens += 1;
       } else if (changing && !r.dragging) {
@@ -622,7 +719,8 @@ export function createRenderer({ adapter, onAnimEnd, morph = Morph }) {
         writeBox(el, box);
       }
       if (phase === PHASE.OPEN) el.dataset.lcPhase = PHASE.OPEN;
-      if ((CARDS[id] && CARDS[id].rail) === 'dock') el.classList.add('dock-panel');
+      if ((CARDS[id] && CARDS[id].rail) === 'dock')
+        el.classList.add('dock-panel');
       r.dragging = !!r.dragging;
       r.phase = phase;
       r.box = { ...box };
@@ -674,7 +772,11 @@ export function createRenderer({ adapter, onAnimEnd, morph = Morph }) {
 
   function animatePush(el, fromPush, toPush, id, size) {
     if (!el) return;
-    if (Math.abs(fromPush.y - toPush.y) < 0.5 && Math.abs(fromPush.x - toPush.x) < 0.5) return;
+    if (
+      Math.abs(fromPush.y - toPush.y) < 0.5 &&
+      Math.abs(fromPush.x - toPush.x) < 0.5
+    )
+      return;
     const anim = morph.runShift(el, { from: fromPush, to: toPush, size });
     if (anim) stats.pushAnims += 1;
   }
@@ -739,7 +841,10 @@ export function createRenderer({ adapter, onAnimEnd, morph = Morph }) {
     /** 让高光几何缓存立刻失效（供 resize / 布局变更后调用）。 */
     invalidateRects: () => glass.invalidateRects(),
     /** 只读：当前每张卡的动画数（T16 断言用）。 */
-    animations: () => Object.fromEntries([...anims.entries()].map(([k, a]) => [k, a && a.playState])),
+    animations: () =>
+      Object.fromEntries(
+        [...anims.entries()].map(([k, a]) => [k, a && a.playState]),
+      ),
   };
 }
 

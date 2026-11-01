@@ -262,7 +262,13 @@ function nextFrames(n = 2) {
  * - 不成片 → 立刻盖回 veil 并恢复底图（imagery 还在，`globe.show=true` 即恢复）。
  * 这样底图全程可见，不会出现「未成片的灰/黑几何盖住整屏」。
  */
-async function whenPhotorealVisible({ viewer, tileset, veil, signal, deadlineMs = 45000 }) {
+async function whenPhotorealVisible({
+  viewer,
+  tileset,
+  veil,
+  signal,
+  deadlineMs = 45000,
+}) {
   const started = performance.now();
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   let attempts = 0;
@@ -403,7 +409,9 @@ async function upgradeToPhotoreal({
   try {
     void mapStackController
       .setStack('photoreal', { silent: true })
-      .catch((error) => console.warn('[Init] photoreal stack switch failed:', error));
+      .catch((error) =>
+        console.warn('[Init] photoreal stack switch failed:', error),
+      );
   } catch (error) {
     console.warn('[Init] photoreal stack switch failed:', error);
   }

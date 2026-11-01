@@ -473,7 +473,10 @@ export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
     const e = el(id);
     if (e) e.classList.toggle('collapsed', !!collapsed);
     if (typeof window !== 'undefined') {
-      const LC = bridge.ensure('lc', { global: '__lc', owner: 'src/lc/index.js' });
+      const LC = bridge.ensure('lc', {
+        global: '__lc',
+        owner: 'src/lc/index.js',
+      });
       LC.diagnostics = LC.diagnostics || {};
       const key = preboot ? 'prebootWrites' : 'appApiMissing';
       LC.diagnostics[key] = (LC.diagnostics[key] || 0) + 1;

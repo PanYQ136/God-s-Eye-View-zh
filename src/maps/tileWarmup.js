@@ -179,8 +179,15 @@ export function announceBootCenter(center) {
   if (bootCenter) return;
   if (!center || !Number.isFinite(center.lon) || !Number.isFinite(center.lat))
     return;
-  bootCenter = { lon: +center.lon, lat: +center.lat, source: center.source || null };
-  timeline.mark('warm:center', { lon: +bootCenter.lon.toFixed(3), lat: +bootCenter.lat.toFixed(3) });
+  bootCenter = {
+    lon: +center.lon,
+    lat: +center.lat,
+    source: center.source || null,
+  };
+  timeline.mark('warm:center', {
+    lon: +bootCenter.lon.toFixed(3),
+    lat: +bootCenter.lat.toFixed(3),
+  });
   while (centerWaiters.length) {
     try {
       centerWaiters.shift()(bootCenter);
@@ -386,7 +393,11 @@ export function startTilePrefetch({ rootUrl, options = {} } = {}) {
       let next = null;
       let nextRel = null;
       for (const kid of kids) {
-        const rel = boxRelation(kid.boundingVolume && kid.boundingVolume.box, p, 0);
+        const rel = boxRelation(
+          kid.boundingVolume && kid.boundingVolume.box,
+          p,
+          0,
+        );
         if (rel.inside) {
           next = kid;
           nextRel = rel;
@@ -403,7 +414,10 @@ export function startTilePrefetch({ rootUrl, options = {} } = {}) {
         if (isJson(content)) {
           const abs = contentUrl(content, baseUrl);
           enqueue(abs);
-          const sub = await getJson(abs, 'json@' + Math.round(next.geometricError));
+          const sub = await getJson(
+            abs,
+            'json@' + Math.round(next.geometricError),
+          );
           if (!sub || !sub.root) break;
           baseUrl = abs;
           /* 外部 tileset 的根节点直接作为下一轮的下钻起点 */
@@ -437,7 +451,11 @@ export function startTilePrefetch({ rootUrl, options = {} } = {}) {
       if (next.geometricError <= cfg.minGeometricError) break;
       node = next;
     }
-    stats.center = { lon: center.lon, lat: center.lat, source: center.source || null };
+    stats.center = {
+      lon: center.lon,
+      lat: center.lat,
+      source: center.source || null,
+    };
   };
 
   let rootJson = null;
@@ -477,7 +495,8 @@ export function startTilePrefetch({ rootUrl, options = {} } = {}) {
     },
     whenDone: () =>
       new Promise((resolve) => {
-        const tick = () => (finished ? resolve(api.stats) : setTimeout(tick, 100));
+        const tick = () =>
+          finished ? resolve(api.stats) : setTimeout(tick, 100);
         tick();
       }),
   };
@@ -491,7 +510,10 @@ export function startTilePrefetch({ rootUrl, options = {} } = {}) {
 }
 
 function emptyPrefetcher(reason) {
-  return { stats: { reason, tiles: 0, bytes: 0 }, whenDone: () => Promise.resolve(null) };
+  return {
+    stats: { reason, tiles: 0, bytes: 0 },
+    whenDone: () => Promise.resolve(null),
+  };
 }
 
 /** 诊断入口（gate / harness 读） */

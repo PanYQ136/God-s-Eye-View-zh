@@ -16,9 +16,11 @@
    ========================================================================== */
 
 import * as bridge from '../bridge.js';
-const SOFT_RE = /SwiftShader|llvmpipe|Software|Basic Render|Microsoft Basic|ANGLE\s*\(Software/i;
+const SOFT_RE =
+  /SwiftShader|llvmpipe|Software|Basic Render|Microsoft Basic|ANGLE\s*\(Software/i;
 const REQUESTED = 'high-performance';
-const HAS_DOM = typeof document !== 'undefined' && typeof window !== 'undefined';
+const HAS_DOM =
+  typeof document !== 'undefined' && typeof window !== 'undefined';
 const CHIP_ID = 'gev-gpu-chip';
 const NOTICE_ID = 'gev-gpu-notice';
 const NOTICE_KEY = 'gev.gpu.notice.shown';
@@ -75,10 +77,14 @@ function readOnce(api) {
   try {
     const dbg = gl.getExtension('WEBGL_debug_renderer_info');
     renderer = String(
-      (dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)) || '',
+      (dbg
+        ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)
+        : gl.getParameter(gl.RENDERER)) || '',
     );
     vendor = String(
-      (dbg ? gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) : gl.getParameter(gl.VENDOR)) || '',
+      (dbg
+        ? gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL)
+        : gl.getParameter(gl.VENDOR)) || '',
     );
   } catch (_) {}
   let granted = null;
@@ -184,13 +190,16 @@ function ensureCss() {
   st.id = 'gev-gpu-css';
   /* 灰圈=0（§6.6）：chip / notice 都不用 border / outline / inset 描边，只用底色+字色 */
   /* Phase8D #13：运行时注入的样式表也要进层 */
-  st.textContent = '@layer components {\n' + [
-    `#${CHIP_ID}{border:0;outline:0;box-shadow:none;background:rgba(8,20,30,.72);color:#8fe3ff;padding:6px 10px;border-radius:16px;font:12px/1.2 system-ui,"Segoe UI",sans-serif;max-width:360px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-variant-numeric:tabular-nums;}`,
-    `#${CHIP_ID}[data-gpu-tier="software"],#${CHIP_ID}[data-gpu-tier="none"]{background:rgba(58,20,10,.78);color:#ffc9a8;}`,
-    `#${NOTICE_ID}{position:fixed;left:50%;bottom:200px;transform:translateX(-50%);z-index:2147483000;border:0;outline:0;box-shadow:0 8px 28px rgba(0,0,0,.35);background:rgba(24,12,8,.86);color:#ffe2cf;padding:10px 16px;border-radius:14px;font:13px/1.45 system-ui,"Segoe UI",sans-serif;max-width:min(520px,78vw);backdrop-filter:none;cursor:pointer;animation:gev-gpu-notice 9s linear forwards;}`,
-    `#${NOTICE_ID} b{color:#fff;font-weight:600;}`,
-    `@keyframes gev-gpu-notice{0%{opacity:0}4%{opacity:1}88%{opacity:1}100%{opacity:0}}`,
-  ].join('\n') + '\n}';
+  st.textContent =
+    '@layer components {\n' +
+    [
+      `#${CHIP_ID}{border:0;outline:0;box-shadow:none;background:rgba(8,20,30,.72);color:#8fe3ff;padding:6px 10px;border-radius:16px;font:12px/1.2 system-ui,"Segoe UI",sans-serif;max-width:360px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-variant-numeric:tabular-nums;}`,
+      `#${CHIP_ID}[data-gpu-tier="software"],#${CHIP_ID}[data-gpu-tier="none"]{background:rgba(58,20,10,.78);color:#ffc9a8;}`,
+      `#${NOTICE_ID}{position:fixed;left:50%;bottom:200px;transform:translateX(-50%);z-index:2147483000;border:0;outline:0;box-shadow:0 8px 28px rgba(0,0,0,.35);background:rgba(24,12,8,.86);color:#ffe2cf;padding:10px 16px;border-radius:14px;font:13px/1.45 system-ui,"Segoe UI",sans-serif;max-width:min(520px,78vw);backdrop-filter:none;cursor:pointer;animation:gev-gpu-notice 9s linear forwards;}`,
+      `#${NOTICE_ID} b{color:#fff;font-weight:600;}`,
+      `@keyframes gev-gpu-notice{0%{opacity:0}4%{opacity:1}88%{opacity:1}100%{opacity:0}}`,
+    ].join('\n') +
+    '\n}';
   document.head.appendChild(st);
 }
 
@@ -251,7 +260,9 @@ function showNotice() {
     );
     n.appendChild(document.createElement('br'));
     n.appendChild(
-      document.createTextNode('开启「浏览器设置 → 系统 → 使用图形加速」并重启浏览器可恢复。'),
+      document.createTextNode(
+        '开启「浏览器设置 → 系统 → 使用图形加速」并重启浏览器可恢复。',
+      ),
     );
     const drop = () => {
       try {
@@ -265,7 +276,10 @@ function showNotice() {
     _noticeShown = true;
     _state.noticeShown = true;
     try {
-      bridge.ensure('lc', { global: '__lc', owner: 'src/lc/index.js' }).assert.notice = true;
+      bridge.ensure('lc', {
+        global: '__lc',
+        owner: 'src/lc/index.js',
+      }).assert.notice = true;
     } catch (_) {}
   }
 }
@@ -307,7 +321,10 @@ function boot() {
   try {
     /* Phase8D #15：__gevGpu 只是兼容面；模块内一律走桥 */
     bridge.register('gpu', api, { global: '__gevGpu', owner: 'src/lc/gpu.js' });
-    const LC = bridge.ensure('lc', { global: '__lc', owner: 'src/lc/index.js' });
+    const LC = bridge.ensure('lc', {
+      global: '__lc',
+      owner: 'src/lc/index.js',
+    });
     LC.gpu = () => _state;
     LC.assert = LC.assert || {};
     LC.assert.gpu = _state.tier;

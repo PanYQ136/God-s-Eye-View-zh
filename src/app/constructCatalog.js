@@ -1,7 +1,4 @@
-import {
-  createDeferredLayerCatalog,
-  createLayerCatalog,
-} from './catalog.js';
+import { createDeferredLayerCatalog, createLayerCatalog } from './catalog.js';
 import { LAYER_STATE_REGISTRY } from '../data/layerState.js';
 
 const SOURCE_METHODS = Object.freeze({

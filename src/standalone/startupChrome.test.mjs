@@ -104,11 +104,18 @@ test('welcome waits for restoration, minimum delay, and the cover transition', a
   f.fire(1000);
   await flush();
   assert.deepEqual(f.events, []);
-  assert.ok(f.bridgeCalls.includes('boot'), 'the cover must consult the boot gate before it hides');
+  assert.ok(
+    f.bridgeCalls.includes('boot'),
+    'the cover must consult the boot gate before it hides',
+  );
   f.restored();
   await flush();
   assert.deepEqual(f.events, ['hidden']);
-  assert.deepEqual(f.refining, ['boot-refining'], 'the map veil comes off on the same frame the cover hides');
+  assert.deepEqual(
+    f.refining,
+    ['boot-refining'],
+    'the map veil comes off on the same frame the cover hides',
+  );
   f.listeners.get('transitionend')();
   f.fire(900);
   assert.deepEqual(f.events, ['hidden', 'welcome']);

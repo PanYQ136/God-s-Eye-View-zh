@@ -253,7 +253,7 @@ export function cycloneProxy({
   now = () => Date.now(),
   timeoutMs = 12_000,
 } = {}) {
-  const CACHE_TTL_MS = 30 * 60_000;   // 气旋通告 6 小时一次，30 分钟足够新鲜
+  const CACHE_TTL_MS = 30 * 60_000; // 气旋通告 6 小时一次，30 分钟足够新鲜
   let cache = null;
   let operation = null;
   let attemptedAt = -Infinity;

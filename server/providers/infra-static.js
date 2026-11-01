@@ -57,9 +57,13 @@ export function infraStaticProxy({ sourceRoot = defaultSourceRoot } = {}) {
     const raw = String(req.url || '/').split('?')[0];
     const name = raw.replace(/^\/+/, '').replace(/\.json$/i, '');
     if (!Object.hasOwn(FILES, name)) {
-      return send(404, JSON.stringify({ error: 'unknown_dataset', dataset: name || null }), {
-        'Cache-Control': 'no-store',
-      });
+      return send(
+        404,
+        JSON.stringify({ error: 'unknown_dataset', dataset: name || null }),
+        {
+          'Cache-Control': 'no-store',
+        },
+      );
     }
 
     try {
@@ -81,11 +85,15 @@ export function infraStaticProxy({ sourceRoot = defaultSourceRoot } = {}) {
       send(200, entry.text, { ETag: etag });
     } catch (error) {
       // 文件缺失属部署问题：如实报错，不返回空数据冒充成功
-      send(500, JSON.stringify({
-        error: 'static_dataset_unavailable',
-        dataset: name,
-        detail: String((error && error.message) || error).slice(0, 200),
-      }), { 'Cache-Control': 'no-store' });
+      send(
+        500,
+        JSON.stringify({
+          error: 'static_dataset_unavailable',
+          dataset: name,
+          detail: String((error && error.message) || error).slice(0, 200),
+        }),
+        { 'Cache-Control': 'no-store' },
+      );
     }
   };
 

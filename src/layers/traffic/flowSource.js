@@ -2,7 +2,8 @@ import { tilesForBounds } from '../../data/tomtomTiles.js';
 import { decodeFlowTile } from './flowDecode.js';
 /** Own one decoded flow cache and its session counters. */
 export function createFlowTileSource({
-  fetchImpl = (...args) => (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
+  fetchImpl = (...args) =>
+    (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
 } = {}) {
   const DECODE_CACHE_TTL_MS = 120_000;
   /** @const {number} Max decoded tiles kept in memory before oldest-entry eviction. */

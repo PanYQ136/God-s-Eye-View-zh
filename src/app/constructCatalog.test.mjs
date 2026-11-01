@@ -190,7 +190,10 @@ test('deferred construction keeps the registry, order and clock isolation intact
     CORE_LAYER_ORDER,
   );
   assert.equal(catalog.metadata.length, 29, 'the registry is complete');
-  assert.equal(CATALOG_LAYER_ORDER.length - CORE_LAYER_ORDER.length, catalog.pendingLayerIds.length);
+  assert.equal(
+    CATALOG_LAYER_ORDER.length - CORE_LAYER_ORDER.length,
+    catalog.pendingLayerIds.length,
+  );
   // Control bindings captured at startup survive the deferral.
   const services = catalogControlServices(catalog);
   assert.equal(services.flightsLayer, catalog.get('flights'));
@@ -232,4 +235,3 @@ test('deferred construction keeps the registry, order and clock isolation intact
   );
   assert.ok(catalog.get('local-adsb'), 'local ADS-B is available from wave 1');
 });
-

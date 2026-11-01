@@ -102,7 +102,8 @@ export function weatherTileUrl(product, time, { size } = {}) {
 
 /** Acquisition is lazy and shares the application's existing source contract. */
 export function createWeatherSource({
-  fetchImpl = (...args) => (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
+  fetchImpl = (...args) =>
+    (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
   timeoutMs = 15_000,
 } = {}) {
   return {

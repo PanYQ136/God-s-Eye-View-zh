@@ -7,7 +7,8 @@ import {
 import { buildOverpassQuery, normalizeAlprNode } from './records.js';
 /** Construct the bounded OSM request adapter without starting a request. */
 export function createOverpassAlprSource({
-  fetchImpl = (...args) => (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
+  fetchImpl = (...args) =>
+    (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
 } = {}) {
   async function fetchAlprNodes(box, signal) {
     signal?.throwIfAborted();
