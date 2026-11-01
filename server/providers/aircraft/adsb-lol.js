@@ -103,6 +103,9 @@ export function adsbLolProxy() {
         // 主 → 备 依次尝试：adsb.lol 常被 429/5xx 限流，adsb.fi 为同构 readsB 快照，自动兜底。
         let lastStatus = 0;
         let lastLabel = '';
+        /* 2026-11-01：保留最后一个失败上游的响应对象本身 —— 冷却时长要读它的
+           Retry-After，只存 status 会把上游给的退避时间丢掉（实测恒回落到 30s）。 */
+        let lastUpstream = null;
         let served = false;
         for (const up of MIL_UPSTREAMS) {
           try {
@@ -121,10 +124,12 @@ export function adsbLolProxy() {
             }
             lastStatus = upstream.status;
             lastLabel = up.label;
+            lastUpstream = upstream;
             upstream.body?.cancel?.()?.catch?.(() => {});
           } catch (e) {
             lastStatus = 0;
             lastLabel = up.label;
+            lastUpstream = null;
             console.warn(`[adsb mil Proxy] ${up.label} failed: ${e.message}`);
           }
         }
@@ -136,7 +141,10 @@ export function adsbLolProxy() {
           failedAt +
           (lastStatus
             ? cooldownFor(
-                { status: lastStatus, headers: { get: () => null } },
+                lastUpstream || {
+                  status: lastStatus,
+                  headers: { get: () => null },
+                },
                 failedAt,
               )
             : RATE_LIMIT_COOLDOWN_MS);
