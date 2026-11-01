@@ -320,7 +320,7 @@ test('confirmed empty status skips GIS; broken GIS keeps honest current position
   assert.doesNotMatch(JSON.stringify(snapshot), /secret/);
 });
 
-test('five-minute TTL, failure cooldown and age-limited last-good retain original advisory/fetch clocks', async () => {
+test('30-minute TTL, failure cooldown and age-limited last-good retain original advisory/fetch clocks', async () => {
   let clock = NOW;
   let fail = false;
   let calls = 0;
@@ -334,11 +334,13 @@ test('five-minute TTL, failure cooldown and age-limited last-good retain origina
     },
   });
   await request();
-  clock += 299_000;
+  /* 2026-11-01：CACHE_TTL_MS 由 5 分钟放宽到 30 分钟（气旋通告 6 小时一次），
+     步进改为「29 分钟内仍新鲜、31 分钟过期」，TTL 边界语义不变。 */
+  clock += 29 * 60_000;
   await request();
   assert.equal(calls, 4);
   fail = true;
-  clock += 2000;
+  clock += 2 * 60_000;
   const stale = body(await request());
   assert.equal(stale.stale, true);
   assert.equal(stale.fetchedAt, NOW);
