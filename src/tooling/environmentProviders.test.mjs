@@ -184,7 +184,9 @@ test('FIRMS retains a large successful source during partial failure and filters
         current_transactions: 3,
         transaction_limit: 5000,
       });
-    return url.pathname.includes('VIIRS_NOAA20')
+    // SOURCES 默认收窄为 VIIRS_SNPP_NRT,MODIS_NRT（FIRMS_SOURCES 可覆盖）：
+    // 旧 mock 只给已移除的 VIIRS_NOAA20 喂 CSV。
+    return url.pathname.includes('VIIRS_SNPP')
       ? new Response(csv)
       : new Response('offline', { status: 503 });
   });
@@ -193,12 +195,24 @@ test('FIRMS retains a large successful source during partial failure and filters
   assert.equal(json(await request('/status')).hasKey, false);
   assert.equal(calls, 0);
   process.env.FIRMS_MAP_KEY = 'fixture-key';
+  /* 2026-11-01：冷启动不再同步等 —— 一个缓存都没有时直接回 200 {warming:true}，
+     刷新丢到后台跑（境内云到 NASA 的 world/2 合计常超网关 60s，同步等必然 502）。
+     所以第一响应是「正在预热」，等后台落定后再断言数据。 */
+  const warming = json(await request());
+  assert.equal(warming.warming, true);
+  assert.equal(warming.count, 0);
+  assert.deepEqual(warming.sources, []);
+  for (let i = 0; i < 50; i++) {
+    if (json(await request('/status')).count === 130001) break;
+    await new Promise((resolve) => setImmediate(resolve));
+  }
   const first = json(await request());
   assert.equal(first.count, 130001);
   assert.equal(first.sources.filter((s) => s.ok).length, 1);
-  assert.equal(calls, 4);
+  // 缓存命中期间不得再打上游：记下刷新后的调用数，再请求一次比对。
+  const afterRefresh = calls;
   assert.equal(json(await request()).count, 130001);
-  assert.equal(calls, 4);
+  assert.equal(calls, afterRefresh);
   assert.deepEqual(json(await request('/status')).transactions, {
     used: 3,
     limit: 5000,
