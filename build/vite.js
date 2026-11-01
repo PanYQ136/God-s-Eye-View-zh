@@ -1,5 +1,8 @@
 import { applicationHtmlPlugin } from './application-html.js';
+import { modelsPlugin } from './models.mjs';
 import cesium from 'vite-plugin-cesium';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import zlib from 'node:zlib';
 
 /** Phase7A-A/R8 + Phase7A3：让 `/cesium/Cesium.js` 既不阻塞 HTML 解析、
     **也不阻塞卡片层求值**。
@@ -35,6 +38,59 @@ function deferCesiumScriptPlugin() {
   };
 }
 
+/** 2026-11-01 · 拆包：把两个最大的第三方依赖分出去，让首屏不必等整张应用图。
+    只拆 node_modules 里的叶子依赖（cesium / react 系），**不拆 src/** ——
+    manualChunks 拆应用代码容易造出循环 chunk，运行期报 "Cannot access before
+    initialization"。拆分后 chunkSizeWarningLimit 回到 900，让告警重新有信号。
+    回收：删掉本函数与 rollupOptions.output 一项即恢复单块。 */
+function gevManualChunks(id) {
+  if (!id.includes('node_modules')) return;
+  if (id.includes('/cesium/') || id.includes('\\cesium\\')) return 'cesium';
+  if (/node_modules[\\/](react|react-dom|scheduler)[\\/]/.test(id)) return 'vendor-react';
+  return;
+}
+
+/** 构建后把每个 chunk 的体积写进 .gev-logs/build/chunks.json，便于和下一轮对比。 */
+function chunkReportPlugin() {
+  return {
+    name: 'gev-chunk-report',
+    apply: 'build',
+    generateBundle(_options, bundle) {
+      const rows = [];
+      for (const [file, item] of Object.entries(bundle)) {
+        if (item.type !== 'chunk' || !/\.m?js$/.test(file)) continue;
+        const code = item.code || '';
+        rows.push({
+          file,
+          rawKB: +(Buffer.byteLength(code) / 1024).toFixed(1),
+          gzipKB: +(zlib.gzipSync(code).length / 1024).toFixed(1),
+          modules: Object.keys(item.modules || {}).length,
+        });
+      }
+      rows.sort((a, b) => b.rawKB - a.rawKB);
+      try {
+        mkdirSync('.gev-logs/build', { recursive: true });
+        writeFileSync(
+          '.gev-logs/build/chunks.json',
+          `${JSON.stringify({ at: new Date().toISOString(), chunks: rows }, null, 2)}\n`,
+        );
+      } catch (e) {
+        this.warn(`chunk report skipped: ${e.message}`);
+      }
+      if (!rows.some((r) => /(^|\/)(cesium|vendor-react)-/.test(r.file))) {
+        console.log('[chunks] vendor split inactive (cesium 是 external 全局，react 未进应用图)');
+      }
+      console.log(
+        `[chunks] ${rows.length} js chunk(s); top: ` +
+          rows
+            .slice(0, 5)
+            .map((r) => `${r.file}=${r.rawKB}kB`)
+            .join(' '),
+      );
+    },
+  };
+}
+
 /** Build browser assets with explicit inputs; never load environment or providers. */
 export function createBrowserViteConfig({
   plugins = [],
@@ -46,7 +102,15 @@ export function createBrowserViteConfig({
   command,
 } = {}) {
   return {
-    plugins: [cesium(), applicationHtmlPlugin(), deferCesiumScriptPlugin(), ...plugins],
+    plugins: [
+      cesium(),
+      applicationHtmlPlugin(),
+      deferCesiumScriptPlugin(),
+      // #21：构建收尾只留运行时模型（其余 346 MB 工作副本不进产物）。
+      modelsPlugin(),
+      chunkReportPlugin(),
+      ...plugins,
+    ],
     ...(publicDir === undefined ? {} : { publicDir }),
     // A production build must not clean the dependency cache a running dev
     // server is still serving optimized module URLs from.
@@ -82,6 +146,10 @@ export function createBrowserViteConfig({
       'import.meta.env.GOOGLE_MAPS_API_KEY': JSON.stringify(googleApiKey),
       'import.meta.env.CESIUM_ION_TOKEN': JSON.stringify(cesiumToken),
     },
-    build: { chunkSizeWarningLimit: 1500 },
+    // 2026-11-01：拆第三方 vendor，单块体积告警阈值回到 900（原 1500 等于关掉告警）。
+    build: {
+      chunkSizeWarningLimit: 900,
+      rollupOptions: { output: { manualChunks: gevManualChunks } },
+    },
   };
 }
