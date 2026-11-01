@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 
 /**
  * @file Street Traffic — animated dots along OSM road polylines, colored by

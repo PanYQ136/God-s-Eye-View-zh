@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { decodePackGeoJSON } from '../../director/packs/geojson.js';
 const xyz = (p) => Cesium.Cartesian3.fromDegrees(...p);
 

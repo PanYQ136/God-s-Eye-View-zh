@@ -1,3 +1,4 @@
+@layer components {
 /* ════════════════════════════════════════════════════════════════
    mobile-portrait.css — 手机竖屏适配（纯 @media 作用域，桌面/横屏不受影响）
    目标：地图优先。左右面板堆叠在窄屏改为「两侧抽屉」，默认移出屏幕、
@@ -96,4 +97,6 @@
     top: calc(var(--m-safe-t) + 8px) !important;
     right: calc(10px + var(--m-safe-r)) !important;
   }
+}
+
 }

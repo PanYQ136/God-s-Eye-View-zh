@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import {
   FLOOR_REREAD_ATTEMPTS,
   FLOOR_REREAD_MS,

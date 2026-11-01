@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { TRAFFIC_TIMING_ENABLED } from './policy.js';
 import {
   claimCameraSensitivity,

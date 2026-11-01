@@ -1,6 +1,6 @@
 import { createOverpassFeatureSource } from './sources/overpassFeatures.js';
 import { applicationServices } from './services/application.js';
-import * as Cesium from 'cesium';
+import { Cesium } from './cesium.js';
 import {
   viewportBias,
   placesNearViewRecovery,

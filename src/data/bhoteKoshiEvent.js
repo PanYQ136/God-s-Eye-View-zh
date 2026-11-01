@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 import { isPointerFree } from './inputOwnership.js';
 import {
   clearOverlaySource,

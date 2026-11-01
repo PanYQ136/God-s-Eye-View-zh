@@ -1,5 +1,5 @@
 import { paintTransitBracket } from './detectionDraw.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 import { governorRequestRender } from '../renderGovernor.js';
 import {
   DETECTION_ENABLE_FADE_MS,

@@ -1,7 +1,8 @@
-import { createStandaloneCatalog } from './catalog.js';
+import { createStandaloneCatalog, setStandaloneCatalog } from './catalog.js';
 import { createStandalonePlaceSearch } from './placeSearch.js';
 import { CITY_POIS } from '../locations.js';
 import { createApplication } from '../app/application.js';
+import { scheduleCatalogHydration } from '../app/deferredCatalog.js';
 import { createStandaloneScene } from './scene.js';
 import { createStandaloneControls } from './controls.js';
 import { createStandaloneData } from './data.js';
@@ -25,7 +26,7 @@ export function createStandaloneApplication({
   const loaderStatus = loadingScreen.querySelector('.loader-status');
   let placeSearch;
   let catalog;
-  return createApplication({
+  const application = createApplication({
     createScene: async (context) => {
       placeSearch = createStandalonePlaceSearch({
         // The bundled city and landmark data the offline name provider reads.
@@ -42,7 +43,7 @@ export function createStandaloneApplication({
         cesiumToken,
         loaderStatus,
       });
-      catalog = createStandaloneCatalog({
+      catalog = await createStandaloneCatalog({
         nepalBoundaryResolver: (signal) =>
           scene.operations.annotationResolver.resolveRegionRingForQuery(
             'Nepal',
@@ -54,6 +55,9 @@ export function createStandaloneApplication({
         signal: context.signal,
         surface: scene.operations.surface,
       });
+      // 兼容入口（src/ui.js / standalone/controls.js / data.js）读这一份；
+      // 启动链路自己用的是下面显式传下去的 catalog。
+      setStandaloneCatalog(catalog);
       return scene;
     },
     createControls: (context) =>
@@ -67,5 +71,18 @@ export function createStandaloneApplication({
       createStandaloneData({ ...context, allowQaRegistration, catalog }),
     createTools: (context) =>
       createStandaloneTools({ ...context, loadingScreen, placeSearch, voice }),
+  });
+  return Object.freeze({
+    ...application,
+    /**
+     * Phase8E2：应用就绪之后才水合波次 2 图层（首帧 + 空闲），
+     * 让首屏完全不请求非默认 layers 的工厂 chunk。
+     */
+    start() {
+      return application.start().then((components) => {
+        void scheduleCatalogHydration(catalog);
+        return components;
+      });
+    },
   });
 }

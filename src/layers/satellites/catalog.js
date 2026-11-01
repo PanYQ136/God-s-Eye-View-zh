@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { twoline2satrec } from 'satellite.js';
 import {
   DENSE_REFRESH_FRAMES,

@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { horizonOccluder } from '../../data/iconOrientation.js';
 import { isHeadingEstimated } from './headingConfidence.js';
 import {

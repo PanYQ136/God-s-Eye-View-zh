@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { renderPackGeometry } from './geometry.js';
 
 function caption(viewer, pack) {

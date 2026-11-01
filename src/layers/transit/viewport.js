@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import {
   ACTIVATION_ENTER_ALTITUDE_M,
   ACTIVATION_EXIT_ALTITUDE_M,

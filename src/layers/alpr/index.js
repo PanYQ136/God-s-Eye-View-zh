@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import {
   LAYER_ID,
   REQUEST_DEBOUNCE_MS,

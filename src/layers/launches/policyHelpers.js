@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import {
   SATELLITE_STANDALONE_DEFAULTS,
   LAUNCH_PAD_ZONE_MAX_CAMERA_HEIGHT_M,

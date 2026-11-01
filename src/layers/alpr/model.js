@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { EARTH_MEAN_RADIUS_M } from './policy.js';
 export * from './records.js';
 

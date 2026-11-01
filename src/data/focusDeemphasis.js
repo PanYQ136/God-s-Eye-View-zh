@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 
 /**
  * Focus-aware sprite treatment shared by the live contact layers.

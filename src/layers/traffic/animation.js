@@ -1,7 +1,7 @@
 import { flowBucket, flowSpeedScale } from '../../data/trafficFlowStyle.js';
 import { vehicleIcon } from '../../data/vehicleIcons.js';
 import { presetDotOutline } from '../../data/trafficPresetStyle.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { queuePlatoons, locateAlongRoad } from '../../data/trafficQueue.js';
 import {
   SPEED_MPS,

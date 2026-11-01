@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { normalizeRadioCountryInput } from '../../data/radioCountry.js';
 
 export function createQueries({ state: layerState, services, parts, source }) {

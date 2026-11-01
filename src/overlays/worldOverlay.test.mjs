@@ -470,7 +470,9 @@ test('lifecycle is idempotent and teardown removes listeners, observers, and DOM
   );
   assert.match(
     readStylesheet(new URL('../../style.css', import.meta.url)),
-    /#world-overlay-detection-surface,\n#world-overlay-canvas \{\n  position: absolute;\n  inset: 0;[\s\S]*?pointer-events: none;/,
+    /* Phase8E：样式已进 `@layer foundation { … }`，规则整体缩进两格 —— 断言放宽
+       到「同一分组、同样四项声明」，不变量（两个宿主面共用 absolute + 穿透）不变。 */
+    /#world-overlay-detection-surface,\s*#world-overlay-canvas \{\s*position: absolute;\s*inset: 0;[\s\S]*?pointer-events: none;/,
     'both host surfaces share absolute positioning and pointer passthrough',
   );
 

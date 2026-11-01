@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { createFirmsHeatmapLayer as createLayer } from '../../layers/firms/index.js';
 import * as render from '../../renderGovernor.js';
 import * as sprites from '../../data/spriteOrder.js';

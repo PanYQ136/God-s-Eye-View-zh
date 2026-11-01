@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 
 const MAX_FRAME_ATTEMPTS = 120;
 const MIN_TRACKED_RANGE_M = 35;

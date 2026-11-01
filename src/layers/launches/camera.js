@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import {
   REPLAY_ASCENT_CAMERA_OFFSET_RAD,
   REPLAY_ORBIT_CAMERA_OFFSET_RAD,

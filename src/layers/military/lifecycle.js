@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { JET_MODEL_URL } from './policy.js';
 
 export function createLifecycle({

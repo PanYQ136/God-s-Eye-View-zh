@@ -1,3 +1,4 @@
+@layer components {
 /* ── Unified Command Dock ────────────────────── */
 #command-dock {
   position: fixed;
@@ -297,4 +298,5 @@ body.recording-mode #cesium-credits {
   #left-panel-stack {
     bottom: calc(50vh + 8px);
   }
+}
 }

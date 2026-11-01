@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from './cesium.js';
 
 // Narrow, version-tested engine adapter. Cesium has no public custom shader
 // option for native point/billboard collections. Do not patch its prototypes or

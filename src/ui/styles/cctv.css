@@ -1,3 +1,4 @@
+@layer components {
 /* ── CCTV Panel ─────────────────────────────── */
 #cctv-panel {
   --panel-expanded-width: 360px;
@@ -364,4 +365,5 @@
   line-height: 1.45;
   color: #a8f7ff;
   text-shadow: 0 0 10px rgba(0, 212, 255, 0.18);
+}
 }

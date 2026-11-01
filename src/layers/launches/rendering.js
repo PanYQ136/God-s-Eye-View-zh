@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { vehicleIcon } from '../../data/vehicleIcons.js';
 import {
   TRAJECTORY_STAGE_COLORS,

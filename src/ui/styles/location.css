@@ -1,3 +1,4 @@
+@layer components {
 /* ── Location Bar ────────────────────────────── */
 #location-bar {
   position: fixed;
@@ -297,4 +298,5 @@
 
 #location-search.searching {
   opacity: 0.5;
+}
 }

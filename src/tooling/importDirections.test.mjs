@@ -53,8 +53,17 @@ test('portable sources can share records, and standalone can assemble rendering'
   write('src/layers/demo/source.js', "export { read } from './records.js';");
   write('src/layers/demo/records.js', 'export const read = (value) => value;');
   write('src/standalone/catalog.js', "import '../layers/demo/index.js';");
-  write('src/layers/demo/index.js', "import * as Cesium from 'cesium';");
-  assert.equal(checkImportDirections(root).modules, 5);
+  /* Phase8E #14 pinned the single Cesium exit: `src/cesium.js` is the only file
+     allowed to import the npm package, and every rendering module goes through
+     it. The fixture has to model that shape — a demo renderer importing
+     `cesium` directly is now the very thing the checker rejects — so the
+     assembly keeps its rendering dependency while the sanctioned path is also
+     exercised (the returned warnings must stay empty). */
+  write('src/cesium.js', "export * from 'cesium';");
+  write('src/layers/demo/index.js', "import { Viewer } from '../../cesium.js';");
+  const result = checkImportDirections(root);
+  assert.deepEqual(result.warnings, [], 'the sanctioned single exit must not warn');
+  assert.equal(result.modules, 6);
 });
 
 for (const [name, files, pattern] of [

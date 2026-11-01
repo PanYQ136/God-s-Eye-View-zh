@@ -3,7 +3,7 @@ import {
   satelliteClassLabel,
   satelliteClassLegend,
 } from '../../data/satelliteClass.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { ISS_NORAD, POINT_STYLES, RENDER_LIMIT_MAX } from './policy.js';
 
 export function createControls({ state: layerState, services, parts, source }) {

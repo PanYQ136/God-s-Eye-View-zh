@@ -2,7 +2,7 @@ import {
   bindTrackingClickGesture,
   isTrackingClickGesture,
 } from '../../data/trackingClickGesture.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 
 export function createSelection({
   state: layerState,

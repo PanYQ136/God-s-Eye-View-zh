@@ -6,7 +6,7 @@
  * Turn-rate estimation + constant-rate-turn arc integration are adapted from
  * skylight (https://github.com/cpaczek/skylight, MIT) shared/src/aim.ts.
  */
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 
 const DEG = Math.PI / 180;
 const _mmCarto = new Cesium.Cartographic();

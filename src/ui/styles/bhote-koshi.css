@@ -1,3 +1,4 @@
+@layer components {
 /* Bhote Koshi 2026 event reconstruction */
 #bhote-koshi-event-panel {
   position: fixed;
@@ -596,18 +597,8 @@
 
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html, body {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: var(--bg-dark);
-  font-family: var(--font-sans);
-  color: var(--text-primary);
-  -webkit-font-smoothing: antialiased;
+/* Phase8D #13：本文件原先复制了一份全局 reset（* {margin:0} + html,body{…}），
+   与 foundation.css 完全重复。在 @layer 下它位于 components 层，会按「层序」
+   压掉 foundation 里带 id 的排版规则（如 #title-bar .subtitle{margin-top:8px}
+   → 0）。reset 只允许存在于 foundation 层一处，这里删掉重复副本。 */
 }

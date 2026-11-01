@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import {
   RADIO_OVERLAY_SOURCE_ID,
   DEFAULT_RADIO_VOLUME,

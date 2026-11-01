@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import {
   AIS_DEGRADED_STATUSES,
   AIS_HEALTHY_STATUSES,

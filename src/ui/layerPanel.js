@@ -186,6 +186,17 @@ export class LayerPanel {
     this._recentImageryFactory = null;
     this._toggleContainer = null;
   }
+  /**
+   * Rebuild every toggle row from the current layer set.
+   *
+   * Phase8E2：后置注册的图层在挂载时还不存在，`_refreshTogglePanel()` 只更新
+   * 已有行，所以新到位的图层需要一次整表重建。重建会重放一次 `_renderToggles`
+   * （含分组标题与行内控件），代价是在遮罩期多做一次 DOM 构建。
+   */
+  rebuild() {
+    if (this._destroyed || !this._toggleContainer) return;
+    this._renderToggles();
+  }
   _renderToggles() {
     if (this._destroyed || !this._toggleContainer) return;
     this._releaseBindings();

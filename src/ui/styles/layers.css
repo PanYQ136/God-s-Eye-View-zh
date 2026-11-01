@@ -1,3 +1,4 @@
+@layer components {
 /* ── Data Layer Toggle Panel ─────────────────── */
 #left-panel-stack {
   position: fixed;
@@ -1381,4 +1382,5 @@ body.recording-mode #right-context-rail > [data-panel-id] {
   #right-context-rail #recent-imagery-panel.collapsed {
     width: 100%;
   }
+}
 }

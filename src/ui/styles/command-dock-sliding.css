@@ -1,3 +1,4 @@
+@layer components {
 /* ── Slide-up command trays ──────────────────── */
 #command-dock,
 #command-dock:has(#location-bar:not(.collapsed)),
@@ -723,4 +724,5 @@
     rgba(232, 234, 237, 0),
     rgba(232, 234, 237, 0.24)
   );
+}
 }

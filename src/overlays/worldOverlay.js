@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 import {
   createCyberSonarSampler,
   isCyberContactSonarActive as isCyberSonarActive,
@@ -22,6 +22,45 @@ import {
 } from './worldOverlayDraw.js';
 import { WORLD_OVERLAY_STYLE } from './worldOverlayTokens.js';
 
+import {
+  ROOT_ID,
+  CANVAS_ID,
+  AMBIENT_CARD_COLLISION_CAPACITY,
+  WORLD_OVERLAY_PAINT_LANES,
+  WORLD_OVERLAY_OCCLUDER_SELECTORS,
+  DETECTION_SURFACE_ID,
+  ACCESSIBILITY_ROOT_ID,
+  ACCESSIBILITY_LIST_ID,
+  ACCESSIBILITY_STATUS_ID,
+  PAINT_TARGET_SHARED,
+  PAINT_TARGET_DETECTION,
+  OCCLUDER_PADDING_PX,
+  OCCLUDER_REFRESH_MS,
+  DEFAULT_COHORT_LIMIT,
+  MAX_SOURCE_COHORT_LIMIT,
+  DEFAULT_COLLISION_CAPACITY,
+  DEFAULT_MOVING_SOLVE_MS,
+  VALID_VARIANTS,
+  PAINT_LANE_INDEX,
+  nowMs,
+  clamp01,
+  assertSourceId,
+  entryKey,
+  compareStableKeys,
+  compareProtectedEntries,
+  compareProtectedCandidates,
+  comparePaintItems,
+  sortPooledRange,
+  zeroDemandEntry,
+  pruneKeyedIndex,
+  defaultCollisionGroup,
+} from './worldOverlay/primitives.js';
+export {
+  AMBIENT_CARD_COLLISION_CAPACITY,
+  WORLD_OVERLAY_PAINT_LANES,
+  WORLD_OVERLAY_OCCLUDER_SELECTORS,
+} from './worldOverlay/primitives.js';
+
 /**
  * @module worldOverlay
  * @description Shared screen-space renderer/scheduler for world-anchored
@@ -29,102 +68,6 @@ import { WORLD_OVERLAY_STYLE } from './worldOverlayTokens.js';
  * generation; this host owns projection, final placement, paint, and hits.
  */
 
-const ROOT_ID = 'world-overlay-root';
-const CANVAS_ID = 'world-overlay-canvas';
-const DETECTION_SURFACE_ID = 'world-overlay-detection-surface';
-const ACCESSIBILITY_ROOT_ID = 'world-overlay-actions';
-const ACCESSIBILITY_LIST_ID = 'world-overlay-action-list';
-const ACCESSIBILITY_STATUS_ID = 'world-overlay-status';
-const PAINT_TARGET_SHARED = 'shared';
-const PAINT_TARGET_DETECTION = 'detection';
-const OCCLUDER_PADDING_PX = 6;
-const OCCLUDER_REFRESH_MS = 100;
-const DEFAULT_COHORT_LIMIT = 256;
-const MAX_SOURCE_COHORT_LIMIT = 900;
-const DEFAULT_COLLISION_CAPACITY = 96;
-// Phase 4 adds CCTV's shipped 40-card ambient tier to Phase 3's two 96-card
-// infrastructure budgets, FIRMS' 18, and the vessel selector's configured
-// 900-row absolute ceiling. Runtime vessel demand is the much smaller 118px
-// viewport grid (112 at 1600x900, 170 at full HD). This aggregate
-// work-conserving ceiling preserves every source's shipped cap; pinned and
-// active/protected entries bypass it.
-export const AMBIENT_CARD_COLLISION_CAPACITY = 1150;
-const DEFAULT_MOVING_SOLVE_MS = 125;
-const VALID_VARIANTS = new Set([
-  'label',
-  'track',
-  'card',
-  'thumbnail',
-  'selected',
-  'tracked',
-]);
-
-/** Stable logical bottom-to-top paint order across the host-owned surfaces. */
-export const WORLD_OVERLAY_PAINT_LANES = Object.freeze([
-  'detection',
-  'ambient-label',
-  'ambient-track',
-  'ambient-card',
-  'thumbnail',
-  'selected',
-  'tracked',
-]);
-
-const PAINT_LANE_INDEX = new Map(
-  WORLD_OVERLAY_PAINT_LANES.map((lane, index) => [lane, index]),
-);
-
-/**
- * Unified UI exclusion inventory. Selectors may match multiple elements; the
- * service caches their rectangles and observes layout/visibility changes.
- *
- * These rectangles are a PLACEMENT policy, never a paint mask. Every element
- * listed here composites ABOVE the overlay host — map chrome sits at z90–z1000
- * and the cockpit HUD at z145, against this host's z5/z6 — so the browser
- * already keeps overlay pixels off it and no canvas needs clipping. What the
- * inventory buys is readability: a card placed under solid chrome is simply
- * lost, so the solver PREFERS placements clear of it. When nothing is clear the
- * entry still renders and the chrome covers it, exactly as it did before the
- * host existed.
- *
- * The list therefore holds only chrome dense enough to swallow a card. The
- * cockpit's thin translucent line art — rims, arcs, rails, tapes, toplines,
- * readouts — is deliberately ABSENT under the owner's AR-HUD ruling:
- * world-space overlay content renders beneath the cockpit's screen-space HUD,
- * which paints over it by z-order. Those elements are also enormous (the
- * altitude rim is keyhole-tall, the topline viewport-wide), and excluding them
- * suppressed essentially the entire cockpit view. Only the two solid,
- * backdrop-filled cockpit windows survive as exclusions.
- */
-export const WORLD_OVERLAY_OCCLUDER_SELECTORS = Object.freeze([
-  '#title-bar',
-  '#style-indicator',
-  '#top-center-actions',
-  '#traffic-sync-chip',
-  '#cctv-sync-chip',
-  '#left-panel-stack',
-  '#right-context-rail',
-  '.weather-summary',
-  '#pp-toggles',
-  '#command-dock',
-  '#gev-voice-control',
-  '#cesium-credits',
-  '.hud-top-left',
-  '.hud-top-right',
-  '.hud-bottom-left',
-  '.hud-bottom-right',
-  '.hud-top-bar',
-  '.hud-bottom-bar',
-  '#space-mission-panel',
-  '#space-mission-panel-host',
-  '#military-awareness-panel',
-  '#bhote-koshi-event-panel',
-  // Cockpit: solid backdrop-filled windows only (both bounded to
-  // `min(340px, 28vw)` wide and `min(42vh, 410px)` tall, both `hidden` until
-  // toggled). Every other cockpit selector was removed — see the block comment.
-  '#cockpit-context',
-  '#cockpit-signal-stream',
-]);
 
 /** @typedef {{x:number,y:number,w:number,h:number}} OverlayRect */
 /**
@@ -315,87 +258,6 @@ const _diagnostics = {
   paintedBySource: _paintedBySource,
 };
 
-function nowMs() {
-  return globalThis.performance?.now?.() ?? Date.now();
-}
-
-function clamp01(value, fallback = 1) {
-  return Number.isFinite(Number(value))
-    ? Math.max(0, Math.min(1, Number(value)))
-    : fallback;
-}
-
-function assertSourceId(sourceId) {
-  if (typeof sourceId !== 'string' || !sourceId.trim()) {
-    throw new TypeError('WorldOverlay sourceId must be a non-empty string');
-  }
-  return sourceId.trim();
-}
-
-function entryKey(sourceId, entryId) {
-  return `${sourceId}\u0000${entryId}`;
-}
-
-function compareStableKeys(a, b) {
-  return a < b ? -1 : a > b ? 1 : 0;
-}
-
-function compareProtectedEntries(a, b) {
-  return (
-    b.priority - a.priority || compareStableKeys(a._overlayKey, b._overlayKey)
-  );
-}
-
-function compareProtectedCandidates(a, b) {
-  return b.priority - a.priority || compareStableKeys(a.key, b.key);
-}
-
-function comparePaintItems(a, b) {
-  return (
-    a.lane - b.lane || a.zIndex - b.zIndex || compareStableKeys(a.key, b.key)
-  );
-}
-
-/**
- * Stable in-place insertion sort over the live prefix of a pooled array.
- * `Array#sort` allocates a work buffer per call; the frame path only ever
- * orders a short, nearly sorted prefix.
- */
-function sortPooledRange(items, count, compare) {
-  for (let i = 1; i < count; i++) {
-    const item = items[i];
-    let j = i - 1;
-    while (j >= 0 && compare(items[j], item) > 0) {
-      items[j + 1] = items[j];
-      j--;
-    }
-    items[j + 1] = item;
-  }
-}
-
-/** Map#forEach callback that zeroes a demand tally without clearing the map. */
-function zeroDemandEntry(value, key, map) {
-  map.set(key, 0);
-}
-
-/**
- * Amortized prune for a keyed index that is rebuilt every frame but only
- * grows when a source publishes new identities. Clearing unconditionally
- * reallocates the backing hash table per domain per frame, so the index is
- * dropped only once it dwarfs the live cohort — the same policy the arbiter
- * applies to its per-solve key stamps.
- * @param {Map<string, object>} index
- * @param {number} liveCount
- */
-function pruneKeyedIndex(index, liveCount) {
-  if (index.size > liveCount * 4 + 64) index.clear();
-}
-
-function defaultCollisionGroup(variant) {
-  if (variant === 'label') return 'ambient-label';
-  if (variant === 'track' || variant === 'tracked') return 'ambient-track';
-  return 'ambient-card';
-}
 
 /** Resolve an entry to one of the seven binding paint lanes. */
 export function paintLaneForOverlayEntry(entry = {}) {

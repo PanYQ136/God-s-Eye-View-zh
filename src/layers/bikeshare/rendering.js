@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import {
   DEFAULT_CAPACITY,
   POINT_SIZE_MIN,

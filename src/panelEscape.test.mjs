@@ -210,9 +210,32 @@ test('Location Escape clears a hidden draft search before restoring disclosure f
 test('panel chrome hands the lc cards to src/lc and never re-creates a disclosure binding', () => {
   /* Phase 3（2026-10-29）：7 张卡的折叠按钮 DOM 已删，App 侧只留 setPanelCollapsed API，
      开合完全由 src/lc 拥有。这里守住两件事：① 不再有 bindPanelDisclosure 绑定层；
-     ② 仍然把 CollapsePort 需要的 API 挂出来（否则 Esc/旧入口会静默失效）。 */
+     ② 仍然把 CollapsePort 需要的 API 挂出来（否则 Esc/旧入口会静默失效）。
+     Phase8D #15：挂载点从 `window.__lcPanelApi` 直写改成桥的兼容面
+     （`bridge.ensure('app.panelApi', { global: '__lcPanelApi' })`），所以断言跟着
+     移到「桥槽位 + 兼容名绑定 + api 上真的有 setPanelCollapsed」，强度不降：
+     直接写 window 反而要拒绝，因为那会绕开桥的 adopt/白名单。 */
   const init = method('_initPanelChrome', '_bindLegacyPanelHeaders');
-  assert.match(init, /window\.__lcPanelApi\.setPanelCollapsed/);
+  assert.match(
+    init,
+    /bridge\.ensure\(\s*'app\.panelApi',\s*\{[^}]*global:\s*'__lcPanelApi'/,
+    'the panel API must be published through the bridge slot bound to __lcPanelApi',
+  );
+  assert.match(
+    init,
+    /\.setPanelCollapsed\s*=\s*\(id, collapsed, options\)\s*=>\s*this\.setPanelCollapsed\(id, collapsed, options\)/,
+    'the published api must still carry setPanelCollapsed',
+  );
+  assert.doesNotMatch(
+    init,
+    /window\.__lcPanelApi\s*=/,
+    'the compat global belongs to the bridge whitelist, not a direct window write',
+  );
+  // 兼容名必须在白名单里，否则 bridge.ensure 会抛错（跑到这一行就说明运行时已经坏了）。
+  const bridge = fs.readFileSync(new URL('./bridge.js', import.meta.url), 'utf8');
+  const exposed = bridge.slice(bridge.indexOf('const EXPOSED = new Set(['), bridge.indexOf(']));', bridge.indexOf('const EXPOSED = new Set([')));
+  assert.match(exposed, /'__lcPanelApi'/, '__lcPanelApi must stay on the bridge window whitelist');
+  assert.match(exposed, /'__lcExternalDisclosure'/, '__lcExternalDisclosure must stay on the bridge window whitelist');
   assert.match(init, /__lcExternalDisclosure/);
   assert.doesNotMatch(init, /panel-collapse-btn/);
   assert.doesNotMatch(source, /bindPanelDisclosure\(/);

@@ -33,6 +33,33 @@
   'use strict';
   if (window.__gevEdgeLens) return;
 
+  /* ── Phase8D #15：模块总线垫片 ─────────────────────────────────────────────
+     本文件是 classic script，在 `<script>` 解析期执行，早于 defer 的 src/bridge.js。
+     所以这里先写兼容面（window.__gevEdge*），并在总线就绪（gev:bridge-ready）时
+     **把同一批对象注册进去**（桥采用同一引用，不是复制）——加载顺序不再是契约。
+     两个 grab 通道不迁移：它们由验收脚本（scripts/lc/*.mjs）直接写、本文件同帧读，
+     是仪器通道而非应用通信面。 */
+  var BRIDGE_PENDING = {};
+  function bus() {
+    return (typeof globalThis !== 'undefined' && globalThis.__gevBridge) || null;
+  }
+  function publish(name, value, global) {
+    window[global] = value;
+    if (value != null) BRIDGE_PENDING[name] = { value: value, global: global };
+    var B = bus();
+    if (B) adoptPending(B);
+    return value;
+  }
+  function adoptPending(B) {
+    for (var name in BRIDGE_PENDING) {
+      var it = BRIDGE_PENDING[name];
+      try { B.register(name, it.value, { global: it.global, owner: 'public/gev-edge-lens.js', replace: true }); } catch (e) {}
+    }
+    BRIDGE_PENDING = {};
+  }
+  if (bus()) adoptPending(bus());
+  else window.addEventListener('gev:bridge-ready', function () { adoptPending(bus()); }, { once: true });
+
   var Q = {};
   (location.search || '').replace(/^\?/, '').split('&').forEach(function (kv) {
     if (!kv) return; var i = kv.indexOf('='); Q[decodeURIComponent(i < 0 ? kv : kv.slice(0, i))] = i < 0 ? '1' : decodeURIComponent(kv.slice(i + 1));
@@ -42,7 +69,7 @@
      每帧都下发 GL（见 draw() 里的 Phase6C1 说明）时理论不再需要 pdb。 */
   var PDB = Q.gevEdgePdb !== '0';
 
-  window.__gevEdgeLens = { mode: MODE, loading: true };
+  var LENS_STATE = publish('edge.lensState', { mode: MODE, loading: true }, '__gevEdgeLens');
   if (MODE === 0) return;
 
   /* 本脚本启动时刻（performance.now 时基）：stats.drawFirstMs 相对它，用来判断
@@ -120,8 +147,36 @@
        旧代码只有「横条纹 / 棋盘」两态，axis=0 实际画的是棋盘却标成竖条纹（评审 #3）。*/
     testBgMode: 0,
 
+    /* ── Phase8C · D4/G8/G9：自适应 tint + spill（复用同一张抓帧纹理）────────
+       卡背后中心 8×8 的亮度 → tint 权重（0.01–0.05，颜色 = 中心平均色）；
+       卡外四圈环带 8×8 的平均色 → 阴影染色权重（≤15%，黑向环带色混合）。
+       只写 CSS 变量，不进 shader：band/dispPx/gain 一个都不动。 */
+    tint: true, tintMin: 0.01, tintMax: 0.05,
+    spill: true, spillMax: 0.15,
+    lookHz: 5,                // 采样频率（每拍只取 1 张卡，5 张卡 ≈ 1s 轮完一圈）
+
+    /* ── Phase8C · D9/G10：≤40×40 图标按背景亮度翻转 ───────────────────────
+       亮底（luma > 0.62）→ 深色字（#0b1116）；暗底 → 浅色（#eaf4ff）。
+       迟滞 0.10：翻到深色后要跌到 0.52 以下才回浅色，避免阈值附近抖动闪色。 */
+    fgFlip: true, fgIconMax: 40, fgThreshold: 0.62, fgHysteresis: 0.1, fgLight: '#0b1116', fgDark: '#eaf4ff',
+
+    /* ── Phase8C · D5/G18：三项系统设置的降级态（boot 读一次 + change 监听）──
+       full | reduced | solid —— 由 prefers-reduced-transparency /
+       prefers-contrast / forced-colors 决定，见 applyA11y()。 */
+    a11y: 'full',
+
     enabled: MODE !== 2,      // ?gevEdge=2 = 挂钩但画 0 个面（隔离成本用）
     strips: true,             // Phase 4A：只栅格化边框条（false = 整卡 quad，用于像素级 A/B 对照）
+  };
+
+  /* Phase8C · D10/#10：门禁只认配置。BASE 是「文件里写死的合规常量」的冻结副本 ——
+     运行时 set()、a11y 降级、morph 关闭都不会改它，所以 stats().cfg 恒等于源码常量；
+     运行有效值（含 scale / a11y / morph）走 stats().eff。 */
+  var BASE = {
+    band: CFG.band, bandFrac: CFG.bandFrac, bandMin: CFG.bandMin, feather: CFG.feather,
+    thick: CFG.thick, ior: CFG.ior, gain: CFG.gain, dispPx: CFG.dispPx, dispGain: CFG.dispGain,
+    dispCap: CFG.dispCap, dispBandStart: CFG.dispBandStart, bandAlpha: CFG.bandAlpha,
+    blurPx: CFG.blurPx, rimAmt: CFG.rimAmt, aa: CFG.aa, maxScale: CFG.maxScale,
   };
 
   /* 玻璃面：9 张卡（与 src/lc/cards.js 的卡片表一致，去掉顶部功能条） */
@@ -382,6 +437,150 @@
   var W = 1, H = 1, scale = 1, quad = null, prog = null, u = {}, mapTex = null;
   var snap = null, sctx = null;
 
+  /* ── Phase8C · D5/G18：系统无障碍三态（full / reduced / solid）───────────────
+     · prefers-reduced-transparency: reduce → reduced：不位移（dispPx 0）、带更实（bandAlpha .75）
+     · prefers-contrast: more / forced-colors: active → solid：**整层关闭**，让
+       material.css §22 的实色分支接管（否则「卡变实了边缘还在折射」）
+     · prefers-reduced-motion 不影响 shader（CSS 侧自己关过渡/will-change）
+     三项各挂 change 监听：只改 CFG + 重画，不重启、不重建 GL 上下文。 */
+  var MQ = {}, A11Y = { state: 'full', reads: 0, changes: 0, at: 0, why: 'init', force: null };
+  function mqOf(key, q) {
+    A11Y.reads++;
+    try { MQ[key] = window.matchMedia ? window.matchMedia(q) : null; } catch (e) { MQ[key] = null; }
+    return MQ[key];
+  }
+  function readA11y() {
+    var forced = !!(MQ.forced && MQ.forced.matches);
+    var more = !!(MQ.contrast && MQ.contrast.matches);
+    var reducedTr = !!(MQ.reducedTr && MQ.reducedTr.matches);
+    var auto = forced || more ? 'solid' : reducedTr ? 'reduced' : 'full';
+    return {
+      forced: forced, contrast: more, reducedTransparency: reducedTr,
+      reducedMotion: !!(MQ.motion && MQ.motion.matches),
+      state: A11Y.force || auto,
+    };
+  }
+  function applyA11y(why) {
+    var r = readA11y();
+    if (r.state !== A11Y.state) { A11Y.changes++; A11Y.why = String(why || 'change'); }
+    A11Y.state = r.state;
+    A11Y.at = (window.performance && performance.now) ? +performance.now().toFixed(1) : 0;
+    CFG.a11y = r.state;
+    CFG.dispPx = r.state === 'reduced' ? 0 : BASE.dispPx;
+    CFG.bandAlpha = r.state === 'reduced' ? Math.max(BASE.bandAlpha, 0.75) : BASE.bandAlpha;
+    var want = r.state !== 'solid';
+    if (CFG.enabled !== want) {
+      CFG.enabled = want; geoDirty = true; lastSig = '';
+      if (!want && gl) { gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); texValid = false; stats.surfaces = []; }
+      if (want && !texValid && ready) { try { var m = mapCanvas(); if (m) uploadMap(m); } catch (e) {} }
+    }
+    stats.a11y = {
+      state: r.state, forced: r.forced, contrast: r.contrast, reducedTransparency: r.reducedTransparency, reducedMotion: r.reducedMotion,
+      dispPx: CFG.dispPx, bandAlpha: CFG.bandAlpha, enabled: CFG.enabled, changes: A11Y.changes, why: A11Y.why, at: A11Y.at, reads: A11Y.reads,
+    };
+    return stats.a11y;
+  }
+  function watchA11y() {
+    var qs = [
+      ['reducedTr', '(prefers-reduced-transparency: reduce)'],
+      ['contrast', '(prefers-contrast: more)'],
+      ['forced', '(forced-colors: active)'],
+      ['motion', '(prefers-reduced-motion: reduce)'],
+    ];
+    for (var i = 0; i < qs.length; i++) {
+      var m = mqOf(qs[i][0], qs[i][1]);
+      if (!m) continue;
+      try {
+        if (m.addEventListener) m.addEventListener('change', function () { applyA11y('media-change'); });
+        else if (m.addListener) m.addListener(function () { applyA11y('media-change'); });
+      } catch (e) {}
+    }
+    return applyA11y('boot');
+  }
+
+  /* ── Phase8C · D4/G8/G9 + D9/G10：抓帧纹理的第二次利用 ──────────────────────
+     已经有 mapTex（Cesium canvas 的同帧纹理）。这里把它挂到一张小 FBO 上 readPixels，
+     每次只读 5 个 8×8 小块（卡背后中心 + 卡外上/下/左/右环带）= 320 像素：
+       · 中心亮度 → --lc-tint-a（0.01–0.05，中心平均色 → --lc-tint-rgb）
+       · 环带平均色 → --lc-shadow-rgb（黑向环带色混合，权重 spillMax ≤0.15）
+       · 中心亮度 → --lc-fg-flip（> 0.55 用深色，否则保持 #eaf4ff）
+     5Hz、按卡轮转（5 张卡 ≈1s 一圈）；无整屏读回、无第二只 canvas、不进 shader，
+     band / dispPx / gain 一个都不动。 */
+  var fb = null, fbOk = false, fbW = 0, fbH = 0, LOOK_PX = null;
+  var LOOK = { at: 0, samples: 0, fails: 0, src: 'idle', lastAt: 0, rr: 0, per: {}, fboStatus: 0, forceLuma: null, forceTint: null, forceFg: null };
+  var SEL_OF = {};
+  for (var _si = 0; _si < SURF.length; _si++) SEL_OF[SURF[_si].id] = SURF[_si].sel;
+
+  function fboReady() {
+    if (!gl || !mapTex || !texSrcW || !texSrcH) return false;
+    if (!fb) fb = gl.createFramebuffer();
+    if (!fb) { LOOK.fails++; LOOK.src = 'no-fbo'; return false; }
+    if (fbW === texSrcW && fbH === texSrcH && fbOk) return true;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, mapTex, 0);
+    fbW = texSrcW; fbH = texSrcH;
+    LOOK.fboStatus = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    fbOk = LOOK.fboStatus === gl.FRAMEBUFFER_COMPLETE;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    if (!fbOk) { LOOK.fails++; LOOK.src = 'fbo-incomplete'; }
+    return fbOk;
+  }
+  function patchAvg(x, y) {
+    if (!LOOK_PX) LOOK_PX = new Uint8Array(8 * 8 * 4);
+    gl.readPixels(x | 0, y | 0, 8, 8, gl.RGBA, gl.UNSIGNED_BYTE, LOOK_PX);
+    var r = 0, g = 0, b = 0;
+    for (var i = 0; i < 64; i++) { r += LOOK_PX[i * 4]; g += LOOK_PX[i * 4 + 1]; b += LOOK_PX[i * 4 + 2]; }
+    return { r: r / 64, g: g / 64, b: b / 64 };
+  }
+  function lumOf(c) { return (0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b) / 255; }
+  function sampleLook(ts, list) {
+    if (!(CFG.tint || CFG.spill || CFG.fgFlip)) return null;
+    if (CFG.testBg || !texValid || !list || !list.length) return null;
+    if (LOOK.at && ts - LOOK.at < 1000 / Math.max(1, CFG.lookHz)) return null;
+    LOOK.at = ts;
+    if (!fboReady()) return null;
+    var s = list[LOOK.rr % list.length]; LOOK.rr++;
+    var kx = texSrcW / Math.max(1, innerWidth), ky = texSrcH / Math.max(1, innerHeight);
+    var cx = s.x / scale, cy = s.y / scale, cw = s.w / scale, ch = s.h / scale;   // CSS px
+    function txX(v) { return Math.max(0, Math.min(texSrcW - 8, v * kx)); }
+    function txY(v) { return Math.max(0, Math.min(texSrcH - 8, texSrcH - 8 - v * ky)); }
+    var midX = cx + cw / 2, midY = cy + ch / 2;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+    var c = patchAvg(txX(midX), txY(midY));
+    var ring = [[midX, cy - 10], [midX, cy + ch + 10], [cx - 10, midY], [cx + cw + 10, midY]];
+    var rr = 0, rg = 0, rb = 0;
+    for (var i = 0; i < ring.length; i++) { var p = patchAvg(txX(ring[i][0]), txY(ring[i][1])); rr += p.r; rg += p.g; rb += p.b; }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    var ringAvg = { r: rr / 4, g: rg / 4, b: rb / 4 };
+    var cL = lumOf(c), rL = lumOf(ringAvg);
+    var w = CFG.spill ? Math.min(CFG.spillMax, CFG.spillMax * Math.min(1, rL * 1.6)) : 0;
+    var tintA = CFG.tint ? Math.min(CFG.tintMax, Math.max(CFG.tintMin, CFG.tintMin + (CFG.tintMax - CFG.tintMin) * (LOOK.forceLuma != null ? LOOK.forceLuma : cL))) : 0;
+    if (CFG.tint && LOOK.forceTint != null) tintA = Math.max(0, Math.min(CFG.tintMax, +LOOK.forceTint));
+    var sh = [Math.round(ringAvg.r * w), Math.round(ringAvg.g * w), Math.round(ringAvg.b * w)];
+    /* tint 色 = 中心平均色**保持色相、提饱和度**（×2.5）：
+       直接回填平均值等于「把背景平均色再平均一遍」，5% 权重下读不出来（实测 p99 仅 2.3 灰阶）；
+       提饱和后 tint 读作一层很淡的色偏（ΔR−B 可测），权重仍严格在 0.01–0.05。 */
+    var cLum = 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;
+    function sat(v) { return Math.max(0, Math.min(255, Math.round(cLum + (v - cLum) * 2.5))); }
+    var tintRgb = [sat(c.r), sat(c.g), sat(c.b)];
+    var fgLuma = LOOK.forceLuma != null ? LOOK.forceLuma : cL;
+    var prevFg = LOOK.per[s.id] ? LOOK.per[s.id].fg : null;
+    var fg;
+    if (prevFg === CFG.fgLight) fg = fgLuma > CFG.fgThreshold - CFG.fgHysteresis ? CFG.fgLight : CFG.fgDark;
+    else fg = fgLuma > CFG.fgThreshold ? CFG.fgLight : CFG.fgDark;
+    if (LOOK.forceFg) fg = LOOK.forceFg;
+    var el = document.querySelector(SEL_OF[s.id] || '#' + s.id);
+    if (el && el.style) {
+      el.style.setProperty('--lc-tint-rgb', tintRgb.join(', '));
+      el.style.setProperty('--lc-tint-a', tintA.toFixed(3));
+      el.style.setProperty('--lc-shadow-rgb', sh.join(', '));
+      if (CFG.fgFlip) el.style.setProperty('--lc-fg-flip', fg);
+    }
+    LOOK.samples++; LOOK.lastAt = +ts.toFixed(1); LOOK.src = 'map-tex-fbo';
+    LOOK.per[s.id] = { tintA: +tintA.toFixed(3), tintRgb: tintRgb, shadowRgb: sh, spillW: +w.toFixed(3), center: [+c.r.toFixed(1), +c.g.toFixed(1), +c.b.toFixed(1)], centerLuma: +cL.toFixed(3), ringLuma: +rL.toFixed(3), fg: fg, at: +ts.toFixed(1) };
+    return LOOK.per[s.id];
+  }
+
   function resize() {
     scale = pickScale();
     W = Math.max(2, Math.round(innerWidth * scale));
@@ -466,6 +665,8 @@
     gl.enable(gl.BLEND);
 
     ready = true;
+    /* Phase8C · D5：gl 就绪后按当前三态再落一次（solid 时这里就会把 enabled 关掉） */
+    applyA11y('boot-ready');
     stats.tex = 'cesium-direct';
     /* 主驱动：Cesium postRender（同一 task 内缓冲有效） */
     viewer.scene.postRender.addEventListener(onPostRender);
@@ -479,7 +680,7 @@
       console.info('[gev-edge] on · band=' + CFG.band + 'px · scale=' + scale + ' · tex=' + stats.tex +
         ' · post=' + stats.post);
     }, 120);
-    window.__gevEdgeLens.loading = false;
+    LENS_STATE.loading = false;
     return true;
   }
 
@@ -713,6 +914,9 @@
     } else if (!texValid) {
       return;                                   // 还没有可用的地图纹理 → 不画（避免黑边）
     }
+    /* Phase8C · D4/D9：tint / spill / 图标翻转 —— 5Hz、单卡轮转，用已有纹理（capture 与否都可读，
+       静态地图时纹理就是最后一帧内容，读它比等下一次 postRender 更及时） */
+    sampleLook(ts, list);
     var sig = TEX_STAMP + '|' + W + 'x' + H + '|' + scale;
     for (var si = 0; si < list.length; si++) {
       var q0 = list[si];
@@ -790,7 +994,7 @@
   }
 
   /* ── 钩子 ─────────────────────────────────────────────────────────────── */
-  window.__gevEdge = {
+  var EDGE_API = publish('edge.lens', {
     set: function (patch) { if (patch) for (var k in patch) CFG[k] = patch[k]; geoDirty = true; if (patch && patch.scale != null) resize(); return CFG; },
     cfg: function () { return CFG; },
     only: function (ids) { CFG.only = ids && ids.length ? ids.slice() : null; return CFG.only; },
@@ -827,6 +1031,26 @@
       } catch (e) { return 'err:' + (e && e.message); }
     },
     cap: function (n) { CFG.cap = +n || 0; return CFG.cap; },
+    /* Phase8C · D5/G18：读一次三态；传 full|reduced|solid 可强制（gate 用），传 null 回真实 media */
+    a11y: function (force) {
+      A11Y.force = force === 'full' || force === 'reduced' || force === 'solid' ? force : null;
+      return applyA11y('hook:' + (A11Y.force || 'auto'));
+    },
+    /* Phase8C · D4/D9：tint/spill/图标翻转的开关与注入（gate 用；注入值只影响下一次采样） */
+    look: function (o) {
+      o = o || {};
+      if (o.tint != null) CFG.tint = !!o.tint;
+      if (o.spill != null) CFG.spill = !!o.spill;
+      if (o.fgFlip != null) CFG.fgFlip = !!o.fgFlip;
+      if ('forceLuma' in o) LOOK.forceLuma = o.forceLuma == null ? null : +o.forceLuma;
+      if ('forceTint' in o) LOOK.forceTint = o.forceTint == null ? null : +o.forceTint;
+      if ('forceFg' in o) LOOK.forceFg = o.forceFg == null ? null : String(o.forceFg);
+      LOOK.at = 0;                     // 下一拍立即重采（不等 200ms 窗口）
+      return { tint: CFG.tint, spill: CFG.spill, fgFlip: CFG.fgFlip, forceLuma: LOOK.forceLuma, forceTint: LOOK.forceTint, forceFg: LOOK.forceFg };
+    },
+    lookState: function () {
+      return { src: LOOK.src, samples: LOOK.samples, fails: LOOK.fails, fboStatus: LOOK.fboStatus, lastAt: LOOK.lastAt, per: LOOK.per };
+    },
     on: function () {
       CFG.enabled = true; geoDirty = true; lastSig = '';
       /* off() 把画布清了 → 立刻按当前地图画布重建纹理，否则要等下一次 postRender
@@ -855,6 +1079,28 @@
         band: CFG.band, dispPx: CFG.dispPx, dispGain: CFG.dispGain, dispCap: CFG.dispCap, dispBandStart: CFG.dispBandStart, lod: CFG.lod, only: CFG.only, cap: CFG.cap,
         gain: CFG.gain, bandAlpha: CFG.bandAlpha, blurPx: CFG.blurPx, rimAmt: CFG.rimAmt, ior: CFG.ior,
         count: stats.surfaces.length, surfaces: stats.surfaces,
+        /* Phase8C · D10/#10：cfg = 源码常量（门禁合规只认它）；eff = 运行有效值（判观感）。
+           cfg 来自 BASE 冻结副本，set()/a11y/morph 改不到它。 */
+        cfg: {
+          band: BASE.band, bandFrac: BASE.bandFrac, bandMin: BASE.bandMin, feather: BASE.feather, thick: BASE.thick,
+          ior: BASE.ior, gain: BASE.gain, dispPx: BASE.dispPx, dispGain: BASE.dispGain, dispCap: BASE.dispCap,
+          dispBandStart: BASE.dispBandStart, bandAlpha: BASE.bandAlpha, blurPx: BASE.blurPx, rimAmt: BASE.rimAmt,
+          aa: BASE.aa, maxScale: BASE.maxScale,
+          tint: { min: CFG.tintMin, max: CFG.tintMax, hz: CFG.lookHz, on: CFG.tint },
+          spill: { max: CFG.spillMax, hz: CFG.lookHz, on: CFG.spill },
+          fgFlip: { maxIconPx: CFG.fgIconMax, threshold: CFG.fgThreshold, ms: 120, light: CFG.fgLight, dark: CFG.fgDark },
+        },
+        eff: {
+          band: CFG.band, dispPx: +(CFG.dispPx * scale).toFixed(3), gain: CFG.gain, ior: CFG.ior,
+          bandAlpha: CFG.bandAlpha, scale: scale, enabled: CFG.enabled, a11y: CFG.a11y,
+          bands: stats.surfaces.map(function (s) { return { id: s.id, band: s.band }; }),
+        },
+        a11y: stats.a11y || null,
+        look: {
+          src: LOOK.src, samples: LOOK.samples, fails: LOOK.fails, fboStatus: LOOK.fboStatus,
+          lastAt: LOOK.lastAt, forceLuma: LOOK.forceLuma, forceTint: LOOK.forceTint, forceFg: LOOK.forceFg,
+          per: LOOK.per,
+        },
         /* R5：renderer 判定只走 src/lc/gpu.js（唯一允许读 WEBGL_debug_renderer_info 的模块） */
         renderer: (function () {
           try {
@@ -878,15 +1124,17 @@
       } catch (e) { return 'err:' + (e && e.message); }
       return out;
     },
-  };
+  }, '__gevEdge');
 
   /* 启动：Cesium viewer / 卡片就绪后建上下文 */
   var tries = 0;
+  /* Phase8C · D5/G18：三项系统设置 = 启动读一次 + change 监听（boot 前后都要生效） */
+  watchA11y();
   (function start() {
     if (boot()) return;
     /* Phase 4A：20s（80×250ms）在冷启动/GPU 进程忙碌时不够 —— 实测偶发 boot-timeout
        （lens 整场不出现，读数变成 0）。放宽到 60s，且不把「等待中」当成永久失败。 */
-    if (++tries > 240) { stats.err = stats.err || 'boot-timeout'; window.__gevEdgeLens.loading = false; console.warn('[gev-edge] boot timeout', stats.err); return; }
+    if (++tries > 240) { stats.err = stats.err || 'boot-timeout'; LENS_STATE.loading = false; console.warn('[gev-edge] boot timeout', stats.err); return; }
     setTimeout(start, 250);
   })();
 })();

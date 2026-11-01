@@ -5,7 +5,7 @@
  * actions are borrowed and given back, and `destroy()` returns everything —
  * and freezes the camera only while a drag is in progress.
  */
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 import { pickWorldFromScreen } from '../annotations/annotationResolver.js';
 import {
   claimPointer,

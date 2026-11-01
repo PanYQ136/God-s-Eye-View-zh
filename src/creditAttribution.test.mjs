@@ -122,20 +122,69 @@ function specificity(selector) {
   return [ids, classes, types];
 }
 
-/** Flatten style.css into rules carrying their raw media stack. */
+/**
+ * Flatten style.css into rules carrying their raw media stack and their
+ * cascade layer.
+ *
+ * Phase8D #13 wrapped every shipped stylesheet in an `@layer` block
+ * (`vendor < foundation < components < material < overrides`). A parser that
+ * skipped `@layer` — like one written for CSS without layers — saw an empty
+ * sheet, so every resolution failed. Layers are now first-class: each rule
+ * carries its layer name, and `@layer a, b, c;` fixes the order.
+ *
+ * Measured consequence of getting this wrong: at 1440px the credit's winning
+ * `bottom` is `0.75rem` from a components-layer rule that is declared AFTER
+ * `calc(2vh + 7rem)`; a source-order-only model picks whichever comes last in
+ * the file it happens to read, i.e. a `bottom` the browser never paints.
+ */
 function flattenRules(source) {
   const src = source.replace(/\/\*[\s\S]*?\*\//g, '');
   const rules = [];
-  const mediaStack = [];
+  /** Nesting stack: media conditions and layer blocks, in source order. */
+  const stack = [];
+  const layerOrder = [];
   let index = 0;
   let prelude = '';
+  const currentLayer = () => {
+    for (let i = stack.length - 1; i >= 0; i -= 1) {
+      if (stack[i].kind === 'layer') return stack[i].value;
+    }
+    return null;
+  };
+  const mediaStack = () => stack.filter((entry) => entry.kind === 'media').map((entry) => entry.value);
+  const noteLayer = (name) => {
+    const parent = currentLayer();
+    const full = parent ? `${parent}.${name}` : name;
+    if (!layerOrder.includes(full)) layerOrder.push(full);
+    return full;
+  };
   while (index < src.length) {
     const char = src[index];
+    if (char === ';') {
+      // A statement, not a block: `@layer vendor, foundation, ...;` fixes the
+      // layer order before any rule is read. `@import` is already resolved.
+      const head = prelude.replace(/\s+/g, ' ').trim();
+      prelude = '';
+      const declared = /^@layer\s+(.+)$/.exec(head);
+      if (declared) {
+        for (const name of declared[1].split(',')) {
+          const trimmed = name.trim();
+          if (trimmed) noteLayer(trimmed);
+        }
+      }
+      index += 1;
+      continue;
+    }
     if (char === '{') {
       const head = prelude.replace(/\s+/g, ' ').trim();
       prelude = '';
+      if (head.startsWith('@layer')) {
+        stack.push({ kind: 'layer', value: noteLayer(head.slice('@layer'.length).trim()) });
+        index += 1;
+        continue;
+      }
       if (head.startsWith('@media')) {
-        mediaStack.push(head.slice('@media'.length).trim());
+        stack.push({ kind: 'media', value: head.slice('@media'.length).trim() });
         index += 1;
         continue;
       }
@@ -166,7 +215,8 @@ function flattenRules(source) {
       }
       rules.push({
         order: rules.length,
-        media: [...mediaStack],
+        layer: currentLayer(),
+        media: mediaStack(),
         parts: splitTopLevel(head, ',').map((part) => part.trim().replace(/\(\s+/g, '(').replace(/\s+\)/g, ')')).filter(Boolean),
         decls,
       });
@@ -174,7 +224,8 @@ function flattenRules(source) {
       continue;
     }
     if (char === '}') {
-      mediaStack.pop();
+      assert.ok(stack.length > 0, 'unbalanced closing brace in the stylesheet');
+      stack.pop();
       prelude = '';
       index += 1;
       continue;
@@ -182,10 +233,11 @@ function flattenRules(source) {
     prelude += char;
     index += 1;
   }
-  return rules;
+  assert.equal(stack.length, 0, 'unbalanced at-rule block in the stylesheet');
+  return { rules, layerOrder };
 }
 
-const RULES = flattenRules(css);
+const { rules: RULES, layerOrder: LAYER_ORDER } = flattenRules(css);
 
 // ── What the model understands ──────────────────────────────────────────────
 
@@ -272,7 +324,19 @@ function appliesAt(rule, width, label) {
   });
 }
 
-/** Resolve `prop` by real cascade order: importance, then specificity, then source. */
+/**
+ * Layer precedence exactly as the browser applies it: an unlayered declaration
+ * beats every layered one, `@layer a, b, c;` orders the layered ones, and
+ * `!important` runs that order backwards (the first layer wins).
+ */
+function layerRank(rule) {
+  if (rule.layer === null) return LAYER_ORDER.length;
+  const rank = LAYER_ORDER.indexOf(rule.layer);
+  assert.ok(rank >= 0, `layer "${rule.layer}" was never registered`);
+  return rank;
+}
+
+/** Resolve `prop` by real cascade order: importance, layer, specificity, source. */
 function resolve(candidates, prop, width, label) {
   let winner = null;
   for (const rule of RULES) {
@@ -282,13 +346,21 @@ function resolve(candidates, prop, width, label) {
       if (!candidates.includes(part)) continue;
       for (const decl of rule.decls) {
         if (decl.prop !== prop) continue;
-        const contender = { decl, part, order: rule.order, spec: specificity(part) };
+        const contender = { decl, part, rule, order: rule.order, spec: specificity(part) };
         if (!winner) { winner = contender; continue; }
-        const byImportance = Number(contender.decl.important) - Number(winner.decl.important);
+        if (contender.decl.important !== winner.decl.important) {
+          if (contender.decl.important) winner = contender;
+          continue;
+        }
+        const byLayer = layerRank(contender.rule) - layerRank(winner.rule);
+        if (byLayer !== 0) {
+          // `!important` reverses layer order: the earlier layer wins.
+          const contenderWins = contender.decl.important ? byLayer < 0 : byLayer > 0;
+          if (contenderWins) winner = contender;
+          continue;
+        }
         const bySpecificity = compareSpecificity(contender.spec, winner.spec);
-        if (byImportance > 0
-          || (byImportance === 0 && bySpecificity > 0)
-          || (byImportance === 0 && bySpecificity === 0 && contender.order > winner.order)) {
+        if (bySpecificity > 0 || (bySpecificity === 0 && contender.order > winner.order)) {
           winner = contender;
         }
       }

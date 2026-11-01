@@ -12,7 +12,7 @@ import {
   pointInPolygon,
 } from '../sources/featureGeometry.js';
 import { defaultGeospatial } from '../search/defaults.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 import { lookupNeighborhoodRing } from '../data/neighborhoodPolygons.js';
 import {
   lookupNaturalRegionOutline,

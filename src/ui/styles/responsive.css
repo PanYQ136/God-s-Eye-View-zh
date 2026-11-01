@@ -1,3 +1,4 @@
+@layer components {
 /* ── Responsive ───────────────────────────────── */
 @media (max-width: 720px) {
   #pp-toggles {
@@ -265,4 +266,5 @@
   #title-bar .subtitle {
     display: none;
   }
+}
 }

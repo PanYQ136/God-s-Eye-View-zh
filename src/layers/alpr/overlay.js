@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import {
   MAX_CANVAS_FRUSTUMS,
   MARKER_ICON_SIZE,

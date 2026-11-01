@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 import { getOverlayPaintRect } from '../overlays/worldOverlay.js';
 import {
   getActiveTrackedReadoutId,
@@ -827,7 +827,8 @@ function injectStyles() {
   if (document.getElementById('gev-screen-whiteboard-styles')) return;
   const style = document.createElement('style');
   style.id = 'gev-screen-whiteboard-styles';
-  style.textContent = `
+  style.textContent = `@layer components {
+
   .gev-screen-whiteboard { position: fixed; inset: 0; pointer-events: none; z-index: 90; }
   .gev-screen-whiteboard-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
   /* No CSS opacity transition here on purpose: group opacity is driven per-frame in JS
@@ -852,6 +853,6 @@ function injectStyles() {
   .gev-pulse { animation: gev-ring-pulse 1.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
   @keyframes gev-ring-pulse { 0%,100% { opacity: 0.9; stroke-width: 2; } 50% { opacity: 0.35; stroke-width: 3.5; } }
   @keyframes gev-pop { from { opacity: 0; } to { opacity: 1; } }
-  `;
+}`;
   document.head.appendChild(style);
 }

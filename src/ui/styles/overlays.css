@@ -1,3 +1,4 @@
+@layer components {
 /* ── Safe Frame Overlay ─────────────────────── */
 #safe-frame-overlay {
   position: fixed;
@@ -376,4 +377,5 @@
 
 #intel-hud[data-variant='minimal'] .hud-summary-wrap {
   max-width: 280px;
+}
 }

@@ -2,7 +2,7 @@ import {
   FIRMS_OVERLAY_SOURCE_ID,
   fireDetectionKey,
 } from '../../data/firmsLabels.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { isPointerFree } from '../../data/inputOwnership.js';
 import { CONTEXT_TOP_N } from './policy.js';
 

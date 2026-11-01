@@ -5,7 +5,7 @@
    main:entry 之后的全部启动动作（底图预取 / ion 预热 / createApplication）。
    为了保持「模块求值 = 启动」的旧语义，这里不导出 start()，直接在求值时执行。
    ========================================================================== */
-import * as Cesium from 'cesium';
+import { Cesium } from './cesium.js';
 import { createStandaloneApplication } from './standalone/application.js';
 import { describeError } from './standalone/errors.js';
 import { primePhotorealTilesetLoad, selectMapStartupRoute } from './mapStartup.js';

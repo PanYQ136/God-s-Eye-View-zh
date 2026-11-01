@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import {
   MISSION_ORBIT_PATTERN_GROUPS,
   MISSION_ORBIT_DASHES_PER_GROUP,

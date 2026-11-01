@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import {
   TRAFFIC_TIMING_ENABLED,
   MAX_WAYPOINTS_PER_ROAD,

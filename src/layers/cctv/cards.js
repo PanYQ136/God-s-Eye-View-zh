@@ -8,7 +8,7 @@ import {
   CCTV_FRAME_CANVAS_H,
   applyFrameResult,
 } from '../../data/cctvCards.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { horizonOccluder } from '../../data/iconOrientation.js';
 import { selectCctvLod, applyEvictionGrace } from '../../data/cctvLod.js';
 import {

@@ -1,3 +1,4 @@
+@layer components {
 /* ── Command dock refinement: stacked trays + voice states ── */
 #command-dock {
   --dock-voice-width: 8.75rem;
@@ -526,4 +527,5 @@ body:not(.ui-clean-view):not(.recording-mode):has(
   #left-panel-stack {
     bottom: calc(50vh + 8px);
   }
+}
 }

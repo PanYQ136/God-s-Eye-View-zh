@@ -1,3 +1,4 @@
+import * as bridge from '../bridge.js';
 import { UiLifetime } from './uiLifetime.js';
 import { displayPanelScroller } from './displayPanelScroll.js';
 import { PanelPositionControls } from './panelPositionControls.js';
@@ -103,18 +104,17 @@ export class PanelChrome {
        7 张卡的开合由 src/lc 唯一拥有：App 既不生成折叠按钮（模板已删）、也不绑定
        点击/悬停/启动恢复，只保留 setPanelCollapsed API 供 CollapsePort 调用。
        删掉下面这段 + index.html 的 __lcExternalDisclosure 一行即还原。 */
-    const ext = (id) =>
-      !!(
-        typeof window !== 'undefined' &&
-        window.__lcExternalDisclosure &&
-        window.__lcExternalDisclosure.has &&
-        window.__lcExternalDisclosure.has(id)
-      );
-    if (typeof window !== 'undefined') {
-      window.__lcPanelApi = window.__lcPanelApi || {};
-      window.__lcPanelApi.setPanelCollapsed = (id, collapsed, options) =>
-        this.setPanelCollapsed(id, collapsed, options);
-    }
+    /* Phase8D #15：index.html 注入的披露表与 App 面板 API 都收进 bridge 槽位
+       （compat 名 __lcExternalDisclosure / __lcPanelApi 由桥的 getter 兜住）。 */
+    const disclosure = bridge.ensure('ui.externalDisclosure', {
+      global: '__lcExternalDisclosure',
+      owner: 'index.html',
+      initial: { has: () => false },
+    });
+    const ext = (id) => !!(disclosure && typeof disclosure.has === 'function' && disclosure.has(id));
+    const panelApi = bridge.ensure('app.panelApi', { global: '__lcPanelApi', owner: 'src/ui/panelChrome.js' });
+    panelApi.setPanelCollapsed = (id, collapsed, options) =>
+      this.setPanelCollapsed(id, collapsed, options);
     /* 旧面板（天气 / 近期影像 / 电台 / 参数滑条）不再有折叠按钮 DOM：
        标题条本身成为开合热区；7 张卡的标题热区归 src/lc/interaction.js。 */
     this._bindLegacyPanelHeaders(ext);

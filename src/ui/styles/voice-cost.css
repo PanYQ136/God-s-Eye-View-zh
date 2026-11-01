@@ -1,3 +1,4 @@
+@layer components {
 /* ------------------------------------------------------------------ *
  * Voice cost control — model-tier toggle + running session estimate.
  * Appended (not woven into the dock passes above) so the three existing
@@ -127,4 +128,5 @@
 
 #command-dock #gev-voice-control .gev-voice-cost {
   margin-left: 0;
+}
 }

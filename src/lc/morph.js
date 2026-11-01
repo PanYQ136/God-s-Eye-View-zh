@@ -16,6 +16,8 @@
      一条 cubic-bezier 的 y 值 overshoot 无法按「目标视觉放大比例」标定，
      而采样关键帧可以把 **视觉峰值** 精确标到 1.035（assertable）。
    ========================================================================== */
+import * as bridge from '../bridge.js';
+
 
 const S_SMALL = Math.sqrt(176 * 43); // 86.994
 const S_LARGE = Math.sqrt(320 * 380); // 348.712
@@ -96,6 +98,73 @@ export function keyframes(dx, dy, sx, sy, opts) {
 /* 每个元素只允许一条本模块创建的动画（M3/M6） */
 const CURRENT = new WeakMap();
 
+/* ── D3/G22：morph ↔ 边缘玻璃联动（「先变形，后上玻璃」）────────────────────
+   变形期间 __gevEdge 关闭（画布清空，不画冻结的边缘带）；变形结束 1 帧后恢复。
+   优先走 render.js 的玻璃状态接口（它会记下进入时的 lens cfg 并在结束时按原值恢复，
+   用户手动 off 的保持关闭）；没有该接口时退化成直接 set({enabled:false/true})。
+   两条路都只动开关，不改 band/dispPx/gain —— 材质参数永远只有一个写者。
+   计数用「进入/结束」配对：开卡 + 兄弟让位可能同时变形，最后一个结束才恢复。 */
+function glassApi() {
+  try {
+    return (bridge.get('lc') || {}).glass || null;
+  } catch (_) {
+    return null;
+  }
+}
+
+/* Phase8D #15：lens 是 classic script，先于本模块执行 → ensure 会**采用**它写好的对象 */
+function edgeApi() {
+  return bridge.ensure('edge.lens', { global: '__gevEdge', owner: 'public/gev-edge-lens.js' });
+}
+
+function edgeBegin(id) {
+  const g = glassApi();
+  try {
+    if (g && typeof g.morphBegin === 'function') return g.morphBegin(id || 'morph');
+  } catch (_) {}
+  try {
+    const E = edgeApi();
+    if (E && typeof E.set === 'function') {
+      E.set({ enabled: false });
+      return 1;
+    }
+  } catch (_) {}
+  return 0;
+}
+
+function edgeEnd(id) {
+  const g = glassApi();
+  try {
+    if (g && typeof g.morphEnd === 'function') return g.morphEnd(id || 'morph');
+  } catch (_) {}
+  try {
+    const E = edgeApi();
+    /* 恢复推迟 1 帧：让最后一帧变形先出屏 */
+    if (E && typeof E.set === 'function')
+      requestAnimationFrame(() => {
+        try {
+          E.set({ enabled: true });
+        } catch (_) {}
+      });
+  } catch (_) {}
+  return 0;
+}
+
+/** 一条动画的「进入/结束」只算一次（finish 与 cancel 可能都来）。 */
+function bindEdge(anim, id) {
+  let done = false;
+  const end = () => {
+    if (done) return;
+    done = true;
+    edgeEnd(id);
+  };
+  try {
+    anim.addEventListener('finish', end);
+    anim.addEventListener('cancel', end);
+  } catch (_) {}
+  return end;
+}
+
 export function cancel(el) {
   const a = CURRENT.get(el);
   if (!a) return false;
@@ -154,9 +223,9 @@ export function run(el, first, opts) {
           try {
             /* §6.7：software tier 也走 150ms / 无回弹（不做第二套材质，只切一个开关） */
             if (
-              window.__gevGpu &&
-              typeof window.__gevGpu.tier === 'function' &&
-              window.__gevGpu.tier() === 'software'
+              (bridge.get('gpu') || {}).tier &&
+              typeof bridge.get('gpu').tier === 'function' &&
+              bridge.get('gpu').tier() === 'software'
             )
               return true;
             return matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -183,6 +252,9 @@ export function run(el, first, opts) {
   } catch (_) {
     return null;
   }
+  /* D3/G22：本元素唯一的这条动画就是 morph 的生命周期 —— 开始降级、结束（或取消）1 帧后恢复玻璃 */
+  edgeBegin(o.id || el.id || 'morph');
+  bindEdge(anim, o.id || el.id || 'morph');
   if (typeof o.register === 'function') {
     try {
       o.register(anim);
@@ -190,9 +262,9 @@ export function run(el, first, opts) {
   }
   CURRENT.set(el, anim);
   try {
-    window.__lc = window.__lc || {};
-    window.__lc.morph = window.__lc.morph || {};
-    window.__lc.morph.last = {
+    const LC = bridge.ensure('lc', { global: '__lc', owner: 'src/lc/index.js' });
+    LC.morph = LC.morph || {};
+    LC.morph.last = {
       id: o.id || el.id || '',
       duration: dur,
       reduce,
@@ -283,9 +355,9 @@ function reducedNow(opts) {
   if (opts && opts.reducedMotion !== undefined) return !!opts.reducedMotion;
   try {
     if (
-      window.__gevGpu &&
-      typeof window.__gevGpu.tier === 'function' &&
-      window.__gevGpu.tier() === 'software'
+      (bridge.get('gpu') || {}).tier &&
+      typeof bridge.get('gpu').tier === 'function' &&
+      bridge.get('gpu').tier() === 'software'
     )
       return true;
     return matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -349,11 +421,14 @@ export function runShift(el, opts = {}) {
   } catch (_) {
     return null;
   }
+  /* 让位平移同属「变形期」：与开卡共用一个降级计数，最后一个结束才恢复玻璃 */
+  edgeBegin('shift');
+  bindEdge(anim, 'shift');
   CURRENT.set(el, anim);
   try {
-    window.__lc = window.__lc || {};
-    window.__lc.morph = window.__lc.morph || {};
-    window.__lc.morph.shift = {
+    const LC = bridge.ensure('lc', { global: '__lc', owner: 'src/lc/index.js' });
+    LC.morph = LC.morph || {};
+    LC.morph.shift = {
       duration: dur,
       peak: kf.peak,
       reduce,

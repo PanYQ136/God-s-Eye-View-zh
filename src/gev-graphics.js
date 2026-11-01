@@ -19,7 +19,7 @@
  *
  * 完全可还原：删本文件 + index.html 一行引用。
  */
-import { PostProcessStage, Cartesian2 } from 'cesium';
+import { Cesium } from './cesium.js';
 /* Phase 1 · S1g：探测画布必须带 powerPreference 且只由 src/lc/gpu.js 判定（§13.3 R1/R5） */
 import { probe as gpuProbe } from './lc/gpu.js';
 
@@ -125,7 +125,7 @@ import { probe as gpuProbe } from './lc/gpu.js';
   function ensureStage() {
     if (st.stage || !st.viewer || !st.viewer.scene) return st.stage;
     try {
-      st.stage = new PostProcessStage({
+      st.stage = new Cesium.PostProcessStage({
         name: 'gevCAS',
         fragmentShader: [
           'uniform sampler2D colorTexture;',
@@ -145,7 +145,7 @@ import { probe as gpuProbe } from './lc/gpu.js';
           '  out_FragColor = vec4(outc, 1.0);',
           '}',
         ].join('\n'),
-        uniforms: { u_amount: 0.0, u_step: new Cartesian2(1 / 1280, 1 / 720) },
+        uniforms: { u_amount: 0.0, u_step: new Cesium.Cartesian2(1 / 1280, 1 / 720) },
       });
       st.viewer.scene.postProcessStages.add(st.stage);
     } catch (e) {
@@ -183,7 +183,7 @@ import { probe as gpuProbe } from './lc/gpu.js';
         stage.enabled = amt > 0.001;
         const cv = v.canvas;
         if (cv)
-          stage.uniforms.u_step = new Cartesian2(
+          stage.uniforms.u_step = new Cesium.Cartesian2(
             1 / (cv.width || 1280),
             1 / (cv.height || 720),
           );
@@ -270,7 +270,8 @@ import { probe as gpuProbe } from './lc/gpu.js';
   function buildUi() {
     if (document.getElementById('gev-gfx-panel')) return;
     const style = document.createElement('style');
-    style.textContent = CSS;
+    /* Phase8D #13：运行时注入的样式表也要进层 */
+    style.textContent = '@layer components {\n' + CSS + '\n}';
     document.head.appendChild(style);
 
     const fab = el('button', null, '⚙');

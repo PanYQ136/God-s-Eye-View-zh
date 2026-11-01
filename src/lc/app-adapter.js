@@ -9,6 +9,7 @@
      · App 面板 API 的唯一入口（setPanelCollapsed）→ 供 CollapsePort 调用
    明确禁止：改相位、决定盒子、写动画。
    ========================================================================== */
+import * as bridge from '../bridge.js';
 import { CARDS, CARD_IDS, GEO, PROTECT_IDS, HEAD_SEL } from './cards.js';
 
 const px = (v) => (Number.isFinite(v) ? Math.round(v * 10) / 10 : 0);
@@ -452,7 +453,7 @@ export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
 
   /* ── App 面板 API（CollapsePort 唯一调用点）──────────────────────────────── */
   function panelApi() {
-    const api = (typeof window !== 'undefined' && window.__lcPanelApi) || null;
+    const api = bridge.get('app.panelApi') || null;
     return api && typeof api.setPanelCollapsed === 'function' ? api : null;
   }
 
@@ -472,10 +473,10 @@ export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
     const e = el(id);
     if (e) e.classList.toggle('collapsed', !!collapsed);
     if (typeof window !== 'undefined') {
-      window.__lc = window.__lc || {};
-      window.__lc.diagnostics = window.__lc.diagnostics || {};
+      const LC = bridge.ensure('lc', { global: '__lc', owner: 'src/lc/index.js' });
+      LC.diagnostics = LC.diagnostics || {};
       const key = preboot ? 'prebootWrites' : 'appApiMissing';
-      window.__lc.diagnostics[key] = (window.__lc.diagnostics[key] || 0) + 1;
+      LC.diagnostics[key] = (LC.diagnostics[key] || 0) + 1;
     }
     return preboot ? 'preboot' : 'direct';
   }

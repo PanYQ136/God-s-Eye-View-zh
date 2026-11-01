@@ -15,7 +15,7 @@
  * transform is cleared on every stop so manual control returns cleanly).
  */
 
-import * as Cesium from 'cesium';
+import { Cesium } from './cesium.js';
 import {
   holdContinuousRender,
   releaseContinuousRender,

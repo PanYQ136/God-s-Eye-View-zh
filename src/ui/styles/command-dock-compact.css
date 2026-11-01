@@ -1,3 +1,4 @@
+@layer components {
 /* ── Compact accordion command dock ──────────── */
 #command-dock {
   --dock-side-compact: clamp(9.5rem, 12vw, 10.5rem);
@@ -422,4 +423,5 @@ body:not(.ui-clean-view):not(.recording-mode) #cesium-credits {
   #command-dock .location-search-wrap {
     flex-basis: 8.5rem;
   }
+}
 }

@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { LAYER_ID, MAX_RENDERED, COLOR_BY_CLASS } from './policy.js';
 
 export function createRendering({

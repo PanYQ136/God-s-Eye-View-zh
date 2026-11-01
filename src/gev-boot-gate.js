@@ -62,12 +62,13 @@
    可还原：删 index.html 里那一行 <script> 即可 —— startupChrome / lc / autolocate
    都对 window.__gevBoot 缺失做了降级，行为回到「恢复完就收遮罩」。
    ════════════════════════════════════════════════════════════════════════════ */
+import * as bridge from './bridge.js';
 import * as timeline from './boot-timeline.js';
 import { startCesium } from './cesium-boot.js';
 
 (() => {
   'use strict';
-  if (typeof window === 'undefined' || window.__gevBoot) return;
+  if (typeof window === 'undefined' || bridge.get('boot')) return;
 
   /* 观测（boot-timeline）：本模块求值 = 模块图里 cesium 已下载/求值完之后，
      所以 gate:eval 本身就标出了「HTML+CSS+模块图」这一段的结束。 */
@@ -611,7 +612,7 @@ import { startCesium } from './cesium-boot.js';
        遮罩变成顶部状态胶囊 + 地图区一层无 pointer-events 的暗纱（见 startupChrome
        releaseInput / controls.css .boot-refining），B5 视觉门仍由 content+settle 决定。 */
     if (state.inputReleasedAt == null) {
-      const lcApi = window.__lc && window.__lc.api;
+      const lcApi = bridge.get('lc.api');
       if (lcApi && lcApi.mounted === true) releaseInputNow('lc-mounted');
     }
 
@@ -771,7 +772,7 @@ import { startCesium } from './cesium-boot.js';
   /* 兜底：75s 后无条件恢复瓦片调度并发（防止 interactive 永不触发时一直被压着） */
   setTimeout(restoreSchedCap, 75000);
 
-  window.__gevBoot = {
+  bridge.register('boot', {
     get version() {
       return 1;
     },
@@ -895,5 +896,5 @@ import { startCesium } from './cesium-boot.js';
         longFrames: longFrames.slice(),
       };
     },
-  };
+  }, { global: '__gevBoot', owner: 'src/gev-boot-gate.js' });
 })();

@@ -1,3 +1,4 @@
+@layer foundation {
 /* ═══════════════════════════════════════════════
    GOD'S EYE VIEW — Dark Sci-Fi UI
    Apple meets Blade Runner
@@ -356,7 +357,9 @@ body.cockpit-mode #cockpit-cloud-effects.active {
 }
 #cesium-credits a,
 #cesium-credits .cesium-credit-expand-link {
-  color: rgba(232, 234, 237, 0.7);
+  /* Phase8D #13 白名单：Cesium 的 widgets.css 是未分层的第三方表（<link> 无法进层），
+     「未分层 > 任何 @layer」，只有分层内的 !important 能反压它。 */
+  color: rgba(232, 234, 237, 0.7) !important;
 }
 
 /* Keep the ALPR source overflow reachable even after its brief on-map credit
@@ -742,4 +745,5 @@ body:has(.data-toggle-row[data-layer-id='alpr-cameras'] .data-toggle-btn.active)
 .data-toggle-list {
   -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent 100%);
   mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent 100%);
+}
 }

@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 
 // Attribution and service rights are documented in DATA_SOURCES.md.
 export const ESRI_ATTRIBUTION_HTML =

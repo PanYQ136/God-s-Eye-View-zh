@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { CYAN_TRANSPARENT } from './policy.js';
 
 export function createTesting({

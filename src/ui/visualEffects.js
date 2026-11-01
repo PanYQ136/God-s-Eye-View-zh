@@ -1,4 +1,4 @@
-import { PostProcessStage } from 'cesium';
+import { Cesium } from '../cesium.js';
 import {
   bloomStrengthFromIntensity,
   clampBloomIntensity,
@@ -25,7 +25,7 @@ export class VisualEffects {
     cancelFrame = (id) => cancelAnimationFrame(id),
     now = () => performance.now(),
     wallNow = () => Date.now(),
-    createStage = (options) => new PostProcessStage(options),
+    createStage = (options) => new Cesium.PostProcessStage(options),
   }) {
     this.viewer = viewer;
     this.requestRender = requestRender;

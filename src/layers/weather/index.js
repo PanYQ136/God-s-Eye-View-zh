@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { createWeatherRendering } from './rendering.js';
 import { imageryHostStatus } from './imageryHost.js';
 import {

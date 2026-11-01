@@ -9,13 +9,26 @@
       "src/data/infrastructure.js",
       "src/data/localGeojsonCore.js",
       "src/data/localGeojsonLod.js",
-      "src/data/inputOwnership.js"
+      "src/data/inputOwnership.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
   "application": {
     "exports": ["./application"],
-    "modules": ["src/app/application.js"],
+    "modules": ["src/app/application.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "viewer": {
@@ -24,14 +37,30 @@
       "src/app/viewer.js",
       "src/app/atmosphereCompat.js",
       "src/app/shaderCompileCache.js",
-      "src/boot-timeline.js"
+      "src/boot-timeline.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
   "vite-build": {
     "runtime": "node",
     "exports": ["./build/vite", "./build/html"],
-    "modules": ["build/vite.js", "build/application-html.js"],
+    "modules": [
+      "build/vite.js",
+      "build/application-html.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js",
+      "build/models.mjs"
+    ],
     "external": ["vite-plugin-cesium"]
   },
   "live-providers": {
@@ -51,13 +80,26 @@
       "src/data/aisStreamAdapter.js",
       "src/data/aisWatchdog.js",
       "src/sources/httpBody.js",
-      "server/providers/common/ws-proxy-agent.js"
+      "server/providers/common/ws-proxy-agent.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["ws"]
   },
   "adsb-lol-source": {
     "exports": ["./sources/adsb-lol"],
-    "modules": ["src/data/adsbLolFallback.js"],
+    "modules": ["src/data/adsbLolFallback.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "place-providers": {
@@ -75,13 +117,26 @@
       "src/data/placeProviderPayloads.js",
       "src/data/routeSteps.js",
       "src/sources/httpBody.js",
-      "src/sources/rateLimit.js"
+      "src/sources/rateLimit.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
   "place-payloads": {
     "exports": ["./sources/places"],
-    "modules": ["src/data/placeProviderPayloads.js"],
+    "modules": ["src/data/placeProviderPayloads.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "space-providers": {
@@ -93,13 +148,26 @@
       "server/providers/space/launch-library.js",
       "server/providers/common/http.js",
       "src/data/spaceProviderRequests.js",
-      "src/sources/httpBody.js"
+      "src/sources/httpBody.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
   "space-requests": {
     "exports": ["./sources/space"],
-    "modules": ["src/data/spaceProviderRequests.js"],
+    "modules": ["src/data/spaceProviderRequests.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "terrain-provider": {
@@ -107,35 +175,76 @@
     "exports": ["./server/providers/terrain"],
     "modules": [
       "server/providers/terrain.js",
-      "src/data/terrainHeightsProxy.js"
+      "src/data/terrainHeightsProxy.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
   "terrain-source": {
     "exports": ["./sources/terrain"],
-    "modules": ["src/data/terrainHeightsProxy.js"],
+    "modules": ["src/data/terrainHeightsProxy.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "traffic-provider": {
     "runtime": "node",
     "exports": ["./server/providers/traffic"],
-    "modules": ["server/providers/traffic.js", "src/data/tomtomTiles.js"],
+    "modules": ["server/providers/traffic.js", "src/data/tomtomTiles.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "traffic-source": {
     "exports": ["./sources/traffic"],
-    "modules": ["src/data/tomtomTiles.js"],
+    "modules": ["src/data/tomtomTiles.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "firms-csv": {
     "exports": ["./sources/firms-csv"],
-    "modules": ["src/data/firmsCsv.js"],
+    "modules": ["src/data/firmsCsv.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "firms-provider": {
     "runtime": "node",
     "exports": ["./server/providers/firms"],
-    "modules": ["server/providers/firms.js", "src/data/firmsCsv.js"],
+    "modules": ["server/providers/firms.js", "src/data/firmsCsv.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "gbfs-provider": {
@@ -145,13 +254,26 @@
       "server/providers/gbfs.js",
       "server/providers/common/http.js",
       "src/data/gbfsSource.js",
-      "src/sources/httpBody.js"
+      "src/sources/httpBody.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
   "gbfs-source": {
     "exports": ["./sources/gbfs"],
-    "modules": ["src/data/gbfsSource.js"],
+    "modules": ["src/data/gbfsSource.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "cctv-provider": {
@@ -175,7 +297,13 @@
       "scripts/google-server-key.mjs",
       "src/data/cctvFootprint.js",
       "src/sources/cctvTypes.js",
-      "src/sources/httpBody.js"
+      "src/sources/httpBody.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -191,7 +319,13 @@
       "src/data/radioCountry.js",
       "server/providers/common/http.js",
       "src/sources/radioBrowser.js",
-      "src/sources/httpBody.js"
+      "src/sources/httpBody.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -214,7 +348,13 @@
       "src/data/routeSteps.js",
       "src/sources/httpBody.js",
       "src/sources/overpass.js",
-      "src/sources/rateLimit.js"
+      "src/sources/rateLimit.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -233,7 +373,13 @@
       "server/providers/overpass/geometry.js",
       "server/providers/overpass/transport.js",
       "src/sources/httpBody.js",
-      "src/sources/rateLimit.js"
+      "src/sources/rateLimit.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -255,7 +401,13 @@
       "src/data/regionalModel.js",
       "src/nominatimGeocode.js",
       "src/sources/httpBody.js",
-      "src/sources/rateLimit.js"
+      "src/sources/rateLimit.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -283,7 +435,13 @@
       "src/voice/voiceCost.js",
       "src/voice/actionSchemas.js",
       "server/providers/openai/toolDescriptions.js",
-      "src/sources/rateLimit.js"
+      "src/sources/rateLimit.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -295,7 +453,13 @@
       "server/providers/common/source-root.js",
       "server/standalone/key-setup.js",
       "src/keySetupCore.mjs",
-      "server/standalone/key-setup-hardening.mjs"
+      "server/standalone/key-setup-hardening.mjs",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -316,18 +480,38 @@
       "src/nominatimGeocode.js",
       "src/data/regionalModel.js",
       "src/sources/httpBody.js",
-      "src/sources/nominatim.js"
+      "src/sources/nominatim.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
   "panel-disclosure": {
     "exports": ["./ui/panels"],
-    "modules": ["src/ui/panelDisclosure.js"],
+    "modules": ["src/ui/panelDisclosure.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "surface-keyboard": {
     "exports": ["./ui/surfaces"],
-    "modules": ["src/ui/surfaceKeyboard.js"],
+    "modules": ["src/ui/surfaceKeyboard.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "panel-rail-layout": {
@@ -339,7 +523,13 @@
       "src/ui/rightPanelRail.js",
       "src/ui/panelMeasurement.js",
       "src/ui/panelRailGeometry.js",
-      "src/panelStackLayout.js"
+      "src/panelStackLayout.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -348,13 +538,26 @@
     "modules": [
       "src/ui/visualInput.js",
       "src/ui/applicationShortcuts.js",
-      "src/ui/styleParameters.js"
+      "src/ui/styleParameters.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
   "display-controls": {
     "exports": ["./ui/display"],
-    "modules": ["src/ui/displayControls.js"],
+    "modules": ["src/ui/displayControls.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "visual-effects": {
@@ -374,7 +577,13 @@
       "src/styles/cinema.js",
       "src/styles/ghost.js",
       "src/styles/predator.js",
-      "src/styles/xray.js"
+      "src/styles/xray.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
@@ -385,7 +594,13 @@
       "src/ui/mapSourceControls.js",
       "src/mapStackChips.js",
       "src/keySetupCore.mjs",
-      "src/maps/regionDetect.js"
+      "src/maps/regionDetect.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -405,7 +620,13 @@
       "src/data/installationFeedback.js",
       "src/keySetupCore.mjs",
       "src/data/feedState.js",
-      "src/data/layerSnapshot.js"
+      "src/data/layerSnapshot.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -416,7 +637,13 @@
       "src/ui/locationControls.js",
       "src/ui/locationSearch.js",
       "src/locationStatus.js",
-      "src/app/stateChannel.js"
+      "src/app/stateChannel.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -427,7 +654,13 @@
       "src/ui/radioControls.js",
       "src/ui/radioBindings.js",
       "src/ui/radioPresentation.js",
-      "src/ui/radioTunerModel.js"
+      "src/ui/radioTunerModel.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -440,7 +673,13 @@
       "src/ui/cctvControls.js",
       "src/ui/cctvFrames.js",
       "src/ui/cctvVideo.js",
-      "src/ui/cctvPresentation.js"
+      "src/ui/cctvPresentation.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -458,7 +697,13 @@
       "src/ui/contextTransactions.js",
       "src/contextModePolicy.js",
       "src/rightRailPolicy.js",
-      "src/ui/panelRailGeometry.js"
+      "src/ui/panelRailGeometry.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -486,7 +731,13 @@
       "src/cockpitMath.js",
       "src/cockpitUtilityLayout.js",
       "src/cockpitVisionPolicy.js",
-      "src/ui/panelRailGeometry.js"
+      "src/ui/panelRailGeometry.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
@@ -495,7 +746,13 @@
     "modules": [
       "src/ui/scenes.js",
       "src/ui/sceneControls.js",
-      "src/ui/scenePresentation.js"
+      "src/ui/scenePresentation.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -632,7 +889,13 @@
       "src/styles/ghost.js",
       "src/styles/predator.js",
       "src/styles/xray.js",
-      "src/maps/regionDetect.js"
+      "src/maps/regionDetect.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
@@ -662,7 +925,13 @@
       "src/ui/styles/first-run.css",
       "src/ui/styles/provider-settings.css",
       "src/ui/styles/weather.css",
-      "src/ui/styles/recent-imagery.css"
+      "src/ui/styles/recent-imagery.css",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -685,7 +954,13 @@
       "src/director/sharing/bundle.js",
       "src/director/sharing/preview.js",
       "src/director/sharing/lifetime.js",
-      "src/director/authoring.js"
+      "src/director/authoring.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -736,7 +1011,13 @@
       "src/director/sharing/lifetime.js",
       "src/director/authoring.js",
       "src/scenes/sharing.js",
-      "src/ui/sceneSharing.js"
+      "src/ui/sceneSharing.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
@@ -747,7 +1028,14 @@
       "src/sources/live/contract.js",
       "src/sources/live/index.js",
       "src/sources/live/standalone.js",
-      "src/sources/live/vessels.js"
+      "src/sources/live/vessels.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js",
+      "src/sources/live/resilientFetch.js"
     ],
     "external": []
   },
@@ -788,7 +1076,13 @@
       "src/layers/flights/snapshotRenderer.js",
       "src/layers/flights/modelSpec.js",
       "src/data/inputOwnership.js",
-      "src/data/modelEligibility.js"
+      "src/data/modelEligibility.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
@@ -827,7 +1121,13 @@
       "src/data/inputOwnership.js",
       "src/data/modelEligibility.js",
       "src/layers/flights/recordPolicy.js",
-      "src/layers/flights/policy.js"
+      "src/layers/flights/policy.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
@@ -851,7 +1151,13 @@
       "src/data/trackingClickGesture.js",
       "src/layers/aircraft/classification.js",
       "src/layers/aircraft/index.js",
-      "src/data/inputOwnership.js"
+      "src/data/inputOwnership.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
@@ -876,7 +1182,13 @@
       "src/layers/vessels/recordPolicy.js",
       "src/layers/vessels/snapshotRenderer.js",
       "src/data/inputOwnership.js",
-      "src/layers/flights/recordPolicy.js"
+      "src/layers/flights/recordPolicy.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
@@ -886,7 +1198,13 @@
       "src/layers/earthquakes/index.js",
       "src/layers/earthquakes/model.js",
       "src/layers/earthquakes/source.js",
-      "src/layers/earthquakes/records.js"
+      "src/layers/earthquakes/records.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
@@ -898,7 +1216,13 @@
       "src/layers/recentImagery/catalog.js",
       "src/layers/recentImagery/rendering.js",
       "src/layers/recentImagery/thumbnails.js",
-      "src/maps/imageryHost.js"
+      "src/maps/imageryHost.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
@@ -921,7 +1245,13 @@
       "src/layers/firms/source.js",
       "src/layers/firms/state.js",
       "src/layers/firms/viewport.js",
-      "src/data/inputOwnership.js"
+      "src/data/inputOwnership.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
@@ -947,7 +1277,13 @@
       "src/layers/satellites/testing.js",
       "src/layers/satellites/tracking.js",
       "src/data/inputOwnership.js",
-      "src/data/vehicleIcons.js"
+      "src/data/vehicleIcons.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium", "satellite.js"]
   },
@@ -975,7 +1311,13 @@
       "src/layers/launches/state.js",
       "src/layers/launches/testing.js",
       "src/data/inputOwnership.js",
-      "src/data/vehicleIcons.js"
+      "src/data/vehicleIcons.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
@@ -995,7 +1337,13 @@
       "src/layers/installations/source.js",
       "src/layers/installations/state.js",
       "src/layers/installations/viewport.js",
-      "src/data/inputOwnership.js"
+      "src/data/inputOwnership.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
@@ -1022,7 +1370,13 @@
       "src/layers/awareness/state.js",
       "src/layers/awareness/subject.js",
       "src/layers/awareness/testing.js",
-      "src/ui/panelRailGeometry.js"
+      "src/ui/panelRailGeometry.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
@@ -1053,7 +1407,13 @@
       "src/layers/traffic/timing.js",
       "src/layers/traffic/viewport.js",
       "src/sources/overpassRoads.js",
-      "src/data/vehicleIcons.js"
+      "src/data/vehicleIcons.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium", "pbf", "@mapbox/vector-tile"]
   },
@@ -1075,7 +1435,13 @@
       "src/layers/bikeshare/testing.js",
       "src/layers/bikeshare/viewport.js",
       "src/data/inputOwnership.js",
-      "src/data/cameraSensitivity.js"
+      "src/data/cameraSensitivity.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
@@ -1116,7 +1482,13 @@
       "src/overlays/worldOverlayTokens.js",
       "src/data/cctvFootprint.js",
       "src/data/inputOwnership.js",
-      "src/layers/cctv/sourcePolicy.js"
+      "src/layers/cctv/sourcePolicy.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["hls.js", "cesium"]
   },
@@ -1131,7 +1503,13 @@
       "src/layers/alpr/overlay.js",
       "src/layers/alpr/source.js",
       "src/data/inputOwnership.js",
-      "src/layers/alpr/records.js"
+      "src/layers/alpr/records.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
@@ -1164,7 +1542,13 @@
       "src/layers/radio/tuningNoise.js",
       "src/layers/radio/volume.js",
       "src/ui/radioTunerModel.js",
-      "src/data/inputOwnership.js"
+      "src/data/inputOwnership.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
@@ -1181,7 +1565,13 @@
       "src/layers/submarineCables/rendering.js",
       "src/layers/submarineCables/state.js",
       "src/layers/submarineCables/surface.js",
-      "src/data/inputOwnership.js"
+      "src/data/inputOwnership.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
@@ -1190,7 +1580,13 @@
     "modules": [
       "src/layers/submarineCables/bundledSource.js",
       "src/data/local_data/telegeography_submarine_cables/cable-geo.json",
-      "src/data/local_data/telegeography_submarine_cables/landing-point-geo.json"
+      "src/data/local_data/telegeography_submarine_cables/landing-point-geo.json",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -1203,7 +1599,13 @@
       "src/data/retryableLoad.js",
       "src/data/local_data/neighborhoods/san-francisco.json",
       "src/data/local_data/natural_earth/regions.json",
-      "src/data/local_data/natural_earth/marine.json"
+      "src/data/local_data/natural_earth/marine.json",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -1229,7 +1631,13 @@
       "src/maps/registry.js",
       "src/maps/terrain.js",
       "src/keySetupCore.mjs",
-      "src/maps/imageryHost.js"
+      "src/maps/imageryHost.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
@@ -1263,7 +1671,13 @@
       "src/voice/realtimeFacade.js",
       "src/voice/realtimeRadio.js",
       "src/voice/realtimeTurns.js",
-      "src/voice/realtimeConnection.js"
+      "src/voice/realtimeConnection.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -1990,7 +2404,17 @@
       "src/styles/predator.js",
       "src/styles/xray.js",
       "src/maps/regionDetect.js",
-      "src/data/vehicleIcons.js"
+      "src/data/vehicleIcons.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js",
+      "src/maps/baseTilePrefetch.js",
+      "src/app/sceneContent.js",
+      "src/app/pendingLayer.js",
+      "src/sources/live/resilientFetch.js"
     ],
     "external": [
       "hls.js",
@@ -2005,7 +2429,16 @@
   },
   "application-catalog": {
     "exports": ["./application/catalog"],
-    "modules": ["src/app/catalog.js"],
+    "modules": [
+      "src/app/catalog.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js",
+      "src/app/pendingLayer.js"
+    ],
     "external": []
   },
   "application-layer-construction": {
@@ -2451,7 +2884,14 @@
       "src/layers/recentImagery/rendering.js",
       "src/layers/recentImagery/thumbnails.js",
       "src/maps/imageryHost.js",
-      "src/data/vehicleIcons.js"
+      "src/data/vehicleIcons.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js",
+      "src/app/pendingLayer.js"
     ],
     "external": [
       "hls.js",
@@ -2507,7 +2947,13 @@
       "src/sources/featureGeometry.js",
       "src/sources/overpassFeaturesRecords.js",
       "src/sources/overpassFeatures.js",
-      "src/sources/featureSource.js"
+      "src/sources/featureSource.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": [
       "cesium",
@@ -2520,7 +2966,14 @@
   },
   "layer-lifecycle": {
     "exports": ["./data/lifecycle"],
-    "modules": ["src/data/lifecycle.js"],
+    "modules": ["src/data/lifecycle.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "ui-navigation": {
@@ -2528,7 +2981,13 @@
     "modules": [
       "src/navigationPolicy.js",
       "src/ui/navigationController.js",
-      "src/app/stateChannel.js"
+      "src/app/stateChannel.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
@@ -2540,7 +2999,13 @@
       "src/loadingFeedback.js",
       "src/navigationPolicy.js",
       "src/ui/shareRestoration.js",
-      "src/ui/uiLifetime.js"
+      "src/ui/uiLifetime.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -2573,7 +3038,13 @@
       "src/styles/cinema.js",
       "src/styles/ghost.js",
       "src/styles/predator.js",
-      "src/styles/xray.js"
+      "src/styles/xray.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
@@ -2592,7 +3063,13 @@
       "src/ui/panelRailGeometry.js",
       "src/ui/panelRails.js",
       "src/ui/rightPanelRail.js",
-      "src/ui/uiLifetime.js"
+      "src/ui/uiLifetime.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -2603,7 +3080,13 @@
       "src/layers/flights/recordPolicy.js",
       "src/data/aircraftMeta.js",
       "src/data/renderAltitude.js",
-      "src/data/aircraftClass.js"
+      "src/data/aircraftClass.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -2611,7 +3094,13 @@
     "exports": ["./layers/flights/ingestion"],
     "modules": [
       "src/layers/flights/ingestion.js",
-      "src/layers/flights/recordPolicy.js"
+      "src/layers/flights/recordPolicy.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -2622,7 +3111,13 @@
       "src/layers/military/recordPolicy.js",
       "src/data/aircraftMeta.js",
       "src/data/renderAltitude.js",
-      "src/data/aircraftClass.js"
+      "src/data/aircraftClass.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -2630,7 +3125,13 @@
     "exports": ["./layers/military/ingestion"],
     "modules": [
       "src/layers/military/ingestion.js",
-      "src/layers/military/recordPolicy.js"
+      "src/layers/military/recordPolicy.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -2638,7 +3139,13 @@
     "exports": ["./layers/vessels/records"],
     "modules": [
       "src/layers/vessels/records.js",
-      "src/layers/vessels/recordPolicy.js"
+      "src/layers/vessels/recordPolicy.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -2646,38 +3153,86 @@
     "exports": ["./layers/vessels/ingestion"],
     "modules": [
       "src/layers/vessels/ingestion.js",
-      "src/layers/vessels/recordPolicy.js"
+      "src/layers/vessels/recordPolicy.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
   "directions-layer": {
     "exports": ["./layers/directions"],
-    "modules": ["src/layers/directions/index.js", "src/data/routeSteps.js"],
+    "modules": ["src/layers/directions/index.js", "src/data/routeSteps.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": ["cesium"]
   },
   "radio-browser-source": {
     "exports": ["./sources/radio-browser"],
-    "modules": ["src/sources/radioBrowser.js", "src/data/radioCountry.js"],
+    "modules": ["src/sources/radioBrowser.js", "src/data/radioCountry.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "cctv-types-source": {
     "exports": ["./sources/cctv-types"],
-    "modules": ["src/sources/cctvTypes.js"],
+    "modules": ["src/sources/cctvTypes.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "regional-source": {
     "exports": ["./sources/regional"],
-    "modules": ["src/data/regionalModel.js"],
+    "modules": ["src/data/regionalModel.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "voice-action-schemas": {
     "exports": ["./voice/action-schemas"],
-    "modules": ["src/voice/actionSchemas.js", "src/hudLayoutPolicy.js"],
+    "modules": ["src/voice/actionSchemas.js", "src/hudLayoutPolicy.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "voice-session": {
     "exports": ["./voice/session"],
-    "modules": ["src/voice/session.js"],
+    "modules": ["src/voice/session.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "voice-session-controls": {
@@ -2685,7 +3240,13 @@
     "modules": [
       "src/voice/sessionCommands.js",
       "src/voice/session.js",
-      "src/voice/control.js"
+      "src/voice/control.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -2694,54 +3255,114 @@
     "modules": [
       "src/layers/alpr/policy.js",
       "src/layers/alpr/records.js",
-      "src/layers/alpr/source.js"
+      "src/layers/alpr/source.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
   "bikeshare-source": {
     "exports": ["./layers/bikeshare/source"],
-    "modules": ["src/layers/bikeshare/source.js"],
+    "modules": ["src/layers/bikeshare/source.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "cctv-source": {
     "exports": ["./layers/cctv/source"],
-    "modules": ["src/layers/cctv/source.js", "src/layers/cctv/sourcePolicy.js"],
+    "modules": ["src/layers/cctv/source.js", "src/layers/cctv/sourcePolicy.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "earthquakes-source": {
     "exports": ["./layers/earthquakes/source"],
     "modules": [
       "src/layers/earthquakes/records.js",
-      "src/layers/earthquakes/source.js"
+      "src/layers/earthquakes/source.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
   "firms-source": {
     "exports": ["./layers/firms/source"],
-    "modules": ["src/layers/firms/source.js"],
+    "modules": ["src/layers/firms/source.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "installations-source": {
     "exports": ["./layers/installations/source"],
     "modules": [
       "src/layers/installations/source.js",
-      "src/data/militaryInstallationData.js"
+      "src/data/militaryInstallationData.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
   "launches-source": {
     "exports": ["./layers/launches/source"],
-    "modules": ["src/layers/launches/source.js"],
+    "modules": ["src/layers/launches/source.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "radio-source": {
     "exports": ["./layers/radio/source"],
-    "modules": ["src/layers/radio/policy.js", "src/layers/radio/source.js"],
+    "modules": ["src/layers/radio/policy.js", "src/layers/radio/source.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "satellites-source": {
     "exports": ["./layers/satellites/source"],
-    "modules": ["src/layers/satellites/source.js"],
+    "modules": ["src/layers/satellites/source.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "traffic-source-factory": {
@@ -2751,7 +3372,13 @@
       "src/layers/traffic/flowDecode.js",
       "src/layers/traffic/flowSource.js",
       "src/layers/traffic/source.js",
-      "src/sources/overpassRoads.js"
+      "src/sources/overpassRoads.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["@mapbox/vector-tile", "pbf"]
   },
@@ -2764,7 +3391,13 @@
       "src/sources/httpBody.js",
       "src/layers/perimeters/source.js",
       "src/layers/perimeters/records.js",
-      "src/layers/submarineCables/bundledSource.js"
+      "src/layers/submarineCables/bundledSource.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -2777,18 +3410,38 @@
       "src/search/geospatial.js",
       "src/data/regionalModel.js",
       "src/sources/httpBody.js",
-      "src/sources/nominatim.js"
+      "src/sources/nominatim.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
   "source-http-body": {
     "exports": ["./sources/http-body"],
-    "modules": ["src/sources/httpBody.js"],
+    "modules": ["src/sources/httpBody.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "overpass-lexer": {
     "exports": ["./sources/overpass"],
-    "modules": ["src/sources/overpass.js"],
+    "modules": ["src/sources/overpass.js",
+"src/cesium.js",
+"src/bridge.js",
+"src/app/catalogFactoriesCore.js",
+"src/app/catalogFactoriesRest.js",
+"src/overlays/worldOverlay/primitives.js",
+"src/voice/actions/vocabulary.js"
+    ],
     "external": []
   },
   "nominatim-source": {
@@ -2798,7 +3451,13 @@
       "src/nominatimGeocode.js",
       "src/search/geospatial.js",
       "src/data/regionalModel.js",
-      "src/sources/httpBody.js"
+      "src/sources/httpBody.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -2817,7 +3476,14 @@
       "src/sources/transitHistory.js",
       "src/sources/transitService.js",
       "src/sources/transitHistoryStore.js",
-      "src/sources/rateLimit.js"
+      "src/sources/rateLimit.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js",
+      "server/providers/transit-circuit.js"
     ],
     "external": ["pbf"]
   },
@@ -2827,7 +3493,13 @@
       "src/data/gtfsRealtime.js",
       "src/data/transitFeeds.js",
       "src/data/transitProxy.js",
-      "src/sources/transitHistory.js"
+      "src/sources/transitHistory.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["pbf"]
   },
@@ -2888,7 +3560,13 @@
       "src/sources/featureGeometry.js",
       "src/sources/overpassFeaturesRecords.js",
       "src/sources/overpassFeatures.js",
-      "src/sources/featureSource.js"
+      "src/sources/featureSource.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium", "egm96-universal", "pbf"]
   },
@@ -2925,7 +3603,13 @@
       "scripts/qa-transit-controls.mjs",
       "scripts/qa-transit-browser.mjs",
       "src/layers/transit/source.js",
-      "src/sources/transitHistory.js"
+      "src/sources/transitHistory.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium", "pbf"]
   },
@@ -2933,7 +3617,13 @@
     "exports": ["./layers/transit/source"],
     "modules": [
       "src/layers/transit/source.js",
-      "src/sources/transitHistory.js"
+      "src/sources/transitHistory.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -2947,7 +3637,13 @@
       "src/sources/transitHistory.js",
       "src/sources/transitService.js",
       "src/sources/transitHistoryStore.js",
-      "src/sources/rateLimit.js"
+      "src/sources/rateLimit.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["pbf"]
   },
@@ -2957,7 +3653,13 @@
       "src/sources/featureGeometry.js",
       "src/sources/overpassFeaturesRecords.js",
       "src/sources/overpassFeatures.js",
-      "src/sources/featureSource.js"
+      "src/sources/featureSource.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -2969,7 +3671,13 @@
       "src/layers/perimeters/source.js",
       "src/layers/perimeters/records.js",
       "src/layers/perimeters/cards.js",
-      "src/layers/perimeters/inciweb.js"
+      "src/layers/perimeters/inciweb.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
@@ -2978,7 +3686,13 @@
     "modules": [
       "src/layers/perimeters/records.js",
       "src/sources/httpBody.js",
-      "src/layers/perimeters/source.js"
+      "src/layers/perimeters/source.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   }

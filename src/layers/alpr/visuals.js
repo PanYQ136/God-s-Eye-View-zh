@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { destinationPointDeg } from './model.js';
 import { DIRECTION_CONE_M, DIRECTION_CONE_HALF_ANGLE_DEG } from './policy.js';
 

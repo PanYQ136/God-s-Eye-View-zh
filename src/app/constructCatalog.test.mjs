@@ -29,12 +29,12 @@ test('catalogs construct distinct layers and classification from their supplied 
   });
   const callsA = [];
   const callsB = [];
-  const first = createApplicationCatalog({
+  const first = await createApplicationCatalog({
     sources: fixtureSources(['abc123'], callsA),
     signal: a.signal,
     surface: fixtureSurface(a.signal),
   });
-  const second = createApplicationCatalog({
+  const second = await createApplicationCatalog({
     sources: fixtureSources(['def456'], callsB),
     signal: b.signal,
     surface: fixtureSurface(b.signal),
@@ -111,9 +111,9 @@ test('catalogs construct distinct layers and classification from their supplied 
   assert.equal(second.militaryRegistry.isMilitaryIcao('def456'), true);
 });
 
-test('invalid or already cancelled construction fails before classification can acquire', () => {
+test('invalid or already cancelled construction fails before classification can acquire', async () => {
   const lifetime = new AbortController();
-  assert.throws(
+  await assert.rejects(
     () =>
       createApplicationCatalog({
         sources: {},
@@ -123,7 +123,7 @@ test('invalid or already cancelled construction fails before classification can 
     /catalog source/,
   );
   lifetime.abort();
-  assert.throws(
+  await assert.rejects(
     () =>
       createApplicationCatalog({
         sources: createStandaloneLayerSources(),
@@ -140,3 +140,96 @@ function fixtureSurface(signal) {
     eventTarget: null,
   });
 }
+
+/** The catalog order frozen by Phase8E — deferred hydration must reproduce it. */
+const CATALOG_LAYER_ORDER = Object.freeze([
+  'bhote-koshi-2026',
+  'bhote-koshi-locator',
+  'flights',
+  'military',
+  'local-adsb',
+  'earthquakes',
+  'fire-perimeters',
+  'alpr-cameras',
+  'satellites',
+  'rocket-launches',
+  'traffic',
+  'cctv',
+  'radio',
+  'transit',
+  'bikeshare',
+  'directions',
+  'recent-imagery',
+  'ais-live-vessels',
+  'military-installations',
+  'military-awareness',
+  'wind',
+  'weather-radar',
+  'weather-satellite',
+  'weather-lightning',
+  'weather-cyclones',
+  'local-datacenters',
+  'local-dams',
+  'telegeography-submarine-cables',
+  'local-firms',
+]);
+const CORE_LAYER_ORDER = CATALOG_LAYER_ORDER.slice(0, 5);
+
+test('deferred construction keeps the registry, order and clock isolation intact', async (t) => {
+  const lifetime = new AbortController();
+  t.after(() => lifetime.abort());
+  const catalog = await createApplicationCatalog({
+    sources: fixtureSources(['abc123'], []),
+    signal: lifetime.signal,
+    surface: fixtureSurface(lifetime.signal),
+    deferRest: true,
+  });
+  // Wave 1 arrives at startup; wave 2 is declared but not built.
+  assert.deepEqual(
+    catalog.layers.map(({ id }) => id),
+    CORE_LAYER_ORDER,
+  );
+  assert.equal(catalog.metadata.length, 29, 'the registry is complete');
+  assert.equal(CATALOG_LAYER_ORDER.length - CORE_LAYER_ORDER.length, catalog.pendingLayerIds.length);
+  // Control bindings captured at startup survive the deferral.
+  const services = catalogControlServices(catalog);
+  assert.equal(services.flightsLayer, catalog.get('flights'));
+  const satellitesHandle = services.satellitesLayer;
+  assert.equal(satellitesHandle.id, 'satellites');
+  assert.equal(
+    typeof satellitesHandle.getDetectableObjects,
+    'undefined',
+    'a pending handle exposes no methods before the factory arrives',
+  );
+  await catalog.hydrate();
+  assert.deepEqual(
+    catalog.layers.map(({ id }) => id),
+    CATALOG_LAYER_ORDER,
+    'deferred registration reproduces the frozen catalog order',
+  );
+  assert.deepEqual(catalog.pendingLayerIds, []);
+  assert.equal(typeof satellitesHandle.getDetectableObjects, 'function');
+  assert.equal(
+    catalog.resolve('satellites'),
+    catalog.get('satellites'),
+    'a materialized layer resolves to the real instance',
+  );
+  // Clock isolation still holds: every weather layer reads THIS catalog's clock.
+  await catalog.weatherClock.setTarget('2026-09-21T12:00:00.000Z');
+  assert.match(
+    catalog.get('wind').getRowControls().info,
+    /Forecast · does not follow history/,
+  );
+  for (const id of ['weather-radar', 'weather-satellite', 'weather-lightning'])
+    assert.equal(
+      catalog.get(id).getDiagnostics().clock.target,
+      '2026-09-21T12:00:00.000Z',
+    );
+  assert.equal(
+    catalog.metadata.find(({ id }) => id === 'local-adsb').disposition,
+    'local-only',
+    'the hardware-local layer stays local-only through the deferral',
+  );
+  assert.ok(catalog.get('local-adsb'), 'local ADS-B is available from wave 1');
+});
+

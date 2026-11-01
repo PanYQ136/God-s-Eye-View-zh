@@ -72,7 +72,8 @@
     if (document.getElementById('gev-limit-style')) return;
     const s = document.createElement('style');
     s.id = 'gev-limit-style';
-    s.textContent = STYLE;
+    /* Phase8D #13：运行时注入的样式表也要进层（未分层会整体压掉分层 App CSS） */
+    s.textContent = '@layer components {\n' + STYLE + '\n}';
     document.head.appendChild(s);
   }
 

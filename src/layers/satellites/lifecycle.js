@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import { Cesium } from '../../cesium.js';
 import { ISS_OVERLAY_SOURCE_ID } from './policy.js';
 
 export function createLifecycle({

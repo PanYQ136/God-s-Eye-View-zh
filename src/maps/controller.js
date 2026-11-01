@@ -1,5 +1,5 @@
 import { indexMapSources } from './registry.js';
-import * as Cesium from 'cesium';
+import { Cesium } from '../cesium.js';
 import { createMapCredits } from './credits.js';
 import { acquireImageryComparison } from './imageryComparison.js';
 /* Phase7A 观测：底图栈各段耗时（boot-timeline 缺失时是空操作） */
