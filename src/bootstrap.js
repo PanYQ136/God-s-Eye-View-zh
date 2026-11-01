@@ -8,7 +8,10 @@
 import { Cesium } from './cesium.js';
 import { createStandaloneApplication } from './standalone/application.js';
 import { describeError } from './standalone/errors.js';
-import { primePhotorealTilesetLoad, selectMapStartupRoute } from './mapStartup.js';
+import {
+  primePhotorealTilesetLoad,
+  selectMapStartupRoute,
+} from './mapStartup.js';
 import { warmIonAsset } from './maps/tileWarmup.js';
 import { primeBaseTiles } from './maps/baseTilePrefetch.js';
 /* Phase7A3：这两个入口的顶部就引用 Cesium 全局（/cesium/Cesium.js 的 classic 全局），

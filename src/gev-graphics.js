@@ -145,7 +145,10 @@ import { probe as gpuProbe } from './lc/gpu.js';
           '  out_FragColor = vec4(outc, 1.0);',
           '}',
         ].join('\n'),
-        uniforms: { u_amount: 0.0, u_step: new Cesium.Cartesian2(1 / 1280, 1 / 720) },
+        uniforms: {
+          u_amount: 0.0,
+          u_step: new Cesium.Cartesian2(1 / 1280, 1 / 720),
+        },
       });
       st.viewer.scene.postProcessStages.add(st.stage);
     } catch (e) {
@@ -528,7 +531,9 @@ import { probe as gpuProbe } from './lc/gpu.js';
     // GEV (G7): 性能模式(gev-perf，localStorage gev.perfMode==='1')激活时，运行时画质
     // (resolutionScale/targetFrameRate/globeMSE/后处理) 由 gev-perf 独占；watchdog 直接让位，
     // 否则它每 1.5s 会把自适应分辨率/帧率改回 cfg，导致性能模式与自适应失效。
-    try { if (localStorage.getItem('gev.perfMode') === '1') return; } catch (e) {}
+    try {
+      if (localStorage.getItem('gev.perfMode') === '1') return;
+    } catch (e) {}
     try {
       const want = effRes(st.cfg.res);
       if (Math.abs((v.resolutionScale || 1) - want) > 0.001)

@@ -354,7 +354,11 @@ test('the scroll fade only appears when the list really overflows', () => {
   assert.match(module, /choiceList\.dataset\.scrollable = String\(overflows\);/);
   // ...and the CSS must be gated on that flag, never on the media query alone.
   assert.match(css, /\.first-run-choices\[data-scrollable='true'\] \{[\s\S]*?mask-image/);
-  const bareFade = css.match(/^\s*\.first-run-choices \{[\s\S]*?\n\}/m)?.[0] || '';
+  // 2026-11-01：块结束用 `^\s*\}` 而不是 `\n\}` —— 该选择器位于媒体查询内，
+  // prettier 会把闭合括号缩进到两格；旧写法匹配不到块尾，会把后面
+  // `[data-scrollable='true']` 那段（含 mask-image）一起吞进来，误判为「无条件渐隐」。
+  // 断言意图不变：**基础选择器块内**不得出现 mask-image。
+  const bareFade = css.match(/^\s*\.first-run-choices \{[\s\S]*?^\s*\}/m)?.[0] || '';
   assert.doesNotMatch(bareFade, /mask-image/, 'the fade must never apply unconditionally');
   // Rotating a phone changes which tiles fit, so it re-measures.
   assert.match(module, /addEventListener\?\.\('resize', onViewportResize\)/);
@@ -584,7 +588,16 @@ test('markup, startup ordering and accessibility remain pinned', () => {
     'the removed tile must leave no markup behind');
 
   assert.match(startup, /styleManager\.initialRestorePromise/);
-  assert.ok(startup.indexOf("loadingScreen.classList.add('hidden')") < startup.indexOf("loadingScreen.addEventListener('transitionend', revealFirstRun"));
+  // 2026-11-01：原先按字面量找 `addEventListener('transitionend', revealFirstRun)`。
+  // Phase6C3 之后这里挂的是内联回调（回调体里才调 revealFirstRun），字面量已不存在，
+  // indexOf 返回 -1 让断言恒假。改为按「调用点」匹配，保留原意：
+  // 必须先 classList.add('hidden') 再监听 transitionend。
+  const hiddenAt = startup.indexOf("loadingScreen.classList.add('hidden')");
+  const onEndAt = startup.search(/addEventListener\(\s*'transitionend'/);
+  assert.ok(
+    hiddenAt >= 0 && onEndAt >= 0 && hiddenAt < onEndAt,
+    'the mask must be hidden before the transitionend reveal is wired',
+  );
   assert.match(startup, /initializeWelcome\?\.\(\{ styleManager, dataManager \}\)/);
 
   assert.match(css, /body\.ui-clean-view #first-run-launcher/);

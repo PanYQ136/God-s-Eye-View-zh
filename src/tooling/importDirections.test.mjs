@@ -60,9 +60,16 @@ test('portable sources can share records, and standalone can assemble rendering'
      assembly keeps its rendering dependency while the sanctioned path is also
      exercised (the returned warnings must stay empty). */
   write('src/cesium.js', "export * from 'cesium';");
-  write('src/layers/demo/index.js', "import { Viewer } from '../../cesium.js';");
+  write(
+    'src/layers/demo/index.js',
+    "import { Viewer } from '../../cesium.js';",
+  );
   const result = checkImportDirections(root);
-  assert.deepEqual(result.warnings, [], 'the sanctioned single exit must not warn');
+  assert.deepEqual(
+    result.warnings,
+    [],
+    'the sanctioned single exit must not warn',
+  );
   assert.equal(result.modules, 6);
 });
 
@@ -165,13 +172,20 @@ test('self package imports cannot evade portable ownership', (t) => {
   assert.throws(() => checkImportDirections(root), /Source imports rendering/);
 });
 
-test('compatibility exceptions are limited to the two existing composition entries', (t) => {
+test('compatibility exceptions are limited to the one remaining composition entry', (t) => {
+  // 2026-11-01：`src/ui.js` 这个 @deprecated 兼容入口已删除（零引用），
+  // 对应豁免边一并移除；这里只保留仍存在的 server/providers/local.js → key-setup。
   const { root, write } = fixture(t);
-  write('src/ui.js', "import './standalone/catalog.js';");
-  write('src/standalone/catalog.js');
   write('server/providers/local.js', "import '../standalone/key-setup.js';");
   write('server/standalone/key-setup.js');
   assert.doesNotThrow(() => checkImportDirections(root));
+  // 被删掉的那条边不再放行：若有人重建同名入口，必须显式登记。
+  write('src/ui.js', "import './standalone/catalog.js';");
+  write('src/standalone/catalog.js');
+  assert.throws(
+    () => checkImportDirections(root),
+    /Reusable module imports standalone/,
+  );
   write('src/ui/new.js', "import '../standalone/catalog.js';");
   assert.throws(
     () => checkImportDirections(root),

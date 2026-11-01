@@ -68,7 +68,6 @@ export {
  * generation; this host owns projection, final placement, paint, and hits.
  */
 
-
 /** @typedef {{x:number,y:number,w:number,h:number}} OverlayRect */
 /**
  * @typedef {object} WorldOverlayEntry
@@ -257,7 +256,6 @@ const _diagnostics = {
   entriesBySource: {},
   paintedBySource: _paintedBySource,
 };
-
 
 /** Resolve an entry to one of the seven binding paint lanes. */
 export function paintLaneForOverlayEntry(entry = {}) {
@@ -2499,7 +2497,8 @@ function cameraPoseChanged() {
     direction.x !== _lastPaintPose.dx ||
     direction.y !== _lastPaintPose.dy ||
     direction.z !== _lastPaintPose.dz ||
-    (camera.positionCartographic?.height ?? Number.NaN) !== _lastPaintPose.height
+    (camera.positionCartographic?.height ?? Number.NaN) !==
+      _lastPaintPose.height
   );
 }
 
@@ -2514,17 +2513,19 @@ function rememberCameraPose() {
   _lastPaintPose.dx = direction.x;
   _lastPaintPose.dy = direction.y;
   _lastPaintPose.dz = direction.z;
-  _lastPaintPose.height =
-    camera.positionCartographic?.height ?? Number.NaN;
+  _lastPaintPose.height = camera.positionCartographic?.height ?? Number.NaN;
 }
 
 /** Arms exactly one trailing frame for a cadence-skipped paint. */
 function scheduleDeferredPaint(delayMs) {
   if (_paintDeferTimer !== null) return;
-  _paintDeferTimer = setTimeout(() => {
-    _paintDeferTimer = null;
-    if (!_destroyed) _viewer?.scene?.requestRender?.();
-  }, Math.max(1, Math.ceil(delayMs)));
+  _paintDeferTimer = setTimeout(
+    () => {
+      _paintDeferTimer = null;
+      if (!_destroyed) _viewer?.scene?.requestRender?.();
+    },
+    Math.max(1, Math.ceil(delayMs)),
+  );
 }
 
 function drawWorldOverlay() {

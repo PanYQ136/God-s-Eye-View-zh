@@ -12,11 +12,13 @@ test('explicit build inputs preserve browser-only defines, plugin order and loop
     googleApiKey: 'browser-fixture',
     cesiumToken: 'ion-fixture',
   });
-  assert.equal(config.plugins[4], plugin);
+  assert.equal(config.plugins[5], plugin);
   /* [0] vite-plugin-cesium / [1] 组件模板展开 / [2] Phase7A-A：Cesium.js defer 注入 /
-     [3] #21 模型产物闸门 / [4] 调用方插件（断言上面一行） */
+     [3] #21 模型产物闸门 / [4] chunk 体积报告（2026-11-01 新增）/
+     [5] 调用方插件（断言上面一行） */
   assert.equal(config.plugins[2].name, 'gev-defer-cesium-script');
   assert.equal(config.plugins[3].name, 'gev-models-prune');
+  assert.equal(config.plugins[4].name, 'gev-chunk-report');
   assert.equal(config.server.host, 'localhost');
   assert.equal(config.server.port, 4173);
   assert.deepEqual(config.server.allowedHosts, [
@@ -55,7 +57,7 @@ test('build helper does not discover environment values or construct local provi
       config.define['import.meta.env.GOOGLE_MAPS_API_KEY'],
       undefined,
     );
-    assert.equal(config.plugins.length, 4);
+    assert.equal(config.plugins.length, 5);
   } finally {
     if (before === undefined) delete process.env.GOOGLE_MAPS_API_KEY;
     else process.env.GOOGLE_MAPS_API_KEY = before;
@@ -73,7 +75,7 @@ test('root config stays config-only and providers re-export from providers/index
   // The root config factory is async since it awaits the local-proxy bootstrap.
   const config = await standaloneConfig({ mode: 'test' });
   assert.deepEqual(
-    config.plugins.slice(4, -2).map((plugin) => plugin.name),
+    config.plugins.slice(5, -2).map((plugin) => plugin.name),
     providers.localProviderPlugins().map((plugin) => plugin.name),
   );
   /* 尾巴两家：warmupPlugin（server/standalone/mini-speedup.js）+ apiNotFoundPlugin。

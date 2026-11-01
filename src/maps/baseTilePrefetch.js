@@ -68,7 +68,8 @@ let provider = null;
 /* ── WebMercator ─────────────────────────────────────────────────────────── */
 const lngToX = (lon, z) => Math.floor(((lon + 180) / 360) * 2 ** z);
 const latToY = (lat, z) => {
-  const r = (Math.max(-85.05112878, Math.min(85.05112878, lat)) * Math.PI) / 180;
+  const r =
+    (Math.max(-85.05112878, Math.min(85.05112878, lat)) * Math.PI) / 180;
   const n = Math.log(Math.tan(Math.PI / 4 + r / 2));
   return Math.floor(((1 - n / Math.PI) / 2) * 2 ** z);
 };
@@ -123,7 +124,8 @@ function pump() {
         totalBytes += buf.byteLength;
         stats.bytes = totalBytes;
         stats.ok += 1;
-        if (stats.started && stats.ok === 1) stats.firstTileMs = +(now() - stats.started).toFixed(0);
+        if (stats.started && stats.ok === 1)
+          stats.firstTileMs = +(now() - stats.started).toFixed(0);
         stats.lastTileMs = +(now() - stats.started).toFixed(0);
         stats.lastTileDur = +(now() - t0).toFixed(0);
       })

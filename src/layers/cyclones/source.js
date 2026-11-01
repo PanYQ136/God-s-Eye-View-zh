@@ -206,7 +206,8 @@ export function validateCycloneSnapshot(value) {
 
 /** Lazy same-origin acquisition; source owns only its deadline and cancellation. */
 export function createCycloneSource({
-  fetchImpl = (...args) => (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
+  fetchImpl = (...args) =>
+    (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
   timeoutMs = 15_000,
 } = {}) {
   return {

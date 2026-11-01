@@ -34,14 +34,19 @@ export function installTransitCircuit(service) {
     if (feedId) {
       const until = cooling.get(feedId) || 0;
       if (Date.now() < until) {
-        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'x-transit-circuit': 'open' });
-        res.end(JSON.stringify({
-          feed: feedId,
-          available: false,
-          vehicles: [],
-          reason: 'upstream_unavailable',
-          retryInSec: Math.round((until - Date.now()) / 1000),
-        }));
+        res.writeHead(200, {
+          'Content-Type': 'application/json; charset=utf-8',
+          'x-transit-circuit': 'open',
+        });
+        res.end(
+          JSON.stringify({
+            feed: feedId,
+            available: false,
+            vehicles: [],
+            reason: 'upstream_unavailable',
+            retryInSec: Math.round((until - Date.now()) / 1000),
+          }),
+        );
         return;
       }
     }
@@ -60,29 +65,39 @@ export function installTransitCircuit(service) {
 
       if (!response || response.__timeout) {
         if (feedId) cooling.set(feedId, Date.now() + COOLDOWN_MS);
-        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'x-transit-circuit': 'timeout' });
-        res.end(JSON.stringify({
-          feed: feedId,
-          available: false,
-          vehicles: [],
-          reason: 'upstream_timeout',
-          retryInSec: Math.round(COOLDOWN_MS / 1000),
-        }));
+        res.writeHead(200, {
+          'Content-Type': 'application/json; charset=utf-8',
+          'x-transit-circuit': 'timeout',
+        });
+        res.end(
+          JSON.stringify({
+            feed: feedId,
+            available: false,
+            vehicles: [],
+            reason: 'upstream_timeout',
+            retryInSec: Math.round(COOLDOWN_MS / 1000),
+          }),
+        );
         return;
       }
 
       const body = await response.text();
       if (response.status >= 500) {
         if (feedId) cooling.set(feedId, Date.now() + COOLDOWN_MS);
-        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'x-transit-circuit': 'upstream-5xx' });
-        res.end(JSON.stringify({
-          feed: feedId,
-          available: false,
-          vehicles: [],
-          reason: 'upstream_error',
-          upstreamStatus: response.status,
-          retryInSec: Math.round(COOLDOWN_MS / 1000),
-        }));
+        res.writeHead(200, {
+          'Content-Type': 'application/json; charset=utf-8',
+          'x-transit-circuit': 'upstream-5xx',
+        });
+        res.end(
+          JSON.stringify({
+            feed: feedId,
+            available: false,
+            vehicles: [],
+            reason: 'upstream_error',
+            upstreamStatus: response.status,
+            retryInSec: Math.round(COOLDOWN_MS / 1000),
+          }),
+        );
         return;
       }
 
@@ -92,15 +107,20 @@ export function installTransitCircuit(service) {
     } catch (err) {
       clearTimeout(timer);
       if (feedId) cooling.set(feedId, Date.now() + COOLDOWN_MS);
-      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'x-transit-circuit': 'error' });
-      res.end(JSON.stringify({
-        feed: feedId,
-        available: false,
-        vehicles: [],
-        reason: 'upstream_exception',
-        message: String((err && err.message) || err).slice(0, 120),
-        retryInSec: Math.round(COOLDOWN_MS / 1000),
-      }));
+      res.writeHead(200, {
+        'Content-Type': 'application/json; charset=utf-8',
+        'x-transit-circuit': 'error',
+      });
+      res.end(
+        JSON.stringify({
+          feed: feedId,
+          available: false,
+          vehicles: [],
+          reason: 'upstream_exception',
+          message: String((err && err.message) || err).slice(0, 120),
+          retryInSec: Math.round(COOLDOWN_MS / 1000),
+        }),
+      );
     }
   };
 }

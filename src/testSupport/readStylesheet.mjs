@@ -17,9 +17,7 @@ export function readStylesheet(file, ancestors = new Set()) {
   const next = new Set(ancestors).add(resolved);
   return readFileSync(resolved, 'utf8')
     .replace(/\r\n?/g, '\n')
-    .replace(
-      /@import ['"]([^'"]+)['"];\s*/g,
-      (_, imported) =>
-        readStylesheet(path.resolve(path.dirname(resolved), imported), next),
+    .replace(/@import ['"]([^'"]+)['"];\s*/g, (_, imported) =>
+      readStylesheet(path.resolve(path.dirname(resolved), imported), next),
     );
 }

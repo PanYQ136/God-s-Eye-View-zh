@@ -10,7 +10,8 @@ export function installationResponseSaturated(payload) {
 
 /** Read mapped installations and explicit nearby-place searches through fixed endpoints. */
 export function createInstallationSource({
-  fetchImpl = (...args) => (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
+  fetchImpl = (...args) =>
+    (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
 } = {}) {
   return {
     async getMappedSites(box, { exact = false, signal } = {}) {

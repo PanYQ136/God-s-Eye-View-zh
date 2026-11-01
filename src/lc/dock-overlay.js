@@ -30,8 +30,16 @@ export function dockPanelBox({ dock, contentH, viewport, safe, protect = [] }) {
   const safeTop = (safe && Number(safe.top)) || GEO.SAFE_TOP;
 
   const wMax = Math.max(GEO.PANEL_MIN_W, vw - 2 * GEO.PANEL_EDGE);
-  const w = Math.round(clamp(Math.min(dock.w, GEO.PANEL_MAX_W), GEO.PANEL_MIN_W, wMax));
-  const x = Math.round(clamp(cx - w / 2, GEO.PANEL_EDGE, Math.max(GEO.PANEL_EDGE, vw - GEO.PANEL_EDGE - w)));
+  const w = Math.round(
+    clamp(Math.min(dock.w, GEO.PANEL_MAX_W), GEO.PANEL_MIN_W, wMax),
+  );
+  const x = Math.round(
+    clamp(
+      cx - w / 2,
+      GEO.PANEL_EDGE,
+      Math.max(GEO.PANEL_EDGE, vw - GEO.PANEL_EDGE - w),
+    ),
+  );
 
   /* P0-3：高度贴合内容。底界不是「dock 顶边」而是「dock 顶边与横向重叠的固定 chrome 顶边取小」——
      dock 上方那一排 chip（perf / 语言 / 定位 / 语音）是常驻 chrome，面板压上去就是遮挡。 */
@@ -49,7 +57,9 @@ export function dockPanelBox({ dock, contentH, viewport, safe, protect = [] }) {
   const maxH = Math.max(GEO.PANEL_MIN_H, bottom - safeTop);
   const want = Math.round(Number(contentH) || GEO.PANEL_MIN_H);
   const h = Math.round(clamp(want, GEO.PANEL_MIN_H, maxH));
-  const y = Math.round(clamp(bottom - h, safeTop, Math.max(safeTop, viewport.h - h - GEO.EDGE)));
+  const y = Math.round(
+    clamp(bottom - h, safeTop, Math.max(safeTop, viewport.h - h - GEO.EDGE)),
+  );
 
   return { x, y, w, h, radius: 16 };
 }

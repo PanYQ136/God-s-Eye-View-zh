@@ -21,13 +21,14 @@
   },
   "application": {
     "exports": ["./application"],
-    "modules": ["src/app/application.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/app/application.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -92,13 +93,14 @@
   },
   "adsb-lol-source": {
     "exports": ["./sources/adsb-lol"],
-    "modules": ["src/data/adsbLolFallback.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/data/adsbLolFallback.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -129,13 +131,14 @@
   },
   "place-payloads": {
     "exports": ["./sources/places"],
-    "modules": ["src/data/placeProviderPayloads.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/data/placeProviderPayloads.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -160,13 +163,14 @@
   },
   "space-requests": {
     "exports": ["./sources/space"],
-    "modules": ["src/data/spaceProviderRequests.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/data/spaceProviderRequests.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -187,63 +191,70 @@
   },
   "terrain-source": {
     "exports": ["./sources/terrain"],
-    "modules": ["src/data/terrainHeightsProxy.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/data/terrainHeightsProxy.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
   "traffic-provider": {
     "runtime": "node",
     "exports": ["./server/providers/traffic"],
-    "modules": ["server/providers/traffic.js", "src/data/tomtomTiles.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "server/providers/traffic.js",
+      "src/data/tomtomTiles.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
   "traffic-source": {
     "exports": ["./sources/traffic"],
-    "modules": ["src/data/tomtomTiles.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/data/tomtomTiles.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
   "firms-csv": {
     "exports": ["./sources/firms-csv"],
-    "modules": ["src/data/firmsCsv.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/data/firmsCsv.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
   "firms-provider": {
     "runtime": "node",
     "exports": ["./server/providers/firms"],
-    "modules": ["server/providers/firms.js", "src/data/firmsCsv.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "server/providers/firms.js",
+      "src/data/firmsCsv.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -266,13 +277,14 @@
   },
   "gbfs-source": {
     "exports": ["./sources/gbfs"],
-    "modules": ["src/data/gbfsSource.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/data/gbfsSource.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -492,25 +504,27 @@
   },
   "panel-disclosure": {
     "exports": ["./ui/panels"],
-    "modules": ["src/ui/panelDisclosure.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/ui/panelDisclosure.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
   "surface-keyboard": {
     "exports": ["./ui/surfaces"],
-    "modules": ["src/ui/surfaceKeyboard.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/ui/surfaceKeyboard.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -550,13 +564,14 @@
   },
   "display-controls": {
     "exports": ["./ui/display"],
-    "modules": ["src/ui/displayControls.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/ui/displayControls.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -2966,13 +2981,14 @@
   },
   "layer-lifecycle": {
     "exports": ["./data/lifecycle"],
-    "modules": ["src/data/lifecycle.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/data/lifecycle.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -3165,73 +3181,82 @@
   },
   "directions-layer": {
     "exports": ["./layers/directions"],
-    "modules": ["src/layers/directions/index.js", "src/data/routeSteps.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/layers/directions/index.js",
+      "src/data/routeSteps.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": ["cesium"]
   },
   "radio-browser-source": {
     "exports": ["./sources/radio-browser"],
-    "modules": ["src/sources/radioBrowser.js", "src/data/radioCountry.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/sources/radioBrowser.js",
+      "src/data/radioCountry.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
   "cctv-types-source": {
     "exports": ["./sources/cctv-types"],
-    "modules": ["src/sources/cctvTypes.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/sources/cctvTypes.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
   "regional-source": {
     "exports": ["./sources/regional"],
-    "modules": ["src/data/regionalModel.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/data/regionalModel.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
   "voice-action-schemas": {
     "exports": ["./voice/action-schemas"],
-    "modules": ["src/voice/actionSchemas.js", "src/hudLayoutPolicy.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/voice/actionSchemas.js",
+      "src/hudLayoutPolicy.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
   "voice-session": {
     "exports": ["./voice/session"],
-    "modules": ["src/voice/session.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/voice/session.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -3267,25 +3292,28 @@
   },
   "bikeshare-source": {
     "exports": ["./layers/bikeshare/source"],
-    "modules": ["src/layers/bikeshare/source.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/layers/bikeshare/source.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
   "cctv-source": {
     "exports": ["./layers/cctv/source"],
-    "modules": ["src/layers/cctv/source.js", "src/layers/cctv/sourcePolicy.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/layers/cctv/source.js",
+      "src/layers/cctv/sourcePolicy.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -3305,13 +3333,14 @@
   },
   "firms-source": {
     "exports": ["./layers/firms/source"],
-    "modules": ["src/layers/firms/source.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/layers/firms/source.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -3331,37 +3360,41 @@
   },
   "launches-source": {
     "exports": ["./layers/launches/source"],
-    "modules": ["src/layers/launches/source.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/layers/launches/source.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
   "radio-source": {
     "exports": ["./layers/radio/source"],
-    "modules": ["src/layers/radio/policy.js", "src/layers/radio/source.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/layers/radio/policy.js",
+      "src/layers/radio/source.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
   "satellites-source": {
     "exports": ["./layers/satellites/source"],
-    "modules": ["src/layers/satellites/source.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/layers/satellites/source.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
@@ -3422,25 +3455,27 @@
   },
   "source-http-body": {
     "exports": ["./sources/http-body"],
-    "modules": ["src/sources/httpBody.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/sources/httpBody.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },
   "overpass-lexer": {
     "exports": ["./sources/overpass"],
-    "modules": ["src/sources/overpass.js",
-"src/cesium.js",
-"src/bridge.js",
-"src/app/catalogFactoriesCore.js",
-"src/app/catalogFactoriesRest.js",
-"src/overlays/worldOverlay/primitives.js",
-"src/voice/actions/vocabulary.js"
+    "modules": [
+      "src/sources/overpass.js",
+      "src/cesium.js",
+      "src/bridge.js",
+      "src/app/catalogFactoriesCore.js",
+      "src/app/catalogFactoriesRest.js",
+      "src/overlays/worldOverlay/primitives.js",
+      "src/voice/actions/vocabulary.js"
     ],
     "external": []
   },

@@ -34,9 +34,10 @@ const UPSTREAM_TIMEOUT_MS = 20_000;
 function feedName(minMagnitude, period) {
   const per = ['day', 'week', 'month'].includes(period) ? period : 'day';
   const mag = Number(minMagnitude);
-  const prefix = Number.isFinite(mag) && mag > 0 && mag < 10
-    ? String(mag).replace(/\.0$/, '') // 2.5 → "2.5", 4 → "4"
-    : 'all';
+  const prefix =
+    Number.isFinite(mag) && mag > 0 && mag < 10
+      ? String(mag).replace(/\.0$/, '') // 2.5 → "2.5", 4 → "4"
+      : 'all';
   return `${prefix}_${per}.geojson`;
 }
 
@@ -85,7 +86,11 @@ export function earthquakesProxy() {
     try {
       const parsed = JSON.parse(await fsp.readFile(CACHE_PATH, 'utf8'));
       if (parsed && Array.isArray(parsed.quakes) && parsed.quakes.length) {
-        mem = mem || { at: parsed.at || 0, feed: parsed.feed || 'all_day.geojson', quakes: parsed.quakes };
+        mem = mem || {
+          at: parsed.at || 0,
+          feed: parsed.feed || 'all_day.geojson',
+          quakes: parsed.quakes,
+        };
       }
     } catch {
       /* no cache yet */
@@ -102,10 +107,13 @@ export function earthquakesProxy() {
   }
 
   async function fetchFeed(feed) {
-    const res = await fetch(`${FEED_HOST}/earthquakes/feed/v1.0/summary/${feed}`, {
-      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
-      headers: { Accept: 'application/geo+json, application/json' },
-    });
+    const res = await fetch(
+      `${FEED_HOST}/earthquakes/feed/v1.0/summary/${feed}`,
+      {
+        signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+        headers: { Accept: 'application/geo+json, application/json' },
+      },
+    );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const body = await res.json();
     const features = Array.isArray(body && body.features) ? body.features : [];
@@ -118,7 +126,8 @@ export function earthquakesProxy() {
   }
 
   function parseWindow(url) {
-    const q = String(url || '').indexOf('?') >= 0 ? String(url).split('?')[1] : '';
+    const q =
+      String(url || '').indexOf('?') >= 0 ? String(url).split('?')[1] : '';
     const params = new URLSearchParams(q || '');
     let box = null;
     const raw = params.get('bbox');
@@ -129,13 +138,22 @@ export function earthquakesProxy() {
       }
     }
     const lim = Number(params.get('limit'));
-    const limit = Number.isFinite(lim) && lim > 0 ? Math.min(20000, Math.floor(lim)) : 0;
+    const limit =
+      Number.isFinite(lim) && lim > 0 ? Math.min(20000, Math.floor(lim)) : 0;
     const magRaw = Number(params.get('minMagnitude'));
     const minMagnitude = Number.isFinite(magRaw) && magRaw > 0 ? magRaw : null;
-    const period = ['day', 'week', 'month'].includes(String(params.get('period')))
+    const period = ['day', 'week', 'month'].includes(
+      String(params.get('period')),
+    )
       ? String(params.get('period'))
       : 'day';
-    return { box, limit, minMagnitude, period, feed: feedName(minMagnitude, period) };
+    return {
+      box,
+      limit,
+      minMagnitude,
+      period,
+      feed: feedName(minMagnitude, period),
+    };
   }
 
   function buildPayload(entry, stale, win) {
@@ -143,7 +161,9 @@ export function earthquakesProxy() {
     const total = quakes.length;
     if (win.box) {
       const b = win.box;
-      quakes = quakes.filter((q) => q.lat >= b.s && q.lat <= b.n && q.lon >= b.w && q.lon <= b.e);
+      quakes = quakes.filter(
+        (q) => q.lat >= b.s && q.lat <= b.n && q.lon >= b.w && q.lon <= b.e,
+      );
     }
     const inBox = quakes.length;
     let truncated = false;
@@ -183,9 +203,10 @@ export function earthquakesProxy() {
         const win = parseWindow(req.url);
         await readDiskOnce();
 
-        const usable = mem
-          && (mem.feed === win.feed)
-          && (Date.now() - mem.at < DISK_TOLERANCE_MS);
+        const usable =
+          mem &&
+          mem.feed === win.feed &&
+          Date.now() - mem.at < DISK_TOLERANCE_MS;
 
         if (usable && Date.now() - mem.at < TTL_MS) {
           sendJson(200, buildPayload(mem, false, win));
@@ -199,7 +220,9 @@ export function earthquakesProxy() {
               return fresh;
             })
             .catch((err) => {
-              console.warn(`[earthquakes-proxy] refresh failed (${err?.message || err}) — serving cache if any`);
+              console.warn(
+                `[earthquakes-proxy] refresh failed (${err?.message || err}) — serving cache if any`,
+              );
               return null;
             })
             .finally(() => {
@@ -213,7 +236,9 @@ export function earthquakesProxy() {
         } else if (usable) {
           sendJson(200, buildPayload(mem, true, win)); // upstream down — stale beats empty
         } else {
-          sendJson(502, { error: 'earthquakes upstream unreachable and no cache available' });
+          sendJson(502, {
+            error: 'earthquakes upstream unreachable and no cache available',
+          });
         }
       } catch (err) {
         console.warn('[earthquakes-proxy] error:', err?.message || err);

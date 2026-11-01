@@ -21,11 +21,24 @@ const DEFAULT_PORT_IDS = [
   'control-panel',
 ];
 
-export function createCollapsePort({ adapter, ids = DEFAULT_PORT_IDS, onExternalChange = () => {}, clock = () => performance.now() } = {}) {
+export function createCollapsePort({
+  adapter,
+  ids = DEFAULT_PORT_IDS,
+  onExternalChange = () => {},
+  clock = () => performance.now(),
+} = {}) {
   const desired = new Map();
   const suppress = new Map();
   let observers = [];
-  const stats = { writes: 0, appWrites: 0, suppressed: 0, direct: 0, preboot: 0, reconciled: 0, failures: 0 };
+  const stats = {
+    writes: 0,
+    appWrites: 0,
+    suppressed: 0,
+    direct: 0,
+    preboot: 0,
+    reconciled: 0,
+    failures: 0,
+  };
 
   function current(id) {
     return adapter.isCollapsed(id);
@@ -75,7 +88,11 @@ export function createCollapsePort({ adapter, ids = DEFAULT_PORT_IDS, onExternal
       const cur = current(id);
       const want = desired.has(id) ? desired.get(id) : cur;
       suppress.set(id, clock() + 200);
-      adapter.setPanelCollapsed(id, want, { explicit: false, persist: false, syncShare: false });
+      adapter.setPanelCollapsed(id, want, {
+        explicit: false,
+        persist: false,
+        syncShare: false,
+      });
       n += 1;
     }
     stats.reconciled = n;

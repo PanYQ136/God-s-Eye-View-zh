@@ -24,7 +24,11 @@ export function sendJson(req, res, status, payload, extraHeaders = {}) {
 
   if (buf.length >= MIN_BYTES && /gzip/i.test(accept)) {
     let gz;
-    try { gz = gzipSync(buf, { level: 6 }); } catch (e) { gz = null; }
+    try {
+      gz = gzipSync(buf, { level: 6 });
+    } catch (e) {
+      gz = null;
+    }
     if (gz && gz.length < buf.length) {
       headers['Content-Encoding'] = 'gzip';
       headers['Vary'] = 'Accept-Encoding';
@@ -58,7 +62,7 @@ export function gzipRes(req, res) {
   const origWriteHead = res.writeHead.bind(res);
   const origWrite = res.write.bind(res);
   const origEnd = res.end.bind(res);
-  let pending = null;   // { status, reason, headers }
+  let pending = null; // { status, reason, headers }
 
   const flushHead = () => {
     if (!pending) return;
@@ -69,32 +73,46 @@ export function gzipRes(req, res) {
   };
 
   res.writeHead = function (status, reasonOrHeaders, maybeHeaders) {
-    const reason = typeof reasonOrHeaders === 'string' ? reasonOrHeaders : undefined;
+    const reason =
+      typeof reasonOrHeaders === 'string' ? reasonOrHeaders : undefined;
     const headers = (reason ? maybeHeaders : reasonOrHeaders) || {};
-    pending = { status: status || 200, reason: reason, headers: Object.assign({}, headers) };
+    pending = {
+      status: status || 200,
+      reason: reason,
+      headers: Object.assign({}, headers),
+    };
     return res;
   };
 
   res.write = function (chunk, enc, cb) {
-    flushHead();                       // 流式写：不压缩，先把头放出去
+    flushHead(); // 流式写：不压缩，先把头放出去
     return origWrite(chunk, enc, cb);
   };
 
   res.end = function (chunk, enc, cb) {
     const callback = typeof enc === 'function' ? enc : cb;
     const encStr = typeof enc === 'string' ? enc : undefined;
-    const isBody = chunk && (Buffer.isBuffer(chunk) || typeof chunk === 'string');
+    const isBody =
+      chunk && (Buffer.isBuffer(chunk) || typeof chunk === 'string');
     /*
      * 已经发过头（provider 直接 res.write / 或绕过我们的 writeHead）→ 绝不能再改长度，
      * 否则 Node 会同时带上新旧 Content-Length，浏览器直接 ERR_INVALID_HTTP_RESPONSE。
      */
     if (res.headersSent) return origEnd(chunk, callback);
     if (pending && isBody && chunk.length >= MIN_BYTES) {
-      const ct = String(pending.headers['Content-Type'] || pending.headers['content-type'] || '');
-      const already = pending.headers['Content-Encoding'] || pending.headers['content-encoding'];
+      const ct = String(
+        pending.headers['Content-Type'] ||
+          pending.headers['content-type'] ||
+          '',
+      );
+      const already =
+        pending.headers['Content-Encoding'] ||
+        pending.headers['content-encoding'];
       if (!already && /json|text\/|xml|csv|javascript/i.test(ct)) {
         try {
-          const buf = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk, encStr || 'utf8');
+          const buf = Buffer.isBuffer(chunk)
+            ? chunk
+            : Buffer.from(chunk, encStr || 'utf8');
           const gz = gzipSync(buf, { level: 6 });
           if (gz.length < buf.length) {
             // provider 可能用 res.setHeader 预先塞过长度/编码，先清掉，避免重复头
@@ -109,10 +127,16 @@ export function gzipRes(req, res) {
             flushHead();
             return origEnd(gz, callback);
           }
-        } catch (e) { /* 失败就按原样发 */ }
+        } catch (e) {
+          /* 失败就按原样发 */
+        }
       }
-      try { res.removeHeader('Transfer-Encoding'); } catch (e) {}
-      pending.headers['Content-Length'] = String(Buffer.byteLength(chunk, encStr || 'utf8'));
+      try {
+        res.removeHeader('Transfer-Encoding');
+      } catch (e) {}
+      pending.headers['Content-Length'] = String(
+        Buffer.byteLength(chunk, encStr || 'utf8'),
+      );
     }
     flushHead();
     return origEnd(chunk, callback);

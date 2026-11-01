@@ -31,9 +31,16 @@ export function firmsProxy() {
   const STATUS_TTL_MS = 5 * 60_000;
   // 云托管出口带宽有限：world/2 × 4 源（约 100MB+）在容器里必然超时，
   // 默认改成「两个主源 + world/1」，可用 FIRMS_SOURCES / FIRMS_DAYS 覆盖。
-  const SOURCES = String(process.env.FIRMS_SOURCES || 'VIIRS_SNPP_NRT,MODIS_NRT')
-    .split(',').map((s) => s.trim()).filter(Boolean);
-  const FIRMS_DAYS = Math.max(1, Math.min(5, Number(process.env.FIRMS_DAYS) || 1));
+  const SOURCES = String(
+    process.env.FIRMS_SOURCES || 'VIIRS_SNPP_NRT,MODIS_NRT',
+  )
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const FIRMS_DAYS = Math.max(
+    1,
+    Math.min(5, Number(process.env.FIRMS_DAYS) || 1),
+  );
   const CACHE_DIR = path.join(process.cwd(), '.gev-cache');
   const CACHE_PATH = path.join(CACHE_DIR, 'firms.json');
 
@@ -114,8 +121,17 @@ export function firmsProxy() {
       const [lon, lat] = c;
       if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
       out.push({
-        lat, lon, frp: 0, confidence: 'n', brightness: 0, brightnessTi5: 0,
-        daynight: 'D', acqDate, acqTime, satellite: 'EONET', instrument: 'EONET',
+        lat,
+        lon,
+        frp: 0,
+        confidence: 'n',
+        brightness: 0,
+        brightnessTi5: 0,
+        daynight: 'D',
+        acqDate,
+        acqTime,
+        satellite: 'EONET',
+        instrument: 'EONET',
         _src: 'EONET',
       });
     }
@@ -138,11 +154,19 @@ export function firmsProxy() {
       try {
         const t0 = Date.now();
         const records = filterTrailing24h(await fetchSource(key, source), now);
-        console.log(`[firms-proxy] ${source} ${records.length} 条 ${Date.now() - t0}ms`);
+        console.log(
+          `[firms-proxy] ${source} ${records.length} 条 ${Date.now() - t0}ms`,
+        );
         settled.push({ source, records });
       } catch (err) {
-        lastError = `${source}: ${String((err && err.message) || err)}`.slice(0, 300);
-        console.warn(`[firms-proxy] ${source} fetch failed:`, err?.message || err);
+        lastError = `${source}: ${String((err && err.message) || err)}`.slice(
+          0,
+          300,
+        );
+        console.warn(
+          `[firms-proxy] ${source} fetch failed:`,
+          err?.message || err,
+        );
         settled.push({ source, records: null });
       }
     }
@@ -174,7 +198,10 @@ export function firmsProxy() {
           console.log(`[firms-proxy] EONET fallback ${eonet.length} 事件点`);
         }
       } catch (err) {
-        console.warn('[firms-proxy] EONET fallback failed:', err?.message || err);
+        console.warn(
+          '[firms-proxy] EONET fallback failed:',
+          err?.message || err,
+        );
       }
     }
     if (!sources.some((s) => s.ok)) throw new Error('all FIRMS sources failed');
@@ -192,7 +219,10 @@ export function firmsProxy() {
       }
     }
     return {
-      at: now, sources, fires, carried,
+      at: now,
+      sources,
+      fires,
+      carried,
       failedSources: failed.length ? failed : null,
     };
   }
@@ -202,7 +232,8 @@ export function firmsProxy() {
    * 两个参数都不给 → 行为与原来完全一致（网页版就是这样调的）。
    */
   function parseWindow(url) {
-    const q = String(url || '').indexOf('?') >= 0 ? String(url).split('?')[1] : '';
+    const q =
+      String(url || '').indexOf('?') >= 0 ? String(url).split('?')[1] : '';
     const params = new URLSearchParams(q || '');
     let box = null;
     const raw = params.get('bbox');
@@ -213,7 +244,8 @@ export function firmsProxy() {
       }
     }
     const lim = Number(params.get('limit'));
-    const limit = Number.isFinite(lim) && lim > 0 ? Math.min(50000, Math.floor(lim)) : 0;
+    const limit =
+      Number.isFinite(lim) && lim > 0 ? Math.min(50000, Math.floor(lim)) : 0;
     return { box, limit };
   }
 
@@ -234,8 +266,14 @@ export function firmsProxy() {
       fires = fires.filter((f) => {
         const lat = Number(f.lat);
         const lon = Number(f.lon);
-        return Number.isFinite(lat) && Number.isFinite(lon)
-          && lat >= b.s && lat <= b.n && lon >= b.w && lon <= b.e;
+        return (
+          Number.isFinite(lat) &&
+          Number.isFinite(lon) &&
+          lat >= b.s &&
+          lat <= b.n &&
+          lon >= b.w &&
+          lon <= b.e
+        );
       });
       inBox = fires.length;
     }
@@ -261,7 +299,10 @@ export function firmsProxy() {
     }
     // 上游有源失败时如实回传（客户端可据此说明"这份数据里有 N 条来自上一轮缓存"）
     if (entry.failedSources) {
-      out.sourceIssues = { failed: entry.failedSources, carried: entry.carried || 0 };
+      out.sourceIssues = {
+        failed: entry.failedSources,
+        carried: entry.carried || 0,
+      };
     }
     return out;
   }
@@ -406,8 +447,14 @@ export function firmsProxy() {
           // 冷启动且一个缓存都没有：立即 200 warming，后台继续拉。
           // 境内云 → NASA 的 world/2 四源合计常超过网关 60s 上限，同步等必然 502。
           sendJson(200, {
-            fetchedAt: null, stale: true, warming: true, ttlMs: TTL_MS,
-            sources: [], count: 0, fires: [], reason: 'warming',
+            fetchedAt: null,
+            stale: true,
+            warming: true,
+            ttlMs: TTL_MS,
+            sources: [],
+            count: 0,
+            fires: [],
+            reason: 'warming',
             lastError: lastError || null,
           });
           return;

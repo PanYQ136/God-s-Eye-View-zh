@@ -322,7 +322,14 @@ const SKIP_TAGS = new Set([
 ]);
 
 function isIconEl(el) {
-  return !!(el && el.classList && (el.classList.contains('material-symbols') || el.classList.contains('material-symbols-outlined') || el.classList.contains('material-icons') || el.classList.contains('pp-icon')));
+  return !!(
+    el &&
+    el.classList &&
+    (el.classList.contains('material-symbols') ||
+      el.classList.contains('material-symbols-outlined') ||
+      el.classList.contains('material-icons') ||
+      el.classList.contains('pp-icon'))
+  );
 }
 
 let enabled = true;
@@ -436,7 +443,9 @@ const observer = new MutationObserver((records) => {
 function setEnabled(on) {
   enabled = on;
   document.body.classList.toggle('gev-zh', on);
-  document.dispatchEvent(new CustomEvent('gev-lang-change', { detail: { zh: on } }));
+  document.dispatchEvent(
+    new CustomEvent('gev-lang-change', { detail: { zh: on } }),
+  );
   if (on) {
     seen = new WeakSet();
     translateTree();
@@ -444,9 +453,16 @@ function setEnabled(on) {
     // 还原英文：把缓存的所有译文恢复为原始英文
     for (const [node, rec] of originals) {
       try {
-        if (rec.t !== undefined && node.nodeValue !== rec.t) node.nodeValue = rec.t;
-        if (rec.a) for (const k in rec.a) { if (node.getAttribute && node.getAttribute(k) !== rec.a[k]) node.setAttribute(k, rec.a[k]); }
-      } catch (e) { /* detached node */ }
+        if (rec.t !== undefined && node.nodeValue !== rec.t)
+          node.nodeValue = rec.t;
+        if (rec.a)
+          for (const k in rec.a) {
+            if (node.getAttribute && node.getAttribute(k) !== rec.a[k])
+              node.setAttribute(k, rec.a[k]);
+          }
+      } catch (e) {
+        /* detached node */
+      }
     }
     originals.clear();
     seen = new WeakSet();
@@ -493,7 +509,9 @@ function mount() {
     toggle: () => setEnabled(!enabled),
     dict: DICT,
   };
-  document.dispatchEvent(new CustomEvent('gev-lang-change', { detail: { zh: enabled } }));
+  document.dispatchEvent(
+    new CustomEvent('gev-lang-change', { detail: { zh: enabled } }),
+  );
 }
 
 // 翻译原生 prompt / confirm 文案（非侵入包装，用于场景新建/删除确认）

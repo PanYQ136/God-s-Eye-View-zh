@@ -135,7 +135,9 @@ export function initLogoGaze(root = document) {
         // 会导致 #globe/#globe_cage/#outer_eye/#inner_eye 重复。仅标题栏(.title-logo)副本保留 id
         // （cyber 主题按 "#title-bar .title-logo #globe_cage" 等着色），其余副本移除 id，消除重复。
         // 单槽位场景保持原样，不影响组件的单测/独立使用。
-        if (!(state.element.classList.contains('title-logo') || states.length === 1)) {
+        if (!(
+          state.element.classList.contains('title-logo') || states.length === 1
+        )) {
           svg.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id'));
         }
         state.element.replaceChildren(svg);

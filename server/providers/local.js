@@ -64,7 +64,11 @@ function withGzipPatch(plugin) {
        */
       const u = String(req.url || '');
       if (u === '/api' || u.indexOf('/api/') === 0) {
-        try { gzipRes(req, res); } catch (e) { /* 不影响主流程 */ }
+        try {
+          gzipRes(req, res);
+        } catch (e) {
+          /* 不影响主流程 */
+        }
       }
       next();
     });
@@ -74,8 +78,8 @@ function withGzipPatch(plugin) {
 }
 
 function localProviderPlugins() {
-  return [withGzipPatch(
-    openSkyProxy()),
+  return [
+    withGzipPatch(openSkyProxy()),
     celestrakProxy(),
     tomtomProxy(),
     firmsProxy(),

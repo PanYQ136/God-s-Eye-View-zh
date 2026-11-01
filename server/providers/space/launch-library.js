@@ -90,68 +90,85 @@ export function rocketLaunchesProxy() {
     return fresh;
   }
 
-
-/** 只保留小程序真正用到的字段（LL2 原始对象 700KB+，其中 95% 是描述/机构/图库） */
-function slimLaunch(l) {
-  if (!l || typeof l !== 'object') return null;
-  const out = {};
-  ['id', 'slug', 'name', 'net', 'window_start', 'window_end'].forEach((k) => {
-    if (l[k] !== undefined && l[k] !== null) out[k] = l[k];
-  });
-  if (l.pad && typeof l.pad === 'object') {
-    out.pad = { name: l.pad.name, latitude: l.pad.latitude, longitude: l.pad.longitude };
-    if (l.pad.location && l.pad.location.name) out.pad.location = { name: l.pad.location.name };
-  }
-  if (l.mission && typeof l.mission === 'object') {
-    out.mission = { name: l.mission.name };
-    const o = l.mission.orbit || l.orbit;
-    if (o) out.mission.orbit = { name: o.name, abbrev: o.abbrev };
-  }
-  if (l.status && typeof l.status === 'object') {
-    out.status = { name: l.status.name, abbrev: l.status.abbrev };
-  }
-  if (l.launch_service_provider && l.launch_service_provider.name) {
-    out.launch_service_provider = { name: l.launch_service_provider.name };
-  }
-  if (l.rocket && typeof l.rocket === 'object') {
-    out.rocket = {};
-    if (l.rocket.configuration && l.rocket.configuration.name) {
-      out.rocket.configuration = { name: l.rocket.configuration.name };
-    }
-    const payloads = Array.isArray(l.rocket.payloads) ? l.rocket.payloads : (Array.isArray(l.payloads) ? l.payloads : []);
-    if (payloads.length) {
-      out.rocket.payloads = payloads.slice(0, 8).map((entry) => {
-        const pl = (entry && entry.payload) || entry || {};
-        return { name: pl.name || (entry && entry.name) || '' };
-      }).filter((x) => x.name);
-    }
-  }
-  if (l.image && typeof l.image === 'object') {
-    out.image = {
-      image_url: l.image.image_url, thumbnail_url: l.image.thumbnail_url, name: l.image.name,
-    };
-  }
-  return out;
-}
-
-/** ?slim=1 的响应体；同一份上游 body 只转换一次 */
-function slimBody(text) {
-  if (slimMemo.src === text) return slimMemo.body;
-  let body = text;
-  try {
-    const parsed = JSON.parse(text);
-    const results = Array.isArray(parsed && parsed.results) ? parsed.results : [];
-    body = JSON.stringify({
-      count: results.length,
-      next: null,
-      previous: null,
-      results: results.map(slimLaunch).filter(Boolean),
+  /** 只保留小程序真正用到的字段（LL2 原始对象 700KB+，其中 95% 是描述/机构/图库） */
+  function slimLaunch(l) {
+    if (!l || typeof l !== 'object') return null;
+    const out = {};
+    ['id', 'slug', 'name', 'net', 'window_start', 'window_end'].forEach((k) => {
+      if (l[k] !== undefined && l[k] !== null) out[k] = l[k];
     });
-  } catch (e) { /* 解析失败就原样返回 */ }
-  slimMemo = { src: text, body: body };
-  return body;
-}
-let slimMemo = { src: '', body: '' };
+    if (l.pad && typeof l.pad === 'object') {
+      out.pad = {
+        name: l.pad.name,
+        latitude: l.pad.latitude,
+        longitude: l.pad.longitude,
+      };
+      if (l.pad.location && l.pad.location.name)
+        out.pad.location = { name: l.pad.location.name };
+    }
+    if (l.mission && typeof l.mission === 'object') {
+      out.mission = { name: l.mission.name };
+      const o = l.mission.orbit || l.orbit;
+      if (o) out.mission.orbit = { name: o.name, abbrev: o.abbrev };
+    }
+    if (l.status && typeof l.status === 'object') {
+      out.status = { name: l.status.name, abbrev: l.status.abbrev };
+    }
+    if (l.launch_service_provider && l.launch_service_provider.name) {
+      out.launch_service_provider = { name: l.launch_service_provider.name };
+    }
+    if (l.rocket && typeof l.rocket === 'object') {
+      out.rocket = {};
+      if (l.rocket.configuration && l.rocket.configuration.name) {
+        out.rocket.configuration = { name: l.rocket.configuration.name };
+      }
+      const payloads = Array.isArray(l.rocket.payloads)
+        ? l.rocket.payloads
+        : Array.isArray(l.payloads)
+          ? l.payloads
+          : [];
+      if (payloads.length) {
+        out.rocket.payloads = payloads
+          .slice(0, 8)
+          .map((entry) => {
+            const pl = (entry && entry.payload) || entry || {};
+            return { name: pl.name || (entry && entry.name) || '' };
+          })
+          .filter((x) => x.name);
+      }
+    }
+    if (l.image && typeof l.image === 'object') {
+      out.image = {
+        image_url: l.image.image_url,
+        thumbnail_url: l.image.thumbnail_url,
+        name: l.image.name,
+      };
+    }
+    return out;
+  }
+
+  /** ?slim=1 的响应体；同一份上游 body 只转换一次 */
+  function slimBody(text) {
+    if (slimMemo.src === text) return slimMemo.body;
+    let body = text;
+    try {
+      const parsed = JSON.parse(text);
+      const results = Array.isArray(parsed && parsed.results)
+        ? parsed.results
+        : [];
+      body = JSON.stringify({
+        count: results.length,
+        next: null,
+        previous: null,
+        results: results.map(slimLaunch).filter(Boolean),
+      });
+    } catch (e) {
+      /* 解析失败就原样返回 */
+    }
+    slimMemo = { src: text, body: body };
+    return body;
+  }
+  let slimMemo = { src: '', body: '' };
 
   function install(middlewares) {
     middlewares.use('/api/launches', async (req, res) => {
@@ -175,7 +192,12 @@ let slimMemo = { src: '', body: '' };
       );
       try {
         const fresh = await request.promise;
-        send(res, 200, outBody(fresh.body), request.shared ? 'INFLIGHT' : 'MISS');
+        send(
+          res,
+          200,
+          outBody(fresh.body),
+          request.shared ? 'INFLIGHT' : 'MISS',
+        );
       } catch (error) {
         // Log only a bounded status, never upstream bodies, URLs, or credentials.
         const status = Number.isInteger(error?.upstreamStatus)

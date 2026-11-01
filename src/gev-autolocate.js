@@ -242,7 +242,10 @@ import { announceBootCenter } from './maps/tileWarmup.js';
      再纠正；这样「冷启动时长」不被 GPS 绑住，又不会长期停在城市级精度。 */
   async function resolveFastLocation() {
     try {
-      const ip = await Promise.race([amapIpGeo(), sleep(2200).then(() => null)]);
+      const ip = await Promise.race([
+        amapIpGeo(),
+        sleep(2200).then(() => null),
+      ]);
       if (valid(ip)) return ip;
     } catch (e) {
       /* ignore */
@@ -506,14 +509,19 @@ import { announceBootCenter } from './maps/tileWarmup.js';
         CINE.stage = 'preroll-jump:fast';
         jumpTo(target);
       }
-      const better = await Promise.race([locP, sleep(GPS_REFINE_MS).then(() => null)]);
+      const better = await Promise.race([
+        locP,
+        sleep(GPS_REFINE_MS).then(() => null),
+      ]);
       if (better && valid(better) && isFar(target, better)) {
         target = better;
         CINE.stage = 'preroll-jump:gps';
         jumpTo(target);
       }
       CINE.geo = target;
-      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      await new Promise((r) =>
+        requestAnimationFrame(() => requestAnimationFrame(r)),
+      );
       CINE.stage = 'done';
       CINE.done = true;
       try {
@@ -526,7 +534,9 @@ import { announceBootCenter } from './maps/tileWarmup.js';
           { 'amap-gps': '高德GPS', browser: '浏览器', 'amap-ip': '高德IP' }[
             target.source
           ] || target.source;
-        toast('定位来源：' + tag + (target.city ? '（' + target.city + '）' : ''));
+        toast(
+          '定位来源：' + tag + (target.city ? '（' + target.city + '）' : ''),
+        );
       } else {
         toast('未能获取设备定位，已定位到默认位置');
       }

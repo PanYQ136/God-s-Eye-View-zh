@@ -14,12 +14,12 @@
 const AMAP = 'https://restapi.amap.com';
 const HOUR = 3600_000;
 
-const trafficCache = new Map();     // key -> { at, body }
+const trafficCache = new Map(); // key -> { at, body }
 const TRAFFIC_TTL = 3 * 60_000;
 const TYPHOON_TTL = 30 * 60_000;
-let typhoonCache = null;            // { at, body }
+let typhoonCache = null; // { at, body }
 const QUAKE_TTL = 5 * 60_000;
-let quakeCache = null;              // { at, body }
+let quakeCache = null; // { at, body }
 
 function amapKey() {
   return String(process.env.VITE_AMAP_KEY || process.env.AMAP_KEY || '').trim();
@@ -34,14 +34,20 @@ async function fetchText(url, timeoutMs, headers) {
       signal: ac.signal,
       // 中央气象台的接口对非常规 UA 会直接断连，统一用浏览器 UA
       headers: headers || {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
         Accept: '*/*',
       },
     });
     if (!r.ok) return { ok: false, status: r.status, ms: Date.now() - t0 };
     return { ok: true, body: await r.text(), ms: Date.now() - t0 };
   } catch (err) {
-    return { ok: false, status: 0, error: String((err && err.message) || err), ms: Date.now() - t0 };
+    return {
+      ok: false,
+      status: 0,
+      error: String((err && err.message) || err),
+      ms: Date.now() - t0,
+    };
   } finally {
     clearTimeout(timer);
   }
@@ -52,13 +58,24 @@ async function trafficCell(lat, lng, radius) {
   const key = amapKey();
   if (!key) return null;
   const url =
-    AMAP + '/v3/traffic/status/circle?key=' + encodeURIComponent(key) +
-    '&location=' + lng.toFixed(5) + ',' + lat.toFixed(5) +
-    '&radius=' + Math.round(radius) + '&level=6&extensions=base';
+    AMAP +
+    '/v3/traffic/status/circle?key=' +
+    encodeURIComponent(key) +
+    '&location=' +
+    lng.toFixed(5) +
+    ',' +
+    lat.toFixed(5) +
+    '&radius=' +
+    Math.round(radius) +
+    '&level=6&extensions=base';
   const r = await fetchText(url, 6000, { Accept: 'application/json' });
   if (!r.ok) return null;
   let d = null;
-  try { d = JSON.parse(r.body); } catch { return null; }
+  try {
+    d = JSON.parse(r.body);
+  } catch {
+    return null;
+  }
   if (!d || String(d.status) !== '1' || !d.trafficinfo) return null;
   const ev = d.trafficinfo.evaluation || {};
   const level = Math.max(0, Math.min(4, Number(ev.status) || 0));
@@ -85,19 +102,27 @@ async function trafficGrid(bbox, grid) {
   // 半径取格子外接圆的一半，太小时按 400m 兜底
   const toM = (deg, lat) => deg * 111320 * Math.cos((lat * Math.PI) / 180);
   // 半径取格子短边的 30%（上限 1.5km）：够看清等级，又不会大到整个视口只剩一段弧
-  const cellMin = Math.min(toM(cellW, (minLat + maxLat) / 2), toM(cellH, (minLat + maxLat) / 2));
+  const cellMin = Math.min(
+    toM(cellW, (minLat + maxLat) / 2),
+    toM(cellH, (minLat + maxLat) / 2),
+  );
   const radius = Math.max(300, Math.min(1500, cellMin * 0.3));
 
   const tasks = [];
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
-      tasks.push({ lat: minLat + cellH * (i + 0.5), lng: minLng + cellW * (j + 0.5) });
+      tasks.push({
+        lat: minLat + cellH * (i + 0.5),
+        lng: minLng + cellW * (j + 0.5),
+      });
     }
   }
   const cells = [];
   const BATCH = 4;
   for (let i = 0; i < tasks.length; i += BATCH) {
-    const part = await Promise.all(tasks.slice(i, i + BATCH).map((t) => trafficCell(t.lat, t.lng, radius)));
+    const part = await Promise.all(
+      tasks.slice(i, i + BATCH).map((t) => trafficCell(t.lat, t.lng, radius)),
+    );
     for (const c of part) if (c) cells.push(c);
   }
   return { cells, radius, grid: n };
@@ -113,7 +138,11 @@ function jsonp(body) {
   let inner = s.slice(i + 1, j).trim();
   while (inner.startsWith('(')) inner = inner.slice(1).trim();
   while (inner.endsWith(')')) inner = inner.slice(0, -1).trim();
-  try { return JSON.parse(inner); } catch { return null; }
+  try {
+    return JSON.parse(inner);
+  } catch {
+    return null;
+  }
 }
 
 function tvTime(str) {
@@ -133,7 +162,8 @@ function normPoint(a) {
     at: tvTime(a[1]),
     ms: Number(a[2]) || Date.parse(tvTime(a[1])) || 0,
     grade: String(a[3] || ''),
-    lng, lat,
+    lng,
+    lat,
     pressure: Number(a[6]) || null,
     wind: Number(a[7]) || null,
     moveDir: String(a[8] || ''),
@@ -155,7 +185,8 @@ function normForecast(obj) {
       out.push({
         tau: Number(f[0]) || 0,
         at: tvTime(f[1]),
-        lng, lat,
+        lng,
+        lat,
         pressure: Number(f[4]) || null,
         wind: Number(f[5]) || null,
         agency: String(f[6] || agency),
@@ -175,7 +206,7 @@ async function loadTyphoons() {
   );
   if (!listRes.ok) return { ok: false, reason: 'list_http_' + listRes.status };
   const list = jsonp(listRes.body);
-  const rows = (list && Array.isArray(list.typhoonList)) ? list.typhoonList : [];
+  const rows = list && Array.isArray(list.typhoonList) ? list.typhoonList : [];
   const active = rows
     .map((a) => ({
       id: a[0],
@@ -191,13 +222,21 @@ async function loadTyphoons() {
   const storms = [];
   for (const s of active) {
     const v = await fetchText(
-      'https://typhoon.nmc.cn/weatherservice/typhoon/jsons/view_' + encodeURIComponent(s.id) + '?callback=cb',
+      'https://typhoon.nmc.cn/weatherservice/typhoon/jsons/view_' +
+        encodeURIComponent(s.id) +
+        '?callback=cb',
       12000,
     );
-    if (!v.ok) { dbg.viewFail++; continue; }
+    if (!v.ok) {
+      dbg.viewFail++;
+      continue;
+    }
     const d = jsonp(v.body);
     const t = d && Array.isArray(d.typhoon) ? d.typhoon : null;
-    if (!t) { dbg.viewFail++; continue; }
+    if (!t) {
+      dbg.viewFail++;
+      continue;
+    }
     const pts = Array.isArray(t[8]) ? t[8].map(normPoint).filter(Boolean) : [];
     if (!pts.length) continue;
     // 官方预报块藏在**最后一个实况点**的第 11 项（对象，key=机构，value=[[时效,...]]）
@@ -209,13 +248,20 @@ async function loadTyphoons() {
         const cand = lastRaw[k];
         if (cand && typeof cand === 'object' && !Array.isArray(cand)) {
           const got = normForecast(cand);
-          if (got.length) { fc = got; break; }
+          if (got.length) {
+            fc = got;
+            break;
+          }
         }
       }
     }
     storms.push({
-      id: s.id, nameEn: s.nameEn, nameCn: s.nameCn || s.nameEn, year: s.year,
-      points: pts, forecast: fc,
+      id: s.id,
+      nameEn: s.nameEn,
+      nameCn: s.nameCn || s.nameEn,
+      year: s.year,
+      points: pts,
+      forecast: fc,
     });
   }
   return { ok: true, storms, at: Date.now(), dbg };
@@ -229,12 +275,17 @@ async function loadTyphoons() {
  */
 async function loadQuakes() {
   const r = await fetchText('https://api.wolfx.jp/cenc_eqlist.json', 9000, {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+    'User-Agent':
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
     Accept: 'application/json',
   });
   if (!r.ok) return { ok: false, reason: 'http_' + r.status };
   let d = null;
-  try { d = JSON.parse(r.body); } catch { return { ok: false, reason: 'bad_json' }; }
+  try {
+    d = JSON.parse(r.body);
+  } catch {
+    return { ok: false, reason: 'bad_json' };
+  }
   const rows = [];
   Object.keys(d || {}).forEach((k) => {
     const x = d[k];
@@ -255,7 +306,8 @@ async function loadQuakes() {
       depth: Number(x.depth) || null,
       intensity: Number(x.intensity) || null,
       type: String(x.type || ''),
-      lat, lng,
+      lat,
+      lng,
     });
   });
   rows.sort((a, b) => b.ms - a.ms);
@@ -270,17 +322,26 @@ async function loadQuakes() {
 const weatherCache = new Map();
 async function qweather(pathAndQuery, extra) {
   // 统一中文：和风默认按坐标所在国返回本地语言（巴西坐标会回葡语），面板要中文
-  if (pathAndQuery.indexOf('lang=') < 0) pathAndQuery += (pathAndQuery.includes('?') ? '&' : '?') + 'lang=zh';
+  if (pathAndQuery.indexOf('lang=') < 0)
+    pathAndQuery += (pathAndQuery.includes('?') ? '&' : '?') + 'lang=zh';
   const host = String(process.env.QWEATHER_HOST || '').trim();
   const key = String(process.env.QWEATHER_KEY || '').trim();
   if (!host || !key) return { ok: false, reason: 'no_key' };
   const sep = pathAndQuery.includes('?') ? '&' : '?';
-  const r = await fetchText('https://' + host + pathAndQuery + sep + 'key=' + encodeURIComponent(key), 8000, {
-    'User-Agent': 'gods-eye-view/0.1',
-    'Accept-Encoding': 'gzip',
-  });
+  const r = await fetchText(
+    'https://' + host + pathAndQuery + sep + 'key=' + encodeURIComponent(key),
+    8000,
+    {
+      'User-Agent': 'gods-eye-view/0.1',
+      'Accept-Encoding': 'gzip',
+    },
+  );
   if (!r.ok) return { ok: false, reason: 'http_' + r.status };
-  try { return { ok: true, data: JSON.parse(r.body) }; } catch { return { ok: false, reason: 'bad_json' }; }
+  try {
+    return { ok: true, data: JSON.parse(r.body) };
+  } catch {
+    return { ok: false, reason: 'bad_json' };
+  }
 }
 
 /**
@@ -300,53 +361,92 @@ async function amapDistrict(keywords, subdistrict) {
   if (!key) return null;
   // 市一级要 subdistrict=1 才能带出子区列表；区县一级必须 0，否则高德不给 polyline
   const sub = subdistrict === undefined ? 1 : subdistrict;
-  const url = 'https://restapi.amap.com/v3/config/district?keywords=' + encodeURIComponent(keywords) +
-    '&subdistrict=' + sub + '&extensions=all&key=' + encodeURIComponent(key);
+  const url =
+    'https://restapi.amap.com/v3/config/district?keywords=' +
+    encodeURIComponent(keywords) +
+    '&subdistrict=' +
+    sub +
+    '&extensions=all&key=' +
+    encodeURIComponent(key);
   const r = await fetchText(url, 20000, { Accept: 'application/json' });
   if (!r.ok) return null;
-  try { return JSON.parse(r.body); } catch { return null; }
+  try {
+    return JSON.parse(r.body);
+  } catch {
+    return null;
+  }
 }
 
 /** 逆地理（腾讯）：拿城市 + 区县名 */
 async function reverseNames(lat, lng) {
   const key = String(process.env.TENCENT_MAP_KEY || '').trim();
   if (!key) return null;
-  const r = await fetchText('https://apis.map.qq.com/ws/geocoder/v1/?location=' + lat + ',' + lng +
-    '&get_poi=0&key=' + encodeURIComponent(key), 6000, { Accept: 'application/json' });
+  const r = await fetchText(
+    'https://apis.map.qq.com/ws/geocoder/v1/?location=' +
+      lat +
+      ',' +
+      lng +
+      '&get_poi=0&key=' +
+      encodeURIComponent(key),
+    6000,
+    { Accept: 'application/json' },
+  );
   if (!r.ok) return null;
   try {
     const d = JSON.parse(r.body);
     if (!d || Number(d.status) !== 0) return null;
     const c = (d.result && d.result.address_component) || {};
-    return { city: c.city || c.province || '', district: c.district || '', province: c.province || '' };
-  } catch { return null; }
+    return {
+      city: c.city || c.province || '',
+      district: c.district || '',
+      province: c.province || '',
+    };
+  } catch {
+    return null;
+  }
 }
 
 /** 天地图行政区兜底：只给名称+中心点（天地图不返回边界多边形） */
 async function tiandituAdminFallback(lat, lng) {
-  const key = String(process.env.TIANDITU_SERVER_KEY || process.env.TIANDITU_KEY_OLD || '').trim();
+  const key = String(
+    process.env.TIANDITU_SERVER_KEY || process.env.TIANDITU_KEY_OLD || '',
+  ).trim();
   if (!key) return null;
   const names = await reverseNames(lat, lng);
   const city = (names && names.city) || '';
   if (!city) return null;
   const r = await fetchText(
-    'https://api.tianditu.gov.cn/v2/administrative?keyword=' + encodeURIComponent(city) +
-      '&childLevel=1&needPolygon=true&needPre=true&tk=' + encodeURIComponent(key),
-    12000, { Accept: 'application/json' },
+    'https://api.tianditu.gov.cn/v2/administrative?keyword=' +
+      encodeURIComponent(city) +
+      '&childLevel=1&needPolygon=true&needPre=true&tk=' +
+      encodeURIComponent(key),
+    12000,
+    { Accept: 'application/json' },
   );
   if (!r.ok) return null;
   let d = null;
-  try { d = JSON.parse(r.body); } catch { return null; }
-  const node = d && d.data && Array.isArray(d.data.district) ? d.data.district[0] : null;
+  try {
+    d = JSON.parse(r.body);
+  } catch {
+    return null;
+  }
+  const node =
+    d && d.data && Array.isArray(d.data.district) ? d.data.district[0] : null;
   if (!node) return null;
   const children = Array.isArray(node.children) ? node.children : [];
   return {
     source: 'tianditu-admin',
     city,
     province: (names && names.province) || '',
-    cityBoundary: { name: node.name, adcode: String(node.gb || ''), center: node.center ? node.center.lng + ',' + node.center.lat : '', polyline: '' },
+    cityBoundary: {
+      name: node.name,
+      adcode: String(node.gb || ''),
+      center: node.center ? node.center.lng + ',' + node.center.lat : '',
+      polyline: '',
+    },
     districts: children.map((c) => ({
-      name: c.name, adcode: String(c.gb || ''),
+      name: c.name,
+      adcode: String(c.gb || ''),
       center: c.center ? c.center.lng + ',' + c.center.lat : '',
       polyline: '',
     })),
@@ -357,18 +457,26 @@ async function tiandituAdminFallback(lat, lng) {
 export function cnLiveProxy() {
   const trafficHandler = async (req, res) => {
     const url = new URL(req.url, 'http://localhost');
-    const raw = String(url.searchParams.get('bbox') || '').split(',').map(Number);
+    const raw = String(url.searchParams.get('bbox') || '')
+      .split(',')
+      .map(Number);
     if (raw.length !== 4 || raw.some((x) => !Number.isFinite(x))) {
       res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
       res.end(JSON.stringify({ error: 'bad_bbox' }));
       return;
     }
-    const grid = Math.max(1, Math.min(5, Number(url.searchParams.get('grid')) || 3));
+    const grid = Math.max(
+      1,
+      Math.min(5, Number(url.searchParams.get('grid')) || 3),
+    );
     const key = raw.map((x) => x.toFixed(3)).join(',') + '|' + grid;
 
     const hit = trafficCache.get(key);
     if (hit && Date.now() - hit.at < TRAFFIC_TTL) {
-      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'max-age=120' });
+      res.writeHead(200, {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'max-age=120',
+      });
       res.end(hit.body);
       return;
     }
@@ -380,13 +488,22 @@ export function cnLiveProxy() {
 
     const { cells, radius, grid: n } = await trafficGrid(raw, grid);
     const body = JSON.stringify({
-      source: 'amap-traffic', at: Date.now(), bbox: raw, grid: n, radius, cells,
+      source: 'amap-traffic',
+      at: Date.now(),
+      bbox: raw,
+      grid: n,
+      radius,
+      cells,
     });
     if (cells.length) {
-      if (trafficCache.size > 60) trafficCache.delete(trafficCache.keys().next().value);
+      if (trafficCache.size > 60)
+        trafficCache.delete(trafficCache.keys().next().value);
       trafficCache.set(key, { at: Date.now(), body });
     }
-    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'max-age=120' });
+    res.writeHead(200, {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'max-age=120',
+    });
     res.end(body);
   };
 
@@ -412,25 +529,35 @@ export function cnLiveProxy() {
     if (!cityName) {
       // 境外/海上取不到城市：安静返回空结果，别把首页刷成红色报错
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-      res.end(JSON.stringify({
-        source: 'amap-district', at: Date.now(), city: '', province: '',
-        cityBoundary: { name: '', adcode: '', center: '', polyline: '' },
-        districts: [],
-        note: '该位置不在中国境内（或取不到行政区），本层无数据',
-      }));
+      res.end(
+        JSON.stringify({
+          source: 'amap-district',
+          at: Date.now(),
+          city: '',
+          province: '',
+          cityBoundary: { name: '', adcode: '', center: '', polyline: '' },
+          districts: [],
+          note: '该位置不在中国境内（或取不到行政区），本层无数据',
+        }),
+      );
       return;
     }
 
     const cityRes = await amapDistrict(cityName);
-    const cityNode = (cityRes && Array.isArray(cityRes.districts) && cityRes.districts[0]) || null;
+    const cityNode =
+      (cityRes && Array.isArray(cityRes.districts) && cityRes.districts[0]) ||
+      null;
     if (!cityNode) {
       // 高德额度用尽/挂了 → 天地图兜底（无边界，只有名称+中心点）
       const fb = await tiandituAdminFallback(lat, lng);
       if (fb) {
         const fbBody = JSON.stringify({ ...fb, at: Date.now() });
-        if (adminCache.size > 40) adminCache.delete(adminCache.keys().next().value);
+        if (adminCache.size > 40)
+          adminCache.delete(adminCache.keys().next().value);
         adminCache.set(ck, { at: Date.now(), body: fbBody });
-        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.writeHead(200, {
+          'Content-Type': 'application/json; charset=utf-8',
+        });
         res.end(fbBody);
         return;
       }
@@ -439,18 +566,23 @@ export function cnLiveProxy() {
       return;
     }
 
-    const children = Array.isArray(cityNode.districts) ? cityNode.districts.slice(0, 14) : [];
+    const children = Array.isArray(cityNode.districts)
+      ? cityNode.districts.slice(0, 14)
+      : [];
     const districts = [];
     // 高德个人 key 的行政区查询 QPS 很低，必须串行 + 小间隔，否则一半请求静默失败
     const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     const fetchOne = async (ch) => {
       if (!ch || !ch.name) return null;
       const d = await amapDistrict(ch.name, 0);
-      const arr = (d && Array.isArray(d.districts)) ? d.districts : [];
-      const pick = arr.find((x) => String(x.adcode) === String(ch.adcode)) || (arr.length === 1 ? arr[0] : null);
+      const arr = d && Array.isArray(d.districts) ? d.districts : [];
+      const pick =
+        arr.find((x) => String(x.adcode) === String(ch.adcode)) ||
+        (arr.length === 1 ? arr[0] : null);
       if (!pick || !pick.polyline) return null;
       return {
-        name: pick.name, adcode: String(pick.adcode || ch.adcode || ''),
+        name: pick.name,
+        adcode: String(pick.adcode || ch.adcode || ''),
         center: String(pick.center || ch.center || ''),
         polyline: pick.polyline,
       };
@@ -465,7 +597,10 @@ export function cnLiveProxy() {
     for (const ch of children) {
       if (!ch || !ch.adcode || got.has(String(ch.adcode))) continue;
       const x = await fetchOne(ch);
-      if (x) { districts.push(x); got.add(x.adcode); }
+      if (x) {
+        districts.push(x);
+        got.add(x.adcode);
+      }
       await sleep(200);
     }
 
@@ -474,12 +609,20 @@ export function cnLiveProxy() {
       at: Date.now(),
       city: cityName,
       province: (names && names.province) || '',
-      cityBoundary: { name: cityNode.name, adcode: String(cityNode.adcode || ''), center: String(cityNode.center || ''), polyline: cityNode.polyline || '' },
+      cityBoundary: {
+        name: cityNode.name,
+        adcode: String(cityNode.adcode || ''),
+        center: String(cityNode.center || ''),
+        polyline: cityNode.polyline || '',
+      },
       districts,
     });
     if (adminCache.size > 40) adminCache.delete(adminCache.keys().next().value);
     adminCache.set(ck, { at: Date.now(), body });
-    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'max-age=3600' });
+    res.writeHead(200, {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'max-age=3600',
+    });
     res.end(body);
   };
 
@@ -502,53 +645,94 @@ export function cnLiveProxy() {
     const loc = lng.toFixed(2) + ',' + lat.toFixed(2);
     const [now, warn, week] = await Promise.all([
       qweather('/v7/weather/now?location=' + encodeURIComponent(loc)),
-      qweather('/weatheralert/v1/current/' + lat.toFixed(2) + '/' + lng.toFixed(2)),
+      qweather(
+        '/weatheralert/v1/current/' + lat.toFixed(2) + '/' + lng.toFixed(2),
+      ),
       // 7 天预报：和风 /v7/weather/7d（免费额度够用；失败不影响实况）
       qweather('/v7/weather/7d?location=' + encodeURIComponent(loc)),
     ]);
-    const n = (now.ok && now.data && now.data.now) ? now.data.now : null;
-    const alerts = (warn.ok && warn.data && Array.isArray(warn.data.alerts)) ? warn.data.alerts : [];
+    const n = now.ok && now.data && now.data.now ? now.data.now : null;
+    const alerts =
+      warn.ok && warn.data && Array.isArray(warn.data.alerts)
+        ? warn.data.alerts
+        : [];
     const body = JSON.stringify({
       source: 'qweather',
       at: Date.now(),
       ok: !!n,
-      now: n ? {
-        temp: Number(n.temp), text: n.text, icon: n.icon,
-        windDir: n.windDir, windScale: n.windScale, windSpeed: Number(n.windSpeed),
-        humidity: Number(n.humidity), precip: Number(n.precip), pressure: Number(n.pressure),
-        vis: Number(n.vis), obsTime: n.obsTime,
-      } : null,
+      now: n
+        ? {
+            temp: Number(n.temp),
+            text: n.text,
+            icon: n.icon,
+            windDir: n.windDir,
+            windScale: n.windScale,
+            windSpeed: Number(n.windSpeed),
+            humidity: Number(n.humidity),
+            precip: Number(n.precip),
+            pressure: Number(n.pressure),
+            vis: Number(n.vis),
+            obsTime: n.obsTime,
+          }
+        : null,
       alerts: alerts.slice(0, 5).map((a) => ({
-        id: a.id, title: a.title || a.headline, severity: a.severity,
-        type: (a.eventType && (a.eventType.name || a.eventType)) || (a.type && a.type.name) || '',
+        id: a.id,
+        title: a.title || a.headline,
+        severity: a.severity,
+        type:
+          (a.eventType && (a.eventType.name || a.eventType)) ||
+          (a.type && a.type.name) ||
+          '',
         desc: String(a.description || '').slice(0, 200),
-        sender: a.senderName, start: a.effectiveTime, end: a.expireTime,
+        sender: a.senderName,
+        start: a.effectiveTime,
+        end: a.expireTime,
       })),
       alertsCount: alerts.length,
       // 逐日预报（面板用）：date / 白天夜间天气 / 温度区间 / 风 / 降水 / 紫外线 / 日出日落
-      daily: ((week.ok && week.data && Array.isArray(week.data.daily)) ? week.data.daily : []).slice(0, 7).map((d) => ({
-        date: d.fxDate,
-        textDay: d.textDay, textNight: d.textNight,
-        iconDay: d.iconDay, iconNight: d.iconNight,
-        tempMax: Number(d.tempMax), tempMin: Number(d.tempMin),
-        windDirDay: d.windDirDay, windScaleDay: d.windScaleDay,
-        precip: Number(d.precip), uvIndex: Number(d.uvIndex),
-        humidity: Number(d.humidity),
-        sunrise: d.sunrise, sunset: d.sunset,
-      })),
-      dailySource: week.ok ? 'qweather-7d' : ('unavailable:' + (week.reason || 'unknown')),
+      daily: (week.ok && week.data && Array.isArray(week.data.daily)
+        ? week.data.daily
+        : []
+      )
+        .slice(0, 7)
+        .map((d) => ({
+          date: d.fxDate,
+          textDay: d.textDay,
+          textNight: d.textNight,
+          iconDay: d.iconDay,
+          iconNight: d.iconNight,
+          tempMax: Number(d.tempMax),
+          tempMin: Number(d.tempMin),
+          windDirDay: d.windDirDay,
+          windScaleDay: d.windScaleDay,
+          precip: Number(d.precip),
+          uvIndex: Number(d.uvIndex),
+          humidity: Number(d.humidity),
+          sunrise: d.sunrise,
+          sunset: d.sunset,
+        })),
+      dailySource: week.ok
+        ? 'qweather-7d'
+        : 'unavailable:' + (week.reason || 'unknown'),
     });
     if (n) {
-      if (weatherCache.size > 200) weatherCache.delete(weatherCache.keys().next().value);
+      if (weatherCache.size > 200)
+        weatherCache.delete(weatherCache.keys().next().value);
       weatherCache.set(ck, { at: Date.now(), body });
     }
-    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'max-age=600' });
+    res.writeHead(200, {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'max-age=600',
+    });
     res.end(body);
   };
 
   const typhoonHandler = async (req, res) => {
     if (typhoonCache && Date.now() - typhoonCache.at < TYPHOON_TTL) {
-      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'max-age=600' });
+      res.writeHead(200, {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'max-age=600',
+      });
       res.end(typhoonCache.body);
       return;
     }
@@ -558,15 +742,26 @@ export function cnLiveProxy() {
       res.end(JSON.stringify({ error: 'upstream', reason: r.reason }));
       return;
     }
-    const body = JSON.stringify({ source: 'nmc-typhoon', at: r.at, storms: r.storms, dbg: r.dbg });
+    const body = JSON.stringify({
+      source: 'nmc-typhoon',
+      at: r.at,
+      storms: r.storms,
+      dbg: r.dbg,
+    });
     typhoonCache = { at: Date.now(), body };
-    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'max-age=600' });
+    res.writeHead(200, {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'max-age=600',
+    });
     res.end(body);
   };
 
   const quakeHandler = async (req, res) => {
     if (quakeCache && Date.now() - quakeCache.at < QUAKE_TTL) {
-      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'max-age=300' });
+      res.writeHead(200, {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'max-age=300',
+      });
       res.end(quakeCache.body);
       return;
     }
@@ -574,7 +769,10 @@ export function cnLiveProxy() {
     if (!r.ok) {
       // 上游挂了就继续用旧数据（有总比空图层强）
       if (quakeCache) {
-        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'X-Gev-Stale': '1' });
+        res.writeHead(200, {
+          'Content-Type': 'application/json; charset=utf-8',
+          'X-Gev-Stale': '1',
+        });
         res.end(quakeCache.body);
         return;
       }
@@ -584,7 +782,10 @@ export function cnLiveProxy() {
     }
     const body = JSON.stringify({ source: 'cenc', at: r.at, quakes: r.rows });
     quakeCache = { at: Date.now(), body };
-    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'max-age=300' });
+    res.writeHead(200, {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'max-age=300',
+    });
     res.end(body);
   };
 

@@ -38,16 +38,16 @@
 const SLOTS = new Map();
 /** window 兼容面白名单：唯一允许被测试仪器直接读到的全局名。 */
 const EXPOSED = new Set([
-  '__lc',                    // 卡壳层诊断（scripts/lc/*.mjs 大量断言）
-  '__lcBooted',              // 启动幂等标记
-  '__lcPanelApi',            // App 侧折叠 API（src/ui/panelChrome.js 生产，src/lc/app-adapter.js 消费）
-  '__lcExternalDisclosure',  // index.html 注入的「披露归 src/lc 管」清单
-  '__gevBoot',               // 启动就绪门（index.html/startupChrome 读）
-  '__gevGpu',                // GPU 分级（public/*.js 普通脚本读）
-  '__gevEdge',       // lens 主 API（stats/cfg/eff/a11y/look 被多个 gate 读）
-  '__gevEdgeLens',   // lens 启动态（mode/loading）
-  '__gevEdgeGrab',   // 验收取样请求（gate → lens）
-  '__gevEdgeGrabOut' // 验收取样结果（lens → gate）
+  '__lc', // 卡壳层诊断（scripts/lc/*.mjs 大量断言）
+  '__lcBooted', // 启动幂等标记
+  '__lcPanelApi', // App 侧折叠 API（src/ui/panelChrome.js 生产，src/lc/app-adapter.js 消费）
+  '__lcExternalDisclosure', // index.html 注入的「披露归 src/lc 管」清单
+  '__gevBoot', // 启动就绪门（index.html/startupChrome 读）
+  '__gevGpu', // GPU 分级（public/*.js 普通脚本读）
+  '__gevEdge', // lens 主 API（stats/cfg/eff/a11y/look 被多个 gate 读）
+  '__gevEdgeLens', // lens 启动态（mode/loading）
+  '__gevEdgeGrab', // 验收取样请求（gate → lens）
+  '__gevEdgeGrabOut', // 验收取样结果（lens → gate）
 ]);
 const READY_EVENT = 'gev:bridge-ready';
 const VERSION = '8d.1';
@@ -55,7 +55,9 @@ const VERSION = '8d.1';
 /** @param {string} name */
 function assertName(name) {
   if (typeof name !== 'string' || !/^[a-zA-Z][\w.]*$/.test(name)) {
-    throw new TypeError(`bridge: 非法名字 ${String(name)}（要求 域.对象，如 edge.lens）`);
+    throw new TypeError(
+      `bridge: 非法名字 ${String(name)}（要求 域.对象，如 edge.lens）`,
+    );
   }
 }
 
@@ -69,15 +71,24 @@ function assertName(name) {
  */
 export function register(name, value, options = {}) {
   assertName(name);
-  if (value === undefined) throw new TypeError(`bridge: ${name} 不能注册 undefined`);
+  if (value === undefined)
+    throw new TypeError(`bridge: ${name} 不能注册 undefined`);
   const existing = SLOTS.get(name);
   if (existing && !options.replace) {
-    throw new Error(`bridge: ${name} 已被 ${existing.owner || '未知'} 注册（如需覆盖请 replace:true）`);
+    throw new Error(
+      `bridge: ${name} 已被 ${existing.owner || '未知'} 注册（如需覆盖请 replace:true）`,
+    );
   }
   if (options.global && !EXPOSED.has(options.global)) {
-    throw new Error(`bridge: ${options.global} 不在 window 兼容面白名单里（见 EXPOSED）`);
+    throw new Error(
+      `bridge: ${options.global} 不在 window 兼容面白名单里（见 EXPOSED）`,
+    );
   }
-  SLOTS.set(name, { value, owner: options.owner || '', global: options.global });
+  SLOTS.set(name, {
+    value,
+    owner: options.owner || '',
+    global: options.global,
+  });
   if (options.global) expose(options.global, name);
   return value;
 }
@@ -109,7 +120,12 @@ export function has(name) {
 export function ensure(name, options = {}) {
   if (SLOTS.has(name)) return SLOTS.get(name).value;
   const adopt = options.adopt !== false;
-  if (adopt && options.global && typeof window !== 'undefined' && window[options.global]) {
+  if (
+    adopt &&
+    options.global &&
+    typeof window !== 'undefined' &&
+    window[options.global]
+  ) {
     return register(name, window[options.global], options);
   }
   return register(name, options.initial ?? {}, options);
@@ -154,14 +170,22 @@ export function dispose(name) {
 export function disposeAll(owner) {
   let n = 0;
   for (const [name, slot] of [...SLOTS.entries()]) {
-    if (slot.owner === owner) { dispose(name); n += 1; }
+    if (slot.owner === owner) {
+      dispose(name);
+      n += 1;
+    }
   }
   return n;
 }
 
 /** 只读清单（排障用，不返回函数引用）。 */
 export function list() {
-  return [...SLOTS.entries()].map(([name, s]) => ({ name, owner: s.owner, global: s.global || null, type: typeof s.value }));
+  return [...SLOTS.entries()].map(([name, s]) => ({
+    name,
+    owner: s.owner,
+    global: s.global || null,
+    type: typeof s.value,
+  }));
 }
 
 /** 总线自身版本（gate 可断言「总线就位」）。 */
@@ -182,7 +206,9 @@ function expose(globalName, name, detached = false) {
       configurable: true,
       enumerable: true,
       get: () => undefined,
-      set: (v) => { register(name, v, { replace: true, global: globalName }); },
+      set: (v) => {
+        register(name, v, { replace: true, global: globalName });
+      },
     });
     return;
   }
@@ -191,21 +217,39 @@ function expose(globalName, name, detached = false) {
     enumerable: true,
     get: () => get(name),
     /* gate 脚本会直接赋值（例如 window.__gevEdgeGrab = {…}），赋值同样落到槽位 */
-    set: (v) => { const slot = SLOTS.get(name); if (slot) slot.value = v; },
+    set: (v) => {
+      const slot = SLOTS.get(name);
+      if (slot) slot.value = v;
+    },
   });
 }
 
 /* classic script（public/gev-edge-lens.js）用的单例出口 + 就绪事件。
    注意：这是**唯一**一个非 `window.__` 的全局，且只出现在这里。 */
 const api = {
-  version, register, get, has, ensure, set, dispose, disposeAll, list,
+  version,
+  register,
+  get,
+  has,
+  ensure,
+  set,
+  dispose,
+  disposeAll,
+  list,
   exposed: [...EXPOSED],
   READY_EVENT,
 };
 if (typeof globalThis !== 'undefined') {
   globalThis.__gevBridge = api;
-  if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
-    try { window.dispatchEvent(new Event(READY_EVENT)); } catch (_) { /* 老环境忽略 */ }
+  if (
+    typeof window !== 'undefined' &&
+    typeof window.dispatchEvent === 'function'
+  ) {
+    try {
+      window.dispatchEvent(new Event(READY_EVENT));
+    } catch (_) {
+      /* 老环境忽略 */
+    }
   }
 }
 

@@ -9,7 +9,12 @@
    ========================================================================== */
 import { ACT } from './controller.js';
 import { PHASE } from './controller.js';
-import { HEAD_SEL, HEAD_NO_TOGGLE, HEAD_TOGGLE_SELF, INTERACTIVE } from './cards.js';
+import {
+  HEAD_SEL,
+  HEAD_NO_TOGGLE,
+  HEAD_TOGGLE_SELF,
+  INTERACTIVE,
+} from './cards.js';
 
 const DRAG_THRESHOLD = 6;
 
@@ -33,7 +38,8 @@ export function createInteraction({ dispatch, phaseOf, onDrag }) {
       /* 标题里任何按钮/输入都不是「切卡」热区（.scene-shot-btn 这种漏登记 class 也兜住） */
       if (t.closest(HEAD_NO_TOGGLE) || t.closest('button')) return null;
     }
-    if (t.closest(HEAD_SEL)) return { header: true, draggable: phase === PHASE.OPEN };
+    if (t.closest(HEAD_SEL))
+      return { header: true, draggable: phase === PHASE.OPEN };
     if (phase === PHASE.MINI) {
       /* mini 态：整张卡就是一条标题条（内部控件除外） */
       if (t.closest(INTERACTIVE) && !isToggleSelf) return null;
@@ -44,9 +50,17 @@ export function createInteraction({ dispatch, phaseOf, onDrag }) {
 
   function onPointerDown(e) {
     if (e.button !== undefined && e.button !== 0) return;
-    const cardEl = e.target && e.target.closest ? e.target.closest('.gev-lc') : null;
+    const cardEl =
+      e.target && e.target.closest ? e.target.closest('.gev-lc') : null;
     if (!cardEl || !cardEl.id) {
-      press = { id: null, x: e.clientX, y: e.clientY, pointerId: e.pointerId, t: e.timeStamp, kind: 'outside' };
+      press = {
+        id: null,
+        x: e.clientX,
+        y: e.clientY,
+        pointerId: e.pointerId,
+        t: e.timeStamp,
+        kind: 'outside',
+      };
       return;
     }
     const id = cardEl.id;
@@ -54,7 +68,14 @@ export function createInteraction({ dispatch, phaseOf, onDrag }) {
     const k = classifyTarget(e.target, phase);
     if (!k) {
       /* 点的是卡内控件：既不是切换、也不算「点外」 */
-      press = { id, x: e.clientX, y: e.clientY, pointerId: e.pointerId, t: e.timeStamp, kind: 'control' };
+      press = {
+        id,
+        x: e.clientX,
+        y: e.clientY,
+        pointerId: e.pointerId,
+        t: e.timeStamp,
+        kind: 'control',
+      };
       return;
     }
     press = {
@@ -88,7 +109,10 @@ export function createInteraction({ dispatch, phaseOf, onDrag }) {
   }
 
   function onPointerUp(e) {
-    if (!press || (e.pointerId !== undefined && e.pointerId !== press.pointerId)) {
+    if (
+      !press ||
+      (e.pointerId !== undefined && e.pointerId !== press.pointerId)
+    ) {
       clear();
       return;
     }
@@ -122,7 +146,10 @@ export function createInteraction({ dispatch, phaseOf, onDrag }) {
     if (e.key === 'Escape') {
       /* 卡内输入框优先（用户正在输入位置搜索等）*/
       if (t && t.closest && t.closest('input,select,textarea')) return;
-      dispatch({ type: ACT.ESC, id: cardEl && cardEl.id ? cardEl.id : undefined });
+      dispatch({
+        type: ACT.ESC,
+        id: cardEl && cardEl.id ? cardEl.id : undefined,
+      });
       return;
     }
     if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
@@ -136,7 +163,8 @@ export function createInteraction({ dispatch, phaseOf, onDrag }) {
   }
 
   function onWheel(e) {
-    const cardEl = e.target && e.target.closest ? e.target.closest('.gev-lc') : null;
+    const cardEl =
+      e.target && e.target.closest ? e.target.closest('.gev-lc') : null;
     if (!cardEl || !cardEl.id) return;
     const phase = phaseOf(cardEl.id);
     /* §5.3：mini / opening / closing 一律吞掉（不滚内容、不穿透地图） */
@@ -151,8 +179,12 @@ export function createInteraction({ dispatch, phaseOf, onDrag }) {
     if (inner && inner !== cardEl) {
       const canScroll = inner.scrollHeight > inner.clientHeight + 2;
       const atTop = inner.scrollTop <= 0;
-      const atBottom = inner.scrollTop + inner.clientHeight >= inner.scrollHeight - 1;
-      if (canScroll && !((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom))) {
+      const atBottom =
+        inner.scrollTop + inner.clientHeight >= inner.scrollHeight - 1;
+      if (
+        canScroll &&
+        !((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom))
+      ) {
         return; // 内层自己滚（不 preventDefault）
       }
     }
@@ -173,7 +205,8 @@ export function createInteraction({ dispatch, phaseOf, onDrag }) {
     if (t.closest(HEAD_SEL)) {
       e.preventDefault();
       e.stopPropagation();
-      if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+      if (typeof e.stopImmediatePropagation === 'function')
+        e.stopImmediatePropagation();
     }
   }
 
@@ -187,7 +220,9 @@ export function createInteraction({ dispatch, phaseOf, onDrag }) {
     target.addEventListener('wheel', onWheel, opts);
     target.addEventListener('click', onDocumentClick, true);
     return () => {
-      target.removeEventListener('pointerdown', onPointerDown, { capture: true });
+      target.removeEventListener('pointerdown', onPointerDown, {
+        capture: true,
+      });
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp, true);
       window.removeEventListener('pointercancel', onPointerCancel, true);
@@ -197,7 +232,11 @@ export function createInteraction({ dispatch, phaseOf, onDrag }) {
     };
   }
 
-  return { bind, classifyTarget, state: () => ({ press: press && { ...press }, drag: drag && { ...drag } }) };
+  return {
+    bind,
+    classifyTarget,
+    state: () => ({ press: press && { ...press }, drag: drag && { ...drag } }),
+  };
 }
 
 export default { createInteraction };

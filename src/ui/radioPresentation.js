@@ -244,7 +244,9 @@ export function renderRadioState(state) {
         : 'Play';
     this._contextRadioMiniPlayBtn.disabled = !interactive || !hasStations;
     this._contextRadioMiniPlayBtn.classList.toggle('active', activePlayback);
-    this._contextRadioMiniPlayBtn.innerHTML = activePlayback ? PAUSE_HTML : PLAY_HTML;
+    this._contextRadioMiniPlayBtn.innerHTML = activePlayback
+      ? PAUSE_HTML
+      : PLAY_HTML;
     this._contextRadioMiniPlayBtn.setAttribute(
       'aria-label',
       `${action} ${selected ? 'selected' : 'nearest'} radio station`,
@@ -259,7 +261,9 @@ export function renderRadioState(state) {
         : 'Play';
     this._cockpitRadioPlayBtn.disabled = !interactive || !hasStations;
     this._cockpitRadioPlayBtn.classList.toggle('active', activePlayback);
-    this._cockpitRadioPlayBtn.innerHTML = activePlayback ? PAUSE_HTML : PLAY_HTML;
+    this._cockpitRadioPlayBtn.innerHTML = activePlayback
+      ? PAUSE_HTML
+      : PLAY_HTML;
     this._cockpitRadioPlayBtn.setAttribute(
       'aria-label',
       `${action} ${selected ? 'selected' : 'nearest'} radio station`,

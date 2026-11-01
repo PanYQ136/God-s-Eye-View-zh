@@ -19,8 +19,15 @@
    层序（Phase8F 修）：**只在 index.html 的 <style> 里声明一次**，本文件不再重复。
    CSS 的层顺序在某个层名「首次出现」时锁定，而 index.html 的 <style> 排在所有样式表
    之前，所以那一条就是唯一事实源；这里再写一遍会让两处可能不同步（8F FAIL ④）。
-   —— 2026-11-01 删除本行重复声明，行为不变。 */
+   —— 2026-11-01 删除本行重复声明，行为不变。
+
+   注意：下面两条字体 @import 必须单行写完（`... &display=swap') layer(vendor);`）。
+   `src/annotations/drawTool.test.mjs` 断言「本文件只允许 @import / @layer 语句」，
+   而 prettier 会在 80 列处把 `layer(vendor);` 折到下一行，折行后的续行不以 @import
+   开头，断言就会失败。所以用 prettier-ignore 锁住单行，别让格式化改回去。 */
+/* prettier-ignore */
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap') layer(vendor);
+/* prettier-ignore */
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0&icon_names=adjust,arrow_drop_down,arrow_forward,arrow_left,arrow_right,bolt,chevron_left,chevron_right,close,close_fullscreen,dark_mode,draw,east,flare,flight,layers_clear,light_mode,local_fire_department,my_location,navigation,normal,on,open_in_full,public,radar,radio,right_panel_close,right_panel_open,rocket_launch,skip_next,skip_previous,view_in_ar') layer(vendor);
 
 @import './src/ui/styles/foundation.css';

@@ -43,7 +43,13 @@ const isAnimating = (p) => p === PHASE.OPENING || p === PHASE.CLOSING;
 function blankState(ids) {
   const cards = {};
   for (const id of ids) {
-    cards[id] = { phase: PHASE.MINI, gen: 0, closeStart: 0, offset: { x: 0, y: 0 }, dragging: false };
+    cards[id] = {
+      phase: PHASE.MINI,
+      gen: 0,
+      closeStart: 0,
+      offset: { x: 0, y: 0 },
+      dragging: false,
+    };
   }
   return { cards, openOrder: [], layoutDirty: true, seq: 0 };
 }
@@ -51,8 +57,14 @@ function blankState(ids) {
 /** 深拷贝（状态很小，测试要能对比前后）。 */
 export function cloneState(s) {
   const cards = {};
-  for (const id in s.cards) cards[id] = { ...s.cards[id], offset: { ...s.cards[id].offset } };
-  return { cards, openOrder: s.openOrder.slice(), layoutDirty: s.layoutDirty, seq: s.seq };
+  for (const id in s.cards)
+    cards[id] = { ...s.cards[id], offset: { ...s.cards[id].offset } };
+  return {
+    cards,
+    openOrder: s.openOrder.slice(),
+    layoutDirty: s.layoutDirty,
+    seq: s.seq,
+  };
 }
 
 /**
@@ -71,10 +83,11 @@ export function reduce(state, action, ctx = {}) {
   next.seq = (next.seq || 0) + 1;
 
   if (type === ACT.HYDRATE) {
-    const offs = (action.offsets || {});
+    const offs = action.offsets || {};
     for (const id in next.cards) {
       const o = offs[id];
-      if (o && Number.isFinite(o.x) && Number.isFinite(o.y)) next.cards[id].offset = { x: o.x, y: o.y };
+      if (o && Number.isFinite(o.x) && Number.isFinite(o.y))
+        next.cards[id].offset = { x: o.x, y: o.y };
     }
     return { state: next, effects };
   }
@@ -112,7 +125,12 @@ export function reduce(state, action, ctx = {}) {
       c.dragging = false;
       next.openOrder = next.openOrder.filter((x) => x !== action.id);
       /* §4.2：先让 App 收起（内容同步隐藏），宿主在同一 tick 内卸浮层 → 不闪 */
-      effects.push({ type: EFF.COLLAPSE_WRITE, id: action.id, collapsed: true, reason: 'close-end' });
+      effects.push({
+        type: EFF.COLLAPSE_WRITE,
+        id: action.id,
+        collapsed: true,
+        reason: 'close-end',
+      });
       effects.push({ type: EFF.PERSIST });
       frame();
     }
@@ -122,7 +140,10 @@ export function reduce(state, action, ctx = {}) {
   if (type === ACT.DRAG) {
     const c = next.cards[action.id];
     if (!c || c.phase !== PHASE.OPEN) return { state, effects };
-    c.offset = { x: (c.offset.x || 0) + (Number(action.dx) || 0), y: (c.offset.y || 0) + (Number(action.dy) || 0) };
+    c.offset = {
+      x: (c.offset.x || 0) + (Number(action.dx) || 0),
+      y: (c.offset.y || 0) + (Number(action.dy) || 0),
+    };
     c.dragging = true;
     next.layoutDirty = true;
     frame();
@@ -154,7 +175,9 @@ export function reduce(state, action, ctx = {}) {
     /* App 把某卡展开了（点图层/CCTV/电台/首次引导，§7.1 A6）→ 必须反向驱动 opening，
        否则用户会看到「点了图层卡没展开」。 */
     if (c.phase === PHASE.MINI) {
-      const gen = activate(next, action.id, now, effects, { writeExpand: false });
+      const gen = activate(next, action.id, now, effects, {
+        writeExpand: false,
+      });
       c.gen = gen;
       frame();
     }
@@ -164,7 +187,8 @@ export function reduce(state, action, ctx = {}) {
   if (type === ACT.ACTIVATE) {
     const c = next.cards[action.id];
     if (!c) return { state, effects };
-    if (!CARDS[action.id] || !CARDS[action.id].expandable) return { state, effects };
+    if (!CARDS[action.id] || !CARDS[action.id].expandable)
+      return { state, effects };
     if (c.phase === PHASE.MINI) {
       activate(next, action.id, now, effects, { writeExpand: true });
       frame();
@@ -179,7 +203,9 @@ export function reduce(state, action, ctx = {}) {
       c.phase = PHASE.OPENING;
       c.closeStart = 0;
       c.gen += 1;
-      next.openOrder = next.openOrder.filter((x) => x !== action.id).concat([action.id]);
+      next.openOrder = next.openOrder
+        .filter((x) => x !== action.id)
+        .concat([action.id]);
       frame();
     }
     return { state: next, effects };
@@ -212,14 +238,25 @@ export function reduce(state, action, ctx = {}) {
     c.gen += 1;
     st.openOrder = st.openOrder.filter((x) => x !== id).concat([id]);
     /* 展开时先让 App 把面板展开（内容可见，才能量内容高/渲染），收起在 closing 落定后写 */
-    if (opts && opts.writeExpand) eff.push({ type: EFF.COLLAPSE_WRITE, id, collapsed: false, reason: 'open' });
+    if (opts && opts.writeExpand)
+      eff.push({
+        type: EFF.COLLAPSE_WRITE,
+        id,
+        collapsed: false,
+        reason: 'open',
+      });
     return c.gen;
   }
 }
 
 /* ── 生命周期壳：订阅 / dispatch / 只读快照 ──────────────────────────────── */
 
-export function createController({ ids = CARD_IDS, now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now()), onEffect } = {}) {
+export function createController({
+  ids = CARD_IDS,
+  now = () =>
+    typeof performance !== 'undefined' ? performance.now() : Date.now(),
+  onEffect,
+} = {}) {
   let state = blankState(ids);
   const subs = new Set();
 
@@ -263,12 +300,18 @@ export function createController({ ids = CARD_IDS, now = () => (typeof performan
     assert() {
       const bad = [];
       for (const g of GROUPS) {
-        const live = g.filter((id) => state.cards[id] && isLive(state.cards[id].phase));
+        const live = g.filter(
+          (id) => state.cards[id] && isLive(state.cards[id].phase),
+        );
         if (live.length > 1) bad.push({ rule: 'mutex', group: g, live });
       }
       for (const id in state.cards) {
-        if (!PHASE[state.cards[id].phase.toUpperCase()]) bad.push({ rule: 'phase', id });
-        if (state.cards[id].phase === PHASE.MINI && (state.cards[id].offset.x || state.cards[id].offset.y))
+        if (!PHASE[state.cards[id].phase.toUpperCase()])
+          bad.push({ rule: 'phase', id });
+        if (
+          state.cards[id].phase === PHASE.MINI &&
+          (state.cards[id].offset.x || state.cards[id].offset.y)
+        )
           bad.push({ rule: 'mini-offset', id });
       }
       return bad;

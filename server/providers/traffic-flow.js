@@ -29,7 +29,15 @@ function tileXY(lat, lon, z) {
   const n = 2 ** z;
   return [
     Math.floor(((lon + 180) / 360) * n),
-    Math.floor(((1 - Math.log(Math.tan((lat * Math.PI) / 180) + 1 / Math.cos((lat * Math.PI) / 180)) / Math.PI) / 2) * n),
+    Math.floor(
+      ((1 -
+        Math.log(
+          Math.tan((lat * Math.PI) / 180) + 1 / Math.cos((lat * Math.PI) / 180),
+        ) /
+          Math.PI) /
+        2) *
+        n,
+    ),
   ];
 }
 
@@ -44,11 +52,15 @@ function tilePointToLngLat(px, py, extent, z, x, y) {
 
 function parseQuery(url) {
   const q = new URL(url, 'http://local').searchParams;
-  const bboxRaw = String(q.get('bbox') || '').split(',').map(Number);
-  if (bboxRaw.length !== 4 || !bboxRaw.every(Number.isFinite)) return { error: 'invalid_bbox' };
+  const bboxRaw = String(q.get('bbox') || '')
+    .split(',')
+    .map(Number);
+  if (bboxRaw.length !== 4 || !bboxRaw.every(Number.isFinite))
+    return { error: 'invalid_bbox' };
   const [w, s, e, n] = bboxRaw;
   if (!(w < e) || !(s < n)) return { error: 'invalid_bbox' };
-  if (e - w > MAX_SPAN_DEG || n - s > MAX_SPAN_DEG) return { error: 'bbox_too_large', maxSpanDeg: MAX_SPAN_DEG };
+  if (e - w > MAX_SPAN_DEG || n - s > MAX_SPAN_DEG)
+    return { error: 'bbox_too_large', maxSpanDeg: MAX_SPAN_DEG };
   const zoom = Math.min(14, Math.max(10, Number(q.get('zoom')) || 12));
   const limit = Math.min(1200, Math.max(1, Number(q.get('limit')) || 600));
   return { bbox: [w, s, e, n], zoom, limit };
@@ -57,8 +69,8 @@ function parseQuery(url) {
 /** 取覆盖该 bbox 的瓦片（最多 TILE_CAP 块，优先覆盖中心） */
 function tilesFor(bbox, zoom) {
   const [w, s, e, n] = bbox;
-  const [x0, y0] = tileXY(n, w, zoom);   // 西北角
-  const [x1, y1] = tileXY(s, e, zoom);   // 东南角
+  const [x0, y0] = tileXY(n, w, zoom); // 西北角
+  const [x1, y1] = tileXY(s, e, zoom); // 东南角
   const out = [];
   for (let x = x0; x <= x1; x++) {
     for (let y = y0; y <= y1; y++) out.push([x, y]);
@@ -67,14 +79,21 @@ function tilesFor(bbox, zoom) {
   // 超限：按到 bbox 中心的距离取最近的 TILE_CAP 块
   const [cx, cy] = tileXY((s + n) / 2, (w + e) / 2, zoom);
   return out
-    .sort((a, b) => (a[0] - cx) ** 2 + (a[1] - cy) ** 2 - ((b[0] - cx) ** 2 + (b[1] - cy) ** 2))
+    .sort(
+      (a, b) =>
+        (a[0] - cx) ** 2 +
+        (a[1] - cy) ** 2 -
+        ((b[0] - cx) ** 2 + (b[1] - cy) ** 2),
+    )
     .slice(0, TILE_CAP);
 }
 
 async function fetchTile(z, x, y, signal) {
   const key = process.env.TOMTOM_API_KEY;
   const url = `${UPSTREAM}/${z}/${x}/${y}.pbf?key=${encodeURIComponent(key)}`;
-  const res = await fetch(url, { signal: AbortSignal.any([signal, AbortSignal.timeout(FETCH_TIMEOUT_MS)]) });
+  const res = await fetch(url, {
+    signal: AbortSignal.any([signal, AbortSignal.timeout(FETCH_TIMEOUT_MS)]),
+  });
   if (res.status === 404) return null; // 该块无数据（常见于无覆盖区）
   if (!res.ok) throw new Error(`upstream_http_${res.status}`);
   const buf = Buffer.from(await res.arrayBuffer());
@@ -97,7 +116,8 @@ function decodeTile(buf, z, x, y, sink) {
     for (const ring of geom) {
       if (!ring || ring.length < 2) continue;
       const pts = [];
-      for (const p of ring) pts.push(tilePointToLngLat(p.x, p.y, extent, z, x, y));
+      for (const p of ring)
+        pts.push(tilePointToLngLat(p.x, p.y, extent, z, x, y));
       sink.push({
         lv: level,
         cls: String(props.road_type || ''),
@@ -115,20 +135,32 @@ export function trafficFlowProxy() {
   const handler = async (req, res) => {
     const send = (status, obj) => {
       if (res.headersSent) return;
-      res.writeHead(status, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+      res.writeHead(status, {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store',
+      });
       res.end(JSON.stringify(obj));
     };
     if (req.method !== 'GET') return send(405, { error: 'method_not_allowed' });
-    if (!process.env.TOMTOM_API_KEY) return send(503, { error: 'no_key', available: false });
+    if (!process.env.TOMTOM_API_KEY)
+      return send(503, { error: 'no_key', available: false });
 
     const parsed = parseQuery(req.url);
-    if (parsed.error) return send(400, { error: parsed.error, ...(parsed.maxSpanDeg ? { maxSpanDeg: parsed.maxSpanDeg } : {}) });
+    if (parsed.error)
+      return send(400, {
+        error: parsed.error,
+        ...(parsed.maxSpanDeg ? { maxSpanDeg: parsed.maxSpanDeg } : {}),
+      });
 
     const { bbox, zoom, limit } = parsed;
     const cacheKey = `${bbox.join(',')}|${zoom}|${limit}`;
     const hit = cache.get(cacheKey);
     if (hit && Date.now() - hit.at < CACHE_TTL_MS) {
-      res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'max-age=60', 'x-traffic-flow-cache': 'hit' });
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'max-age=60',
+        'x-traffic-flow-cache': 'hit',
+      });
       return res.end(JSON.stringify(hit.payload));
     }
 
@@ -140,14 +172,16 @@ export function trafficFlowProxy() {
       // 并发 3，避免把上游打爆
       for (let i = 0; i < tiles.length; i += 3) {
         const batch = tiles.slice(i, i + 3);
-        await Promise.all(batch.map(async ([x, y]) => {
-          try {
-            const buf = await fetchTile(zoom, x, y, controller.signal);
-            if (buf) decodeTile(buf, zoom, x, y, lines);
-          } catch {
-            failed++;
-          }
-        }));
+        await Promise.all(
+          batch.map(async ([x, y]) => {
+            try {
+              const buf = await fetchTile(zoom, x, y, controller.signal);
+              if (buf) decodeTile(buf, zoom, x, y, lines);
+            } catch {
+              failed++;
+            }
+          }),
+        );
       }
     } finally {
       controller.abort();
@@ -168,12 +202,17 @@ export function trafficFlowProxy() {
       count: kept.length,
       truncated: lines.length > limit,
       bbox: [w, s, e, n],
-      coverage: 'TomTom Traffic Flow（relative）· 大陆中国无覆盖，可用区为美/欧/日等',
+      coverage:
+        'TomTom Traffic Flow（relative）· 大陆中国无覆盖，可用区为美/欧/日等',
       lines: kept,
     };
     if (cache.size >= CACHE_MAX) cache.delete(cache.keys().next().value);
     cache.set(cacheKey, { at: Date.now(), payload });
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'max-age=60', 'x-traffic-flow-cache': 'miss' });
+    res.writeHead(200, {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'max-age=60',
+      'x-traffic-flow-cache': 'miss',
+    });
     res.end(JSON.stringify(payload));
   };
 

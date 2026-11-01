@@ -2,7 +2,8 @@ import { readResponseJsonCapped } from '../../sources/httpBody.js';
 
 /** Request a normalized snapshot through the bounded, same-origin WFIGS proxy. */
 export function createWfigsPerimeterSource({
-  fetchImpl = (...args) => (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
+  fetchImpl = (...args) =>
+    (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
 } = {}) {
   return {
     async getSnapshot({ signal } = {}) {

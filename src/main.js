@@ -21,7 +21,9 @@ timeline.mark('main:entry');
 function loadApplication() {
   import('./bootstrap.js').catch((error) => {
     console.error("God's Eye View initialization failed:", error);
-    const loaderStatus = document.querySelector('#loading-screen .loader-status');
+    const loaderStatus = document.querySelector(
+      '#loading-screen .loader-status',
+    );
     if (loaderStatus) {
       loaderStatus.textContent = `Error: ${error && error.message ? error.message : error}`;
       loaderStatus.style.color = '#ff4444';

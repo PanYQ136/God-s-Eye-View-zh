@@ -27,7 +27,11 @@ function dispatchReady(how) {
 export function startCesium(how = 'inject') {
   if (promise) return promise;
   promise = new Promise((resolve) => {
-    if (!import.meta.env.PROD || typeof window === 'undefined' || window.Cesium) {
+    if (
+      !import.meta.env.PROD ||
+      typeof window === 'undefined' ||
+      window.Cesium
+    ) {
       dispatchReady(window.Cesium ? 'already-loaded' : 'dev-esm');
       resolve(true);
       return;
@@ -57,8 +61,12 @@ export function whenCesiumReady() {
     document.addEventListener(EVENT, on, { once: true });
     window.addEventListener(EVENT, on, { once: true });
   });
-  const timer = new Promise((resolve) => setTimeout(() => resolve(startCesium('main-fallback')), 6000));
-  return Promise.race([wait, timer]).then(() => (window.Cesium ? true : startCesium('main-fallback')));
+  const timer = new Promise((resolve) =>
+    setTimeout(() => resolve(startCesium('main-fallback')), 6000),
+  );
+  return Promise.race([wait, timer]).then(() =>
+    window.Cesium ? true : startCesium('main-fallback'),
+  );
 }
 
 export const CESIUM_READY_EVENT = EVENT;

@@ -34,7 +34,8 @@ const renderer = (file) =>
 // 2026-11-01：`src/ui.js`（@deprecated 兼容壳，零引用）已删除，原先给它的那条
 // 豁免边同时移除；若日后有人重建该入口，这里不再放行，需显式登记。
 const compatibilityEdge = (from, to) =>
-  from === 'server/providers/local.js' && to === 'server/standalone/key-setup.js';
+  from === 'server/providers/local.js' &&
+  to === 'server/standalone/key-setup.js';
 const portableExport = (key) =>
   key.startsWith('./sources/') ||
   /\/source$/.test(key) ||
@@ -253,7 +254,11 @@ export function checkImportDirections(
   if (existsSync(path.join(root, 'src/voice/sessionCommands.js')))
     voice('src/voice/sessionCommands.js');
   if (errors.size) throw new Error([...errors].join('\n'));
-  return { modules: files.length, portableEntries: roots.size, warnings: [...warnings] };
+  return {
+    modules: files.length,
+    portableEntries: roots.size,
+    warnings: [...warnings],
+  };
 }
 
 if (

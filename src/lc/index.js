@@ -22,11 +22,18 @@ const SETTLE_FRAMES = 90; // ≈1.5s：App 启动期会搬容器/恢复状态，
    App 就绪（实测那样 cardsClickable 又回到 7–9.5s）。改为：必需卡 = 7 张静态卡壳，
    语音卡等它出现时由 MutationObserver 补皮（skinCard）。 */
 const DEFERRED_IDS = Object.freeze(['gev-voice-control']);
-const REQUIRED_IDS = Object.freeze(CARD_IDS.filter((id) => !DEFERRED_IDS.includes(id)));
+const REQUIRED_IDS = Object.freeze(
+  CARD_IDS.filter((id) => !DEFERRED_IDS.includes(id)),
+);
 
 const TARGETS = (() => {
   const t = {};
-  for (const id of CARD_IDS) t[id] = { expW: CARDS[id].expW, expH: CARDS[id].expH, rail: CARDS[id].rail };
+  for (const id of CARD_IDS)
+    t[id] = {
+      expW: CARDS[id].expW,
+      expH: CARDS[id].expH,
+      rail: CARDS[id].rail,
+    };
   return t;
 })();
 
@@ -46,7 +53,8 @@ function writeStore(offsets) {
     const out = {};
     for (const id in offsets) {
       const o = offsets[id];
-      if (o && (Math.abs(o.x) > 0.5 || Math.abs(o.y) > 0.5)) out[id] = { x: Math.round(o.x), y: Math.round(o.y) };
+      if (o && (Math.abs(o.x) > 0.5 || Math.abs(o.y) > 0.5))
+        out[id] = { x: Math.round(o.x), y: Math.round(o.y) };
     }
     localStorage.setItem(STORE_KEY, JSON.stringify(out));
   } catch (_) {}
@@ -54,8 +62,12 @@ function writeStore(offsets) {
 
 export function boot() {
   /* Phase8D #15：启动幂等标记与对外 API 都走 bridge 槽位（window.__lcBooted / __lc 只是兼容面） */
-  if (typeof window === 'undefined' || bridge.get('lc.booted')) return bridge.get('lc.api');
-  bridge.register('lc.booted', true, { global: '__lcBooted', owner: 'src/lc/index.js' });
+  if (typeof window === 'undefined' || bridge.get('lc.booted'))
+    return bridge.get('lc.api');
+  bridge.register('lc.booted', true, {
+    global: '__lcBooted',
+    owner: 'src/lc/index.js',
+  });
 
   const adapter = createAdapter();
   let lastSnapshot = null;
@@ -71,7 +83,8 @@ export function boot() {
   const controller = createController({ onEffect: handleEffects });
   const renderer = createRenderer({
     adapter,
-    onAnimEnd: (id, gen) => controller.dispatch({ type: ACT.ANIM_END, id, gen }),
+    onAnimEnd: (id, gen) =>
+      controller.dispatch({ type: ACT.ANIM_END, id, gen }),
   });
   const port = createCollapsePort({
     adapter,
@@ -115,11 +128,18 @@ export function boot() {
     const { st, phases, gens } = phaseMap();
     renderer.assertStaged(phases);
     const dockId = CARD_IDS.find(
-      (id) => CARDS[id].rail === 'dock' && (phases[id] === PHASE.OPENING || phases[id] === PHASE.OPEN),
+      (id) =>
+        CARDS[id].rail === 'dock' &&
+        (phases[id] === PHASE.OPENING || phases[id] === PHASE.OPEN),
     );
-    const snapshot = adapter.measure({ pushes: renderer.pushesOf(), phases, dockId });
+    const snapshot = adapter.measure({
+      pushes: renderer.pushesOf(),
+      phases,
+      dockId,
+    });
     const offsets = {};
-    for (const id of CARD_IDS) offsets[id] = (st.cards[id] && st.cards[id].offset) || { x: 0, y: 0 };
+    for (const id of CARD_IDS)
+      offsets[id] = (st.cards[id] && st.cards[id].offset) || { x: 0, y: 0 };
     const result = layout({
       viewport: snapshot.viewport,
       safe: snapshot.safe,
@@ -138,7 +158,14 @@ export function boot() {
 
     LC.result = result;
     LC.violations = result.violations;
-    LC.snapshot = { viewport: snapshot.viewport, dock: snapshot.dock, protected: snapshot.protected, minis: Object.fromEntries(Object.entries(snapshot.cards).map(([k, v]) => [k, v.mini])) };
+    LC.snapshot = {
+      viewport: snapshot.viewport,
+      dock: snapshot.dock,
+      protected: snapshot.protected,
+      minis: Object.fromEntries(
+        Object.entries(snapshot.cards).map(([k, v]) => [k, v.mini]),
+      ),
+    };
     LC.lastFrameAt = performance.now();
   }
 
@@ -147,7 +174,8 @@ export function boot() {
       if (e.type === EFF.COLLAPSE_WRITE) {
         if (!e.collapsed) {
           /* 先脱层再让 App 展开：否则 App 的 `:has(#x:not(.collapsed))` 会闪一帧 */
-          const cached = lastSnapshot && lastSnapshot.cards && lastSnapshot.cards[e.id];
+          const cached =
+            lastSnapshot && lastSnapshot.cards && lastSnapshot.cards[e.id];
           const mini = (cached && cached.mini) || null;
           adapter.stageCard(e.id, mini);
         }
@@ -159,7 +187,11 @@ export function boot() {
         const h = adapter.headerOf(e.id) || adapter.el(e.id);
         if (h && typeof h.focus === 'function') {
           try {
-            if (!h.hasAttribute('tabindex') && !/^(BUTTON|INPUT|A|SELECT|TEXTAREA)$/.test(h.tagName)) h.setAttribute('tabindex', '-1');
+            if (
+              !h.hasAttribute('tabindex') &&
+              !/^(BUTTON|INPUT|A|SELECT|TEXTAREA)$/.test(h.tagName)
+            )
+              h.setAttribute('tabindex', '-1');
             h.focus({ preventScroll: true });
           } catch (_) {}
         }
@@ -227,7 +259,8 @@ export function boot() {
       for (const id of CARD_IDS) {
         if (isLive(phases[id]) && !adapter.isStaged(id)) {
           api.diagnostics = api.diagnostics || {};
-          api.diagnostics.reparentFixes = (api.diagnostics.reparentFixes || 0) + 1;
+          api.diagnostics.reparentFixes =
+            (api.diagnostics.reparentFixes || 0) + 1;
           scheduleFrame();
           break;
         }
@@ -252,15 +285,25 @@ export function boot() {
       });
     };
     const geomWatch = new MutationObserver(onAppGeom);
-    for (const sel of ['#left-panel-stack', '#right-context-rail', '#command-dock']) {
+    for (const sel of [
+      '#left-panel-stack',
+      '#right-context-rail',
+      '#command-dock',
+    ]) {
       const node = document.querySelector(sel);
       if (!node) continue;
       try {
-        geomWatch.observe(node, { attributes: true, attributeFilter: ['style', 'class'] });
+        geomWatch.observe(node, {
+          attributes: true,
+          attributeFilter: ['style', 'class'],
+        });
       } catch (_) {}
     }
     try {
-      geomWatch.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+      geomWatch.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class'],
+      });
     } catch (_) {}
 
     /* 5b) 侧轨上移的稳定化：App 在启动后 2–8s 之间会把轨道摆到「垂直居中」，
@@ -304,7 +347,10 @@ export function boot() {
        否则「卡片何时真的能点」只能靠外部轮询猜（实测轮询本身会拖慢冷启动）。 */
     api.mountedAt = +performance.now().toFixed(1);
     try {
-      if (globalThis.__bootTimeline && typeof globalThis.__bootTimeline.mark === 'function')
+      if (
+        globalThis.__bootTimeline &&
+        typeof globalThis.__bootTimeline.mark === 'function'
+      )
         globalThis.__bootTimeline.mark('lc:mounted');
     } catch (_) {}
     /* Phase7A3：卡片层现在先于 Cesium 求值起来 → mount 的一刻**同步**放行输入
@@ -327,7 +373,10 @@ export function boot() {
       if (adopted) {
         api.appApiAt = +performance.now().toFixed(1);
         try {
-          if (globalThis.__bootTimeline && typeof globalThis.__bootTimeline.mark === 'function')
+          if (
+            globalThis.__bootTimeline &&
+            typeof globalThis.__bootTimeline.mark === 'function'
+          )
             globalThis.__bootTimeline.mark('lc:app-api');
         } catch (_) {}
         adapter.liftRails(94);
@@ -339,7 +388,7 @@ export function boot() {
     requestAnimationFrame(appWatch);
     const markReady = () => {
       if (api.ready) return;
-      api.readyAt = +(performance.now()).toFixed(1);
+      api.readyAt = +performance.now().toFixed(1);
       api.ready = true;
     };
     const bootGate = bridge.get('boot');
@@ -366,7 +415,13 @@ export function boot() {
 
   /* ── 只读钩子（§3.1 原则 5：可断言优先）────────────────────────────────── */
   Object.assign(api, {
-    state: () => { const s = controller.state(); const o = {}; for (const id of CARD_IDS) o[id] = { ...s.cards[id], offset: { ...s.cards[id].offset } }; return { cards: o, openOrder: s.openOrder.slice() }; },
+    state: () => {
+      const s = controller.state();
+      const o = {};
+      for (const id of CARD_IDS)
+        o[id] = { ...s.cards[id], offset: { ...s.cards[id].offset } };
+      return { cards: o, openOrder: s.openOrder.slice() };
+    },
     phases: () => phaseMap().phases,
     assert: () => ({
       violations: ((bridge.get('lc') || {}).violations || []).slice(0, 8),
@@ -374,8 +429,12 @@ export function boot() {
       port: port.stats(),
       renderer: renderer.stats(),
     }),
-    gpu: () => { const g = bridge.get('gpu'); return g && typeof g.probe === 'function' ? g.probe() : null; },
-    morph: () => ((bridge.get('lc') || {}).morph && bridge.get('lc').morph.last) || null,
+    gpu: () => {
+      const g = bridge.get('gpu');
+      return g && typeof g.probe === 'function' ? g.probe() : null;
+    },
+    morph: () =>
+      ((bridge.get('lc') || {}).morph && bridge.get('lc').morph.last) || null,
     port: () => port.stats(),
     dispatch: (a) => controller.dispatch(a),
   });
@@ -386,7 +445,8 @@ export function boot() {
 
 /* 自动启动（删除 index.html 的 <script> 即回滚） */
 try {
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
+  if (document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', boot, { once: true });
   else boot();
 } catch (err) {
   console.error('[lc] boot failed', err);

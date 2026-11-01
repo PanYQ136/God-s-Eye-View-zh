@@ -68,7 +68,10 @@
   }
 
   function build() {
-    if (!isPortrait()) { teardown(); return; }
+    if (!isPortrait()) {
+      teardown();
+      return;
+    }
     document.body.classList.add('gev-mobile-portrait');
     if (fabL) return;
     fabL = mkFab('gev-mfab-left', 'layers', '图层面板');
@@ -81,17 +84,27 @@
     document.body.classList.remove('gev-mobile-portrait', 'gev-drawer-open');
     setOpen(LEFT, false);
     setOpen(RIGHT, false);
-    if (fabL) { fabL.remove(); fabL = null; }
-    if (fabR) { fabR.remove(); fabR = null; }
+    if (fabL) {
+      fabL.remove();
+      fabL = null;
+    }
+    if (fabR) {
+      fabR.remove();
+      fabR = null;
+    }
   }
 
   // 点抽屉/按钮之外（地图等）收起
-  document.addEventListener('pointerdown', (e) => {
-    if (!document.body.classList.contains('gev-drawer-open')) return;
-    const t = e.target;
-    if (t.closest('#' + LEFT + ',#' + RIGHT + ',.gev-mfab')) return;
-    closeDrawers();
-  }, true);
+  document.addEventListener(
+    'pointerdown',
+    (e) => {
+      if (!document.body.classList.contains('gev-drawer-open')) return;
+      const t = e.target;
+      if (t.closest('#' + LEFT + ',#' + RIGHT + ',.gev-mfab')) return;
+      closeDrawers();
+    },
+    true,
+  );
 
   MQ.addEventListener('change', () => (isPortrait() ? build() : teardown()));
   let _rt = null;
@@ -101,7 +114,8 @@
   });
 
   function init() {
-    if (document.getElementById(LEFT) && document.getElementById(RIGHT)) build();
+    if (document.getElementById(LEFT) && document.getElementById(RIGHT))
+      build();
     else setTimeout(init, 400);
   }
   if (document.readyState !== 'loading') init();

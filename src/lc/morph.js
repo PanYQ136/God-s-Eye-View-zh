@@ -18,7 +18,6 @@
    ========================================================================== */
 import * as bridge from '../bridge.js';
 
-
 const S_SMALL = Math.sqrt(176 * 43); // 86.994
 const S_LARGE = Math.sqrt(320 * 380); // 348.712
 const K = (445 - 350) / (S_LARGE - S_SMALL); // 0.3630
@@ -114,13 +113,17 @@ function glassApi() {
 
 /* Phase8D #15：lens 是 classic script，先于本模块执行 → ensure 会**采用**它写好的对象 */
 function edgeApi() {
-  return bridge.ensure('edge.lens', { global: '__gevEdge', owner: 'public/gev-edge-lens.js' });
+  return bridge.ensure('edge.lens', {
+    global: '__gevEdge',
+    owner: 'public/gev-edge-lens.js',
+  });
 }
 
 function edgeBegin(id) {
   const g = glassApi();
   try {
-    if (g && typeof g.morphBegin === 'function') return g.morphBegin(id || 'morph');
+    if (g && typeof g.morphBegin === 'function')
+      return g.morphBegin(id || 'morph');
   } catch (_) {}
   try {
     const E = edgeApi();
@@ -262,7 +265,10 @@ export function run(el, first, opts) {
   }
   CURRENT.set(el, anim);
   try {
-    const LC = bridge.ensure('lc', { global: '__lc', owner: 'src/lc/index.js' });
+    const LC = bridge.ensure('lc', {
+      global: '__lc',
+      owner: 'src/lc/index.js',
+    });
     LC.morph = LC.morph || {};
     LC.morph.last = {
       id: o.id || el.id || '',
@@ -426,7 +432,10 @@ export function runShift(el, opts = {}) {
   bindEdge(anim, 'shift');
   CURRENT.set(el, anim);
   try {
-    const LC = bridge.ensure('lc', { global: '__lc', owner: 'src/lc/index.js' });
+    const LC = bridge.ensure('lc', {
+      global: '__lc',
+      owner: 'src/lc/index.js',
+    });
     LC.morph = LC.morph || {};
     LC.morph.shift = {
       duration: dur,

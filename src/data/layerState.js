@@ -1054,7 +1054,10 @@ export class LayerStateCoordinator {
         { origin: intent.origin },
       );
     } catch (error) {
-      console.warn(`[Data] deferred layer restore failed for ${layerId}:`, error);
+      console.warn(
+        `[Data] deferred layer restore failed for ${layerId}:`,
+        error,
+      );
     }
   }
 

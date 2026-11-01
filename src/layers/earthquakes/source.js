@@ -3,7 +3,8 @@ const API_URL =
   'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson';
 /** Request and validate a complete USGS snapshot before it can replace displayed events. */
 export function createUsgsEarthquakeSource({
-  fetchImpl = (...args) => (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
+  fetchImpl = (...args) =>
+    (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
 } = {}) {
   return {
     async getSnapshot({ signal } = {}) {

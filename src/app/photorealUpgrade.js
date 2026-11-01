@@ -34,7 +34,9 @@ const BASE_READY_EVENT = 'gev:base-ready';
 const PHOTOREAL_READY_EVENT = 'gev:photoreal-ready';
 
 const now = () =>
-  typeof performance !== 'undefined' ? +performance.now().toFixed(1) : Date.now();
+  typeof performance !== 'undefined'
+    ? +performance.now().toFixed(1)
+    : Date.now();
 
 /* ── idle 调度：优先 requestIdleCallback，缺少时退化为「下一帧之后」 ────────── */
 function onIdle(fn, timeoutMs = 400) {
@@ -54,7 +56,9 @@ function cancelIdle(id) {
 function baseIsReady() {
   const gate = globalThis.__gevBoot;
   if (gate && gate.interactive) return true;
-  const el = typeof document !== 'undefined' && document.getElementById('loading-screen');
+  const el =
+    typeof document !== 'undefined' &&
+    document.getElementById('loading-screen');
   if (el) {
     const cs = getComputedStyle(el);
     if (cs.display === 'none' || cs.visibility === 'hidden') return true;
@@ -89,7 +93,10 @@ export function whenBaseReady(maxMs = 30000) {
     /* 软兼容：gate 提供 whenInteractive（遮罩收起 = 可交互）。 */
     const gate = globalThis.__gevBoot;
     if (gate && typeof gate.whenInteractive === 'function') {
-      gate.whenInteractive(maxMs).then(() => finish('gate'), () => finish('gate'));
+      gate.whenInteractive(maxMs).then(
+        () => finish('gate'),
+        () => finish('gate'),
+      );
     }
     /* 最后兜底：轮询 DOM opacity（gate 被移除/语义变化时仍然工作）。 */
     const poll = setInterval(() => {
@@ -110,21 +117,18 @@ export function schedulePhotorealLoad(startLoad, { maxWaitMs = 30000 } = {}) {
   loadPromise = whenBaseReady(maxWaitMs).then(
     (via) =>
       new Promise((resolve) => {
-        onIdle(
-          () => {
-            try {
-              globalThis.__gevPhotoreal = {
-                ...(globalThis.__gevPhotoreal || {}),
-                ready: false,
-                phase: 'loading',
-                baseReadyVia: via,
-                startedAt: now(),
-              };
-            } catch (_) {}
-            resolve(startLoad());
-          },
-          600,
-        );
+        onIdle(() => {
+          try {
+            globalThis.__gevPhotoreal = {
+              ...(globalThis.__gevPhotoreal || {}),
+              ready: false,
+              phase: 'loading',
+              baseReadyVia: via,
+              startedAt: now(),
+            };
+          } catch (_) {}
+          resolve(startLoad());
+        }, 600);
       }),
   );
   /* 失败也要释放：不能把一条坏 promise 永久留在模块里。 */
@@ -213,7 +217,10 @@ function emit(name, detail) {
 
 function setState(patch) {
   try {
-    globalThis.__gevPhotoreal = { ...(globalThis.__gevPhotoreal || {}), ...patch };
+    globalThis.__gevPhotoreal = {
+      ...(globalThis.__gevPhotoreal || {}),
+      ...patch,
+    };
   } catch (_) {}
 }
 
@@ -239,11 +246,23 @@ export async function runPhotorealUpgrade({
   if (signal && signal.aborted) return null;
   if (!photoreal || !photoreal.tileset) {
     const err = photoreal && photoreal.errors && photoreal.errors.at(-1);
-    setState({ ready: false, phase: 'unavailable', at: now(), error: err ? String(err.message || err) : null });
+    setState({
+      ready: false,
+      phase: 'unavailable',
+      at: now(),
+      error: err ? String(err.message || err) : null,
+    });
     if (err) {
-      console.info('[Init] Google 3D Tiles unavailable, keeping the base imagery:', err);
+      console.info(
+        '[Init] Google 3D Tiles unavailable, keeping the base imagery:',
+        err,
+      );
     }
-    emit(PHOTOREAL_READY_EVENT, { ready: false, at: now(), route: photoreal && photoreal.route });
+    emit(PHOTOREAL_READY_EVENT, {
+      ready: false,
+      at: now(),
+      route: photoreal && photoreal.route,
+    });
     return null;
   }
   const tileset = photoreal.tileset;
@@ -276,7 +295,12 @@ export async function runPhotorealUpgrade({
   if (how === 'timeout') {
     restoreScheduler();
     /* 底图继续显示，tileset 留在场景里继续后台加载；ready 保持 false。 */
-    setState({ ready: false, phase: 'content-timeout', route: photoreal.route, addedAt });
+    setState({
+      ready: false,
+      phase: 'content-timeout',
+      route: photoreal.route,
+      addedAt,
+    });
     console.warn('[Init] photoreal 首批瓦片 20s 未到，保留底图继续后台加载');
     return null;
   }
@@ -295,7 +319,9 @@ export async function runPhotorealUpgrade({
     try {
       void mapStackController
         .setStack('photoreal', { silent: true })
-        .catch((error) => console.warn('[Init] photoreal stack switch failed:', error));
+        .catch((error) =>
+          console.warn('[Init] photoreal stack switch failed:', error),
+        );
     } catch (error) {
       console.warn('[Init] photoreal stack switch failed:', error);
     }
@@ -303,7 +329,20 @@ export async function runPhotorealUpgrade({
   const exposed = globalThis.__godsEyeView;
   if (exposed) exposed.tileset = tileset;
   const at = now();
-  setState({ ready: true, phase: 'ready', route: photoreal.route, via: how, addedAt, contentAt, at });
-  emit(PHOTOREAL_READY_EVENT, { ready: true, at, route: photoreal.route, via: how });
+  setState({
+    ready: true,
+    phase: 'ready',
+    route: photoreal.route,
+    via: how,
+    addedAt,
+    contentAt,
+    at,
+  });
+  emit(PHOTOREAL_READY_EVENT, {
+    ready: true,
+    at,
+    route: photoreal.route,
+    via: how,
+  });
   return tileset;
 }

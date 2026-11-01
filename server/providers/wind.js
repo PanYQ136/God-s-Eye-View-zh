@@ -8,7 +8,8 @@ import { weatherScalarMetadata, weatherScalarError } from './wind/grid.js';
 function hasNonFinite(values) {
   const n = values.length;
   const stride = Math.max(1, Math.floor(n / 4096));
-  for (let i = 0; i < n; i += stride) if (!Number.isFinite(values[i])) return true;
+  for (let i = 0; i < n; i += stride)
+    if (!Number.isFinite(values[i])) return true;
   if (n > 0 && !Number.isFinite(values[n - 1])) return true;
   return false;
 }

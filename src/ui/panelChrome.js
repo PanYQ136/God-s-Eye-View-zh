@@ -111,8 +111,16 @@ export class PanelChrome {
       owner: 'index.html',
       initial: { has: () => false },
     });
-    const ext = (id) => !!(disclosure && typeof disclosure.has === 'function' && disclosure.has(id));
-    const panelApi = bridge.ensure('app.panelApi', { global: '__lcPanelApi', owner: 'src/ui/panelChrome.js' });
+    const ext = (id) =>
+      !!(
+        disclosure &&
+        typeof disclosure.has === 'function' &&
+        disclosure.has(id)
+      );
+    const panelApi = bridge.ensure('app.panelApi', {
+      global: '__lcPanelApi',
+      owner: 'src/ui/panelChrome.js',
+    });
     panelApi.setPanelCollapsed = (id, collapsed, options) =>
       this.setPanelCollapsed(id, collapsed, options);
     /* 旧面板（天气 / 近期影像 / 电台 / 参数滑条）不再有折叠按钮 DOM：
