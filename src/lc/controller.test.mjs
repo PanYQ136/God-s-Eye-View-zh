@@ -17,13 +17,6 @@ import { CARD_IDS, CARDS, GROUPS } from './cards.js';
 const NOW = 1000;
 const run = (state, action) => reduce(state, action, { now: NOW });
 const base = () => blankState(CARD_IDS);
-const setPhase = (state, id, phase, gen = 0) => {
-  const s = cloneState(state);
-  s.cards[id].phase = phase;
-  s.cards[id].gen = gen;
-  return s;
-};
-
 /* ── TC-C1 转移表：期望 (新相位, 是否含 FRAME, 含 COLLAPSE_WRITE?) ────────── */
 const TABLE = [
   /* mini */

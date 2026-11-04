@@ -3,7 +3,6 @@
    expanded 监控 card by hiding candidates one at a time (diagnostic only, no product change)
    and capturing a screenshot after each step. */
 import puppeteer from 'puppeteer';
-import fs from 'node:fs';
 import path from 'node:path';
 
 const W = 1536, H = 730;

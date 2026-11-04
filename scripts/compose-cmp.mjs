@@ -5,7 +5,6 @@
  *  2) 折叠态右栏两张卡 + 展开态左卡，各自 3x 放大上下叠放
  */
 import sharp from 'sharp';
-import fs from 'node:fs';
 const OUT = 'docs/_collab/t_9739e3a7';
 const REF = 'docs/_collab/t_8cf06356';
 
