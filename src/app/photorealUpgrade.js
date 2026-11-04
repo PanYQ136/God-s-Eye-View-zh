@@ -46,12 +46,6 @@ function onIdle(fn, timeoutMs = 400) {
   return setTimeout(() => fn({ didTimeout: true, timeRemaining: () => 0 }), 16);
 }
 
-function cancelIdle(id) {
-  if (id == null) return;
-  if (typeof cancelIdleCallback === 'function') cancelIdleCallback(id);
-  else clearTimeout(id);
-}
-
 /** base 是否已可交互（不阻塞：读一次快照 + 事件，两条都走同一入口）。 */
 function baseIsReady() {
   const gate = globalThis.__gevBoot;

@@ -34,7 +34,6 @@ import { miniFlightsProxy } from './mini-flights.js';
 import { miniGeocodeProxy } from './mini-geocode.js';
 import { miniSourcesProxy } from './mini-sources.js';
 import { cnLiveProxy } from './cn-live.js';
-import { gzipRes } from './send-json.js';
 
 /** Construct the local provider plugins in their established order. */
 /**
@@ -52,29 +51,6 @@ function withGzipPatch(plugin) {
    * 保留函数是为了留一条明确的“不要这么干”的记录。
    */
   if (true) return plugin;
-  if (!plugin || typeof plugin.configureServer !== 'function') return plugin;
-  const orig = plugin.configureServer;
-  plugin.configureServer = function (server) {
-    server.middlewares.use((req, res, next) => {
-      /*
-       * 只接管 /api/。
-       * 教训：无差别接管所有响应会把 Vite 的 HTML/CSS/JS 搞坏 ——
-       * 浏览器直接 ERR_INVALID_HTTP_RESPONSE（curl 却看起来正常），整站打不开。
-       * 静态资源和 vite 中间件一律不碰。
-       */
-      const u = String(req.url || '');
-      if (u === '/api' || u.indexOf('/api/') === 0) {
-        try {
-          gzipRes(req, res);
-        } catch (e) {
-          /* 不影响主流程 */
-        }
-      }
-      next();
-    });
-    return orig.call(this, server);
-  };
-  return plugin;
 }
 
 function localProviderPlugins() {

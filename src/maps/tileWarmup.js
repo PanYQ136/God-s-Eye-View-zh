@@ -172,7 +172,6 @@ export function takeWarmIonEndpoint() {
 /* ── 目标中心广播 ─────────────────────────────────────────────────────────── */
 let bootCenter = null;
 const centerWaiters = [];
-const centerEcefCache = new Map();
 
 /** gev-autolocate 拿到快速定位后立刻调用（可多次；只有第一次生效给预取）。 */
 export function announceBootCenter(center) {

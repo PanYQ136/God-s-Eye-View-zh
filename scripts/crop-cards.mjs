@@ -2,7 +2,6 @@
 /** crop-cards.mjs —— 逐卡导出 PNG（裁剪后 3x 放大，便于人工看边缘/彩边） */
 import puppeteer from 'puppeteer';
 import sharp from 'sharp';
-import fs from 'node:fs';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const b = await puppeteer.launch({ headless: true, executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', args: ['--no-sandbox', '--enable-gpu', '--use-angle=d3d11', '--window-size=1536,820'] });
 const p = await b.newPage();

@@ -4,19 +4,10 @@ import sharp from 'sharp';
 import fs from 'node:fs';
 
 const OUT = 'docs/_collab/t_3e129970';
-const DSF = 2, VW = 1536, VH = 730, S = 44, PAD = 4;
+const DSF = 2, VW = 1536, VH = 730;
 const rep = JSON.parse(fs.readFileSync(`${OUT}/squircle-report2.json`, 'utf8'));
 const rects = rep.phases.corners.rectsA;
 
-function cropRect(rect, corner) {
-  const [x, y, w, h] = rect;
-  let left, top;
-  if (corner === 'tl') { left = x - PAD; top = y - PAD; }
-  else if (corner === 'tr') { left = x + w - S + PAD; top = y - PAD; }
-  else if (corner === 'bl') { left = x - PAD; top = y + h - S + PAD; }
-  else { left = x + w - S + PAD; top = y + h - S + PAD; }
-  return { left: Math.max(0, Math.round(left * DSF)), top: Math.max(0, Math.round(top * DSF)), width: S * DSF, height: S * DSF };
-}
 const cropAt = async (png, rect, corner, sizeCss, zoom) => {
   const [x, y, w, h] = rect;
   const pad = Math.round(sizeCss * 0.09);
