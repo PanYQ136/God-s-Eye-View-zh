@@ -638,9 +638,21 @@ export function miniSourcesProxy() {
       });
     return building;
   }
-  setTimeout(() => {
-    ensureBuild();
-  }, 1500); // 服务起来先热一轮
+  // 预热属于「服务器生命周期」，不属于「构造插件」。构造发生在配置文件导入、
+  // 单元测试和路由捕获等场景，那时还没有任何服务器，也没有人要看 health；
+  // 在构造里放定时器会让任何一次 import 都在 1.5 秒后打出 40+ 路真实上游
+  // 探测，既污染调用方的 fetch，也让一次性脚本/测试进程被挂住。只在 Vite
+  // 真正挂载中间件时调度，dev 与 preview 都挂载时只调度一次。
+  let warmupScheduled = false;
+  function scheduleWarmup() {
+    if (warmupScheduled) return;
+    warmupScheduled = true;
+    const timer = setTimeout(() => {
+      void ensureBuild();
+    }, 1500);
+    // 预热不该把一个没有其它 handle 的进程钉住（测试、构建脚本、SSR）。
+    timer.unref?.();
+  }
 
   const healthHandler = async (req, res) => {
     const has = !!(cache.rows && Object.keys(cache.rows).length);
@@ -708,10 +720,12 @@ export function miniSourcesProxy() {
     configureServer({ middlewares }) {
       middlewares.use('/api/sources/health', healthHandler);
       middlewares.use('/api/mini/earthquakes', quakesHandler);
+      scheduleWarmup();
     },
     configurePreviewServer({ middlewares }) {
       middlewares.use('/api/sources/health', healthHandler);
       middlewares.use('/api/mini/earthquakes', quakesHandler);
+      scheduleWarmup();
     },
   };
 }
