@@ -8,7 +8,7 @@ import puppeteer from 'puppeteer';
 import sharp from 'sharp';
 import fs from 'node:fs';
 import path from 'node:path';
-const OUT = 'docs/_collab/t_8cf06356';
+const OUT = 'evidence/_collab/t_8cf06356';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const TARGETS = [
   ['data-panel', '.panel-title'], ['scene-panel', '.panel-title'], ['pp-toggles', '.pp-header-label'],

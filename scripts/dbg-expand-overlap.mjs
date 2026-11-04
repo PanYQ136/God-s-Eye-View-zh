@@ -78,5 +78,5 @@ await sleep(1400);
 console.log('== after open control ==');
 console.log(JSON.stringify(await rects(), null, 0));
 
-await page.screenshot({ path: 'docs/_collab/t_f8d97c1c/dbg-combo.png' }).catch(() => {});
+await page.screenshot({ path: 'evidence/_collab/t_f8d97c1c/dbg-combo.png' }).catch(() => {});
 await browser.close();

@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const url = process.argv[2] || 'http://127.0.0.1:4173/';
-const OUT = path.resolve('docs/lg-glass-shots/p0/final/r5');
+const OUT = path.resolve('evidence/lg-glass-shots/p0/final/r5');
 fs.mkdirSync(OUT, { recursive: true });
 const browser = await puppeteer.launch({
   headless: true, executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',

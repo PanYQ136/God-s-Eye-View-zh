@@ -13,8 +13,8 @@ const cards = ['data-panel', 'scene-panel', 'pp-toggles', 'cctv-panel', 'global-
 for (const id of cards) {
   const box = await p.evaluate((id) => { const c = document.getElementById(id); const r = c.getBoundingClientRect(); return { x: Math.max(0, Math.round(r.left) - 8), y: Math.max(0, Math.round(r.top) - 8), width: Math.round(r.width) + 16, height: Math.round(r.height) + 16 }; }, id);
   const buf = await p.screenshot({ clip: box });
-  await sharp(buf).resize({ width: box.width * 3, kernel: 'nearest' }).png().toFile(`docs/_collab/t_8cf06356/card-${id}.png`);
+  await sharp(buf).resize({ width: box.width * 3, kernel: 'nearest' }).png().toFile(`evidence/_collab/t_8cf06356/card-${id}.png`);
   console.log(id, JSON.stringify(box));
 }
-await p.screenshot({ path: 'docs/_collab/t_8cf06356/collapsed-full.png' });
+await p.screenshot({ path: 'evidence/_collab/t_8cf06356/collapsed-full.png' });
 await b.close();

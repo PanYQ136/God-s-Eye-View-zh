@@ -1,0 +1,68 @@
+{
+ "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Laptop GPU (0x00002520) Direct3D11 vs_5_0 ps_5_0, D3D11) | Google Inc. (NVIDIA)",
+ "scene": {
+  "lon": 139.7671,
+  "lat": 35.6812,
+  "hgt": 14000,
+  "viewport": [
+   1536,
+   730
+  ]
+ },
+ "idle": {
+  "frames": 450,
+  "ms": 3005,
+  "rafFps": 149.8,
+  "glassFps": 149.8,
+  "p50ms": 6.2,
+  "p95ms": 9,
+  "maxms": 100.2,
+  "droppedOver33": 3
+ },
+ "duringOpen": {
+  "animAtCall": {
+   "dur": 350
+  },
+  "rafFps": 67.5,
+  "glassFps": 67.5,
+  "p95ms": 27.7,
+  "maxms": 325.2,
+  "droppedOver33": 2,
+  "lensSamples": 0,
+  "lensMax": -1,
+  "lensFirst": [
+   -1,
+   -1,
+   -1,
+   -1,
+   -1,
+   -1
+  ]
+ },
+ "duringOpenShot": "evidence/lg-glass-shots/p0/perf2-morph.png",
+ "duringPan": {
+  "rafFps": 82.5,
+  "glassFps": 82.5,
+  "p95ms": 24.3,
+  "maxms": 71.6,
+  "droppedOver33": 4
+ },
+ "glassOff": {
+  "idle": {
+   "rafFps": 160.4,
+   "p95ms": 9.5,
+   "droppedOver33": 0
+  },
+  "pan": {
+   "rafFps": 117.4,
+   "p95ms": 19.1,
+   "droppedOver33": 2
+  }
+ },
+ "errors": [],
+ "stats": {
+  "fps": 161,
+  "count": 13,
+  "scale": 1
+ }
+}

@@ -5,8 +5,8 @@
  *  2) 折叠态右栏两张卡 + 展开态左卡，各自 3x 放大上下叠放
  */
 import sharp from 'sharp';
-const OUT = 'docs/_collab/t_9739e3a7';
-const REF = 'docs/_collab/t_8cf06356';
+const OUT = 'evidence/_collab/t_9739e3a7';
+const REF = 'evidence/_collab/t_8cf06356';
 
 async function crop(png, r, zoom) {
   return sharp(png).extract({ left: r.x, top: r.y, width: r.w, height: r.h })

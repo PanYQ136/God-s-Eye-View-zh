@@ -2,14 +2,14 @@
 /**
  * qa-lg-anim2.mjs —— P0-4/P1-1 验收（dsf=2 真 2x）：morph + 兄弟收起 + 按下 flex + 帧时直方图 + 录屏帧
  * 用法: node scripts/qa-lg-anim2.mjs [url] [tag]
- * 产出: docs/lg-glass-shots/p0/<tag>/frames/*.jpg + expanded.png + report.json
+ * 产出: evidence/lg-glass-shots/p0/<tag>/frames/*.jpg + expanded.png + report.json
  */
 import puppeteer from 'puppeteer';
 import fs from 'node:fs';
 
 const url = process.argv[2] || 'http://127.0.0.1:4173/';
 const tag = process.argv[3] || 'anim-final';
-const outDir = `docs/lg-glass-shots/p0/${tag}`;
+const outDir = `evidence/lg-glass-shots/p0/${tag}`;
 fs.rmSync(outDir, { recursive: true, force: true });
 fs.mkdirSync(`${outDir}/frames`, { recursive: true });
 

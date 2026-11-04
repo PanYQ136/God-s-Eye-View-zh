@@ -8,7 +8,7 @@ import fs from 'node:fs';
 import puppeteer from 'puppeteer';
 
 const url = process.argv[2] || 'http://localhost:5183/';
-const outDir = process.argv[3] || 'docs/lg-glass-shots/p0';
+const outDir = process.argv[3] || 'evidence/lg-glass-shots/p0';
 const label = process.argv[4] || 'probe';
 fs.mkdirSync(outDir, { recursive: true });
 

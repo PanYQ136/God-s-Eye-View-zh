@@ -13,7 +13,7 @@ import sharp from 'sharp';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const OUT = 'docs/_collab/t_8cf06356';
+const OUT = 'evidence/_collab/t_8cf06356';
 fs.mkdirSync(OUT, { recursive: true });
 const W = 1536, H = 730;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

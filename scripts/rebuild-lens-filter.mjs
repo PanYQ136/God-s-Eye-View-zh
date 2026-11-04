@@ -6,7 +6,7 @@
  */
 import fs from 'node:fs';
 
-const BACKUP = 'docs/_collab/t_8cf06356/before/gev-lg-filter.OLD.js';
+const BACKUP = 'evidence/_collab/t_8cf06356/before/gev-lg-filter.OLD.js';
 const old = fs.readFileSync(BACKUP, 'utf8');
 
 // 取出 innerHTML 模板：从 "<svg" 到 "</svg>"

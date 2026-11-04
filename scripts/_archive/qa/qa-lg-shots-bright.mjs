@@ -3,7 +3,7 @@
 import puppeteer from 'puppeteer';
 import fs from 'node:fs';
 const url = process.argv[2] || 'http://127.0.0.1:4173/';
-const DIR = 'docs/lg-glass-shots/p0/final';
+const DIR = 'evidence/lg-glass-shots/p0/final';
 const browser = await puppeteer.launch({
   headless: true, executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
   args: ['--no-sandbox', '--enable-gpu', '--use-angle=d3d11', '--enable-webgl', '--ignore-gpu-blocklist', '--window-size=1536,730'],

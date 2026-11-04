@@ -42,6 +42,6 @@ const rep = await page.evaluate(() => {
   });
   return out;
 });
-fs.writeFileSync(`docs/lg-glass-shots/p0/${label}.txt`, JSON.stringify(rep, null, 1));
+fs.writeFileSync(`evidence/lg-glass-shots/p0/${label}.txt`, JSON.stringify(rep, null, 1));
 console.log(JSON.stringify(rep, null, 1).slice(0, 9000));
 await browser.close();

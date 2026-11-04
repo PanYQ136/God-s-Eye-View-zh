@@ -6,7 +6,7 @@
  *     —— 这是「R/G/B 不同偏移 1–2.5px」的直接测量，不是亮度差。
  *  B. 真实地图（曼哈顿 900m）：卡角区域同样测（用来证明不是只在合成图上成立）。
  *  C. 逐通道 |色散开 − 色散关| 最大/均值，作为辅助证据。
- * 输出: docs/lg-glass-shots/p0/disp/*.png + JSON(scratch)
+ * 输出: evidence/lg-glass-shots/p0/disp/*.png + JSON(scratch)
  */
 import puppeteer from 'puppeteer';
 import sharp from 'sharp';
@@ -14,7 +14,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const url = process.argv[2] || 'http://127.0.0.1:4173/';
-const DIR = 'docs/lg-glass-shots/p0/disp';
+const DIR = 'evidence/lg-glass-shots/p0/disp';
 const SCR = 'C:/Users/13680/AppData/Local/hermes/profiles/deepseek/cache/scratch/review-lg';
 fs.mkdirSync(DIR, { recursive: true }); fs.mkdirSync(SCR, { recursive: true });
 const out = { url, errors: [], tests: {} };

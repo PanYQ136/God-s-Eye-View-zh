@@ -15,14 +15,14 @@
  *   4) 不回归：A/B 前后 9 卡 + 托盘的 getBoundingClientRect 完全一致；
  *      开合 / 滚动 / 按钮 / 角部命中区（elementFromPoint）逐项检查
  *
- * 输出：docs/_collab/t_3e129970/*.png + squircle-report.json
+ * 输出：evidence/_collab/t_3e129970/*.png + squircle-report.json
  */
 import puppeteer from 'puppeteer';
 import sharp from 'sharp';
 import fs from 'node:fs';
 
 const URL = process.argv[2] || 'http://127.0.0.1:4173/';
-const OUT = 'docs/_collab/t_3e129970';
+const OUT = 'evidence/_collab/t_3e129970';
 const DSF = 2;
 fs.mkdirSync(OUT, { recursive: true });
 const report = { url: URL, started: new Date().toISOString(), phases: {}, errors: [] };

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** 汇总 report.json（v2：含 chips + ui） */
 import fs from 'node:fs';
-const p = process.argv[2] || 'docs/_collab/t_fdd76e7a/after2/report.json';
+const p = process.argv[2] || 'evidence/_collab/t_fdd76e7a/after2/report.json';
 const r = JSON.parse(fs.readFileSync(p, 'utf8'));
 const rows = [];
 for (const [k, ph] of Object.entries(r.phases)) {

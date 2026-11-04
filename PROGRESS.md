@@ -780,13 +780,13 @@ Win11 就地升级把 Tailscale 状态弄坏：`C:\ProgramData\Tailscale\` 无 `
 
 **已知**：headless Chrome（`--disable-gpu`）下打开菜单会触发 Cesium `width > 0` 报错（软件渲染 + backdrop-filter 重绘导致画布瞬时 0 尺寸），headed 无此问题，核验须用 headed。
 
-> 复验（提交时独立 CDP + GLM-4V 视觉）：按钮/菜单 computed `blur(22px) saturate(1.9)`、`border 0`、菜单 `z-index:200`、遮罩 `199`、command-dock `145`/left-panel-stack `100` 未变；深/浅按钮+菜单+叠加面板截图 `docs/lg-glass-shots/`（已入库）；全分辨率 headed 图 `docs/screenshots/lg-glass/`（本地，gitignore）。
+> 复验（提交时独立 CDP + GLM-4V 视觉）：按钮/菜单 computed `blur(22px) saturate(1.9)`、`border 0`、菜单 `z-index:200`、遮罩 `199`、command-dock `145`/left-panel-stack `100` 未变；深/浅按钮+菜单+叠加面板截图 `evidence/lg-glass-shots/`（已入库）；全分辨率 headed 图 `docs/screenshots/lg-glass/`（本地，gitignore）。
 
 ## 2026-10-24 Liquid Glass 第二批扩展 + 全站层级复测
 - 全屏穿透修复：玻璃菜单去掉全屏 backdrop(z199 pe:auto)，改 document capture pointerdown 监听点外关闭 → 零全屏元素。
 - 玻璃扩到指令坞(dock-tray-toggle×2 + voice + tier)+右栏(pp-toggle-btn×10 + pp-collapse-btn)，新增 .lg-glass-skin(官方材质等比缩放/token圆角/不改尺寸交互)，MutationObserver 持续补挂。
 - 全站层级实测：打开态全屏遮挡0/同z重叠0；z分区严格。5分辨率溢出0、坞/右栏视口内、无越界高z。
-- 视觉复核(GLM-4V)：坞/右栏/菜单磨砂统一无破相。截图 docs/lg-glass-shots/。
+- 视觉复核(GLM-4V)：坞/右栏/菜单磨砂统一无破相。截图 evidence/lg-glass-shots/。
 
 ## 2026-10-24 手机竖屏适配(v2)
 - 现象: 手机竖屏 left-panel-stack/right-context-rail 被撑成近全宽竖向堆叠, 挤没地图且互相重叠。
@@ -813,7 +813,7 @@ Win11 就地升级把 Tailscale 状态弄坏：`C:\ProgramData\Tailscale\` 无 `
 - 改法（`src/gev-liquid-cards.js`）：标题条命中一律本层接管；click 只灭口不改状态；**pointerdown 记候选 + document pointerup 结算**（<6px 且非拖拽/缩放/收尾）→ 卡片在补间中滑走也不丢点击；Enter/Space 在 capture 抢占；兄弟卡只 `.collapsed` + 组内让位（不用 `.gev-lc-hid`）；浮层态收起小三角翻译成 `floatClose`。
 - 验收（真实指针，非 `__gevLc.open`）：7/7 首次点击即浮起；7 组组内切换 `overlap=0` + 98 帧采样无 hidden/ghost；连点 7 张落定 `overlap=0`、最终状态=最后一次生效点击；全关 drift 全 `[0,0,0,0]`；App 收到 header click = **0 次**；console error 0。12 组合布局不回归（12/12 ovl=0）。
 - 输入回归不破：拖拽 dx192/dy40、缩放 320×380→384×428、卡内控件点击到达、空白点击不收起、Esc 收起、100ms 双击开→关、键盘 Enter 现在也浮起。
-- 证据：`.gev-logs/t_b37e6b4b/{final.log,verify.json,overlap12.*,input*.log,0*.png}`；说明 `docs/_collab/t_b37e6b4b/REPORT.md`；脚本 `scripts/{verify-interaction,verify-overlap12,qa-b37e6b4b-input}.mjs`。
+- 证据：`.gev-logs/t_b37e6b4b/{final.log,verify.json,overlap12.*,input*.log,0*.png}`；说明 `evidence/_collab/t_b37e6b4b/REPORT.md`；脚本 `scripts/{verify-interaction,verify-overlap12,qa-b37e6b4b-input}.mjs`。
 - 已知（非缺陷）：切换动画 ≤350ms 内退场卡与已展开别组卡有瞬时几何重叠（最大 ~16.4k px²），是“不隐藏+位置连续”的代价；落定严格 0。
 
 ## 2026-10-28 首页帧率专项：28fps → 51fps（t_834a621c，空闲期整屏去重）
@@ -824,7 +824,7 @@ Win11 就地升级把 Tailscale 状态弄坏：`C:\ProgramData\Tailscale\` 无 `
   1. `public/gev-edge-lens.js`：按「纹理版本 + 每个面的 x,y,w,h,band,cornerN,radius」签名去重，签名没变就完全不动 GL（画布保留上一帧）；地图重绘/卡片动画/缩放/resize/off-on/testBg 都会破坏签名 → 照常重画；`stats()` 增 `skip` 计数取证。
   2. `src/scopeMask.js`：没墨（`_painted=false`）时 `#scope-mask` 直接 `display:none` 退出合成树，要画前恢复 block。
 - 验证（同窗口同视口，性能模式关闭/res 1.0 = 审计视觉口径，冷启动 17s 后测 1.5s×3）：**改前 27.6–29.6fps（中位帧间隔 33–36ms）→ 改后 50.5 / 53.2 / 49.2fps（中位 18.5–20.3ms，p90 ≤24ms，0 longtask）**；5s 内 `frames` 冻结 66 / `skip` 353→626（掐掉 273 次冗余整屏重绘）；相机 `setView` 后 `frames` 82→109（交互时照常重画）；关掉折射环层对比同帧截图有 6.09% 像素变化（环仍在出像素）；`#scope-toggle` 真实点击 on→`display:block`/1536×730、off→`display:none`；`node --test src/scopeMask.test.mjs` 22/22 通过。
-- 未做：没到 60（审计窗口 ~40fps 上限，要 60 只能让 ego.exe/ego-browser.exe 走独显：`HKCU\...\DirectX\UserGpuPreferences` → `GpuPreference=2;`，属环境改动未执行）；拖拽/瓦片加载期仍 ~20–28fps（fill-rate）；`#world-overlay-detection-surface` 那张空闲全屏 canvas 未动（要改 worldOverlay.js 的墨判定，超出本卡最小边界）；未提交 git。证据 `docs/_collab/t_834a621c/README.md`。
+- 未做：没到 60（审计窗口 ~40fps 上限，要 60 只能让 ego.exe/ego-browser.exe 走独显：`HKCU\...\DirectX\UserGpuPreferences` → `GpuPreference=2;`，属环境改动未执行）；拖拽/瓦片加载期仍 ~20–28fps（fill-rate）；`#world-overlay-detection-surface` 那张空闲全屏 canvas 未动（要改 worldOverlay.js 的墨判定，超出本卡最小边界）；未提交 git。证据 `evidence/_collab/t_834a621c/README.md`。
 
 
 ## 2026-10-28 前端架构 Phase 0（t_5c610f6a，只出方案不改代码）
@@ -841,7 +841,7 @@ Win11 就地升级把 Tailscale 状态弄坏：`C:\ProgramData\Tailscale\` 无 `
 
 ## 2026-10-28 前端架构 Phase 0 补丁：最新 P 表 7 条入架构（t_7cba5d02，仍不改代码）
 - 现象：v1 架构（`t_5c610f6a`，562 行）按旧版要求通过，但**最新 P 表 7 条一条没覆盖**：GPU（`powerPreference`/SwiftShader 判定/降级/状态显示）、去灰圈（材质层仍留 `hairline/发丝边`）、底部语音栏统一（文档 0 次「语音」）、果冻动画（只有固定 350ms）、初始态（§11 仍列「待决策」）、FPS 口径（建议用 50.5/40 基线替代用户 30/60）、行数（P 表说 CSS 908 / JS 3048）。
-- 根因（本次实测）：① GPU 只在请求侧做了一半——`viewer.js:178-182`/`edge-lens:282-284` 已带 `powerPreference`，但探测画布 `gev-graphics.js:257`、`atmosphereCompat.js:135` **不传 options**，且软件渲染判定（`SOFT_RE` + `showSoftNotice`）只活在**死文件** `public/gev-gl-glass.js:150-195`；② 灰圈 = 卡层 **22 处** `inset 0 0 0 {0.5|1}px` 内描边叠 App `border`；③ dock 三卡各有自己的展开形态（`.dock-popover-content` 13 处引用、`.dock-tray-toggle` 第三套、语音卡独立 popover），面板跟 header 锚点走 → 谁开谁贴边；④ 动画 `SPRING.duration=350` 硬编码 + `easing:'linear'` 采样 + 另一处 280ms `cubic-bezier` 同卡打架，reduce 时 `dur=0`；⑤ 行数：`wc -l`/`awk`/`sed` 三条命令都得 **1011 / 3245**，全仓副本（`dist/`、`docs/_collab/*/orig`）是 862，**没有 908/3048**，文件 mtime（03:16 / 12:31）早于检查报告 → 908/3048 不可复算；⑥ P 表动画公式 `350+sqrt(area)*4` 对 176×43 实算 698→夹 450，与其自身示例「≈350ms」矛盾。
+- 根因（本次实测）：① GPU 只在请求侧做了一半——`viewer.js:178-182`/`edge-lens:282-284` 已带 `powerPreference`，但探测画布 `gev-graphics.js:257`、`atmosphereCompat.js:135` **不传 options**，且软件渲染判定（`SOFT_RE` + `showSoftNotice`）只活在**死文件** `public/gev-gl-glass.js:150-195`；② 灰圈 = 卡层 **22 处** `inset 0 0 0 {0.5|1}px` 内描边叠 App `border`；③ dock 三卡各有自己的展开形态（`.dock-popover-content` 13 处引用、`.dock-tray-toggle` 第三套、语音卡独立 popover），面板跟 header 锚点走 → 谁开谁贴边；④ 动画 `SPRING.duration=350` 硬编码 + `easing:'linear'` 采样 + 另一处 280ms `cubic-bezier` 同卡打架，reduce 时 `dur=0`；⑤ 行数：`wc -l`/`awk`/`sed` 三条命令都得 **1011 / 3245**，全仓副本（`dist/`、`evidence/_collab/*/orig`）是 862，**没有 908/3048**，文件 mtime（03:16 / 12:31）早于检查报告 → 908/3048 不可复算；⑥ P 表动画公式 `350+sqrt(area)*4` 对 176×43 实算 698→夹 450，与其自身示例「≈350ms」矛盾。
 - 改法（只改 `docs/architecture/frontend-phase0.md`，**562 → 963 行**）：新增 §1.1 行数复算、§2 F7/F8 根因、§3.1 原则 4 去描边、§3.2 L0 `GpuCapability` + L2b `MorphAnimation` + L2c `DockOverlay`（模块表 +3 行）、§3.3 文件树 +3 文件、§4.4 dock 组四约束、§5.4 dock 几何、§6.1 删 2 个 hairline token + 加 `--lc-soft-fill`、§6.2 描边=0、§6.5 不变量 +3 条（border/outline/inset + 伪元素）、**§6.6 灰圈=0**、§6.7 GPU tier 材质档、§7.5/7.6 冲突清单、§8.1 尾注（22 处描边「删而非迁」）、§9.2 T12 改写 + T13 改写 + **T14 GPU / T15 DockOverlay / T16 Morph**、§9.3 作废 50.5/40 与旧初始态断言、§10 新增 S0b/S1g/S4m/S5d、§11 改为「3 条已决策（D1 初始全 mini / D2 FPS 30-60 / D3 灰圈=0）+ 1 条待批」、**§13 GPU**、**§14 DockOverlay**、**§15 MorphAnimation（含修正后的时长公式与逐卡时长表）**、**§16 P 表 7 条对账 + 复算命令总表 + 未覆盖清单**。
 - 验证：① 三条行数命令 1011/3245 一致、`!important`=284、`setTimeout`=33 与 P 表一致；② §8.1 的 25 个分节区间在 1011 行口径下逐段 `!important` 累加 = **284** = `grep -c`；③ 时长公式复算：176×43→350ms、320×380→445ms、340×430→450ms、260×240→409ms（P 表原式全部 450）；④ 文档结构：963 行、34 个代码围栏成对、表格列数一致（忽略 `\|` 转义）、16 条 T 用例（T1–T16）；⑤ 残留矛盾 grep：`T1–T13` 0 处、`待决策` 仅 1 处（对账表里的「从待决策改为已决定」）、`50.5` 仅出现在「作废」语境；⑥ `public/` `src/` `index.html` **零改动**（mtime 仍 10-28 03:16 / 12:31 / 10-27 01:11）。
 - 未做：未进入 Phase 1（等本卡 review 通过）；`§11.2` 唯一阻塞项（`.collapsed` 归属）仍待 lead 批；`§11.3` 两条待补材料（908/3048 的复算命令、动画公式以本文为准）。
@@ -1296,7 +1296,7 @@ Win11 就地升级把 Tailscale 状态弄坏：`C:\ProgramData\Tailscale\` 无 `
 - 实测修正（文档旧数 → 实测）：`!important` 231→**198**（gev-fix 98→**70**）；public CSS 5→**4**；`window.__*` 49→**42 名字/209 次**；
   `gev-cn.css` backdrop-filter 1→**3 处 6 行**；Cesium 2,564/210→**3,138/293**；巨型文件行数 ↑（4,480/2,946/2,481/2,324）；
   Cesium 注入不在 index.html 而在 `build/vite.js:23`+`src/cesium-boot.js`。
-- 结论：无未提交改动 → **无回滚项**；`ac6d09b` 必须保留（含 7A3/7B/7D1）；禁止拿 `docs/_collab/**`、`docs/lg-glass-shots/**` 旧 CSS 当现状。
+- 结论：无未提交改动 → **无回滚项**；`ac6d09b` 必须保留（含 7A3/7B/7D1）；禁止拿 `evidence/_collab/**`、`evidence/lg-glass-shots/**` 旧 CSS 当现状。
 - 下一步：lead 按 §4 修订 8B/8C 卡体文件清单后，串行 B→C→D→E→F。
 
 

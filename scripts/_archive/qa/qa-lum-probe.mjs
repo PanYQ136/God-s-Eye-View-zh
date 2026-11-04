@@ -8,7 +8,7 @@ import puppeteer from 'puppeteer';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const OUT = process.argv[2] || 'docs/_collab/t_fdd76e7a/probe-runtime';
+const OUT = process.argv[2] || 'evidence/_collab/t_fdd76e7a/probe-runtime';
 const URL = process.env.GEV_URL || 'http://127.0.0.1:4173/';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 fs.mkdirSync(OUT, { recursive: true });

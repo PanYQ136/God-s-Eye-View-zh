@@ -2,14 +2,14 @@
 /**
  * qa-voice-overflow.mjs —— 语音卡 #gev-voice-control 横向溢出审计
  * 用法: node scripts/qa-voice-overflow.mjs <url> <label>
- * 输出: docs/lg-glass-shots/p0/voice-overflow-<label>.json + voice-card-<label>.png
+ * 输出: evidence/lg-glass-shots/p0/voice-overflow-<label>.json + voice-card-<label>.png
  */
 import puppeteer from 'puppeteer';
 import fs from 'node:fs';
 
 const url = process.argv[2] || 'http://127.0.0.1:4173/';
 const label = process.argv[3] || 'before';
-const outDir = 'docs/lg-glass-shots/p0';
+const outDir = 'evidence/lg-glass-shots/p0';
 fs.mkdirSync(outDir, { recursive: true });
 
 const browser = await puppeteer.launch({

@@ -3,7 +3,7 @@
 import puppeteer from 'puppeteer';
 import fs from 'node:fs';
 const url = process.argv[2] || 'http://127.0.0.1:4173/';
-const DIR = 'docs/lg-glass-shots/p0/final';
+const DIR = 'evidence/lg-glass-shots/p0/final';
 const FRAMES = `${DIR}/frames`;
 fs.rmSync(FRAMES, { recursive: true, force: true });
 fs.mkdirSync(FRAMES, { recursive: true });

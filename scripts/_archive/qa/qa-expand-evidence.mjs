@@ -10,7 +10,7 @@ import sharp from 'sharp';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const OUT = 'docs/_collab/t_f8d97c1c';
+const OUT = 'evidence/_collab/t_f8d97c1c';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const browser = await puppeteer.launch({
   headless: false,

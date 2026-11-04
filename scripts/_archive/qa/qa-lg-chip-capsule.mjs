@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* qa-lg-chip-capsule.mjs —— 第五轮：clear 芯片（定位/中·EN）标签胶囊整改证据
  *  输出：三场景全屏 + 芯片区 4x 放大（整改后），以及沙漠场景「整改前」对照（CDP 注入还原样式）
- *  目录：docs/lg-glass-shots/p0/final/r5/
+ *  目录：evidence/lg-glass-shots/p0/final/r5/
  */
 import puppeteer from 'puppeteer';
 import sharp from 'sharp';
@@ -9,7 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const url = process.argv[2] || 'http://127.0.0.1:4173/';
-const OUT = path.resolve('docs/lg-glass-shots/p0/final/r5');
+const OUT = path.resolve('evidence/lg-glass-shots/p0/final/r5');
 fs.mkdirSync(OUT, { recursive: true });
 
 const browser = await puppeteer.launch({

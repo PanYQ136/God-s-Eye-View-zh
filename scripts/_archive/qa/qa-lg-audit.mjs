@@ -12,7 +12,7 @@ const url = process.argv[2] || 'http://localhost:5183/';
 const label = process.argv[3] || 'audit';
 const lon = Number(process.argv[4] || 11.4), lat = Number(process.argv[5] || 46.5), hgt = Number(process.argv[6] || 9000);
 const dsf = Number(process.argv[7] || 2);
-const outDir = 'docs/lg-glass-shots/p0';
+const outDir = 'evidence/lg-glass-shots/p0';
 
 const browser = await puppeteer.launch({
   headless: true,

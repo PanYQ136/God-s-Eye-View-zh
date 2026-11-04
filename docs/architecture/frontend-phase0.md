@@ -66,7 +66,7 @@ grep -o 'setTimeout' src/gev-liquid-cards.js | wc -l           # 33    ✅ 与 P
 
 **为什么 908 / 3048 复现不出来**（三条独立排查）：
 1. **时间窗不存在**：`public/gev-liquid-cards.css` mtime = `2026-10-28 03:16`、`src/gev-liquid-cards.js` mtime = `2026-10-28 12:31`，本卡创建时间（2026-10-28 15:06）与检查报告交付时间都在其后，期间无写入 → 不是「测量时文件更短」。
-2. **仓库内没有这一对数字**：`*gev-liquid-cards*` 全部副本 = `public/…css` **1011**、`src/…js` **3245**、`dist/…css` **862**（旧构建镜像）、`docs/_collab/t_4a03bd30/orig/…css` **862**、`t_8cf06356/before/…WEBGL.css` **862**；JS 旧副本 `554`。
+2. **仓库内没有这一对数字**：`*gev-liquid-cards*` 全部副本 = `public/…css` **1011**、`src/…js` **3245**、`dist/…css` **862**（旧构建镜像）、`evidence/_collab/t_4a03bd30/orig/…css` **862**、`t_8cf06356/before/…WEBGL.css` **862**；JS 旧副本 `554`。
 3. **不是计数口径差**：非空行 = **955（CSS）/ 3179（JS）**；去注释 = **870（CSS，口径：非空且不以 `/*` 或 `*` 开头）/ 3015（JS，口径：非空且不以 `//` 开头）**——两种语言的注释符本来就不同，这两个数**不是同一口径**，并列时必须各自标口径；若强行统一成「排除行首 `/*`、`*`、`//`」，则为 **870 / 2963**。`tr -d '\r' < 文件 | wc -l` 仍为 **1011 / 3245**（全文件 CRLF，行尾只有 CR 差异；而 `tr -d '\n'` 会把整文件并成 0 行，不能当「去 CR」用）。以上五组口径的复算命令全在 §16.3 —— **没有一种常见口径等于 908 / 3048**。
 
 **处置（已裁定）**：按「可复算优先」，本文一律用 **1011 / 3245**，§8.1 的 25 个分节区间（累加 `!important` = 284）也是在这个口径下成立的；若改成 908，§22 的 `954–1011` 区间直接越界，整张删除图失效。908/3048 的出处**已由 review round 1（artifact lens）复核 4 组口径后裁定不复现**（§11.3 已闭合），**Phase 1 的门槛数字按 1011/3245**；若 lead 另有复合口径，需补命令后本文再改（§16.3 保留差异记录）。
@@ -677,7 +677,7 @@ scripts/lc/
 | **S5** | 材质收敛：新建 `material.css`（≤260 行、0 `!important`），删 `public/gev-liquid-cards.css` | `src/lc/material.css`、`index.html`（换 1 行 `<link>`） | T11/T12 绿 + 门槛 CI 绿 | `git revert`（旧的 link 一行恢复） |
 | **S6** | 死注入/死代码清除：删 `gev-gl-glass.js`、按需加载 `gev-lg-filter.js`、删 `ensureWarp` 与 72 个热区 | `public/`、`src/lc/render.js` | `document.querySelectorAll('.gev-lg-warp').length===0`；网络面板无 `dispmap.jpg` | `git revert` |
 | **S7** | Harness 重建：`scripts/lc/*` 上线，172 个 `qa-*` 归档 | `scripts/` | T1–T16 全绿 + `npm test` 全绿 | 目录移回 |
-| **S0b**（v2） | GPU/FPS 取证（0 改动）：`chrome://gpu` 的 WebGL2 加速状态 + `renderer` 字符串 + 1536×730 基线 FPS（high/software 两轮） | 无代码 | `docs/_collab/t_7cba5d02/gpu-baseline.json` + 2 张截图 | 无（只读） |
+| **S0b**（v2） | GPU/FPS 取证（0 改动）：`chrome://gpu` 的 WebGL2 加速状态 + `renderer` 字符串 + 1536×730 基线 FPS（high/software 两轮） | 无代码 | `evidence/_collab/t_7cba5d02/gpu-baseline.json` + 2 张截图 | 无（只读） |
 | **S1g**（v2） | `gpu.js` 上线 + 三处 `getContext` 补 `powerPreference`（探测画布 / atmosphere / gev-graphics）+ `#gev-gpu-chip` + `#gev-gpu-notice` + tier 降级 | `src/lc/gpu.js`、`src/gev-graphics.js`(2 行)、`src/app/atmosphereCompat.js`(1 行)、`src/gev-perf.js`(≤10 行)、`index.html`(≤2 行) | T14 双轮绿；`grep -rn "getContext('webgl" src/ public/` 全部带 options（0 例外） | `git revert`／删那 1 行 `<script>` |
 | **S4m**（v2） | `morph.js` 上线，替换 `SPRING/springKf/progress/runMorph`（删固定 350ms、删 `easing:'linear'` 采样、删 64ms 保险丝的 `setTimeout`） | `src/lc/morph.js`、删 `src/gev-liquid-cards.js:12-278` | T16 绿（逐卡时长对表 ±5ms、峰值 1.02–1.05） | `git revert` |
 | **S5d**（v2） | `dock-overlay.js` 上线：`.dock-panel` 唯一形态；删 `.dock-popover-content` 第二套几何 + `.dock-tray-toggle` 第三套 + 语音卡独立 popover | `src/lc/dock-overlay.js`、`src/lc/material.css` | T15 绿（≤1 张 / 居中 ≤2px / 无截字 / border+outline+inset 全 0） | `git revert` |
@@ -708,9 +708,9 @@ scripts/lc/
 ## 12. 与既有文档/报告的关系
 
 - `docs/UI-OWNERSHIP.md:13`：App 侧已声明 `panelChrome.js` 拥有「Disclosure, docking, layout」。本方案**尊重该声明**：控制器不再直接写 `.collapsed`，而是经 Port 调用该 owner。
-- `docs/_collab/t_b37e6b4b/REPORT.md`：唯一 owner 的第一次尝试（按下-抬起配对）。本次取其结论（不能靠 click 目标解析），但把「配对」升级为**状态机 + 世代号**，并把 `if (st.closing) return` 这类吞点路径全部移除。
-- `docs/_collab/t_8cf06356/REPORT.md`：3:25 结构与锚点生长结论保留为**布局规则的来源**（锚点/生长方向/收缩优先），但实现从「追着重排跑」改为「一次算完」。
-- `docs/_collab/t_834a621c/README.md`：边缘折射环的签名去重与 FPS 口径**原样保留**，作为 GlassRenderer 的既有成果。
+- `evidence/_collab/t_b37e6b4b/REPORT.md`：唯一 owner 的第一次尝试（按下-抬起配对）。本次取其结论（不能靠 click 目标解析），但把「配对」升级为**状态机 + 世代号**，并把 `if (st.closing) return` 这类吞点路径全部移除。
+- `evidence/_collab/t_8cf06356/REPORT.md`：3:25 结构与锚点生长结论保留为**布局规则的来源**（锚点/生长方向/收缩优先），但实现从「追着重排跑」改为「一次算完」。
+- `evidence/_collab/t_834a621c/README.md`：边缘折射环的签名去重与 FPS 口径**原样保留**，作为 GlassRenderer 的既有成果。
 
 ---
 
@@ -962,7 +962,7 @@ grep -c 'dock-popover-content' public/gev-liquid-cards.css            # 13
 grep -n 'function dockHeight' src/gev-panel-win.js                    # 72
 ```
 
-**908 / 3048 差异记录**：见 §1.1 —— 三条命令均得 1011 / 3245，全仓 `*gev-liquid-cards*` 副本无此二值（`dist/` 与 `docs/_collab/*/orig` 是 862），文件 mtime 早于检查报告，故不是「测量时机」问题。以 1011/3245 为 Phase 1 基线；若 lead 有复合口径，请补命令后本文再改。
+**908 / 3048 差异记录**：见 §1.1 —— 三条命令均得 1011 / 3245，全仓 `*gev-liquid-cards*` 副本无此二值（`dist/` 与 `evidence/_collab/*/orig` 是 862），文件 mtime 早于检查报告，故不是「测量时机」问题。以 1011/3245 为 Phase 1 基线；若 lead 有复合口径，请补命令后本文再改。
 
 **P 表动画公式差异记录**（§15.2）：`350 + sqrt(area)*4` 对 176×43 得 698、对 320×380 得 1745，两者都夹到 450 —— 与该表自身示例（350/445）矛盾。本文改用两点线性插值 `K=(445−350)/(348.712−86.994)=0.3630`，端点与示例一致、可复算（`python3 -c` 一行可验）。
 

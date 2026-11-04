@@ -1,0 +1,2262 @@
+{
+ "errs": [],
+ "material": {
+  "gevGlOn": false,
+  "gevRgOn": false,
+  "glCanvasInDom": false,
+  "glCanvasVisible": false,
+  "scriptLoaded_gevGlGlass": false,
+  "cardBg": "rgba(12, 18, 26, 0.52)",
+  "cardBackdrop": "none",
+  "warpCount": 9,
+  "warps": [
+   {
+    "card": "location-bar",
+    "filter": "none",
+    "backdrop": "blur(6px) saturate(1.4)",
+    "display": "block",
+    "z": "0",
+    "rect": [
+     168,
+     86
+    ]
+   },
+   {
+    "card": "gev-voice-control",
+    "filter": "none",
+    "backdrop": "blur(6px) saturate(1.4)",
+    "display": "block",
+    "z": "0",
+    "rect": [
+     140,
+     86
+    ]
+   },
+   {
+    "card": "control-panel",
+    "filter": "none",
+    "backdrop": "blur(6px) saturate(1.4)",
+    "display": "block",
+    "z": "0",
+    "rect": [
+     168,
+     86
+    ]
+   },
+   {
+    "card": "data-panel",
+    "filter": "none",
+    "backdrop": "blur(6px) saturate(1.4)",
+    "display": "block",
+    "z": "0",
+    "rect": [
+     176,
+     45
+    ]
+   },
+   {
+    "card": "scene-panel",
+    "filter": "none",
+    "backdrop": "blur(6px) saturate(1.4)",
+    "display": "block",
+    "z": "0",
+    "rect": [
+     176,
+     45
+    ]
+   },
+   {
+    "card": "pp-toggles",
+    "filter": "none",
+    "backdrop": "blur(6px) saturate(1.4)",
+    "display": "block",
+    "z": "0",
+    "rect": [
+     176,
+     52
+    ]
+   },
+   {
+    "card": "cctv-panel",
+    "filter": "none",
+    "backdrop": "blur(6px) saturate(1.4)",
+    "display": "block",
+    "z": "0",
+    "rect": [
+     176,
+     52
+    ]
+   },
+   {
+    "card": "global-context-panel",
+    "filter": "none",
+    "backdrop": "blur(6px) saturate(1.4)",
+    "display": "block",
+    "z": "0",
+    "rect": [
+     176,
+     52
+    ]
+   },
+   {
+    "card": "gev-gfx-fab",
+    "filter": "none",
+    "backdrop": "blur(6px) saturate(1.4)",
+    "display": "block",
+    "z": "0",
+    "rect": [
+     42,
+     42
+    ]
+   }
+  ],
+  "svgFilterPresent": true,
+  "lensFilters": [
+   "gev-lg-filter",
+   "gev-sketch"
+  ],
+  "lum": "dark"
+ },
+ "collapsed": {
+  "data-panel": {
+   "x": 52,
+   "y": 94,
+   "w": 176,
+   "h": 45,
+   "r": 228,
+   "b": 139,
+   "collapsed": true,
+   "heads": [
+    {
+     "cls": "panel-header",
+     "x": 69,
+     "y": 109,
+     "w": 142,
+     "h": 15,
+     "r": 211,
+     "b": 124
+    },
+    {
+     "cls": "panel-title",
+     "x": 73,
+     "y": 109,
+     "w": 46,
+     "h": 15,
+     "r": 119,
+     "b": 124
+    }
+   ]
+  },
+  "scene-panel": {
+   "x": 52,
+   "y": 147,
+   "w": 176,
+   "h": 45,
+   "r": 228,
+   "b": 192,
+   "collapsed": true,
+   "heads": [
+    {
+     "cls": "panel-header",
+     "x": 67,
+     "y": 162,
+     "w": 146,
+     "h": 15,
+     "r": 213,
+     "b": 177
+    },
+    {
+     "cls": "panel-title",
+     "x": 71,
+     "y": 162,
+     "w": 23,
+     "h": 15,
+     "r": 94,
+     "b": 177
+    }
+   ]
+  },
+  "pp-toggles": {
+   "x": 1308,
+   "y": 94,
+   "w": 176,
+   "h": 52,
+   "r": 1484,
+   "b": 146,
+   "collapsed": true,
+   "heads": [
+    {
+     "cls": "compact pp-header-row",
+     "x": 1308,
+     "y": 94,
+     "w": 176,
+     "h": 50,
+     "r": 1484,
+     "b": 144
+    },
+    {
+     "cls": "pp-header-label",
+     "x": 1322,
+     "y": 111,
+     "w": 23,
+     "h": 15,
+     "r": 1345,
+     "b": 126
+    }
+   ]
+  },
+  "cctv-panel": {
+   "x": 1308,
+   "y": 154,
+   "w": 176,
+   "h": 52,
+   "r": 1484,
+   "b": 206,
+   "collapsed": true,
+   "heads": [
+    {
+     "cls": "panel-header",
+     "x": 1323,
+     "y": 169,
+     "w": 146,
+     "h": 15,
+     "r": 1469,
+     "b": 184
+    },
+    {
+     "cls": "panel-title",
+     "x": 1327,
+     "y": 169,
+     "w": 23,
+     "h": 15,
+     "r": 1350,
+     "b": 184
+    }
+   ]
+  },
+  "global-context-panel": {
+   "x": 1308,
+   "y": 214,
+   "w": 176,
+   "h": 52,
+   "r": 1484,
+   "b": 266,
+   "collapsed": true,
+   "heads": [
+    {
+     "cls": "panel-header",
+     "x": 1323,
+     "y": 225,
+     "w": 150,
+     "h": 28,
+     "r": 1473,
+     "b": 253
+    },
+    {
+     "cls": "panel-title",
+     "x": 1327,
+     "y": 231,
+     "w": 35,
+     "h": 15,
+     "r": 1362,
+     "b": 246
+    }
+   ]
+  },
+  "location-bar": {
+   "x": 530,
+   "y": 632,
+   "w": 168,
+   "h": 86,
+   "r": 698,
+   "b": 718,
+   "collapsed": true,
+   "heads": [
+    {
+     "cls": "location-toolbar",
+     "x": 542,
+     "y": 664,
+     "w": 144,
+     "h": 22,
+     "r": 686,
+     "b": 686
+    },
+    {
+     "cls": "dock-tray-toggle lg-glass-skin",
+     "x": 542,
+     "y": 664,
+     "w": 144,
+     "h": 22,
+     "r": 686,
+     "b": 686
+    }
+   ]
+  },
+  "control-panel": {
+   "x": 838,
+   "y": 632,
+   "w": 168,
+   "h": 86,
+   "r": 1006,
+   "b": 718,
+   "collapsed": true,
+   "heads": [
+    {
+     "cls": "panel-header dock-tray-toggle lg-glass-s",
+     "x": 850,
+     "y": 664,
+     "w": 144,
+     "h": 22,
+     "r": 994,
+     "b": 686
+    },
+    {
+     "cls": "panel-title",
+     "x": 925,
+     "y": 664,
+     "w": 69,
+     "h": 22,
+     "r": 994,
+     "b": 686
+    }
+   ]
+  }
+ },
+ "expansions": [
+  {
+   "id": "data-panel",
+   "before": {
+    "floating": false,
+    "collapsed": true,
+    "x": 52,
+    "y": 94,
+    "w": 176,
+    "h": 45
+   },
+   "self": {
+    "x": 52,
+    "y": 94,
+    "w": 320,
+    "h": 380,
+    "r": 372,
+    "b": 474
+   },
+   "totalOverlap": 0,
+   "others": [
+    {
+     "id": "pp-toggles",
+     "rect": {
+      "x": 1308,
+      "y": 94,
+      "w": 176,
+      "h": 52,
+      "r": 1484,
+      "b": 146
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "compact pp-header-row",
+       "x": 1308,
+       "y": 94,
+       "w": 176,
+       "h": 50,
+       "r": 1484,
+       "b": 144
+      },
+      {
+       "cls": "pp-header-label",
+       "x": 1322,
+       "y": 111,
+       "w": 23,
+       "h": 15,
+       "r": 1345,
+       "b": 126
+      }
+     ]
+    },
+    {
+     "id": "cctv-panel",
+     "rect": {
+      "x": 1308,
+      "y": 154,
+      "w": 176,
+      "h": 52,
+      "r": 1484,
+      "b": 206
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header",
+       "x": 1323,
+       "y": 169,
+       "w": 146,
+       "h": 15,
+       "r": 1469,
+       "b": 184
+      },
+      {
+       "cls": "panel-title",
+       "x": 1327,
+       "y": 169,
+       "w": 23,
+       "h": 15,
+       "r": 1350,
+       "b": 184
+      }
+     ]
+    },
+    {
+     "id": "global-context-panel",
+     "rect": {
+      "x": 1308,
+      "y": 214,
+      "w": 176,
+      "h": 52,
+      "r": 1484,
+      "b": 266
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header",
+       "x": 1323,
+       "y": 225,
+       "w": 150,
+       "h": 28,
+       "r": 1473,
+       "b": 253
+      },
+      {
+       "cls": "panel-title",
+       "x": 1327,
+       "y": 231,
+       "w": 35,
+       "h": 15,
+       "r": 1362,
+       "b": 246
+      }
+     ]
+    },
+    {
+     "id": "location-bar",
+     "rect": {
+      "x": 530,
+      "y": 632,
+      "w": 168,
+      "h": 86,
+      "r": 698,
+      "b": 718
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "location-toolbar",
+       "x": 542,
+       "y": 664,
+       "w": 144,
+       "h": 22,
+       "r": 686,
+       "b": 686
+      },
+      {
+       "cls": "dock-tray-toggle lg-glass-skin",
+       "x": 542,
+       "y": 664,
+       "w": 144,
+       "h": 22,
+       "r": 686,
+       "b": 686
+      }
+     ]
+    },
+    {
+     "id": "control-panel",
+     "rect": {
+      "x": 838,
+      "y": 632,
+      "w": 168,
+      "h": 86,
+      "r": 1006,
+      "b": 718
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header dock-tray-toggle lg-glass-s",
+       "x": 850,
+       "y": 664,
+       "w": 144,
+       "h": 22,
+       "r": 994,
+       "b": 686
+      },
+      {
+       "cls": "panel-title",
+       "x": 925,
+       "y": 664,
+       "w": 69,
+       "h": 22,
+       "r": 994,
+       "b": 686
+      }
+     ]
+    }
+   ],
+   "clippedHeads": [],
+   "scroll": {
+    "sh": 2113,
+    "ch": 380,
+    "sw": 320,
+    "cw": 320
+   },
+   "after": {
+    "floating": false,
+    "collapsed": true,
+    "x": 52,
+    "y": 94,
+    "w": 176,
+    "h": 45
+   },
+   "shot": "docs\\_collab\\t_8cf06356\\expand-data-panel.png",
+   "cls": "panel-collapsible active gev-lc gev-lc-floating",
+   "overflowY": "auto"
+  },
+  {
+   "id": "scene-panel",
+   "before": {
+    "floating": false,
+    "collapsed": true,
+    "x": 52,
+    "y": 147,
+    "w": 176,
+    "h": 45
+   },
+   "self": {
+    "x": 52,
+    "y": 147,
+    "w": 320,
+    "h": 340,
+    "r": 372,
+    "b": 487
+   },
+   "totalOverlap": 0,
+   "others": [
+    {
+     "id": "data-panel",
+     "rect": {
+      "x": 52,
+      "y": 94,
+      "w": 176,
+      "h": 45,
+      "r": 228,
+      "b": 139
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header",
+       "x": 69,
+       "y": 109,
+       "w": 142,
+       "h": 15,
+       "r": 211,
+       "b": 124
+      },
+      {
+       "cls": "panel-title",
+       "x": 73,
+       "y": 109,
+       "w": 46,
+       "h": 15,
+       "r": 119,
+       "b": 124
+      }
+     ]
+    },
+    {
+     "id": "pp-toggles",
+     "rect": {
+      "x": 1308,
+      "y": 94,
+      "w": 176,
+      "h": 52,
+      "r": 1484,
+      "b": 146
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "compact pp-header-row",
+       "x": 1308,
+       "y": 94,
+       "w": 176,
+       "h": 50,
+       "r": 1484,
+       "b": 144
+      },
+      {
+       "cls": "pp-header-label",
+       "x": 1322,
+       "y": 111,
+       "w": 23,
+       "h": 15,
+       "r": 1345,
+       "b": 126
+      }
+     ]
+    },
+    {
+     "id": "cctv-panel",
+     "rect": {
+      "x": 1308,
+      "y": 154,
+      "w": 176,
+      "h": 52,
+      "r": 1484,
+      "b": 206
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header",
+       "x": 1323,
+       "y": 169,
+       "w": 146,
+       "h": 15,
+       "r": 1469,
+       "b": 184
+      },
+      {
+       "cls": "panel-title",
+       "x": 1327,
+       "y": 169,
+       "w": 23,
+       "h": 15,
+       "r": 1350,
+       "b": 184
+      }
+     ]
+    },
+    {
+     "id": "global-context-panel",
+     "rect": {
+      "x": 1308,
+      "y": 214,
+      "w": 176,
+      "h": 52,
+      "r": 1484,
+      "b": 266
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header",
+       "x": 1323,
+       "y": 225,
+       "w": 150,
+       "h": 28,
+       "r": 1473,
+       "b": 253
+      },
+      {
+       "cls": "panel-title",
+       "x": 1327,
+       "y": 231,
+       "w": 35,
+       "h": 15,
+       "r": 1362,
+       "b": 246
+      }
+     ]
+    },
+    {
+     "id": "location-bar",
+     "rect": {
+      "x": 530,
+      "y": 632,
+      "w": 168,
+      "h": 86,
+      "r": 698,
+      "b": 718
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "location-toolbar",
+       "x": 542,
+       "y": 664,
+       "w": 144,
+       "h": 22,
+       "r": 686,
+       "b": 686
+      },
+      {
+       "cls": "dock-tray-toggle lg-glass-skin",
+       "x": 542,
+       "y": 664,
+       "w": 144,
+       "h": 22,
+       "r": 686,
+       "b": 686
+      }
+     ]
+    },
+    {
+     "id": "control-panel",
+     "rect": {
+      "x": 838,
+      "y": 632,
+      "w": 168,
+      "h": 86,
+      "r": 1006,
+      "b": 718
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header dock-tray-toggle lg-glass-s",
+       "x": 850,
+       "y": 664,
+       "w": 144,
+       "h": 22,
+       "r": 994,
+       "b": 686
+      },
+      {
+       "cls": "panel-title",
+       "x": 925,
+       "y": 664,
+       "w": 69,
+       "h": 22,
+       "r": 994,
+       "b": 686
+      }
+     ]
+    }
+   ],
+   "clippedHeads": [],
+   "scroll": {
+    "sh": 517,
+    "ch": 340,
+    "sw": 320,
+    "cw": 320
+   },
+   "after": {
+    "floating": false,
+    "collapsed": true,
+    "x": 52,
+    "y": 147,
+    "w": 176,
+    "h": 45
+   },
+   "shot": "docs\\_collab\\t_8cf06356\\expand-scene-panel.png",
+   "cls": "panel-collapsible gev-lc gev-lc-floating",
+   "overflowY": "auto"
+  },
+  {
+   "id": "pp-toggles",
+   "before": {
+    "floating": false,
+    "collapsed": true,
+    "x": 1308,
+    "y": 94,
+    "w": 176,
+    "h": 52
+   },
+   "self": {
+    "x": 1184,
+    "y": 94,
+    "w": 300,
+    "h": 430,
+    "r": 1484,
+    "b": 524
+   },
+   "totalOverlap": 0,
+   "others": [
+    {
+     "id": "data-panel",
+     "rect": {
+      "x": 52,
+      "y": 94,
+      "w": 176,
+      "h": 45,
+      "r": 228,
+      "b": 139
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header",
+       "x": 69,
+       "y": 109,
+       "w": 142,
+       "h": 15,
+       "r": 211,
+       "b": 124
+      },
+      {
+       "cls": "panel-title",
+       "x": 73,
+       "y": 109,
+       "w": 46,
+       "h": 15,
+       "r": 119,
+       "b": 124
+      }
+     ]
+    },
+    {
+     "id": "scene-panel",
+     "rect": {
+      "x": 52,
+      "y": 147,
+      "w": 176,
+      "h": 45,
+      "r": 228,
+      "b": 192
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header",
+       "x": 67,
+       "y": 162,
+       "w": 146,
+       "h": 15,
+       "r": 213,
+       "b": 177
+      },
+      {
+       "cls": "panel-title",
+       "x": 71,
+       "y": 162,
+       "w": 23,
+       "h": 15,
+       "r": 94,
+       "b": 177
+      }
+     ]
+    },
+    {
+     "id": "location-bar",
+     "rect": {
+      "x": 530,
+      "y": 632,
+      "w": 168,
+      "h": 86,
+      "r": 698,
+      "b": 718
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "location-toolbar",
+       "x": 542,
+       "y": 664,
+       "w": 144,
+       "h": 22,
+       "r": 686,
+       "b": 686
+      },
+      {
+       "cls": "dock-tray-toggle lg-glass-skin",
+       "x": 542,
+       "y": 664,
+       "w": 144,
+       "h": 22,
+       "r": 686,
+       "b": 686
+      }
+     ]
+    },
+    {
+     "id": "control-panel",
+     "rect": {
+      "x": 838,
+      "y": 632,
+      "w": 168,
+      "h": 86,
+      "r": 1006,
+      "b": 718
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header dock-tray-toggle lg-glass-s",
+       "x": 850,
+       "y": 664,
+       "w": 144,
+       "h": 22,
+       "r": 994,
+       "b": 686
+      },
+      {
+       "cls": "panel-title",
+       "x": 925,
+       "y": 664,
+       "w": 69,
+       "h": 22,
+       "r": 994,
+       "b": 686
+      }
+     ]
+    }
+   ],
+   "clippedHeads": [],
+   "scroll": {
+    "sh": 430,
+    "ch": 430,
+    "sw": 300,
+    "cw": 300
+   },
+   "after": {
+    "floating": false,
+    "collapsed": true,
+    "x": 1308,
+    "y": 94,
+    "w": 176,
+    "h": 52
+   },
+   "shot": "docs\\_collab\\t_8cf06356\\expand-pp-toggles.png",
+   "cls": "panel-collapsible gev-lc gev-lc-floating",
+   "overflowY": "auto"
+  },
+  {
+   "id": "cctv-panel",
+   "before": {
+    "floating": false,
+    "collapsed": true,
+    "x": 1308,
+    "y": 154,
+    "w": 176,
+    "h": 52
+   },
+   "self": {
+    "x": 1144,
+    "y": 154,
+    "w": 340,
+    "h": 410,
+    "r": 1484,
+    "b": 564
+   },
+   "totalOverlap": 0,
+   "others": [
+    {
+     "id": "data-panel",
+     "rect": {
+      "x": 52,
+      "y": 94,
+      "w": 176,
+      "h": 45,
+      "r": 228,
+      "b": 139
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header",
+       "x": 69,
+       "y": 109,
+       "w": 142,
+       "h": 15,
+       "r": 211,
+       "b": 124
+      },
+      {
+       "cls": "panel-title",
+       "x": 73,
+       "y": 109,
+       "w": 46,
+       "h": 15,
+       "r": 119,
+       "b": 124
+      }
+     ]
+    },
+    {
+     "id": "scene-panel",
+     "rect": {
+      "x": 52,
+      "y": 147,
+      "w": 176,
+      "h": 45,
+      "r": 228,
+      "b": 192
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header",
+       "x": 67,
+       "y": 162,
+       "w": 146,
+       "h": 15,
+       "r": 213,
+       "b": 177
+      },
+      {
+       "cls": "panel-title",
+       "x": 71,
+       "y": 162,
+       "w": 23,
+       "h": 15,
+       "r": 94,
+       "b": 177
+      }
+     ]
+    },
+    {
+     "id": "pp-toggles",
+     "rect": {
+      "x": 1308,
+      "y": 94,
+      "w": 176,
+      "h": 52,
+      "r": 1484,
+      "b": 146
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "compact pp-header-row",
+       "x": 1308,
+       "y": 94,
+       "w": 176,
+       "h": 50,
+       "r": 1484,
+       "b": 144
+      },
+      {
+       "cls": "pp-header-label",
+       "x": 1322,
+       "y": 111,
+       "w": 23,
+       "h": 15,
+       "r": 1345,
+       "b": 126
+      }
+     ]
+    },
+    {
+     "id": "location-bar",
+     "rect": {
+      "x": 530,
+      "y": 632,
+      "w": 168,
+      "h": 86,
+      "r": 698,
+      "b": 718
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "location-toolbar",
+       "x": 542,
+       "y": 664,
+       "w": 144,
+       "h": 22,
+       "r": 686,
+       "b": 686
+      },
+      {
+       "cls": "dock-tray-toggle lg-glass-skin",
+       "x": 542,
+       "y": 664,
+       "w": 144,
+       "h": 22,
+       "r": 686,
+       "b": 686
+      }
+     ]
+    },
+    {
+     "id": "control-panel",
+     "rect": {
+      "x": 838,
+      "y": 632,
+      "w": 168,
+      "h": 86,
+      "r": 1006,
+      "b": 718
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header dock-tray-toggle lg-glass-s",
+       "x": 850,
+       "y": 664,
+       "w": 144,
+       "h": 22,
+       "r": 994,
+       "b": 686
+      },
+      {
+       "cls": "panel-title",
+       "x": 925,
+       "y": 664,
+       "w": 69,
+       "h": 22,
+       "r": 994,
+       "b": 686
+      }
+     ]
+    }
+   ],
+   "clippedHeads": [],
+   "scroll": {
+    "sh": 676,
+    "ch": 410,
+    "sw": 340,
+    "cw": 340
+   },
+   "after": {
+    "floating": false,
+    "collapsed": true,
+    "x": 1308,
+    "y": 154,
+    "w": 176,
+    "h": 52
+   },
+   "shot": "docs\\_collab\\t_8cf06356\\expand-cctv-panel.png",
+   "cls": "panel-collapsible gev-lc gev-lc-floating",
+   "overflowY": "auto"
+  },
+  {
+   "id": "global-context-panel",
+   "before": {
+    "floating": false,
+    "collapsed": true,
+    "x": 1308,
+    "y": 214,
+    "w": 176,
+    "h": 52
+   },
+   "self": {
+    "x": 1164,
+    "y": 214,
+    "w": 320,
+    "h": 350,
+    "r": 1484,
+    "b": 564
+   },
+   "totalOverlap": 0,
+   "others": [
+    {
+     "id": "data-panel",
+     "rect": {
+      "x": 52,
+      "y": 94,
+      "w": 176,
+      "h": 45,
+      "r": 228,
+      "b": 139
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header",
+       "x": 69,
+       "y": 109,
+       "w": 142,
+       "h": 15,
+       "r": 211,
+       "b": 124
+      },
+      {
+       "cls": "panel-title",
+       "x": 73,
+       "y": 109,
+       "w": 46,
+       "h": 15,
+       "r": 119,
+       "b": 124
+      }
+     ]
+    },
+    {
+     "id": "scene-panel",
+     "rect": {
+      "x": 52,
+      "y": 147,
+      "w": 176,
+      "h": 45,
+      "r": 228,
+      "b": 192
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header",
+       "x": 67,
+       "y": 162,
+       "w": 146,
+       "h": 15,
+       "r": 213,
+       "b": 177
+      },
+      {
+       "cls": "panel-title",
+       "x": 71,
+       "y": 162,
+       "w": 23,
+       "h": 15,
+       "r": 94,
+       "b": 177
+      }
+     ]
+    },
+    {
+     "id": "pp-toggles",
+     "rect": {
+      "x": 1308,
+      "y": 94,
+      "w": 176,
+      "h": 52,
+      "r": 1484,
+      "b": 146
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "compact pp-header-row",
+       "x": 1308,
+       "y": 94,
+       "w": 176,
+       "h": 50,
+       "r": 1484,
+       "b": 144
+      },
+      {
+       "cls": "pp-header-label",
+       "x": 1322,
+       "y": 111,
+       "w": 23,
+       "h": 15,
+       "r": 1345,
+       "b": 126
+      }
+     ]
+    },
+    {
+     "id": "cctv-panel",
+     "rect": {
+      "x": 1308,
+      "y": 154,
+      "w": 176,
+      "h": 52,
+      "r": 1484,
+      "b": 206
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header",
+       "x": 1323,
+       "y": 169,
+       "w": 146,
+       "h": 15,
+       "r": 1469,
+       "b": 184
+      },
+      {
+       "cls": "panel-title",
+       "x": 1327,
+       "y": 169,
+       "w": 23,
+       "h": 15,
+       "r": 1350,
+       "b": 184
+      }
+     ]
+    },
+    {
+     "id": "location-bar",
+     "rect": {
+      "x": 530,
+      "y": 632,
+      "w": 168,
+      "h": 86,
+      "r": 698,
+      "b": 718
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "location-toolbar",
+       "x": 542,
+       "y": 664,
+       "w": 144,
+       "h": 22,
+       "r": 686,
+       "b": 686
+      },
+      {
+       "cls": "dock-tray-toggle lg-glass-skin",
+       "x": 542,
+       "y": 664,
+       "w": 144,
+       "h": 22,
+       "r": 686,
+       "b": 686
+      }
+     ]
+    },
+    {
+     "id": "control-panel",
+     "rect": {
+      "x": 838,
+      "y": 632,
+      "w": 168,
+      "h": 86,
+      "r": 1006,
+      "b": 718
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header dock-tray-toggle lg-glass-s",
+       "x": 850,
+       "y": 664,
+       "w": 144,
+       "h": 22,
+       "r": 994,
+       "b": 686
+      },
+      {
+       "cls": "panel-title",
+       "x": 925,
+       "y": 664,
+       "w": 69,
+       "h": 22,
+       "r": 994,
+       "b": 686
+      }
+     ]
+    }
+   ],
+   "clippedHeads": [],
+   "scroll": {
+    "sh": 370,
+    "ch": 350,
+    "sw": 320,
+    "cw": 320
+   },
+   "after": {
+    "floating": false,
+    "collapsed": true,
+    "x": 1308,
+    "y": 214,
+    "w": 176,
+    "h": 52
+   },
+   "shot": "docs\\_collab\\t_8cf06356\\expand-global-context-panel.png",
+   "cls": "panel-collapsible gev-lc gev-lc-floating",
+   "overflowY": "auto"
+  },
+  {
+   "id": "location-bar",
+   "before": {
+    "floating": false,
+    "collapsed": true,
+    "x": 530,
+    "y": 632,
+    "w": 168,
+    "h": 86
+   },
+   "self": {
+    "x": 530,
+    "y": 478,
+    "w": 380,
+    "h": 240,
+    "r": 910,
+    "b": 718
+   },
+   "totalOverlap": 0,
+   "others": [
+    {
+     "id": "data-panel",
+     "rect": {
+      "x": 52,
+      "y": 94,
+      "w": 176,
+      "h": 45,
+      "r": 228,
+      "b": 139
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header",
+       "x": 69,
+       "y": 109,
+       "w": 142,
+       "h": 15,
+       "r": 211,
+       "b": 124
+      },
+      {
+       "cls": "panel-title",
+       "x": 73,
+       "y": 109,
+       "w": 46,
+       "h": 15,
+       "r": 119,
+       "b": 124
+      }
+     ]
+    },
+    {
+     "id": "scene-panel",
+     "rect": {
+      "x": 52,
+      "y": 147,
+      "w": 176,
+      "h": 45,
+      "r": 228,
+      "b": 192
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header",
+       "x": 67,
+       "y": 162,
+       "w": 146,
+       "h": 15,
+       "r": 213,
+       "b": 177
+      },
+      {
+       "cls": "panel-title",
+       "x": 71,
+       "y": 162,
+       "w": 23,
+       "h": 15,
+       "r": 94,
+       "b": 177
+      }
+     ]
+    },
+    {
+     "id": "pp-toggles",
+     "rect": {
+      "x": 1308,
+      "y": 94,
+      "w": 176,
+      "h": 52,
+      "r": 1484,
+      "b": 146
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "compact pp-header-row",
+       "x": 1308,
+       "y": 94,
+       "w": 176,
+       "h": 50,
+       "r": 1484,
+       "b": 144
+      },
+      {
+       "cls": "pp-header-label",
+       "x": 1322,
+       "y": 111,
+       "w": 23,
+       "h": 15,
+       "r": 1345,
+       "b": 126
+      }
+     ]
+    },
+    {
+     "id": "cctv-panel",
+     "rect": {
+      "x": 1308,
+      "y": 154,
+      "w": 176,
+      "h": 52,
+      "r": 1484,
+      "b": 206
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header",
+       "x": 1323,
+       "y": 169,
+       "w": 146,
+       "h": 15,
+       "r": 1469,
+       "b": 184
+      },
+      {
+       "cls": "panel-title",
+       "x": 1327,
+       "y": 169,
+       "w": 23,
+       "h": 15,
+       "r": 1350,
+       "b": 184
+      }
+     ]
+    },
+    {
+     "id": "global-context-panel",
+     "rect": {
+      "x": 1308,
+      "y": 214,
+      "w": 176,
+      "h": 52,
+      "r": 1484,
+      "b": 266
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header",
+       "x": 1323,
+       "y": 225,
+       "w": 150,
+       "h": 28,
+       "r": 1473,
+       "b": 253
+      },
+      {
+       "cls": "panel-title",
+       "x": 1327,
+       "y": 231,
+       "w": 35,
+       "h": 15,
+       "r": 1362,
+       "b": 246
+      }
+     ]
+    }
+   ],
+   "clippedHeads": [],
+   "scroll": {
+    "sh": 260,
+    "ch": 240,
+    "sw": 380,
+    "cw": 380
+   },
+   "after": {
+    "floating": false,
+    "collapsed": true,
+    "x": 530,
+    "y": 632,
+    "w": 168,
+    "h": 86
+   },
+   "shot": "docs\\_collab\\t_8cf06356\\expand-location-bar.png",
+   "cls": "panel-collapsible gev-lc gev-lc-floating",
+   "overflowY": "auto"
+  },
+  {
+   "id": "control-panel",
+   "before": {
+    "floating": false,
+    "collapsed": true,
+    "x": 838,
+    "y": 632,
+    "w": 168,
+    "h": 86
+   },
+   "self": {
+    "x": 838,
+    "y": 338,
+    "w": 465,
+    "h": 380,
+    "r": 1303,
+    "b": 718
+   },
+   "totalOverlap": 0,
+   "others": [
+    {
+     "id": "data-panel",
+     "rect": {
+      "x": 52,
+      "y": 94,
+      "w": 176,
+      "h": 45,
+      "r": 228,
+      "b": 139
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header",
+       "x": 69,
+       "y": 109,
+       "w": 142,
+       "h": 15,
+       "r": 211,
+       "b": 124
+      },
+      {
+       "cls": "panel-title",
+       "x": 73,
+       "y": 109,
+       "w": 46,
+       "h": 15,
+       "r": 119,
+       "b": 124
+      }
+     ]
+    },
+    {
+     "id": "scene-panel",
+     "rect": {
+      "x": 52,
+      "y": 147,
+      "w": 176,
+      "h": 45,
+      "r": 228,
+      "b": 192
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header",
+       "x": 67,
+       "y": 162,
+       "w": 146,
+       "h": 15,
+       "r": 213,
+       "b": 177
+      },
+      {
+       "cls": "panel-title",
+       "x": 71,
+       "y": 162,
+       "w": 23,
+       "h": 15,
+       "r": 94,
+       "b": 177
+      }
+     ]
+    },
+    {
+     "id": "pp-toggles",
+     "rect": {
+      "x": 1308,
+      "y": 94,
+      "w": 176,
+      "h": 52,
+      "r": 1484,
+      "b": 146
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "compact pp-header-row",
+       "x": 1308,
+       "y": 94,
+       "w": 176,
+       "h": 50,
+       "r": 1484,
+       "b": 144
+      },
+      {
+       "cls": "pp-header-label",
+       "x": 1322,
+       "y": 111,
+       "w": 23,
+       "h": 15,
+       "r": 1345,
+       "b": 126
+      }
+     ]
+    },
+    {
+     "id": "cctv-panel",
+     "rect": {
+      "x": 1308,
+      "y": 154,
+      "w": 176,
+      "h": 52,
+      "r": 1484,
+      "b": 206
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header",
+       "x": 1323,
+       "y": 169,
+       "w": 146,
+       "h": 15,
+       "r": 1469,
+       "b": 184
+      },
+      {
+       "cls": "panel-title",
+       "x": 1327,
+       "y": 169,
+       "w": 23,
+       "h": 15,
+       "r": 1350,
+       "b": 184
+      }
+     ]
+    },
+    {
+     "id": "global-context-panel",
+     "rect": {
+      "x": 1308,
+      "y": 214,
+      "w": 176,
+      "h": 52,
+      "r": 1484,
+      "b": 266
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "panel-header",
+       "x": 1323,
+       "y": 225,
+       "w": 150,
+       "h": 28,
+       "r": 1473,
+       "b": 253
+      },
+      {
+       "cls": "panel-title",
+       "x": 1327,
+       "y": 231,
+       "w": 35,
+       "h": 15,
+       "r": 1362,
+       "b": 246
+      }
+     ]
+    },
+    {
+     "id": "location-bar",
+     "rect": {
+      "x": 530,
+      "y": 632,
+      "w": 168,
+      "h": 86,
+      "r": 698,
+      "b": 718
+     },
+     "overlap": 0,
+     "collapsed": true,
+     "heads": [
+      {
+       "cls": "location-toolbar",
+       "x": 542,
+       "y": 664,
+       "w": 144,
+       "h": 22,
+       "r": 686,
+       "b": 686
+      },
+      {
+       "cls": "dock-tray-toggle lg-glass-skin",
+       "x": 542,
+       "y": 664,
+       "w": 144,
+       "h": 22,
+       "r": 686,
+       "b": 686
+      }
+     ]
+    }
+   ],
+   "clippedHeads": [],
+   "scroll": {
+    "sh": 410,
+    "ch": 380,
+    "sw": 465,
+    "cw": 465
+   },
+   "after": {
+    "floating": false,
+    "collapsed": true,
+    "x": 838,
+    "y": 632,
+    "w": 168,
+    "h": 86
+   },
+   "shot": "docs\\_collab\\t_8cf06356\\expand-control-panel.png",
+   "cls": "panel-collapsible gev-lc gev-lc-floating",
+   "overflowY": "auto"
+  }
+ ],
+ "combos": [
+  {
+   "combo": [
+    "data-panel",
+    "pp-toggles",
+    "control-panel"
+   ],
+   "rows": [
+    {
+     "id": "data-panel",
+     "self": {
+      "x": 52,
+      "y": 94,
+      "w": 320,
+      "h": 380,
+      "r": 372,
+      "b": 474
+     },
+     "visible": true,
+     "overlaps": [
+      {
+       "id": "pp-toggles",
+       "overlap": 0
+      },
+      {
+       "id": "control-panel",
+       "overlap": 0
+      }
+     ],
+     "total": 0
+    },
+    {
+     "id": "pp-toggles",
+     "self": {
+      "x": 1184,
+      "y": 94,
+      "w": 300,
+      "h": 430,
+      "r": 1484,
+      "b": 524
+     },
+     "visible": true,
+     "overlaps": [
+      {
+       "id": "data-panel",
+       "overlap": 0
+      },
+      {
+       "id": "control-panel",
+       "overlap": 0
+      }
+     ],
+     "total": 0
+    },
+    {
+     "id": "control-panel",
+     "self": {
+      "x": 838,
+      "y": 338,
+      "w": 338,
+      "h": 380,
+      "r": 1176,
+      "b": 718
+     },
+     "visible": true,
+     "overlaps": [
+      {
+       "id": "data-panel",
+       "overlap": 0
+      },
+      {
+       "id": "pp-toggles",
+       "overlap": 0
+      }
+     ],
+     "total": 0
+    }
+   ],
+   "shot": "evidence/_collab/t_8cf06356/combo-data-panel+pp-toggles+control-panel.png"
+  },
+  {
+   "combo": [
+    "scene-panel",
+    "cctv-panel",
+    "location-bar"
+   ],
+   "rows": [
+    {
+     "id": "scene-panel",
+     "self": {
+      "x": 52,
+      "y": 147,
+      "w": 320,
+      "h": 340,
+      "r": 372,
+      "b": 487
+     },
+     "visible": true,
+     "overlaps": [
+      {
+       "id": "cctv-panel",
+       "overlap": 0
+      },
+      {
+       "id": "location-bar",
+       "overlap": 0
+      }
+     ],
+     "total": 0
+    },
+    {
+     "id": "cctv-panel",
+     "self": {
+      "x": 1144,
+      "y": 154,
+      "w": 340,
+      "h": 410,
+      "r": 1484,
+      "b": 564
+     },
+     "visible": true,
+     "overlaps": [
+      {
+       "id": "scene-panel",
+       "overlap": 0
+      },
+      {
+       "id": "location-bar",
+       "overlap": 0
+      }
+     ],
+     "total": 0
+    },
+    {
+     "id": "location-bar",
+     "self": {
+      "x": 530,
+      "y": 478,
+      "w": 380,
+      "h": 240,
+      "r": 910,
+      "b": 718
+     },
+     "visible": true,
+     "overlaps": [
+      {
+       "id": "scene-panel",
+       "overlap": 0
+      },
+      {
+       "id": "cctv-panel",
+       "overlap": 0
+      }
+     ],
+     "total": 0
+    }
+   ],
+   "shot": "evidence/_collab/t_8cf06356/combo-scene-panel+cctv-panel+location-bar.png"
+  },
+  {
+   "combo": [
+    "data-panel",
+    "global-context-panel",
+    "location-bar"
+   ],
+   "rows": [
+    {
+     "id": "data-panel",
+     "self": {
+      "x": 52,
+      "y": 94,
+      "w": 320,
+      "h": 380,
+      "r": 372,
+      "b": 474
+     },
+     "visible": true,
+     "overlaps": [
+      {
+       "id": "global-context-panel",
+       "overlap": 0
+      },
+      {
+       "id": "location-bar",
+       "overlap": 0
+      }
+     ],
+     "total": 0
+    },
+    {
+     "id": "global-context-panel",
+     "self": {
+      "x": 1164,
+      "y": 214,
+      "w": 320,
+      "h": 350,
+      "r": 1484,
+      "b": 564
+     },
+     "visible": true,
+     "overlaps": [
+      {
+       "id": "data-panel",
+       "overlap": 0
+      },
+      {
+       "id": "location-bar",
+       "overlap": 0
+      }
+     ],
+     "total": 0
+    },
+    {
+     "id": "location-bar",
+     "self": {
+      "x": 530,
+      "y": 478,
+      "w": 380,
+      "h": 240,
+      "r": 910,
+      "b": 718
+     },
+     "visible": true,
+     "overlaps": [
+      {
+       "id": "data-panel",
+       "overlap": 0
+      },
+      {
+       "id": "global-context-panel",
+       "overlap": 0
+      }
+     ],
+     "total": 0
+    }
+   ],
+   "shot": "evidence/_collab/t_8cf06356/combo-data-panel+global-context-panel+location-bar.png"
+  },
+  {
+   "combo": [
+    "scene-panel",
+    "pp-toggles",
+    "control-panel"
+   ],
+   "rows": [
+    {
+     "id": "scene-panel",
+     "self": {
+      "x": 52,
+      "y": 147,
+      "w": 320,
+      "h": 340,
+      "r": 372,
+      "b": 487
+     },
+     "visible": true,
+     "overlaps": [
+      {
+       "id": "pp-toggles",
+       "overlap": 0
+      },
+      {
+       "id": "control-panel",
+       "overlap": 0
+      }
+     ],
+     "total": 0
+    },
+    {
+     "id": "pp-toggles",
+     "self": {
+      "x": 1184,
+      "y": 94,
+      "w": 300,
+      "h": 430,
+      "r": 1484,
+      "b": 524
+     },
+     "visible": true,
+     "overlaps": [
+      {
+       "id": "scene-panel",
+       "overlap": 0
+      },
+      {
+       "id": "control-panel",
+       "overlap": 0
+      }
+     ],
+     "total": 0
+    },
+    {
+     "id": "control-panel",
+     "self": {
+      "x": 838,
+      "y": 338,
+      "w": 338,
+      "h": 380,
+      "r": 1176,
+      "b": 718
+     },
+     "visible": true,
+     "overlaps": [
+      {
+       "id": "scene-panel",
+       "overlap": 0
+      },
+      {
+       "id": "pp-toggles",
+       "overlap": 0
+      }
+     ],
+     "total": 0
+    }
+   ],
+   "shot": "evidence/_collab/t_8cf06356/combo-scene-panel+pp-toggles+control-panel.png"
+  }
+ ],
+ "afterAll": {
+  "rows": [
+   {
+    "id": "data-panel",
+    "rect": {
+     "x": 52,
+     "y": 94,
+     "w": 176,
+     "h": 45,
+     "r": 228,
+     "b": 139
+    },
+    "visible": true,
+    "hid": false,
+    "collapsed": true
+   },
+   {
+    "id": "scene-panel",
+    "rect": {
+     "x": 52,
+     "y": 147,
+     "w": 176,
+     "h": 45,
+     "r": 228,
+     "b": 192
+    },
+    "visible": true,
+    "hid": false,
+    "collapsed": true
+   },
+   {
+    "id": "pp-toggles",
+    "rect": {
+     "x": 1308,
+     "y": 94,
+     "w": 176,
+     "h": 52,
+     "r": 1484,
+     "b": 146
+    },
+    "visible": true,
+    "hid": false,
+    "collapsed": true
+   },
+   {
+    "id": "cctv-panel",
+    "rect": {
+     "x": 1308,
+     "y": 154,
+     "w": 176,
+     "h": 52,
+     "r": 1484,
+     "b": 206
+    },
+    "visible": true,
+    "hid": false,
+    "collapsed": true
+   },
+   {
+    "id": "global-context-panel",
+    "rect": {
+     "x": 1308,
+     "y": 214,
+     "w": 176,
+     "h": 52,
+     "r": 1484,
+     "b": 266
+    },
+    "visible": true,
+    "hid": false,
+    "collapsed": true
+   },
+   {
+    "id": "location-bar",
+    "rect": {
+     "x": 530,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "r": 698,
+     "b": 718
+    },
+    "visible": true,
+    "hid": false,
+    "collapsed": true
+   },
+   {
+    "id": "control-panel",
+    "rect": {
+     "x": 838,
+     "y": 632,
+     "w": 168,
+     "h": 86,
+     "r": 1006,
+     "b": 718
+    },
+    "visible": true,
+    "hid": false,
+    "collapsed": true
+   }
+  ],
+  "hidCount": 0,
+  "phantoms": 0,
+  "floating": 0
+ },
+ "scrollbars": {
+  "pageScrollWidth": 1536,
+  "innerWidth": 1536,
+  "scrollbarPx": 0,
+  "cardFound": true,
+  "cardScrollWidth": 176,
+  "cardClientWidth": 176,
+  "innerWebkitScrollbarWidth": "0px",
+  "innerScrollbarWidthProp": "none",
+  "bodyScrollbarWidthProp": "none"
+ }
+}

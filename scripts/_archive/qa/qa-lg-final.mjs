@@ -8,13 +8,13 @@
  *  E 按下：玻璃外壳内缩 px + 回弹
  *  F 拖动 A/B：玻璃开 vs 关（归属瓶颈）
  *  G 录屏：CDP screencast 帧序列（供 ffmpeg 合成）
- * 输出：docs/lg-glass-shots/p0/final/*.png + scratch/final.json
+ * 输出：evidence/lg-glass-shots/p0/final/*.png + scratch/final.json
  */
 import puppeteer from 'puppeteer';
 import fs from 'node:fs';
 
 const url = process.argv[2] || 'http://127.0.0.1:4173/';
-const DIR = 'docs/lg-glass-shots/p0/final';
+const DIR = 'evidence/lg-glass-shots/p0/final';
 const SCR = 'C:/Users/13680/AppData/Local/hermes/profiles/deepseek/cache/scratch/review-lg';
 const FRAMES = `${DIR}/frames`;
 fs.rmSync(FRAMES, { recursive: true, force: true });

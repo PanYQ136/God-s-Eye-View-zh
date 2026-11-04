@@ -2,7 +2,7 @@
 /** dbg2-baseline.mjs —— 基线健康检查：welcome 关闭 + Cesium 是否在渲染（与本次 CSS 改动无关） */
 import puppeteer from 'puppeteer';
 import fs from 'node:fs';
-const OUT = 'docs/_collab/t_3e129970';
+const OUT = 'evidence/_collab/t_3e129970';
 const b = await puppeteer.launch({
   headless: false,
   executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',

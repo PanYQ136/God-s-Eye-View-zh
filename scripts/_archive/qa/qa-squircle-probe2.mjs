@@ -4,13 +4,13 @@
  *  1) 探针：200×200 黑块（r=40px, dsf=4）在纯白上，逐行扫左上角轮廓 → inset(v)
  *  2) 用几何超椭圆 |(r-u)/r|^n + |(r-v)/r|^n = 1 最小二乘拟合 n（n=2 就是圆）
  *  3) 同帧渲染 round / superellipse(1..4) 作对照，确认 squircle 对应哪个几何指数
- *  输出：docs/_collab/t_3e129970/probe-squircle.json + probe-boxes-4x.png
+ *  输出：evidence/_collab/t_3e129970/probe-squircle.json + probe-boxes-4x.png
  */
 import puppeteer from 'puppeteer';
 import sharp from 'sharp';
 import fs from 'node:fs';
 
-const OUT = 'docs/_collab/t_3e129970';
+const OUT = 'evidence/_collab/t_3e129970';
 fs.mkdirSync(OUT, { recursive: true });
 const S = 4, BOX = 200, R = 40;
 

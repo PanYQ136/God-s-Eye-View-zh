@@ -9,7 +9,7 @@ import sharp from 'sharp';
 import fs from 'node:fs';
 
 const url = process.argv[2] || 'http://127.0.0.1:4173/';
-const DIR = 'docs/lg-glass-shots/p0/tail3';
+const DIR = 'evidence/lg-glass-shots/p0/tail3';
 const SCR = 'C:/Users/13680/AppData/Local/hermes/profiles/deepseek/cache/scratch/review-lg';
 fs.mkdirSync(DIR, { recursive: true });
 const BEFORECSS = `

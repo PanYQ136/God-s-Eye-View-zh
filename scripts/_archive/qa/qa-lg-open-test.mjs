@@ -27,6 +27,6 @@ const openRes = await page.evaluate(() => {
 });
 await new Promise((r) => setTimeout(r, 600));
 const after = await page.evaluate(() => ({ info: window.__gevLc.info('data-panel'), cls: document.getElementById('data-panel').className, parent: document.getElementById('data-panel').parentElement.tagName + '#' + (document.getElementById('data-panel').parentElement.id || ''), style: { left: document.getElementById('data-panel').style.left, top: document.getElementById('data-panel').style.top, w: document.getElementById('data-panel').style.width, h: document.getElementById('data-panel').style.height } }));
-await page.screenshot({ path: 'docs/lg-glass-shots/p0/open-test.png' });
+await page.screenshot({ path: 'evidence/lg-glass-shots/p0/open-test.png' });
 console.log(JSON.stringify({ errs, before, openRes, after }, null, 1));
 await browser.close();

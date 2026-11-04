@@ -9,7 +9,7 @@ const url = process.argv[2] || 'http://localhost:5183/';
 const label = process.argv[3] || 'perf';
 const lon = Number(process.argv[4] || 116.4), lat = Number(process.argv[5] || 39.9), hgt = Number(process.argv[6] || 14000);
 const W = Number(process.argv[7] || 1536), H = Number(process.argv[8] || 730);
-const outDir = 'docs/lg-glass-shots/p0';
+const outDir = 'evidence/lg-glass-shots/p0';
 fs.mkdirSync(outDir, { recursive: true });
 
 const browser = await puppeteer.launch({

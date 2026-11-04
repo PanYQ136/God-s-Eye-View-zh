@@ -33,10 +33,10 @@ const diag = await page.evaluate(() => ({
   lcCount: document.querySelectorAll('.gev-lc').length,
 }));
 console.log('ERRORS:', errs.slice(0, 8));
-fs.writeFileSync(`docs/lg-glass-shots/p0/${label}-diag.json`, JSON.stringify({ errs, diag }, null, 1));
+fs.writeFileSync(`evidence/lg-glass-shots/p0/${label}-diag.json`, JSON.stringify({ errs, diag }, null, 1));
 console.log('DIAG:', JSON.stringify(diag.probe), JSON.stringify(diag.stats && { fps: diag.stats.fps, count: diag.stats.count }));
-await page.screenshot({ path: `docs/lg-glass-shots/p0/${label}-full.png` });
-await page.screenshot({ path: `docs/lg-glass-shots/p0/${label}-rail.png`, clip: { x: 1230, y: 60, width: 306, height: 240 } });
-await page.screenshot({ path: `docs/lg-glass-shots/p0/${label}-left.png`, clip: { x: 30, y: 70, width: 320, height: 160 } });
-await page.screenshot({ path: `docs/lg-glass-shots/p0/${label}-dock.png`, clip: { x: 500, y: 600, width: 560, height: 130 } });
+await page.screenshot({ path: `evidence/lg-glass-shots/p0/${label}-full.png` });
+await page.screenshot({ path: `evidence/lg-glass-shots/p0/${label}-rail.png`, clip: { x: 1230, y: 60, width: 306, height: 240 } });
+await page.screenshot({ path: `evidence/lg-glass-shots/p0/${label}-left.png`, clip: { x: 30, y: 70, width: 320, height: 160 } });
+await page.screenshot({ path: `evidence/lg-glass-shots/p0/${label}-dock.png`, clip: { x: 500, y: 600, width: 560, height: 130 } });
 await browser.close();
