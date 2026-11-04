@@ -41,3 +41,7 @@ wx-cloud/
 *小程序*
 *miniprogram*
 *mini-program*
+
+# 运行/验收产物不入库（本地保留，需要时用 git add -f 单独放行）
+out-qa/
+vite.err

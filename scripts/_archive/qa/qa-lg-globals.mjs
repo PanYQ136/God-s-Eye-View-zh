@@ -20,6 +20,6 @@ const out = await page.evaluate(() => {
   const canv = [...cs].map((c) => ({ id: c.id, cls: (c.className || '').toString(), w: c.width, h: c.height }));
   return { keys: res, canv };
 });
-fs.writeFileSync('docs/lg-glass-shots/p0/globals.json', JSON.stringify(out, null, 1));
+fs.writeFileSync('evidence/lg-glass-shots/p0/globals.json', JSON.stringify(out, null, 1));
 console.log(JSON.stringify(out).slice(0, 3000));
 await browser.close();

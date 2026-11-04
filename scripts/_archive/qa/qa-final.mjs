@@ -6,7 +6,7 @@ import puppeteer from 'puppeteer';
 import sharp from 'sharp';
 import fs from 'node:fs';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const W = 1536, H = 730, OUT = 'docs/_collab/t_9739e3a7';
+const W = 1536, H = 730, OUT = 'evidence/_collab/t_9739e3a7';
 const res = {};
 const browser = await puppeteer.launch({
   headless: false, executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe',

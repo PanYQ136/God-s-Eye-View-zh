@@ -35,7 +35,7 @@ await page.evaluate(() => { window.__gevLc.open('data-panel'); window.__gevLc.op
 await sleep(1400);
 const p1 = await probe();
 console.log('COMBO(338):', JSON.stringify(p1));
-await page.screenshot({ path: 'docs/_collab/t_f8d97c1c/ctrl-338-narrow-final-2x.png', clip: { x: 820, y: 320, width: 400, height: 400 } });
+await page.screenshot({ path: 'evidence/_collab/t_f8d97c1c/ctrl-338-narrow-final-2x.png', clip: { x: 820, y: 320, width: 400, height: 400 } });
 
 // 单开（465）应该完全不受影响
 await page.evaluate(() => (window.__gevLc._ids() || []).forEach((id) => window.__gevLc.close(id)));

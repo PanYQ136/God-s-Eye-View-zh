@@ -4,7 +4,7 @@ import puppeteer from 'puppeteer';
 import sharp from 'sharp';
 import fs from 'node:fs';
 const url = process.argv[2] || 'http://127.0.0.1:4173/';
-const DIR = 'docs/lg-glass-shots/p0';
+const DIR = 'evidence/lg-glass-shots/p0';
 const OUT = 'C:/Users/13680/AppData/Local/hermes/profiles/deepseek/cache/scratch/review-lg';
 fs.mkdirSync(OUT, { recursive: true }); fs.mkdirSync(DIR, { recursive: true });
 const browser = await puppeteer.launch({

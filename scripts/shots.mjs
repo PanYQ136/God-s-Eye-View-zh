@@ -6,7 +6,7 @@
 import puppeteer from 'puppeteer';
 import sharp from 'sharp';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const W = 1536, H = 730, OUT = 'docs/_collab/t_9739e3a7';
+const W = 1536, H = 730, OUT = 'evidence/_collab/t_9739e3a7';
 const TAG = process.argv[2] || 'shot';
 const HOOK = process.argv[3] || '';
 const browser = await puppeteer.launch({

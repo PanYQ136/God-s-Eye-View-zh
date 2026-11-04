@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
  * qa-lg-anim.mjs —— P0-4 动效验收：展开/收起 morph + 兄弟卡收起 + 快速 10 次开合 + 60fps
- * 产出：docs/lg-glass-shots/p0/anim/ 下 帧序列(jpg) + 报告 json
+ * 产出：evidence/lg-glass-shots/p0/anim/ 下 帧序列(jpg) + 报告 json
  */
 import puppeteer from 'puppeteer';
 import fs from 'node:fs';
 const url = process.argv[2] || 'http://localhost:5183/';
 const tag = process.argv[3] || 'anim';
 const CLON = Number(process.argv[4] || 139.7671), CLAT = Number(process.argv[5] || 35.6812), CHGT = Number(process.argv[6] || 40000);
-const outDir = `docs/lg-glass-shots/p0/${tag}`;
+const outDir = `evidence/lg-glass-shots/p0/${tag}`;
 fs.rmSync(outDir, { recursive: true, force: true });
 fs.mkdirSync(`${outDir}/frames`, { recursive: true });
 

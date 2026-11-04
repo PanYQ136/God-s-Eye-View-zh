@@ -9,7 +9,7 @@
 import puppeteer from 'puppeteer';
 import fs from 'node:fs';
 const url = process.argv[2] || 'http://localhost:5183/';
-const outDir = 'docs/lg-glass-shots/p0';
+const outDir = 'evidence/lg-glass-shots/p0';
 const browser = await puppeteer.launch({
   headless: true,
   executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',

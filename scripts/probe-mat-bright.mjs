@@ -2,7 +2,7 @@ import puppeteer from 'puppeteer';
 import sharp from 'sharp';
 import fs from 'node:fs';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const OUT = 'docs/_collab/t_fdd76e7a/probe';
+const OUT = 'evidence/_collab/t_fdd76e7a/probe';
 fs.mkdirSync(OUT, { recursive: true });
 const browser = await puppeteer.launch({
   headless: true, executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',

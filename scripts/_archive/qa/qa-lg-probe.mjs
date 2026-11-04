@@ -39,5 +39,5 @@ console.log('=== TREE ===');
 console.log(out.body.join('\n'));
 console.log('=== FIXED SMALL ===');
 console.log(out.fixedSmall.join('\n'));
-await page.screenshot({ path: 'docs/lg-glass-shots/p0/probe.png' });
+await page.screenshot({ path: 'evidence/lg-glass-shots/p0/probe.png' });
 await browser.close();

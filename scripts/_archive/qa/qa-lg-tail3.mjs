@@ -5,14 +5,14 @@
  *  2) location-inner 502px 隐藏溢出：读 collapsed inner 的 scrollWidth / clientWidth（9 卡全测）
  *  3) shader 注释：纯文档（运行时只核对 dispN）
  *  另：展开托盘可用性 + 托盘动画（opacity 时间序列 / CSSTransition）+ 暗/亮对比度像素法 + 1536×730 截图
- * 输出：docs/lg-glass-shots/p0/tail3/*.png + scratch/tail3.json（并打印 JSON）
+ * 输出：evidence/lg-glass-shots/p0/tail3/*.png + scratch/tail3.json（并打印 JSON）
  */
 import puppeteer from 'puppeteer';
 import sharp from 'sharp';
 import fs from 'node:fs';
 
 const url = process.argv[2] || 'http://127.0.0.1:4173/';
-const DIR = 'docs/lg-glass-shots/p0/tail3';
+const DIR = 'evidence/lg-glass-shots/p0/tail3';
 const SCR = 'C:/Users/13680/AppData/Local/hermes/profiles/deepseek/cache/scratch/review-lg';
 fs.mkdirSync(DIR, { recursive: true });
 fs.mkdirSync(SCR, { recursive: true });

@@ -13,7 +13,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const URL = process.argv[2] || 'http://localhost:4173/';
-const OUT = process.argv[3] || 'docs/_collab/t_8cf06356';
+const OUT = process.argv[3] || 'evidence/_collab/t_8cf06356';
 fs.mkdirSync(OUT, { recursive: true });
 
 const CARDS = ['data-panel', 'scene-panel', 'pp-toggles', 'cctv-panel', 'global-context-panel', 'location-bar', 'control-panel'];
@@ -169,7 +169,7 @@ for (const combo of COMBOS) {
     }
     return out;
   }, combo);
-  const shot = `docs/_collab/t_8cf06356/combo-${combo.join('+')}.png`;
+  const shot = `evidence/_collab/t_8cf06356/combo-${combo.join('+')}.png`;
   await page.screenshot({ path: shot });
   combos.push({ combo, rows, shot });
   for (const id of combo) { await page.evaluate((id) => window.__gevLc.close(id), id); await sleep(650); }

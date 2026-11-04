@@ -4,13 +4,13 @@
  *   做法：离屏画一个 200×200 黑块（border-radius 40px，corner-shape squircle）压在纯白上，
  *         逐行扫左上角轮廓（第一个暗像素的 x）→ inset(y)，再用最小二乘拟合
  *         superellipse |(r-u)/r|^n + |(r-v)/r|^n = 1 的 n，并与圆（n=2）对比。
- *   输出：docs/_collab/t_3e129970/probe-squircle.json + 角部 4x 图
+ *   输出：evidence/_collab/t_3e129970/probe-squircle.json + 角部 4x 图
  */
 import puppeteer from 'puppeteer';
 import sharp from 'sharp';
 import fs from 'node:fs';
 
-const OUT = 'docs/_collab/t_3e129970';
+const OUT = 'evidence/_collab/t_3e129970';
 fs.mkdirSync(OUT, { recursive: true });
 
 const browser = await puppeteer.launch({

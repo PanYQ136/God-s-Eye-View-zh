@@ -33,5 +33,5 @@ const out = await page.evaluate((ids) => {
 }, ['data-panel', 'scene-panel', 'pp-toggles', 'cctv-panel', 'global-context-panel', 'location-bar', 'control-panel']);
 console.log('open=' + id);
 out.forEach((r) => console.log(r.id.padEnd(24), JSON.stringify(r.rect), 'vis=' + r.vis, 'op=' + r.op, r.hid ? 'HID' : '', r.collapsed ? 'collapsed' : '', r.floating ? 'FLOATING' : ''));
-await page.screenshot({ path: 'docs/_collab/t_8cf06356/dbg-' + id + '.png' });
+await page.screenshot({ path: 'evidence/_collab/t_8cf06356/dbg-' + id + '.png' });
 await browser.close();

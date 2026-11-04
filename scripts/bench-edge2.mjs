@@ -10,7 +10,7 @@ import fs from 'node:fs';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const BASE = process.argv[2] || 'http://localhost:4173/';
 const W = 1536, H = 730;
-const OUT = 'docs/_collab/t_9739e3a7';
+const OUT = 'evidence/_collab/t_9739e3a7';
 fs.mkdirSync(OUT, { recursive: true });
 
 const browser = await puppeteer.launch({

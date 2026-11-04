@@ -104,7 +104,7 @@
 | 材质逐参数一致（blur22/saturate1.9、Light .70/.10、3内阴影+4投影） | ✅ | computed: `backdrop-filter: blur(22px) saturate(1.9)`；`borderWidth: 0px`；box-shadow 含 rgba(219,219,219,.5) 缩放项 |
 | 无四周矩形硬边框 | ✅ | `borderTopWidth: 0px` + 目视无硬边框 |
 | z-index 走变量/区间，无抢占 | ✅ | 菜单 `z-index:200`(--z-popup)、遮罩 `199`、command-dock `145`、left-panel-stack `100` **均未变** |
-| 深/浅模式截图 | ✅ | docs/lg-glass-shots/{btn-dark,menu-dark,menu-light,btn-light}.png |
+| 深/浅模式截图 | ✅ | evidence/lg-glass-shots/{btn-dark,menu-dark,menu-light,btn-light}.png |
 | 图层面板叠加无遮挡 | ✅ | menu-over-panel.png（菜单 z200 浮于面板上层） |
 | console 错误 | ✅ 0 | 运行期 error 计数 0 |
 | 构建 | ✅ | `npm run build` 52.71s 通过 |
@@ -135,4 +135,4 @@
 3. **全站层级实测**（1600×900，菜单开 + 右栏展开）：全屏遮挡 **0**、同 z 交互重叠 **0**；分区严格 map<world<hud100<panel110<dock145<popup200<toast1000<devtools。
 4. **5 分辨率回归**（2560/1920/1600/1366/1280）：横向溢出 **0**、指令坞与右栏均视口内、无越界高 z 元素。
 5. **视觉复核**（GLM-4V）：坞/右栏/菜单均「磨砂统一、无错位/重叠/截断、协调美观」。
-截图：`docs/lg-glass-shots/{dock-glass,rail-glass-expanded,menu-dark-v2}.png`
+截图：`evidence/lg-glass-shots/{dock-glass,rail-glass-expanded,menu-dark-v2}.png`

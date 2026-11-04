@@ -2,7 +2,7 @@
 /** dbg-squircle-measure.mjs —— 排查测量截图的坐标系/位置 */
 import puppeteer from 'puppeteer';
 import fs from 'node:fs';
-const OUT = 'docs/_collab/t_3e129970';
+const OUT = 'evidence/_collab/t_3e129970';
 const DSF = 2;
 const b = await puppeteer.launch({
   headless: true,

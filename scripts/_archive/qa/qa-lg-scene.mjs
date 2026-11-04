@@ -10,7 +10,7 @@ const label = process.argv[3] || 'scene';
 const lon = Number(process.argv[4] || -67.5);
 const lat = Number(process.argv[5] || -20.13);
 const hgt = Number(process.argv[6] || 12000);
-const outDir = 'docs/lg-glass-shots/p0';
+const outDir = 'evidence/lg-glass-shots/p0';
 
 const browser = await puppeteer.launch({
   headless: true,

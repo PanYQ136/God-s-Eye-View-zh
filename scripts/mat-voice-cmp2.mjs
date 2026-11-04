@@ -2,9 +2,9 @@
 /** voice 卡局部对照（从整页截图裁，位置取 report.json 的 rect；底部越界自动夹紧） */
 import sharp from 'sharp';
 import fs from 'node:fs';
-const DIR = process.argv[2] || 'docs/_collab/t_fdd76e7a/final3';
+const DIR = process.argv[2] || 'evidence/_collab/t_fdd76e7a/final3';
 const T = process.argv[3] || 'v9';
-const OUT = process.argv[4] || 'docs/_collab/t_fdd76e7a/cmp';
+const OUT = process.argv[4] || 'evidence/_collab/t_fdd76e7a/cmp';
 const rep = JSON.parse(fs.readFileSync(`${DIR}/report.json`, 'utf8'));
 const r = rep.phases.dark.cards['gev-voice-control'];
 const DSF = 2, m = 16;

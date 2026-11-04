@@ -12,7 +12,7 @@ import puppeteer from 'puppeteer';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const OUT = process.argv[2] || 'docs/_collab/t_f8d97c1c';
+const OUT = process.argv[2] || 'evidence/_collab/t_f8d97c1c';
 const VW = 1536, VH = 730;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 fs.mkdirSync(OUT, { recursive: true });

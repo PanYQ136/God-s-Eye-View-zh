@@ -4,8 +4,8 @@ import sharp from 'sharp';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const DIR = process.argv[2] || 'docs/_collab/t_fdd76e7a/after4';
-const OUT = process.argv[3] || 'docs/_collab/t_fdd76e7a/cmp';
+const DIR = process.argv[2] || 'evidence/_collab/t_fdd76e7a/after4';
+const OUT = process.argv[3] || 'evidence/_collab/t_fdd76e7a/cmp';
 const T = process.argv[4] || 'v4';
 fs.mkdirSync(OUT, { recursive: true });
 

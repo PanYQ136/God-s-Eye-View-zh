@@ -2,7 +2,7 @@
 /** dbg3-env.mjs —— 让 Cesium 在当前环境稳定渲染（关性能模式自适应分辨率 + 关首次引导），带边缘环 */
 import puppeteer from 'puppeteer';
 import fs from 'node:fs';
-const OUT = 'docs/_collab/t_3e129970';
+const OUT = 'evidence/_collab/t_3e129970';
 const b = await puppeteer.launch({
   headless: false,
   executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',

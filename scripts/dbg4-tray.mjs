@@ -2,7 +2,7 @@
 /** dbg4-tray.mjs —— 查清 .dock-popover-content 的 DOM 关系与 computed 角形 */
 import puppeteer from 'puppeteer';
 import fs from 'node:fs';
-const OUT = 'docs/_collab/t_3e129970';
+const OUT = 'evidence/_collab/t_3e129970';
 const b = await puppeteer.launch({
   headless: false,
   executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',

@@ -6,7 +6,7 @@
  *     · chroma = 斜面带内 mean|R−B| 与 p95|R−B|（关时≈0，开时>0 → 光谱分离存在）
  *     · lag    = 斜面带内 R(x) 与 B(x+lag) 的归一化互相关峰位 → R/B 轮廓横向错位（设备 px / CSS px）
  *   B 真实地图卡角同样测（证明不是只在合成图上成立）
- * 输出: docs/lg-glass-shots/p0/disp/*.png + scratch JSON
+ * 输出: evidence/lg-glass-shots/p0/disp/*.png + scratch JSON
  */
 import puppeteer from 'puppeteer';
 import sharp from 'sharp';
@@ -14,7 +14,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const url = process.argv[2] || 'http://127.0.0.1:4173/';
-const DIR = 'docs/lg-glass-shots/p0/disp';
+const DIR = 'evidence/lg-glass-shots/p0/disp';
 const SCR = 'C:/Users/13680/AppData/Local/hermes/profiles/deepseek/cache/scratch/review-lg';
 fs.mkdirSync(DIR, { recursive: true }); fs.mkdirSync(SCR, { recursive: true });
 const out = { url, errors: [], tests: {} };

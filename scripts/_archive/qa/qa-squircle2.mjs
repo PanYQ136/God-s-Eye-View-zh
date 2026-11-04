@@ -19,7 +19,7 @@ import sharp from 'sharp';
 import fs from 'node:fs';
 
 const URL = process.argv[2] || 'http://127.0.0.1:4173/';
-const OUT = 'docs/_collab/t_3e129970';
+const OUT = 'evidence/_collab/t_3e129970';
 const DSF = 2, VW = 1536, VH = 730;
 fs.mkdirSync(OUT, { recursive: true });
 const report = { url: URL, started: new Date().toISOString(), phases: {}, errors: [] };

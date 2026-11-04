@@ -13,7 +13,7 @@ import puppeteer from 'puppeteer';
 import sharp from 'sharp';
 import fs from 'node:fs';
 
-const OUT = 'docs/_collab/t_3e129970';
+const OUT = 'evidence/_collab/t_3e129970';
 const DSF = 2, VW = 1536, VH = 730;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const out = {};

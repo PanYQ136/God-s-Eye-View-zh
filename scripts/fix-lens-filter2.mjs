@@ -7,7 +7,7 @@
  */
 import fs from 'node:fs';
 
-const BACKUP = 'docs/_collab/t_8cf06356/before/gev-lg-filter.OLD.js';
+const BACKUP = 'evidence/_collab/t_8cf06356/before/gev-lg-filter.OLD.js';
 const SRC = 'public/gev-lg-filter.js';
 const OUTIMG = 'public/gev-lg-dispmap.jpg';
 

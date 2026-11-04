@@ -44,7 +44,7 @@ async function open(q, init) {
       ctx: v.scene.context && v.scene.context._gl ? 'ok' : 'none',
       pdb: (() => { try { return v.scene.context._gl.getContextAttributes().preserveDrawingBuffer; } catch (e) { return 'err'; } })() };
   });
-  await p.screenshot({ path: 'docs/_collab/t_9739e3a7/pdb-A-screen.png' });
+  await p.screenshot({ path: 'evidence/_collab/t_9739e3a7/pdb-A-screen.png' });
   console.log('A pdb=true(msaa4) drawImage-lum:', JSON.stringify(r), '| logs', p.__logs.filter((l) => /gev-edge|WebGL|gl/i.test(l)).slice(-3));
   await p.close();
 }
@@ -81,7 +81,7 @@ async function open(q, init) {
     }));
     return out;
   });
-  await p.screenshot({ path: 'docs/_collab/t_9739e3a7/pdb-B-screen.png' });
+  await p.screenshot({ path: 'evidence/_collab/t_9739e3a7/pdb-B-screen.png' });
   console.log('B pdb=false postRender-grab:', JSON.stringify(r));
   await p.close();
 }
@@ -97,7 +97,7 @@ async function open(q, init) {
     for (let i = 0; i < d.length; i += 4) s += d[i] + d[i + 1] + d[i + 2];
     return { lum: +(s / (d.length / 4 * 3)).toFixed(1), msaa: v.scene.msaaSampleCount };
   });
-  await p.screenshot({ path: 'docs/_collab/t_9739e3a7/pdb-C-screen.png' });
+  await p.screenshot({ path: 'evidence/_collab/t_9739e3a7/pdb-C-screen.png' });
   console.log('C pdb=true(msaa0):', JSON.stringify(r));
   await p.close();
 }

@@ -10,7 +10,7 @@ import puppeteer from 'puppeteer';
 import sharp from 'sharp';
 import fs from 'node:fs';
 import path from 'node:path';
-const OUT = 'docs/_collab/t_8cf06356';
+const OUT = 'evidence/_collab/t_8cf06356';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const SW = 64, SH = 64, g = Buffer.alloc(SW * SH * 3);

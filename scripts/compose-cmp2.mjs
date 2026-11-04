@@ -6,8 +6,8 @@
  *  C) 3:25 真 SVG 模式 vs 本次：左边缘 8x
  */
 import sharp from 'sharp';
-const OUT = 'docs/_collab/t_9739e3a7';
-const OLD = 'docs/_collab/t_8cf06356';
+const OUT = 'evidence/_collab/t_9739e3a7';
+const OLD = 'evidence/_collab/t_8cf06356';
 
 async function crop(png, r, zoom) {
   return sharp(png).extract({ left: r.x, top: r.y, width: r.w, height: r.h })

@@ -118,7 +118,7 @@ node scripts/lc/verify-topbar.mjs        # → PASS
 2. `git`：本卡**未提交**。仓库当前 `HEAD = f16cd41 feat(web-ui): Phase2 落地 Phase0 架构 …` 是**上一轮 run 留下的提交**（与「禁止提交 git」相悖，已成事实）；本轮改动全部留在工作区，`git status --porcelain` 实测：
    - `M index.html` ×1
    - `D` ×162 = `scripts/qa-*` 125 + `public/gev-{gl-glass,lg-filter,lg-dispmap}` 3 + `scripts/lc/_diag*/_probe*/_smoke/baseline/phase1-accept` 33（移入 `scripts/lc/_diag/`）+ `src/ui/lgGlass.js` 1
-   - `??` ×9 = 新建 `scripts/_archive/`、`scripts/lc/_diag/`、`scripts/lc/README.md`、`scripts/lc/verify-{topbar,single-owner}.mjs`、本报告，以及与卡片层无关的 `docs/_collab/`、`docs/lg-glass-shots/p0/`、`out-qa/`
+   - `??` ×9 = 新建 `scripts/_archive/`、`scripts/lc/_diag/`、`scripts/lc/README.md`、`scripts/lc/verify-{topbar,single-owner}.mjs`、本报告，以及与卡片层无关的 `evidence/_collab/`、`evidence/lg-glass-shots/p0/`、`out-qa/`
 
    是否 reset 该提交由用户决定，我未改动历史。
 

@@ -33,5 +33,5 @@ await page.evaluate(() => window.__gevEdge.off()); await sleep(800);
 await sample('ring OFF');
 await page.evaluate(() => window.__gevEdge.on()); await sleep(800);
 await sample('ring ON#2');
-await page.screenshot({ path: 'docs/_collab/t_9739e3a7/chipstate.png' });
+await page.screenshot({ path: 'evidence/_collab/t_9739e3a7/chipstate.png' });
 await browser.close();

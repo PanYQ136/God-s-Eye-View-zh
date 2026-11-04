@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** 汇总 qa-mat-audit 的 report.json：各 phase 的对比度明细 + 布局矩形一致性 */
 import fs from 'node:fs';
-const p = process.argv[2] || 'docs/_collab/t_fdd76e7a/after/report.json';
+const p = process.argv[2] || 'evidence/_collab/t_fdd76e7a/after/report.json';
 const r = JSON.parse(fs.readFileSync(p, 'utf8'));
 const out = {};
 for (const [k, ph] of Object.entries(r.phases)) {

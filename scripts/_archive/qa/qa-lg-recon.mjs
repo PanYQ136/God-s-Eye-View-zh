@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import puppeteer from 'puppeteer';
 
 const url = process.argv[2] || 'http://127.0.0.1:4173/';
-const outDir = process.argv[3] || 'docs/lg-glass-shots/p0';
+const outDir = process.argv[3] || 'evidence/lg-glass-shots/p0';
 fs.mkdirSync(outDir, { recursive: true });
 
 const browser = await puppeteer.launch({

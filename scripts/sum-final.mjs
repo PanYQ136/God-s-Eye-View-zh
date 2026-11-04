@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** sum-final.mjs —— 打印 final-report.json 的关键段落 */
 import fs from 'node:fs';
-const d = JSON.parse(fs.readFileSync('docs/_collab/t_8cf06356/final-report.json', 'utf8'));
+const d = JSON.parse(fs.readFileSync('evidence/_collab/t_8cf06356/final-report.json', 'utf8'));
 console.log('ERR', JSON.stringify(d.errs.slice(0, 4)));
 console.log('MAT', JSON.stringify(d.material));
 console.log('\nEXPAND:');

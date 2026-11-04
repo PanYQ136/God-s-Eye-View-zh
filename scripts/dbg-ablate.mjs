@@ -9,7 +9,7 @@ import puppeteer from 'puppeteer';
 import sharp from 'sharp';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const W = 1536, H = 730;
-const OUT = 'docs/_collab/t_8cf06356';
+const OUT = 'evidence/_collab/t_8cf06356';
 
 const SW = 64, SH = 64, buf = Buffer.alloc(SW * SH * 3);
 const cols = [[235, 55, 55], [55, 225, 90], [70, 95, 240], [245, 245, 245]];

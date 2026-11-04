@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** summarize audit.json (t_8cf06356) */
 import fs from 'node:fs';
-const J = JSON.parse(fs.readFileSync(process.argv[2] || 'docs/_collab/t_8cf06356/audit.json', 'utf8'));
+const J = JSON.parse(fs.readFileSync(process.argv[2] || 'evidence/_collab/t_8cf06356/audit.json', 'utf8'));
 const p = (o) => `(${o.x},${o.y},${o.w}x${o.h})`;
 console.log('ERRS', J.errs.slice(0, 5));
 console.log('MATERIAL', JSON.stringify({ gevGlOn: J.material.gevGlOn, glCanvas: J.material.glCanvasInDom, warps: J.material.warpCount, cardBg: J.material.cardBg, cardBackdrop: J.material.cardBackdrop, lensFilters: J.material.lensFilters, warp0: J.material.warps[0] }));

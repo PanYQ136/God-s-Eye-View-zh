@@ -16,7 +16,7 @@ import sharp from 'sharp';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const OUT = process.argv[2] || 'docs/_collab/t_fdd76e7a/after';
+const OUT = process.argv[2] || 'evidence/_collab/t_fdd76e7a/after';
 const TAG = process.argv[3] || 'run';
 const URL = process.env.GEV_URL || 'http://127.0.0.1:4173/';
 const VW = 1536, VH = 730, DSF = 2;

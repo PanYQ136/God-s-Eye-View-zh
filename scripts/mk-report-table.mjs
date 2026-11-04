@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** mk-report-table.mjs —— 从 expand-audit-after.json 生成 markdown 表（避免手抄错数字） */
 import fs from 'node:fs';
-const OUT = 'docs/_collab/t_f8d97c1c';
+const OUT = 'evidence/_collab/t_f8d97c1c';
 const r = JSON.parse(fs.readFileSync(`${OUT}/expand-audit-after.json`, 'utf8'));
 const ids = ['control-panel'];
 const L = [];
