@@ -34,3 +34,10 @@ pinokio/.installed
 .gev-trash/
 .gev-backup/
 dist-*/
+
+# 小程序相关内容一律不上传 GitHub（本地保留；需要单独放行时用 git add -f）。
+# 覆盖小程序工程档案/移植清单、wx-cloud 云开发与 miniprogram 代码。
+wx-cloud/
+*小程序*
+*miniprogram*
+*mini-program*

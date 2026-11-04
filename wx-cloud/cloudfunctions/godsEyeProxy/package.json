@@ -1,7 +1,0 @@
-{
-  "name": "godsEyeProxy",
-  "version": "1.0.0",
-  "description": "Reverse-proxy WeChat cloud function to home gods-eye API (via Reyee tunnel). No ICP domain needed for the mini program.",
-  "main": "index.js",
-  "dependencies": {}
-}
