@@ -15,10 +15,7 @@ export function createCnAdminSource({
   return {
     async getSnapshot({ signal, lat, lng } = {}) {
       signal?.throwIfAborted();
-      if (
-        !Number.isFinite(Number(lat)) ||
-        !Number.isFinite(Number(lng))
-      ) {
+      if (!Number.isFinite(Number(lat)) || !Number.isFinite(Number(lng))) {
         throw new TypeError('cnAdmin requires finite lat/lng');
       }
       const params = new URLSearchParams({

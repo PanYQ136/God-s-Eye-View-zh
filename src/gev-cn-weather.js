@@ -52,7 +52,8 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
     /暴雨|强对流|雷电|冰雹|大风|高温|大雾|霾|寒潮|暴雪|沙尘|道路结冰|山洪|地质灾害/;
   /* 省级台预警（如「吉林省气象台发布大风蓝色预警」）没有市/县后缀，
      补上 省/自治区 才能取到落点，否则联动会退化成「保持当前视野」。 */
-  const PLACE_NAME_RE = /[\u4e00-\u9fa5]{2,8}(?:省|自治区|市|县|区|州|盟|旗|镇|乡)/;
+  const PLACE_NAME_RE =
+    /[\u4e00-\u9fa5]{2,8}(?:省|自治区|市|县|区|州|盟|旗|镇|乡)/;
 
   const LAYER_LABEL = { 'cn-typhoon': '台风', 'cn-quakes': '地震' };
   const FLY = {
@@ -1243,7 +1244,8 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
     return {
       lat: best.lat,
       lng: best.lng,
-      label: (mag == null ? '' : 'M' + mag + ' ') + String(best.place || '地震'),
+      label:
+        (mag == null ? '' : 'M' + mag + ' ') + String(best.place || '地震'),
     };
   }
 
@@ -1272,7 +1274,8 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
   function flyTo(point, kind) {
     const v = state.viewer;
     if (!v || !v.camera || !v.scene || !v.scene.globe) return false;
-    if (!Number.isFinite(point.lat) || !Number.isFinite(point.lng)) return false;
+    if (!Number.isFinite(point.lat) || !Number.isFinite(point.lng))
+      return false;
     const spec = FLY[kind] || FLY.place;
     const duration = prefersReducedMotion()
       ? FLY_REDUCED_DURATION
@@ -1380,7 +1383,10 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
           closeList(false);
           // 焦点归还横幅，不抢到画布
           try {
-            (state.alertMore.hidden ? state.alertMain : state.alertMore).focus();
+            (state.alertMore.hidden
+              ? state.alertMain
+              : state.alertMore
+            ).focus();
           } catch {
             /* ignore */
           }

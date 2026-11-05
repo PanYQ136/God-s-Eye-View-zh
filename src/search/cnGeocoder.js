@@ -31,13 +31,11 @@ function transformLat(x, y) {
     0.1 * x * y +
     0.2 * Math.sqrt(Math.abs(x));
   ret +=
-    ((20.0 * Math.sin(6.0 * x * Math.PI) +
-      20.0 * Math.sin(2.0 * x * Math.PI)) *
+    ((20.0 * Math.sin(6.0 * x * Math.PI) + 20.0 * Math.sin(2.0 * x * Math.PI)) *
       2.0) /
     3.0;
   ret +=
-    ((20.0 * Math.sin(y * Math.PI) +
-      40.0 * Math.sin((y / 3.0) * Math.PI)) *
+    ((20.0 * Math.sin(y * Math.PI) + 40.0 * Math.sin((y / 3.0) * Math.PI)) *
       2.0) /
     3.0;
   ret +=
@@ -57,13 +55,11 @@ function transformLng(x, y) {
     0.1 * x * y +
     0.1 * Math.sqrt(Math.abs(x));
   ret +=
-    ((20.0 * Math.sin(6.0 * x * Math.PI) +
-      20.0 * Math.sin(2.0 * x * Math.PI)) *
+    ((20.0 * Math.sin(6.0 * x * Math.PI) + 20.0 * Math.sin(2.0 * x * Math.PI)) *
       2.0) /
     3.0;
   ret +=
-    ((20.0 * Math.sin(x * Math.PI) +
-      40.0 * Math.sin((x / 3.0) * Math.PI)) *
+    ((20.0 * Math.sin(x * Math.PI) + 40.0 * Math.sin((x / 3.0) * Math.PI)) *
       2.0) /
     3.0;
   ret +=
@@ -87,8 +83,7 @@ export function gcj02ToWgs84(lng, lat) {
   dLat =
     (dLat * 180.0) /
     (((GCJ02_A * (1 - GCJ02_EE)) / (magic * sqrtMagic)) * Math.PI);
-  dLng =
-    (dLng * 180.0) / ((GCJ02_A / sqrtMagic) * Math.cos(radLat) * Math.PI);
+  dLng = (dLng * 180.0) / ((GCJ02_A / sqrtMagic) * Math.cos(radLat) * Math.PI);
   return [lng - dLng, lat - dLat];
 }
 
@@ -99,7 +94,8 @@ const CJK_RE = /[\u4e00-\u9fa5]/;
  * @returns {{ geocode(query: string, opts?: { signal?: AbortSignal }): Promise<{ place: object|null, answered: boolean }> }}
  */
 export function createCnGeocoder({
-  fetchImpl = (...args) => (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
+  fetchImpl = (...args) =>
+    (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
   endpoint = '/api/mini/geocode',
 } = {}) {
   return {
@@ -129,7 +125,8 @@ export function createCnGeocoder({
       signal?.throwIfAborted();
 
       // 502 no_result 与 200 {results:[]} 都按「无结果」处理，不当作故障。
-      if (!response || response.ok === false) return { place: null, answered: true };
+      if (!response || response.ok === false)
+        return { place: null, answered: true };
 
       let body = null;
       try {
@@ -138,11 +135,13 @@ export function createCnGeocoder({
         body = null;
       }
       signal?.throwIfAborted();
-      if (!body || typeof body !== 'object') return { place: null, answered: true };
+      if (!body || typeof body !== 'object')
+        return { place: null, answered: true };
 
       const rows = Array.isArray(body.results) ? body.results : [];
       const first = rows[0];
-      if (!first || typeof first !== 'object') return { place: null, answered: true };
+      if (!first || typeof first !== 'object')
+        return { place: null, answered: true };
 
       const lat = Number(first.lat);
       let lng = Number(first.lon);
