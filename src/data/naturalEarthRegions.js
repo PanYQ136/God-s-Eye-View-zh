@@ -128,22 +128,16 @@ const PACKS = {
       // @vite-ignore — Node-test-only path (see data/bundledJson.js): the browser
       // fetches `url` instead. Ignoring it keeps Rollup from emitting a JSON-module
       // duplicate of the same data as a dead ~2 MB chunk in dist.
-      import(
-        /* @vite-ignore */ './local_data/natural_earth/regions.json',
-        {
-          with: { type: 'json' },
-        }
-      ),
+      import(/* @vite-ignore */ './local_data/natural_earth/regions.json', {
+        with: { type: 'json' },
+      }),
   },
   marine: {
     url: new URL('./local_data/natural_earth/marine.json', import.meta.url),
     importJson: () =>
-      import(
-        /* @vite-ignore */ './local_data/natural_earth/marine.json',
-        {
-          with: { type: 'json' },
-        }
-      ),
+      import(/* @vite-ignore */ './local_data/natural_earth/marine.json', {
+        with: { type: 'json' },
+      }),
   },
 };
 
