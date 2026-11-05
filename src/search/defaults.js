@@ -6,6 +6,7 @@ import { createGoogleGeocoder } from './google.js';
 import { createPhotonGeocoder } from '../keylessGeocoder.js';
 import { createCoordinateGeocoder } from './coordinateGeocoder.js';
 import { createPresetGeocoder } from './presetGeocoder.js';
+import { createCnGeocoder } from './cnGeocoder.js';
 
 /**
  * Coordinates and bundled names first — both answer offline and with no key —
@@ -37,6 +38,8 @@ export function createDefaultPlaceSearch({
     providers: providers.geocode || [
       createCoordinateGeocoder(),
       ...(presets ? [createPresetGeocoder({ presets })] : []),
+      // 国内地名主通道：只对中文查询出手，非中文直接 decline 让后链处理。
+      createCnGeocoder({ fetchImpl, endpoint: endpoints.cnGeocode }),
       ...(selected
         ? [selected]
         : [
