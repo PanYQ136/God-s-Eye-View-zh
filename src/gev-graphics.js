@@ -230,9 +230,9 @@ import { probe as gpuProbe } from './lc/gpu.js';
   const CSS = [
     /* Phase5：FAB 也是 .gev-lc 卡 → 玻璃只能来自 #gev-edge-lens 单层。
        去掉自有 1px 描边 / 半透明填充 / backdrop-filter（否则就是玻璃叠玻璃 + 发丝灰圈）。 */
-    '#gev-gfx-fab{position:fixed;right:12px;bottom:96px;z-index:2147483646;width:42px;height:42px;border-radius:50%;border:0;background:transparent;color:#bfe9ff;font:20px/1 system-ui;cursor:pointer;backdrop-filter:none;}',
+    '#gev-gfx-fab{position:fixed;right:12px;bottom:96px;z-index:var(--z-devtools, 160);width:42px;height:42px;border-radius:50%;border:0;background:transparent;color:#bfe9ff;font:20px/1 system-ui;cursor:pointer;backdrop-filter:none;}',
     '#gev-gfx-fab.active{background:transparent;color:#eaf9ff;text-shadow:0 0 8px rgba(63,182,224,.85);}',
-    '#gev-gfx-panel{position:fixed;right:12px;bottom:146px;z-index:2147483647;width:274px;max-width:calc(100vw - 24px);max-height:72vh;overflow:auto;background:rgba(6,16,24,.96);border:1px solid #2b4a63;border-radius:12px;padding:10px 11px;display:none;font:12px system-ui,"Segoe UI",sans-serif;color:#cfe9ff;backdrop-filter:blur(6px);}',
+    '#gev-gfx-panel{position:fixed;right:12px;bottom:146px;z-index:var(--z-devtools, 160);width:274px;max-width:calc(100vw - 24px);max-height:72vh;overflow:auto;background:rgba(6,16,24,.96);border:1px solid #2b4a63;border-radius:12px;padding:10px 11px;display:none;font:12px system-ui,"Segoe UI",sans-serif;color:#cfe9ff;backdrop-filter:blur(6px);}',
     '#gev-gfx-panel.open{display:block;}',
     '#gev-gfx-panel h4{margin:0 0 8px;font:600 13px system-ui;color:#9fe4ff;letter-spacing:.4px;}',
     '#gev-gfx-panel .row{display:flex;align-items:center;gap:6px;padding:3px 0;}',

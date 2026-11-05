@@ -28,7 +28,8 @@
     overflow-y: auto !important;
     overflow-x: hidden !important;
     -webkit-overflow-scrolling: touch;
-    z-index: 130 !important;
+    /* 高于指令坞(151)与展开卡(.lc-stage 150)，抽屉内容不被压住。 */
+    z-index: 152 !important;
     border-radius: 16px;
     box-shadow: 0 10px 34px rgba(0, 0, 0, 0.46);
     transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease;

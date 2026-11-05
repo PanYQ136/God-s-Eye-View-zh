@@ -182,8 +182,9 @@ export class ShellFeedback {
     if (this.destroyed) return;
     this._toast.textContent = message;
     this._toast.classList.add('visible');
-    clearTimeout(this._toastTimer);
-    this._toastTimer = setTimeout(() => {
+    /* 与 scenes/director 共用 DOM 定时器槽（两个 owner 写同一个 #toast）。 */
+    clearTimeout(this._toast._gevToastTimer);
+    this._toastTimer = this._toast._gevToastTimer = setTimeout(() => {
       this._toast.classList.remove('visible');
     }, 2000);
   }
@@ -192,7 +193,7 @@ export class ShellFeedback {
     this.destroyed = true;
     this._stopLoadingFeedbackTicker();
     clearInterval(this._trafficChipTicker);
-    clearTimeout(this._toastTimer);
+    clearTimeout(this._toast?._gevToastTimer);
     this._trafficChipTicker = this._toastTimer = null;
     if (this._loadingVisibilityHandler)
       document.removeEventListener(

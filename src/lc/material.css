@@ -179,7 +179,7 @@
 /* ── 14) GPU 状态位（§13.3 R3）：常驻 chip 与一次性提示条 ──────────────── */
 #gev-gpu-chip { display: inline-flex; align-items: center; gap: 4px; font: 500 10px/1.2 'JetBrains Mono', monospace; letter-spacing: 0.02em; color: var(--lc-text); text-shadow: var(--lc-text-shadow); opacity: 0.9; }
 #gev-gpu-chip[data-gpu-tier='software'], #gev-gpu-chip[data-gpu-tier='none'] { color: #ffd8a8; }
-#gev-gpu-notice { position: fixed; top: 84px; left: 50%; translate: -50% 0; z-index: 210; padding: 8px 14px; border-radius: 12px; background: rgba(12, 16, 22, 0.66); color: var(--lc-text); text-shadow: var(--lc-text-shadow); font: 500 12px/1.35 'Inter', system-ui, sans-serif; pointer-events: none; animation: lc-notice-out 9s ease-in forwards; }
+#gev-gpu-notice { position: fixed; top: 84px; left: 50%; translate: -50% 0; z-index: 210; padding: 8px 14px; border-radius: 12px; background: rgba(12, 16, 22, 0.66); color: var(--lc-text); text-shadow: var(--lc-text-shadow); font: 500 12px/1.35 'Inter', system-ui, sans-serif; pointer-events: auto; cursor: pointer; animation: lc-notice-out 9s ease-in forwards; }
 @keyframes lc-notice-out { 0%, 82% { opacity: 1; } 100% { opacity: 0; } }
 
 /* ── 15) 页面 chrome 统一材质 + 中/EN 与 GPU/FPS 分槽（P0-6）──────────────

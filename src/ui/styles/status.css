@@ -404,10 +404,12 @@
   /* ── Toast Notification ──────────────────────── */
   #toast {
     position: fixed;
-    bottom: 100px;
+    /* 抬到指令坞顶缘(~148px)之上，避免压住 LOCATIONS/STYLE 卡；
+       与 #gev-toast(220px) 错开 52px，两条通知不再叠印。 */
+    bottom: 168px;
     left: 50%;
     transform: translateX(-50%) translateY(20px);
-    z-index: 200;
+    z-index: var(--z-toast, 1100);
     padding: 10px 24px;
     background: var(--glass-bg);
     border: 1px solid var(--accent);

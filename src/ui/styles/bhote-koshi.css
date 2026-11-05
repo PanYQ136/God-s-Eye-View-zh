@@ -5,7 +5,8 @@
   top: var(--right-stack-safe-top, 26vh);
   right: var(--right-rail-x);
   bottom: auto;
-  z-index: 142;
+  /* 高于指令坞(151)，避免同列时底部被坞裁切。 */
+  z-index: 152;
   width: min(330px, calc(100vw - 40px));
   max-height: calc(100vh - var(--right-stack-safe-top, 26vh) - 88px);
   overflow-y: auto;

@@ -141,7 +141,8 @@
   content: '';
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  /* 纯装饰网格不应盖在模态/通知之上；降到世界浮层之下。 */
+  z-index: 3;
   pointer-events: none;
   opacity: 0.32;
   background-image:

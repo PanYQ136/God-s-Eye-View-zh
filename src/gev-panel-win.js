@@ -38,7 +38,7 @@
   const ghost = document.createElement('div');
   ghost.className = 'gev-placeholder';
   ghost.style.cssText =
-    'position:fixed;display:none;pointer-events:none;z-index:2147483000;border:1px solid rgba(0,212,255,.40);background:rgba(0,212,255,.06);border-radius:14px;';
+    'position:fixed;display:none;pointer-events:none;z-index:var(--z-devtools, 160);border:1px solid rgba(0,212,255,.40);background:rgba(0,212,255,.06);border-radius:14px;';
 
   function applyGeom(el, g) {
     el.style.setProperty('position', 'fixed', 'important');
@@ -227,7 +227,7 @@
         if (!started) {
           started = true;
           el.classList.add('gev-win-dragging');
-          el.style.setProperty('z-index', '2147482000', 'important');
+          el.style.setProperty('z-index', '160', 'important');
           if (!ghost.parentNode) document.body.appendChild(ghost);
         }
         g.l = clamp(cur.l + dx, 0, Math.max(0, vw() - g.w));
@@ -263,7 +263,7 @@
       sx = e.clientX,
       sy = e.clientY;
     el.classList.add('gev-win-resizing');
-    el.style.setProperty('z-index', '2147482000', 'important');
+    el.style.setProperty('z-index', '160', 'important');
     const onMove = (ev) =>
       raf(() => {
         const w = clamp(cur.w + (ev.clientX - sx), min.minW, vw() - cur.l);
@@ -290,7 +290,7 @@
     b.id = 'gev-pw-reset';
     b.textContent = '重置布局';
     b.style.cssText =
-      'position:fixed;right:18px;bottom:calc(2vh + 12rem);z-index:2147482500;padding:6px 12px;font:600 11px/1 system-ui,sans-serif;color:#cfeaff;background:rgba(10,20,30,.72);border:1px solid rgba(0,212,255,.35);border-radius:999px;backdrop-filter:blur(12px);cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.4);';
+      'position:fixed;right:18px;bottom:calc(2vh + 12rem);z-index:var(--z-devtools, 160);padding:6px 12px;font:600 11px/1 system-ui,sans-serif;color:#cfeaff;background:rgba(10,20,30,.72);border:1px solid rgba(0,212,255,.35);border-radius:999px;backdrop-filter:blur(12px);cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.4);';
     b.addEventListener('click', () => {
       try {
         localStorage.removeItem(KEY);
