@@ -345,14 +345,10 @@ test('an overlay with NO class to watch still disarms the launcher', () => {
   const overlay = css.slice(css.indexOf('.cesium-credit-lightbox-overlay {'));
   assert.match(
     overlay.slice(0, overlay.indexOf('}')),
-<<<<<<< ours
     /z-index: 200 !important/,
-=======
-    /z-index: var\(--z-attribution, 220\) !important/,
->>>>>>> theirs
   );
   const launcher = css.slice(css.indexOf('#first-run-launcher {'));
-  assert.match(launcher.slice(0, launcher.indexOf('}')), /z-index: 230/);
+  assert.match(launcher.slice(0, launcher.indexOf('}')), /z-index: 175/);
 
   // Answered generically — a hit test at the card's own centre, NOT one more
   // class to keep in step with one more overlay.
@@ -492,7 +488,6 @@ test('the scroll fade only appears when the list really overflows', () => {
   );
   const css = readStylesheet(new URL('../style.css', import.meta.url));
   // A fade on a card where all five tiles fit promises a sixth mission that does
-<<<<<<< ours
   // not exist, which is worse than no affordance at all. The measured flag is
   // firstRunLauncherView.test.mjs; the CSS must be gated on that flag, never on the media query alone.
   assert.match(
@@ -506,19 +501,6 @@ test('the scroll fade only appears when the list really overflows', () => {
     /mask-image/,
     'the fade must never apply unconditionally',
   );
-=======
-  // not exist, which is worse than no affordance at all.
-  assert.match(module, /const overflows = choiceList\.scrollHeight > choiceList\.clientHeight \+ 1;/);
-  assert.match(module, /choiceList\.dataset\.scrollable = String\(overflows\);/);
-  // ...and the CSS must be gated on that flag, never on the media query alone.
-  assert.match(css, /\.first-run-choices\[data-scrollable='true'\] \{[\s\S]*?mask-image/);
-  // 2026-11-01：块结束用 `^\s*\}` 而不是 `\n\}` —— 该选择器位于媒体查询内，
-  // prettier 会把闭合括号缩进到两格；旧写法匹配不到块尾，会把后面
-  // `[data-scrollable='true']` 那段（含 mask-image）一起吞进来，误判为「无条件渐隐」。
-  // 断言意图不变：**基础选择器块内**不得出现 mask-image。
-  const bareFade = css.match(/^\s*\.first-run-choices \{[\s\S]*?^\s*\}/m)?.[0] || '';
-  assert.doesNotMatch(bareFade, /mask-image/, 'the fade must never apply unconditionally');
->>>>>>> theirs
   // Rotating a phone changes which tiles fit, so it re-measures.
   assert.match(module, /addEventListener\?\.\('resize', onViewportResize\)/);
   assert.match(module, /removeEventListener\?\.\('resize', onViewportResize\)/);
@@ -855,7 +837,6 @@ test('markup, startup ordering and accessibility remain pinned', async () => {
   );
 
   assert.match(startup, /styleManager\.initialRestorePromise/);
-<<<<<<< ours
   assert.ok(
     startup.indexOf("loadingScreen.classList.add('hidden')") <
       startup.indexOf(
@@ -866,19 +847,6 @@ test('markup, startup ordering and accessibility remain pinned', async () => {
     startup,
     /initializeWelcome\?\.\(\{ styleManager, dataManager \}\)/,
   );
-=======
-  // 2026-11-01：原先按字面量找 `addEventListener('transitionend', revealFirstRun)`。
-  // Phase6C3 之后这里挂的是内联回调（回调体里才调 revealFirstRun），字面量已不存在，
-  // indexOf 返回 -1 让断言恒假。改为按「调用点」匹配，保留原意：
-  // 必须先 classList.add('hidden') 再监听 transitionend。
-  const hiddenAt = startup.indexOf("loadingScreen.classList.add('hidden')");
-  const onEndAt = startup.search(/addEventListener\(\s*'transitionend'/);
-  assert.ok(
-    hiddenAt >= 0 && onEndAt >= 0 && hiddenAt < onEndAt,
-    'the mask must be hidden before the transitionend reveal is wired',
-  );
-  assert.match(startup, /initializeWelcome\?\.\(\{ styleManager, dataManager \}\)/);
->>>>>>> theirs
 
   assert.match(css, /body\.ui-clean-view #first-run-launcher/);
   assert.match(css, /body\.recording-mode #first-run-launcher/);
@@ -1053,7 +1021,6 @@ test('the voice TOOL SCHEMA matches the pinned contract — the mission mapping 
   ]);
   visualStyle.enum = [...visualStyle.enum, 'snow'];
   const block = JSON.stringify(legacyTools);
-<<<<<<< ours
   // Re-derived for the voice layer manifest (generated layer enums, alias and
   // field hints), point-and-ask's pointer/referent arguments and the prompt
   // consolidation (shorter analyst, annotate_map and ISS wording), plus the
@@ -1076,15 +1043,6 @@ test('the voice TOOL SCHEMA matches the pinned contract — the mission mapping 
   assert.equal(
     crypto.createHash('sha256').update(block).digest('hex'),
     'f5b42f41c2f575838f979e88a1dbff615a77ccd85fdf8fcd0a0a47d02f7d3ddc',
-=======
-  // Re-derived for the additive `local-adsb` set_layer_visibility value, its
-  // common-name mapping, and the two AMap basemaps in set_map_stack; the
-  // missions still ride existing tools.
-  assert.equal(block.length, 27463, 'serialized tool schema length drifted');
-  assert.equal(
-    crypto.createHash('sha256').update(block).digest('hex'),
-    '5c320845a623382f0b3bbb23254417703ae547374d8fc1e5db604c082ad91f37',
->>>>>>> theirs
     'the first-run missions must ride EXISTING tools: no schema edit, no cache bust',
   );
   const instructions = fs.readFileSync(

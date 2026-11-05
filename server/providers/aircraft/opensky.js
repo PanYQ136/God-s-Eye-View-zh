@@ -1,13 +1,6 @@
-<<<<<<< ours
 import fs from 'node:fs';
 import os from 'node:os';
 import { normalizeAdsbLolPointResponse } from '../../../src/data/adsbLolFallback.js';
-=======
-import {
-  normalizeAdsbLolPointResponse,
-  normalizePocketWorldResponse,
-} from '../../../src/data/adsbLolFallback.js';
->>>>>>> theirs
 import {
   coalesceProxyRequest,
   readResponseJsonCapped,
@@ -35,7 +28,6 @@ let _openskyCacheMeta = null;
 let _openskyCacheSourceEpochMs = null;
 /** TTL for the OpenSky response cache (ms). */
 const OPENSKY_CACHE_MS = 9000;
-<<<<<<< ours
 /** Per-attempt limit for the global snapshot; it normally arrives in ~1.5 s. */
 const OPENSKY_ATTEMPT_TIMEOUT_MS = 10_000;
 const OPENSKY_STATES_URL =
@@ -112,13 +104,6 @@ async function fetchOpenSkyStates(headers) {
     }
   }
 }
-=======
-/** Hard timeout for the upstream snapshot fetch (ms). The mainland-CN route to
- *  opensky-network.org throttles the ~1.7 MB body to 60-90 s, so an unbounded
- *  fetch wedges the layer; on timeout we serve the regional adsb.lol fallback. */
-const OPENSKY_FETCH_TIMEOUT_MS =
-  Number(process.env.OPENSKY_FETCH_TIMEOUT_MS) || 6000;
->>>>>>> theirs
 // --- OpenSky credit governor (field-test fix 2026-07-06) -------------------
 // The global /states/all this proxy fetches costs 4 CREDITS per call against
 // OpenSky's ~4000/day authenticated budget — a day with the app open burned
@@ -135,14 +120,8 @@ const OPENSKY_FETCH_TIMEOUT_MS =
 let _openskyTtlMs = OPENSKY_CACHE_MS;
 /** @type {number} Epoch-ms before which no upstream fetch is attempted. */
 let _openskyCooldownUntil = 0;
-<<<<<<< ours
 let _openskyCooldownStatus = 429;
 const _openskySnapshotInFlight = new Map();
-=======
-/** Circuit breaker: epoch-ms before which the OpenSky snapshot fetch is skipped
- *  (set after a fetch timeout — the CN route throttles the body to 60-90 s). */
-let _openskySkipUntil = 0;
->>>>>>> theirs
 /**
  * Picks the cache TTL from the remaining daily credit budget.
  * Client polls every 30 s, so tiers ≤30 s cost the same 480 credits/h; the
@@ -178,13 +157,6 @@ const ADSBLOL_POINT_CACHE_MS = 12000;
 const ADSBLOL_POINT_CACHE_MAX = 80;
 const ADSBLOL_POINT_RADIUS_NM = 250;
 const ADSBLOL_POINT_MAX_RESPONSE_BYTES = 8 * 1024 * 1024;
-// Global full-feed pull: one huge radius from a fixed centre reaches every
-// aircraft adsb.lol serves (~6k), live. Cached a little longer than the
-// regional query to respect their rate limits (large queries 429 quickly).
-const ADSB_GLOBAL_CENTER_LAT = 30;
-const ADSB_GLOBAL_CENTER_LON = 110;
-const ADSB_GLOBAL_RADIUS_NM = 40000;
-const ADSB_GLOBAL_CACHE_MS = 20000;
 // A 200 response can still contain an old OpenSky snapshot. Past this point
 // the viewport-scoped adsb.lol source is more honest and keeps local motion
 // current instead of coasting a stale worldwide frame indefinitely.
@@ -383,33 +355,13 @@ function buildOpenSkyHeaders({
 
 export function adsbLolFallbackAnchor(req) {
   const incoming = new URL(req?.url || '', 'http://localhost');
-  // Global full-feed mode: the client asks for the whole live world (all of
-  // adsb.lol) so the render-count slider can page through every flight rather
-  // than the viewport deciding. A huge radius from a fixed centre covers the
-  // globe (verified ~6k aircraft from any centre).
-  if (
-    incoming.searchParams.get('all') === '1' ||
-    incoming.searchParams.get('scope') === 'global'
-  ) {
-    return {
-      latitude: ADSB_GLOBAL_CENTER_LAT,
-      longitude: ADSB_GLOBAL_CENTER_LON,
-      radiusNm: ADSB_GLOBAL_RADIUS_NM,
-      global: true,
-    };
-  }
   const latitude = requiredFiniteQueryNumber(incoming.searchParams, 'lat');
   const longitude = requiredFiniteQueryNumber(incoming.searchParams, 'lon');
   if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90)
     return null;
   if (!Number.isFinite(longitude) || longitude < -180 || longitude > 180)
     return null;
-  return {
-    latitude,
-    longitude,
-    radiusNm: ADSBLOL_POINT_RADIUS_NM,
-    global: false,
-  };
+  return { latitude, longitude };
 }
 
 async function fetchAdsbLolPointFallback(req) {
@@ -417,11 +369,10 @@ async function fetchAdsbLolPointFallback(req) {
   if (!anchor) return null;
   const roundedLat = Math.round(anchor.latitude * 4) / 4;
   const roundedLon = Math.round(anchor.longitude * 4) / 4;
-  const cacheKey = `${roundedLat.toFixed(2)},${roundedLon.toFixed(2)},${anchor.radiusNm}`;
-  const ttlMs = anchor.global ? ADSB_GLOBAL_CACHE_MS : ADSBLOL_POINT_CACHE_MS;
+  const cacheKey = `${roundedLat.toFixed(2)},${roundedLon.toFixed(2)}`;
   const cached = _adsbLolPointCache.get(cacheKey);
   const now = Date.now();
-  if (cached && now - cached.cachedAt < ttlMs) {
+  if (cached && now - cached.cachedAt < ADSBLOL_POINT_CACHE_MS) {
     return { ...cached, cacheStatus: 'HIT' };
   }
 
@@ -430,13 +381,10 @@ async function fetchAdsbLolPointFallback(req) {
     cacheKey,
     async () => {
       const controller = new AbortController();
-      const timeoutId = setTimeout(
-        () => controller.abort(),
-        anchor.global ? 25000 : 10000,
-      );
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
       try {
         const upstream = await fetch(
-          `https://api.adsb.lol/v2/lat/${roundedLat}/lon/${roundedLon}/dist/${anchor.radiusNm}`,
+          `https://api.adsb.lol/v2/lat/${roundedLat}/lon/${roundedLon}/dist/${ADSBLOL_POINT_RADIUS_NM}`,
           {
             headers: {
               Accept: 'application/json',
@@ -481,23 +429,15 @@ async function fetchAdsbLolPointFallback(req) {
 async function serveAdsbLolPointFallback(req, res, requestedMode, reason) {
   const fallback = await fetchAdsbLolPointFallback(req);
   if (!fallback) return false;
-  const anchor = adsbLolFallbackAnchor(req);
-  const global = Boolean(anchor?.global);
-  const primary = /primary/.test(String(reason));
-  const scopeLabel = global
-    ? 'global'
-    : `${ADSBLOL_POINT_RADIUS_NM}nm regional`;
   res.writeHead(200, {
     ...buildOpenSkyHeaders({
       cacheStatus: fallback.cacheStatus,
       requestedMode,
-      usedMode: global ? 'adsblol-global' : 'adsblol-regional',
-      reason: global && primary ? 'live_adsblol_global_primary' : reason,
+      usedMode: 'adsblol-regional',
+      reason,
     }),
     'X-Flight-Source': 'adsb.lol',
-    'X-Flight-Coverage': primary
-      ? `${scopeLabel} live (all adsb.lol)`
-      : `${scopeLabel} fallback`,
+    'X-Flight-Coverage': `${ADSBLOL_POINT_RADIUS_NM}nm regional fallback`,
     'X-Flight-Count': String(fallback.count),
   });
   res.end(fallback.body);
@@ -537,78 +477,6 @@ function openSkySourceIsStale(sourceEpochMs, now = Date.now()) {
  *
  * @returns {import('vite').Plugin}
  */
-// --- pocketworld.org global snapshot --------------------------------------
-// Keyless world-wide ADS-B snapshot (aggregates ADSB.lol + ADSB.fi + OpenSky),
-// reachable from mainland CN and from cloud hosts. Served as the primary
-// flights source so the world view stays populated regardless of OpenSky's
-// CN throttling / datacenter blocks. Cached server-side to respect its limits.
-const POCKETWORLD_URL =
-  process.env.POCKETWORLD_FLIGHTS_URL || 'https://pocketworld.org/api/flights';
-const POCKETWORLD_CACHE_MS = Number(process.env.POCKETWORLD_CACHE_MS) || 180000;
-const POCKETWORLD_TIMEOUT_MS =
-  Number(process.env.POCKETWORLD_TIMEOUT_MS) || 30000;
-/** @type {{body:string,cachedAt:number,count:number}|null} */
-let _pocketWorldCache = null;
-/** @type {Promise<{body:string,cachedAt:number,count:number}>|null} */
-let _pocketWorldInFlight = null;
-
-async function fetchPocketWorldGlobal() {
-  const now = Date.now();
-  if (
-    _pocketWorldCache &&
-    now - _pocketWorldCache.cachedAt < POCKETWORLD_CACHE_MS
-  ) {
-    return { ..._pocketWorldCache, cacheStatus: 'HIT' };
-  }
-  if (!_pocketWorldInFlight) {
-    _pocketWorldInFlight = (async () => {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(
-        () => controller.abort(),
-        POCKETWORLD_TIMEOUT_MS,
-      );
-      try {
-        const upstream = await fetch(POCKETWORLD_URL, {
-          headers: {
-            Accept: 'application/json',
-            'User-Agent': 'gods-eye-view-pocketworld/1.0',
-          },
-          signal: controller.signal,
-        });
-        if (!upstream.ok)
-          throw new Error(`pocketworld HTTP ${upstream.status}`);
-        const payload = await upstream.json();
-        const normalized = normalizePocketWorldResponse(payload);
-        if (!normalized.states.length)
-          throw new Error('pocketworld returned no aircraft');
-        const record = {
-          body: JSON.stringify(normalized),
-          cachedAt: Date.now(),
-          count: normalized.states.length,
-        };
-        console.log('[pocketworld] fetched', record.count);
-        return record;
-      } finally {
-        clearTimeout(timeoutId);
-        _pocketWorldInFlight = null;
-      }
-    })();
-  }
-  try {
-    const record = await _pocketWorldInFlight;
-    _pocketWorldCache = record;
-    return { ...record, cacheStatus: 'MISS' };
-  } catch (error) {
-    console.warn('[pocketworld Global]', error?.message || error);
-    return _pocketWorldCache
-      ? { ..._pocketWorldCache, cacheStatus: 'STALE' }
-      : null;
-  }
-}
-
-/**
- * @returns {import('vite').Plugin}
- */
 export function openSkyProxy() {
   const installMiddleware = (server) => {
     server.middlewares.use('/api/flights', async (req, res, next) => {
@@ -620,40 +488,6 @@ export function openSkyProxy() {
         const requestedMode = normalizeOpenSkyAuthMode(
           process.env.OPENSKY_AUTH_MODE,
         );
-        // Live-first: when the client supplies a viewport, prefer adsb.lol's
-        // real-time point feed so the renderer can interpolate real motion
-        // between polls. The pocketworld global aggregate below runs minutes
-        // behind, so leading with it made icons sit still in mid-air.
-        // Falls through to pocketworld / OpenSky when no viewport or it misses.
-        if (adsbLolFallbackAnchor(req)) {
-          if (
-            await serveAdsbLolPointFallback(
-              req,
-              res,
-              requestedMode,
-              'live_adsblol_regional_primary',
-            )
-          ) {
-            return;
-          }
-        }
-
-        // Primary (global): world-wide snapshot via pocketworld (keyless,
-        // CN-reachable, aggregates OpenSky + ADSB.fi + ADSB.lol).
-        const pocketWorld = await fetchPocketWorldGlobal();
-        if (pocketWorld && pocketWorld.body) {
-          res.writeHead(
-            200,
-            buildOpenSkyHeaders({
-              cacheStatus: pocketWorld.cacheStatus,
-              requestedMode,
-              usedMode: 'pocketworld-global',
-              reason: 'pocketworld_global_snapshot',
-            }),
-          );
-          res.end(pocketWorld.body);
-          return;
-        }
         const now = Date.now();
         const inCooldown = now < _openskyCooldownUntil;
         // Fresh-enough cache (adaptive TTL) OR any cache during a 429
@@ -736,7 +570,6 @@ export function openSkyProxy() {
           return;
         }
 
-<<<<<<< ours
         const refresh = coalesceProxyRequest(
           _openskySnapshotInFlight,
           'global',
@@ -744,29 +577,6 @@ export function openSkyProxy() {
             const headers = { Accept: 'application/json' };
             let usedMode = 'anon';
             let reason = 'forced_anonymous';
-=======
-        // Circuit breaker: after a snapshot fetch timeout, skip the OpenSky
-        // attempt entirely and serve the fast regional adsb.lol data.
-        if (now < _openskySkipUntil) {
-          if (
-            await serveAdsbLolPointFallback(
-              req,
-              res,
-              requestedMode,
-              'opensky_timeout_circuit_regional_fallback',
-            )
-          ) {
-            return;
-          }
-        }
-
-        const basicUser = process.env.OPENSKY_USERNAME || '';
-        const basicPass = process.env.OPENSKY_PASSWORD || '';
-        const hasBasicCreds = Boolean(basicUser && basicPass);
-        const headers = { Accept: 'application/json' };
-        let usedMode = 'anon';
-        let reason = 'forced_anonymous';
->>>>>>> theirs
 
             if (requestedMode === 'basic') {
               // OpenSky no longer accepts a Basic header, so sending
@@ -799,7 +609,6 @@ export function openSkyProxy() {
               }
             }
 
-<<<<<<< ours
             const { upstream, body } = await fetchOpenSkyStates(headers);
 
             const sourceEpochMs = upstream.ok
@@ -815,59 +624,6 @@ export function openSkyProxy() {
             ) {
               reason = 'oauth_ok';
             }
-=======
-        let upstream;
-        try {
-          upstream = await fetch(
-            'https://opensky-network.org/api/states/all?extended=1',
-            { headers, signal: AbortSignal.timeout(OPENSKY_FETCH_TIMEOUT_MS) },
-          );
-        } catch (fetchErr) {
-          // Timeout / network failure on the (CN-throttled) OpenSky snapshot:
-          // trip the breaker (skip OpenSky for 10 min), then serve the fast
-          // regional adsb.lol fallback instead of wedging.
-          _openskySkipUntil = Date.now() + 10 * 60_000;
-          if (
-            await serveAdsbLolPointFallback(
-              req,
-              res,
-              requestedMode,
-              'opensky_fetch_timeout_regional_fallback',
-            )
-          ) {
-            return;
-          }
-          res.writeHead(
-            504,
-            buildOpenSkyHeaders({
-              cacheStatus: 'ERROR',
-              requestedMode,
-              usedMode: 'none',
-              reason: `opensky_fetch_failed:${fetchErr?.name || 'error'}`,
-            }),
-          );
-          res.end(JSON.stringify({ error: 'OpenSky snapshot fetch failed.' }));
-          return;
-        }
-        // Auto-mode fallback: if OAuth was rejected, retry with Basic credentials
-        if (
-          (upstream.status === 401 || upstream.status === 403) &&
-          requestedMode === 'auto' &&
-          usedMode === 'oauth' &&
-          hasBasicCreds
-        ) {
-          const retryHeaders = {
-            Accept: 'application/json',
-            Authorization: `Basic ${Buffer.from(`${basicUser}:${basicPass}`).toString('base64')}`,
-          };
-          upstream = await fetch(
-            'https://opensky-network.org/api/states/all?extended=1',
-            { headers: retryHeaders },
-          );
-          usedMode = 'basic';
-          reason = 'oauth_rejected_fallback_basic';
-        }
->>>>>>> theirs
 
             // Only cache successful responses — error responses (401/403/429/5xx)
             // should not be served from cache on subsequent requests

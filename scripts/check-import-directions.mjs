@@ -9,29 +9,13 @@ const builtins = new Set(
   builtinModules.flatMap((name) => [name, `node:${name}`]),
 );
 const code = /\.[mc]?js$/;
-/* 2026-11-05 · data/bundledJson.js 契约：这两个文件的 Node 测试专用 JSON
-   装载器必须用运行时计算的说明符，否则 Rollup 会把字面量属性化动态导入
-   打成 ~2.9MB 浏览器永不可达的 JSON-module 死块（regions/marine/
-   san-francisco 三组 Natural Earth / 街区数据在 dist 各双份）。
-   计算导入对方向图不可见 —— 豁免面收敛到这两个文件，且目标均为
-   无 import 的纯数据文件；其余文件的计算导入依旧被拒绝。 */
-const COMPUTED_IMPORT_ALLOWLIST = new Set([
-  'src/data/naturalEarthRegions.js',
-  'src/data/neighborhoodPolygons.js',
-]);
-/* 应用装配入口：把「旧 main.js 的其余部分」搬进一个模块后（Phase7A3），它也是入口，
-   与 src/main.js 同类 —— 允许它组装 standalone/rendering。 */
 const entry = (file) =>
-  file === 'src/main.js' ||
-  file === 'src/bootstrap.js' ||
-  file.startsWith('src/standalone/');
+  file === 'src/main.js' || file.startsWith('src/standalone/');
 const tests = (file) =>
   file.endsWith('.test.mjs') ||
   file.startsWith('src/testSupport/') ||
   file.startsWith('src/tooling/') ||
-  file === 'src/overlays/worldOverlayAllocation.worker.mjs' ||
-  // Test double that wraps the real Cesium classes for weather/wind shells.
-  file === 'src/layers/weather/shellFixture.mjs';
+  file === 'src/overlays/worldOverlayAllocation.worker.mjs';
 const source = (file) =>
   file.startsWith('src/sources/') ||
   /^src\/layers\/[^/]+\/(?:source|bundledSource|flowSource)\.js$/.test(file);
@@ -41,11 +25,6 @@ const renderer = (file) =>
     file,
   );
 // One compatibility composition entry intentionally selects standalone defaults.
-<<<<<<< ours
-=======
-// 2026-11-01：`src/ui.js`（@deprecated 兼容壳，零引用）已删除，原先给它的那条
-// 豁免边同时移除；若日后有人重建该入口，这里不再放行，需显式登记。
->>>>>>> theirs
 const compatibilityEdge = (from, to) =>
   from === 'server/providers/local.js' &&
   to === 'server/standalone/key-setup.js';
@@ -67,10 +46,7 @@ const portableExport = (key) =>
   ].includes(key);
 
 /** Check every runtime file, plus transitive portable/source graphs, independently of bundler reachability. */
-export function checkImportDirections(
-  root,
-  { cesiumStrict = process.env.GEV_CESIUM_SINGLE_ENTRY !== 'warn' } = {},
-) {
+export function checkImportDirections(root) {
   root = realpathSync(root);
   const pkg = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
   const files = [
@@ -95,7 +71,6 @@ export function checkImportDirections(
       code.test(file) && !tests(file) && existsSync(path.join(root, file)),
   );
   const errors = new Set();
-  const warnings = new Set();
   const modules = new Map();
   const relative = (file) =>
     path.relative(root, file).split(path.sep).join('/');
@@ -112,9 +87,7 @@ export function checkImportDirections(
     }
     let analysis;
     try {
-      analysis = analyzeModule(readFileSync(resolved, 'utf8'), {
-        allowComputedImports: COMPUTED_IMPORT_ALLOWLIST.has(file),
-      });
+      analysis = analyzeModule(readFileSync(resolved, 'utf8'));
     } catch (error) {
       report(file, error.message);
       return null;
@@ -136,12 +109,6 @@ export function checkImportDirections(
         target = path.resolve(root, exported);
       } else {
         record.external.push(specifier);
-        // #14 单一出口：只有 src/cesium.js 可以直连 npm 包 `cesium`。
-        // 先 warn（默认）再 error（--strict-cesium / GEV_CESIUM_SINGLE_ENTRY=error）。
-        if (specifier === 'cesium' && file !== 'src/cesium.js')
-          (cesiumStrict ? errors : warnings).add(
-            `${file}: Import Cesium through src/cesium.js, not the package directly`,
-          );
         if (
           file.startsWith('src/') &&
           (builtins.has(specifier) || specifier.startsWith('node:'))
@@ -265,39 +232,18 @@ export function checkImportDirections(
   if (existsSync(path.join(root, 'src/voice/sessionCommands.js')))
     voice('src/voice/sessionCommands.js');
   if (errors.size) throw new Error([...errors].join('\n'));
-  return {
-    modules: files.length,
-    portableEntries: roots.size,
-    warnings: [...warnings],
-  };
+  return { modules: files.length, portableEntries: roots.size };
 }
 
 if (
   process.argv[1] &&
   path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
-  /* Phase8E #14：出口已收干净（0 处直连），默认由 warn 升级为 error。
-     `--warn-cesium` / GEV_CESIUM_SINGLE_ENTRY=warn 是逃生口（迁移期用）。 */
-  const warnOnly =
-    process.argv.includes('--warn-cesium') ||
-    process.env.GEV_CESIUM_SINGLE_ENTRY === 'warn';
-  process.env.GEV_CESIUM_SINGLE_ENTRY = warnOnly ? 'warn' : 'error';
   try {
-    const result = checkImportDirections(
-      fileURLToPath(new URL('../', import.meta.url)),
-    );
-    if (result.warnings.length) {
-      console.error(result.warnings.join('\n'));
-      console.error(
-        `[warn] ${result.warnings.length} file(s) import Cesium directly (warn-only mode; drop --warn-cesium / GEV_CESIUM_SINGLE_ENTRY=warn to fail the build)`,
-      );
-    }
     console.log(
-      JSON.stringify({
-        modules: result.modules,
-        portableEntries: result.portableEntries,
-        cesiumWarnings: result.warnings.length,
-      }),
+      JSON.stringify(
+        checkImportDirections(fileURLToPath(new URL('../', import.meta.url))),
+      ),
     );
   } catch (error) {
     console.error(error.message);

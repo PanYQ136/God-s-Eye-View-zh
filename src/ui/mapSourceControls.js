@@ -1,10 +1,5 @@
-<<<<<<< ours
 import { mapStackChipModels } from '../mapStackChips.js';
 import { onLocaleChange, t } from '../i18n/index.js';
-=======
-import { renderMapStackChips, syncMapStackChips } from '../mapStackChips.js';
-import { rememberManualMapStack } from '../maps/regionDetect.js';
->>>>>>> theirs
 
 /**
  * Own Map Source presentation and selection without constructing map providers.
@@ -52,11 +47,7 @@ export function createMapSourceControls({
   async function select(stackId, { syncShare = true } = {}) {
     if (destroyed) return null;
     const current = ++generation;
-    if (syncShare) {
-      claimSelection();
-      // A user-initiated chip click overrides network auto-detection on reload.
-      rememberManualMapStack(stackId);
-    }
+    if (syncShare) claimSelection();
     const before = controller.getActiveId();
     render(controller.getState('switching'));
     let state;

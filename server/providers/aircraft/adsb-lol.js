@@ -43,12 +43,6 @@ export function adsbLolProxy() {
   const COOLDOWN_MIN_MS = 5000;
   const COOLDOWN_MAX_MS = 120000;
 
-  /** 军机上游：主 adsb.lol，备 adsb.fi（readsB 同构 {ac:[…]}）。按序尝试，自动切换。 */
-  const MIL_UPSTREAMS = [
-    { url: 'https://api.adsb.lol/v2/mil', label: 'adsb.lol' },
-    { url: 'https://opendata.adsb.fi/api/v2/mil', label: 'adsb.fi' },
-  ];
-
   const clampCooldown = (ms) =>
     Math.min(COOLDOWN_MAX_MS, Math.max(COOLDOWN_MIN_MS, ms));
 
@@ -114,7 +108,6 @@ export function adsbLolProxy() {
           );
           return;
         }
-<<<<<<< ours
         const refresh = coalesceProxyRequest(inFlight, 'global', async () => {
           const result = (status, body, cacheStatus, extra = {}) => ({
             status,
@@ -152,80 +145,6 @@ export function adsbLolProxy() {
               return result(200, _cache, 'STALE', {
                 'X-ADS-B-Upstream-Status': String(upstream.status),
                 'X-ADS-B-Retry-After-Seconds': String(
-=======
-        // 主 → 备 依次尝试：adsb.lol 常被 429/5xx 限流，adsb.fi 为同构 readsB 快照，自动兜底。
-        let lastStatus = 0;
-        let lastLabel = '';
-        /* 2026-11-01：保留最后一个失败上游的响应对象本身 —— 冷却时长要读它的
-           Retry-After，只存 status 会把上游给的退避时间丢掉（实测恒回落到 30s）。 */
-        let lastUpstream = null;
-        let served = false;
-        for (const up of MIL_UPSTREAMS) {
-          try {
-            const upstream = await fetch(up.url, {
-              headers: { 'User-Agent': 'gods-eye-view-adsblol-proxy/1.0' },
-            });
-            if (upstream.ok) {
-              const body = await upstream.text();
-              _cache = body;
-              _cacheAt = Date.now();
-              _cooldownUntil = 0;
-              _cooldownStatus = 0;
-              serve(res, 200, body, 'MISS', { 'X-ADS-B-Upstream': up.label });
-              served = true;
-              break;
-            }
-            lastStatus = upstream.status;
-            lastLabel = up.label;
-            lastUpstream = upstream;
-            upstream.body?.cancel?.()?.catch?.(() => {});
-          } catch (e) {
-            lastStatus = 0;
-            lastLabel = up.label;
-            lastUpstream = null;
-            console.warn(`[adsb mil Proxy] ${up.label} failed: ${e.message}`);
-          }
-        }
-        if (served) return;
-
-        // 所有上游均失败
-        const failedAt = Date.now();
-        _cooldownUntil =
-          failedAt +
-          (lastStatus
-            ? cooldownFor(
-                lastUpstream || {
-                  status: lastStatus,
-                  headers: { get: () => null },
-                },
-                failedAt,
-              )
-            : RATE_LIMIT_COOLDOWN_MS);
-        _cooldownStatus = lastStatus || 0;
-        console.warn(
-          `[adsb mil Proxy] all upstreams failed (last ${lastLabel} ${lastStatus || 'err'}); cooling ${Math.round((_cooldownUntil - Date.now()) / 1000)} s${_cache ? ', serving stale' : ''}`,
-        );
-        if (_cache) {
-          serve(res, 200, _cache, 'STALE', {
-            'X-ADS-B-Upstream-Status': String(_cooldownStatus),
-            'X-ADS-B-Retry-After-Seconds': String(
-              Math.ceil((_cooldownUntil - Date.now()) / 1000),
-            ),
-          });
-          return;
-        }
-        serve(
-          res,
-          _cooldownStatus || 502,
-          JSON.stringify({
-            error: 'military upstreams all failed',
-            upstreams: MIL_UPSTREAMS.map((u) => u.label),
-          }),
-          'NONE',
-          _cooldownUntil > Date.now()
-            ? {
-                'Retry-After': String(
->>>>>>> theirs
                   Math.ceil((_cooldownUntil - Date.now()) / 1000),
                 ),
               });
@@ -258,7 +177,7 @@ export function adsbLolProxy() {
           response.extra,
         );
       } catch (e) {
-        console.error('[adsb mil Proxy]', e.message);
+        console.error('[adsb.lol Proxy]', e.message);
         if (_cache) {
           serve(res, 200, _cache, 'STALE');
           return;

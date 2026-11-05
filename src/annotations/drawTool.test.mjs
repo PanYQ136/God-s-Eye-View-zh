@@ -132,31 +132,11 @@ test('the DISPLAY rail styles live in their current owner, not the shim', () => 
   // these rules lived in the root style.css. That file is an import shim now,
   // and putting rules back into it would silently undo the split.
   const shim = read('style.css');
-<<<<<<< ours
   const rules = shim
     .replace(/\/\*[\s\S]*?\*\//g, '')
     .split('\n')
     .filter((line) => line.trim() && !/^@import '[^']+';$/.test(line.trim()));
   assert.deepEqual(rules, [], 'style.css is an import shim, not a stylesheet');
-=======
-  // A line count was only ever a proxy for "shim, not stylesheet". State the
-  // property directly so a longer header comment (Phase8D documents the layer
-  // order there) cannot be mistaken for a rule block coming back.
-  const rulesOnly = shim.replace(/\/\*[\s\S]*?\*\//g, '');
-  assert.doesNotMatch(
-    rulesOnly,
-    /\{/,
-    'style.css is an import shim, not a stylesheet (a block came back)',
-  );
-  for (const line of rulesOnly.split('\n')) {
-    if (!line.trim()) continue;
-    assert.match(
-      line.trim(),
-      /^(@import\b|@layer\b)/,
-      `style.css may only hold comments, @import and @layer statements — found "${line.trim().slice(0, 60)}"`,
-    );
-  }
->>>>>>> theirs
   assert.doesNotMatch(
     shim,
     /draw-hint|draw-color/,

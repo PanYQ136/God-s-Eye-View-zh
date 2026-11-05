@@ -18,7 +18,6 @@
  * globe motion, opposite to the camera's travel around Earth.
  */
 
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import { GLOBE_VIEW } from './locations.js';
 import {
@@ -26,9 +25,6 @@ import {
   earthDiscScreenRadius,
   getKeyholeGeometry,
 } from './celestialRing.js';
-=======
-import { Cesium } from './cesium.js';
->>>>>>> theirs
 import {
   holdContinuousRender,
   releaseContinuousRender,

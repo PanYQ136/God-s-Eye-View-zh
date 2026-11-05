@@ -1,4 +1,3 @@
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import {
   layerTitle,
@@ -6,9 +5,6 @@ import {
   parseGeojsonLines,
 } from '../sources/infrastructureData.js';
 import { createInfrastructureOverlayEntry } from './infrastructureOverlayEntry.js';
-=======
-import { Cesium } from '../cesium.js';
->>>>>>> theirs
 import { isPointerFree } from './inputOwnership.js';
 import {
   selectInfraLod,

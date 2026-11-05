@@ -1,9 +1,5 @@
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import { t, msg, onLocaleChange } from '../i18n/index.js';
-=======
-import { Cesium } from '../cesium.js';
->>>>>>> theirs
 
 const YOUTUBE_HOSTS = new Set([
   'youtube.com',

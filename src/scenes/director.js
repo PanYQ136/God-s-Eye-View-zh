@@ -20,7 +20,7 @@ import { SceneControls } from '../ui/scenes.js';
 import { createToast } from '../ui/toast.js';
 import { buildPlaybackQueue, playSceneQueue } from '../director/playback.js';
 import { createScenePlaybackAdapter } from './playbackAdapter.js';
-import { Cesium } from '../cesium.js';
+import * as Cesium from 'cesium';
 import {
   SCENE_APPEND_RECIPES,
   SCENE_RECIPES,
@@ -264,11 +264,7 @@ export class SceneDirector {
       this._loadAbort?.abort();
       this._loadGeneration++;
       this.viewer.camera.cancelFlight();
-<<<<<<< ours
       this._storageToast?.cancel();
-=======
-      clearTimeout(document.getElementById('toast')?._gevToastTimer);
->>>>>>> theirs
       await Promise.allSettled(this._pendingWork || []);
       this._clock.destroy();
       this._cancelActiveSceneTravel();
@@ -385,25 +381,8 @@ export class SceneDirector {
     message = () => t('Scene not saved — browser storage unavailable'),
   ) {
     this._updateStatus(message);
-<<<<<<< ours
     this._storageToast ??= createToast({ durationMs: 2600 });
     this._storageToast.show(message());
-=======
-    try {
-      const toast = document.getElementById('toast');
-      if (toast) {
-        toast.textContent = message;
-        toast.classList.add('visible');
-        /* 与 shellFeedback 共用 DOM 定时器槽，避免两个 owner 互相掐断。 */
-        clearTimeout(toast._gevToastTimer);
-        this._storageToastTimer = toast._gevToastTimer = setTimeout(() => {
-          toast.classList.remove('visible');
-        }, 2600);
-      }
-    } catch {
-      /* toast is best-effort */
-    }
->>>>>>> theirs
   }
 
   /** Immutable playback snapshots and completed editing actions. */

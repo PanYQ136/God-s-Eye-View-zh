@@ -2,7 +2,6 @@ import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-<<<<<<< ours
 import { rm, writeFile } from 'node:fs/promises';
 import { request } from 'node:http';
 import path from 'node:path';
@@ -13,10 +12,6 @@ import {
   escapeFsDenyPath,
 } from '../../build/vite.js';
 import standaloneConfig, * as compatibility from '../../vite.config.js';
-=======
-import { createBrowserViteConfig } from '../../build/vite.js';
-import standaloneConfig from '../../vite.config.js';
->>>>>>> theirs
 import * as providers from '../../server/providers/local.js';
 import { apiNotFoundPlugin } from '../../server/standalone/api-not-found.js';
 import { makeFixtureRoot } from './fixtureRoot.mjs';
@@ -31,7 +26,6 @@ test('explicit build inputs preserve browser-only defines, plugin order and loop
     googleApiKey: 'browser-fixture',
     cesiumToken: 'ion-fixture',
   });
-<<<<<<< ours
   // API response headers, then the Host check, run before every other
   // plugin's middleware.
   assert.equal(config.plugins[0].name, 'api-response-headers');
@@ -40,15 +34,6 @@ test('explicit build inputs preserve browser-only defines, plugin order and loop
   assert.equal(config.plugins[1].enforce, 'pre');
   assert.equal(config.plugins[3].name, 'vite:vue');
   assert.equal(config.plugins[4], plugin);
-=======
-  assert.equal(config.plugins[5], plugin);
-  /* [0] vite-plugin-cesium / [1] 组件模板展开 / [2] Phase7A-A：Cesium.js defer 注入 /
-     [3] #21 模型产物闸门 / [4] chunk 体积报告（2026-11-01 新增）/
-     [5] 调用方插件（断言上面一行） */
-  assert.equal(config.plugins[2].name, 'gev-defer-cesium-script');
-  assert.equal(config.plugins[3].name, 'gev-models-prune');
-  assert.equal(config.plugins[4].name, 'gev-chunk-report');
->>>>>>> theirs
   assert.equal(config.server.host, 'localhost');
   assert.equal(config.server.port, 4173);
   assert.deepEqual(config.server.allowedHosts, ['localhost', '127.0.0.1']);
@@ -145,28 +130,18 @@ test('build helper does not discover environment values or construct local provi
       config.define['import.meta.env.GOOGLE_MAPS_API_KEY'],
       undefined,
     );
-<<<<<<< ours
     assert.deepEqual(
       config.plugins.slice(4).map((plugin) => plugin.name),
       ['embed-framing', 'panel-build'],
     );
-=======
-    assert.equal(config.plugins.length, 5);
->>>>>>> theirs
   } finally {
     if (before === undefined) delete process.env.GOOGLE_MAPS_API_KEY;
     else process.env.GOOGLE_MAPS_API_KEY = before;
   }
 });
 
-test('root config stays config-only and providers re-export from providers/index.js', async () => {
-  // #18：配置文件只导出 Vite 配置本身（单一职责）。
-  const root = await import('../../vite.config.js');
-  assert.deepEqual(Object.keys(root), ['default']);
-  // provider 的再导出面搬到了 server/providers/index.js，名字与实现保持一致。
-  const reexported = await import('../../server/providers/index.js');
+test('root config retains existing named exports and standalone provider order', () => {
   for (const [name, value] of Object.entries(providers))
-<<<<<<< ours
     assert.equal(compatibility[name], value, name);
   const config = standaloneConfig({ mode: 'test' }, { nominatimStorageDir });
   const standaloneProviders = config.plugins
@@ -226,20 +201,6 @@ test('directories the server writes while it runs are kept out of the dev watche
     '**/.gev-cache/**',
     '**/.gev-logs/**',
   ]);
-=======
-    assert.equal(reexported[name], value, name);
-  // The root config factory is async since it awaits the local-proxy bootstrap.
-  const config = await standaloneConfig({ mode: 'test' });
-  assert.deepEqual(
-    config.plugins.slice(5, -2).map((plugin) => plugin.name),
-    providers.localProviderPlugins().map((plugin) => plugin.name),
-  );
-  /* 尾巴两家：warmupPlugin（server/standalone/mini-speedup.js）+ apiNotFoundPlugin。
-     这条断言在 warmup 插件引入后一直落后于实现（slice 到 -1 会把 gev-warmup 算进
-     provider 列表），Phase7A-A 顺带对齐。 */
-  assert.equal(config.plugins.at(-2).name, 'gev-warmup');
-  assert.equal(config.plugins.at(-1).name, 'api-not-found');
->>>>>>> theirs
 });
 
 test('build export resolves in Node and has no browser fallback', async () => {

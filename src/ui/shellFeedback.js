@@ -344,17 +344,7 @@ export class ShellFeedback {
 
   _showToast(message) {
     if (this.destroyed) return;
-<<<<<<< ours
     this._toast.show(message);
-=======
-    this._toast.textContent = message;
-    this._toast.classList.add('visible');
-    /* 与 scenes/director 共用 DOM 定时器槽（两个 owner 写同一个 #toast）。 */
-    clearTimeout(this._toast._gevToastTimer);
-    this._toastTimer = this._toast._gevToastTimer = setTimeout(() => {
-      this._toast.classList.remove('visible');
-    }, 2000);
->>>>>>> theirs
   }
   destroy() {
     if (this.destroyed) return;
@@ -362,12 +352,7 @@ export class ShellFeedback {
     this._offLocale();
     this._stopLoadingFeedbackTicker();
     clearInterval(this._trafficChipTicker);
-<<<<<<< ours
     this._trafficChipTicker = null;
-=======
-    clearTimeout(this._toast?._gevToastTimer);
-    this._trafficChipTicker = this._toastTimer = null;
->>>>>>> theirs
     if (this._loadingVisibilityHandler)
       document.removeEventListener(
         'visibilitychange',

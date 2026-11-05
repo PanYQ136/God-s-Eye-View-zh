@@ -1,9 +1,5 @@
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import { DEFAULT_FIRE_FILTER } from '../../data/firmsIntensity.js';
-=======
-import { Cesium } from '../../cesium.js';
->>>>>>> theirs
 
 export function createFirmsState({ services, config }) {
   const layerState = {};

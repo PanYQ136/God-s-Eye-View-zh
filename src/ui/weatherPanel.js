@@ -71,31 +71,6 @@ export function createWeatherPanel({
 } = {}) {
   const document = container?.ownerDocument;
   if (!document?.createElement) return null;
-<<<<<<< ours
-=======
-  const root = document.createElement('section');
-  root.className = 'weather-readout';
-  root.hidden = true;
-  root.setAttribute('aria-label', 'Active weather');
-  const timelineHost = document.createElement('div');
-  timelineHost.className = 'weather-timeline-block';
-  timelineHost.hidden = true;
-  const cardsHost = document.createElement('div');
-  cardsHost.className = 'weather-cards';
-  const observedGroup = document.createElement('section');
-  observedGroup.className = 'weather-observed-group';
-  observedGroup.setAttribute('aria-label', 'Observed history');
-  const heading = document.createElement('h2');
-  heading.className = 'panel-title';
-  heading.textContent = 'Observed history';
-  const scope = document.createElement('div');
-  scope.className = 'weather-observed-scope';
-  const observedCardsHost = document.createElement('div');
-  observedCardsHost.className = 'weather-cards';
-  observedGroup.append(heading, scope, timelineHost, observedCardsHost);
-  root.append(cardsHost, observedGroup);
-  container.appendChild(root);
->>>>>>> theirs
   const panel = container.closest?.('#weather-panel');
   const count = panel?.querySelector('#weather-panel-count');
   let entries = [];

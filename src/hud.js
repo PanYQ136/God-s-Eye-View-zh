@@ -19,12 +19,8 @@ import { applicationServices } from './services/application.js';
  * Color theming is driven by the active shader mode via CSS custom properties.
  */
 
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import { greatCircleKm } from './geoDistance.js';
-=======
-import { Cesium } from './cesium.js';
->>>>>>> theirs
 import { forward as toMGRS } from 'mgrs';
 import { CITY_POIS } from './cityPois.js';
 import { composeLocalityTag } from './hudLocality.js';
@@ -473,17 +469,6 @@ export class IntelHUD {
    */
   _geoidUndulationM(latDeg, lonDeg) {
     if (!this._geoidReady) {
-      /* Phase7A（架构审查 R4）：EGM96 网格动态 import 的是 2.77MB chunk，实测
-         压着首屏用掉 3.20s 下载并与落位/底图金字塔抢带宽。交互放行（B5 之后）
-         才发起；在那之前高度读数按未修正值显示（下面的 null 回落分支）。 */
-      const gate = globalThis.__gevBoot;
-      if (
-        gate &&
-        typeof gate.whenInteractive === 'function' &&
-        !gate.interactive
-      ) {
-        return null;
-      }
       if (!this._geoidRequested) {
         this._geoidRequested = true;
         ensureGeoidReady()

@@ -35,7 +35,6 @@ test('the complete Realtime tool payload pins the manifest-generated layer relea
     .digest('hex');
   assert.equal(
     digest,
-<<<<<<< ours
     // Re-derived for Provider Settings and explicit Visual Presets/Scenes routing,
     // plus the deliberate direct Panel tool/target additions and voice layer manifest (generated layer enums and
     // aliases), point-and-ask (pointer sentinels, referent args) and the
@@ -57,12 +56,6 @@ test('the complete Realtime tool payload pins the manifest-generated layer relea
     // area scopes and the osm-places layer; natural-region candidates and the
     // tightened area tool wording follow review.
     'd0c5ad733670972713a54cb10676c42b7c6e78834bfff52b473c0e8a45e742c3',
-=======
-    // Re-derived for the additive `local-adsb` set_layer_visibility value,
-    // the Cyber HUD layout, and the two AMap basemap stacks; the separate
-    // sonar tool is excluded above.
-    'f6ebca754f99cd1449d3cc4f50910992aec2d094ff20bd521073be81896e45a8',
->>>>>>> theirs
   );
 });
 
@@ -244,7 +237,6 @@ test('all legacy action arguments are byte-identical after removing the delibera
   // Derived by applying the same removals to the 4b56d0e9 actionSchemas.
   assert.equal(
     createHash('sha256').update(JSON.stringify(legacy)).digest('hex'),
-<<<<<<< ours
     '01f14fdb1523eebfcbff8b115e48e6ab99e36fa06f55a3bb13c65e198f79d758',
   );
 });
@@ -321,9 +313,6 @@ test('globe reset guidance requires a separate explicit command after refusal', 
 test('direct voice timeout schema accepts None and exact integers, rejects malformed duration', () => {
   const tool = GEV_REALTIME_TOOLS.find(
     (tool) => tool.name === 'set_voice_inactivity_timeout',
-=======
-    'f2d7c519f5a0e07614fae3692d87f1cfe61391926bd9fbb1ebbe1be388c06707',
->>>>>>> theirs
   );
   for (const minutes of [0, 1, 5, 60])
     assert.equal(validateArgs(tool.parameters, { minutes }).length, 0);

@@ -1,4 +1,3 @@
-import * as bridge from '../bridge.js';
 import { UiLifetime } from './uiLifetime.js';
 import { prefersCollapsed, readPanelState } from './rail/panelState.js';
 import { usePanelChromeStore } from './stores/panelChrome.js';
@@ -7,6 +6,7 @@ import { displayPanelScroller } from './displayPanelScroll.js';
 import { PanelPositionControls } from './panelPositionControls.js';
 import { PanelLayoutController } from './panelLayoutController.js';
 import {
+  bindPanelDisclosure,
   collapsePanelOnEscape,
   createHoverDisclosure,
 } from './panelDisclosure.js';
@@ -105,15 +105,8 @@ export class PanelChrome {
     this._cockpitPanelRestore = null;
     this._cockpitContextCollapsedForDataPanel = false;
     this._panelPosition = new PanelPositionControls({
-<<<<<<< ours
       presentPanel: (panel, patch) => this._presentPanel(panel, patch),
       shownPanel: (panel) => this._shownPanel(panel),
-=======
-      syncPanelDisclosureState: (panel) =>
-        this._syncPanelDisclosureState(panel),
-      layoutRightPanels: () => this._layoutRightPanels(),
-      syncCctvPanelViewport: () => this._syncCctvPanelViewport(),
->>>>>>> theirs
       showToast: (message) => this._showToast(message),
     });
     this._panelLayout = new PanelLayoutController({
@@ -122,12 +115,7 @@ export class PanelChrome {
         variant: this.hud.getVariant(),
       }),
       scheduleCockpitLayout: () => this.cockpitView?.scheduleContextLayout(),
-<<<<<<< ours
       presentPanel: (panel, patch) => this._presentPanel(panel, patch),
-=======
-      syncPanelDisclosureState: (panel) =>
-        this._syncPanelDisclosureState(panel),
->>>>>>> theirs
       readDisplayScrollTop: () =>
         this._displayPortalScrollRestoreOwner === 'standard'
           ? this._standardDisplayScrollTop
@@ -157,7 +145,6 @@ export class PanelChrome {
     for (const control of this._panelDisclosureControls || [])
       control.destroy();
     this._panelDisclosureControls = [];
-<<<<<<< ours
     this._disclosurePanelIds = new Set();
     const targets = new Set(
       [
@@ -187,63 +174,21 @@ export class PanelChrome {
     this.setPanelCollapsed('control-panel', true, {
       syncShare: false,
       persist: false,
-=======
-    /* ── src/lc 外部披露（Phase 2/3）──────────────────────────────────────────
-       7 张卡的开合由 src/lc 唯一拥有：App 既不生成折叠按钮（模板已删）、也不绑定
-       点击/悬停/启动恢复，只保留 setPanelCollapsed API 供 CollapsePort 调用。
-       删掉下面这段 + index.html 的 __lcExternalDisclosure 一行即还原。 */
-    /* Phase8D #15：index.html 注入的披露表与 App 面板 API 都收进 bridge 槽位
-       （compat 名 __lcExternalDisclosure / __lcPanelApi 由桥的 getter 兜住）。 */
-    const disclosure = bridge.ensure('ui.externalDisclosure', {
-      global: '__lcExternalDisclosure',
-      owner: 'index.html',
-      initial: { has: () => false },
->>>>>>> theirs
     });
-    const ext = (id) =>
-      !!(
-        disclosure &&
-        typeof disclosure.has === 'function' &&
-        disclosure.has(id)
-      );
-    const panelApi = bridge.ensure('app.panelApi', {
-      global: '__lcPanelApi',
-      owner: 'src/ui/panelChrome.js',
+    this.setPanelCollapsed('location-bar', true, {
+      syncShare: false,
+      persist: false,
     });
-<<<<<<< ours
-=======
-    panelApi.setPanelCollapsed = (id, collapsed, options) =>
-      this.setPanelCollapsed(id, collapsed, options);
-    /* 旧面板（天气 / 近期影像 / 电台 / 参数滑条）不再有折叠按钮 DOM：
-       标题条本身成为开合热区；7 张卡的标题热区归 src/lc/interaction.js。 */
-    this._bindLegacyPanelHeaders(ext);
-    this._initCommandDockPins();
->>>>>>> theirs
+    this._initAutoHoverPanel('control-panel', {
+      openDelayMs: 140,
+      closeDelayMs: 420,
+    });
+    this._initAutoHoverPanel('location-bar', {
+      openDelayMs: 140,
+      closeDelayMs: 420,
+    });
     this._initCommandDockTrayMetrics();
     this._maybeNotifyLayoutReset();
-  }
-
-  /** 旧面板（非 src/lc 卡片）的标题条开合；7 张卡不绑（ext 命中的一律跳过）。 */
-  _bindLegacyPanelHeaders(ext) {
-    for (const panel of document.querySelectorAll('[data-panel-id]')) {
-      const id = panel.dataset.panelId || panel.id;
-      if (!id || ext(id) || id === 'radio-panel') continue;
-      const header = panel.querySelector('.panel-header');
-      if (!header || header.dataset.lcLegacyDisclosure) continue;
-      header.dataset.lcLegacyDisclosure = '1';
-      this._lifetime.listen(header, 'click', (event) => {
-        if (
-          event.target.closest(
-            'input, select, option, button, a, label, [role=slider]',
-          )
-        )
-          return;
-        event.stopPropagation();
-        this.setPanelCollapsed(id, !panel.classList.contains('collapsed'), {
-          explicit: true,
-        });
-      });
-    }
   }
 
   _collapsePanelOnEscape(event, panelId) {
@@ -378,6 +323,10 @@ export class PanelChrome {
     }
   }
 
+  _restorePanelCollapsedState(panelId, options1) {
+    return this._panelPosition._restorePanelCollapsedState(panelId, options1);
+  }
+
   _savePanelCollapsedState(panelId, collapsed) {
     return this._panelPosition._savePanelCollapsedState(panelId, collapsed);
   }
@@ -391,7 +340,6 @@ export class PanelChrome {
   }
 
   /**
-<<<<<<< ours
    * Present a panel's state, merged over what it shows now, to the panel
    * chrome store; its root and buttons draw it from there.
    * @param {Element|string} panelOrId
@@ -417,36 +365,6 @@ export class PanelChrome {
    */
   _shownPanel(panelEl) {
     return this._chromeStore.panels[panelEl.id] ?? readPanelState(panelEl);
-=======
-   * 披露状态同步（Phase 3）：7 张卡的折叠按钮已从 DOM/模板彻底删除，这里不再查询、
-   * 也不再写任何折叠按钮；只同步 dock 把手 aria 与 Radio/Context 启动器。
-   */
-  _syncPanelDisclosureState(panelEl) {
-    if (!panelEl) return;
-    const collapsed = panelEl.classList.contains('collapsed');
-    const dockToggle = panelEl.querySelector(
-      `[data-dock-toggle-target="${panelEl.id}"]`,
-    );
-    if (dockToggle) {
-      const panelName =
-        panelEl
-          .querySelector('.panel-title, .location-toolbar-label')
-          ?.textContent?.trim() || 'panel';
-      const action = collapsed ? 'Expand' : 'Collapse';
-      dockToggle.setAttribute('aria-expanded', String(!collapsed));
-      dockToggle.setAttribute('aria-label', `${action} ${panelName}`);
-      dockToggle.title = `${action} ${panelName}`;
-    }
-    if (panelEl.id === 'radio-panel' && this._contextRadioDetailsBtn) {
-      this._contextRadioDetailsBtn.setAttribute(
-        'aria-expanded',
-        String(!collapsed),
-      );
-    }
-    if (panelEl.id === 'radio-panel' || panelEl.id === 'global-context-panel') {
-      this._syncContextRadioLauncherState();
-    }
->>>>>>> theirs
   }
 
   _buildSharePanelState() {
@@ -590,10 +508,6 @@ export class PanelChrome {
       this._shownPanel(panelEl).collapsed === nextCollapsed &&
       !wasAutoCollapsed
     ) {
-<<<<<<< ours
-=======
-      this._syncPanelDisclosureState?.(panelEl);
->>>>>>> theirs
       if (priorLeftOwner !== this._panelLayout._leftStackPreferredPanelId) {
         this._scheduleLeftPanelLayout({ reconsiderAutoCollapse: true });
       }
@@ -646,10 +560,6 @@ export class PanelChrome {
       this._cockpitContextCollapsedForDataPanel = false;
       this.cockpitView.setContextCollapsed(false);
     }
-<<<<<<< ours
-=======
-    this._syncPanelDisclosureState?.(panelEl);
->>>>>>> theirs
     if (persist !== false)
       this._savePanelCollapsedState(panelId, nextCollapsed);
     if (panelId === 'pp-toggles') {

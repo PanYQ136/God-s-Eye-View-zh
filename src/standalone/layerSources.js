@@ -23,10 +23,6 @@ import { createGhostMapsSource } from '../layers/ghostMaps/source.js';
 import { createMapillarySource } from '../layers/streetLevel/providers/mapillary/source.js';
 import { createReferenceSources } from '../sources/reference.js';
 export { createReferenceSources as createStandaloneReferenceSources } from '../sources/reference.js';
-import { createCnTrafficSource } from '../layers/cnTraffic/source.js';
-import { createCnAdminSource } from '../layers/cnAdmin/source.js';
-import { createCnQuakesSource } from '../layers/cnQuakes/source.js';
-import { createCnTyphoonSource } from '../layers/cnTyphoon/source.js';
 
 /** Select standalone providers without starting their acquisition. */
 export function createStandaloneLayerSources(
@@ -67,16 +63,9 @@ export function createStandaloneLayerSources(
     wind: createWindSource(),
     weather: createWeatherSource(),
     cyclones: createCycloneSource(),
-<<<<<<< ours
     mapillary: createMapillarySource({
       token: import.meta.env?.MAPILLARY_CLIENT_TOKEN || '',
     }),
-=======
-    'cn-traffic': createCnTrafficSource(),
-    'cn-admin': createCnAdminSource(),
-    'cn-quakes': createCnQuakesSource(),
-    'cn-typhoon': createCnTyphoonSource(),
->>>>>>> theirs
   };
   for (const name of Object.keys(overrides)) {
     if (!Object.hasOwn(defaults, name))

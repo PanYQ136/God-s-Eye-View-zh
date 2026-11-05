@@ -5,16 +5,8 @@ import { MILKY_WAY_INTENSITY, StarrySky } from '../sky/starrySky.js';
 import {
   GLOBAL_POST_DEFAULTS,
   STYLE_PRESET_DEFAULTS,
-  STYLES,
   MILITARY_DETECTION_PRESET,
 } from './visualPresets.js';
-
-/** One owned post-process stage per display style, plus the shared sharpen
- *  stage `initPostProcess` adds. Derived from the preset table rather than
- *  restated, so a newly added display style (amber/cinema/ghost/predator/xray
- *  were the last five) cannot leave these counts silently stale. */
-const STYLE_STAGE_COUNT = Object.keys(STYLES).length;
-const PIPELINE_STAGE_COUNT = STYLE_STAGE_COUNT + 1;
 
 function fixture() {
   let time = 0;
@@ -85,11 +77,7 @@ test('construction is inert and initialization creates one owned pipeline', () =
   assert.equal(f.frames.size, 0);
   f.effects.initStyles();
   f.effects.initPostProcess();
-<<<<<<< ours
   assert.equal(f.stages.size, 6);
-=======
-  assert.equal(f.stages.size, PIPELINE_STAGE_COUNT);
->>>>>>> theirs
   assert.ok(
     Object.values(f.effects.stages).every(
       (stage) => !stage.enabled && stage.uniforms.intensity === 0,
@@ -97,11 +85,7 @@ test('construction is inert and initialization creates one owned pipeline', () =
   );
   f.effects.initStyles();
   f.effects.initPostProcess();
-<<<<<<< ours
   assert.equal(f.stages.size, 6);
-=======
-  assert.equal(f.stages.size, PIPELINE_STAGE_COUNT);
->>>>>>> theirs
   f.effects.destroy();
 });
 
@@ -268,11 +252,7 @@ test('stop revokes pending work immediately but retains stages until final destr
   assert.equal(f.frames.size, 0);
   assert.equal(
     f.stages.size,
-<<<<<<< ours
     6,
-=======
-    PIPELINE_STAGE_COUNT,
->>>>>>> theirs
     'Context and Cockpit may still be releasing these stages',
   );
   const intensity = f.effects.stages.retro.uniforms.intensity;
@@ -301,11 +281,7 @@ test('destroying one instance does not remove another pipeline or clock', () => 
   a.effects.destroy();
   b.tick(250);
   assert.equal(a.stages.size, 0);
-<<<<<<< ours
   assert.equal(b.stages.size, 5);
-=======
-  assert.equal(b.stages.size, STYLE_STAGE_COUNT);
->>>>>>> theirs
   assert.equal(b.effects.stages.retro.uniforms.intensity, 0.5);
   b.effects.destroy();
 });

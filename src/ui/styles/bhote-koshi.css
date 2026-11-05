@@ -1,12 +1,10 @@
-@layer components {
 /* Bhote Koshi 2026 event reconstruction */
 #bhote-koshi-event-panel {
   position: fixed;
   top: var(--right-stack-safe-top, 26vh);
   right: var(--right-rail-x);
   bottom: auto;
-  /* 高于指令坞(151)，避免同列时底部被坞裁切。 */
-  z-index: 152;
+  z-index: 142;
   width: min(330px, calc(100vw - 40px));
   max-height: calc(100vh - var(--right-stack-safe-top, 26vh) - 88px);
   overflow-y: auto;
@@ -14,15 +12,10 @@
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: 6px;
-<<<<<<< ours
   box-shadow:
     0 18px 52px rgba(0, 0, 0, 0.48),
     inset 0 0 28px rgba(14, 78, 92, 0.12);
   backdrop-filter: blur(24px) saturate(1.4);
-=======
-  box-shadow: 0 18px 52px rgba(0, 0, 0, 0.48), inset 0 0 28px rgba(14, 78, 92, 0.12);
-  backdrop-filter: blur(18px) saturate(1.4);
->>>>>>> theirs
   font-family: var(--font-mono);
   letter-spacing: 0;
   pointer-events: auto;
@@ -710,7 +703,6 @@ html:not([lang='en']) .bhote-event-actions button {
   }
 }
 
-<<<<<<< ours
 * {
   margin: 0;
   padding: 0;
@@ -726,10 +718,4 @@ body {
   font-family: var(--font-sans);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
-=======
-/* Phase8D #13：本文件原先复制了一份全局 reset（* {margin:0} + html,body{…}），
-   与 foundation.css 完全重复。在 @layer 下它位于 components 层，会按「层序」
-   压掉 foundation 里带 id 的排版规则（如 #title-bar .subtitle{margin-top:8px}
-   → 0）。reset 只允许存在于 foundation 层一处，这里删掉重复副本。 */
->>>>>>> theirs
 }

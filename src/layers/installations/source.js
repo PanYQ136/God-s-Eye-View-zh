@@ -88,7 +88,6 @@ export function installationAnchorBox(anchor) {
 
 /** Read mapped installations and explicit nearby-place searches through fixed endpoints. */
 export function createInstallationSource({
-<<<<<<< ours
   fetchImpl = (...args) => globalThis.fetch(...args),
   tileFetchImpl = (...args) => globalThis.fetch(...args),
   loadNames = loadMilitaryNames,
@@ -96,10 +95,6 @@ export function createInstallationSource({
     fetchImpl: tileFetchImpl,
     selectDecoded: ({ military }) => ({ military }),
   }),
-=======
-  fetchImpl = (...args) =>
-    (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
->>>>>>> theirs
 } = {}) {
   let overpassUnavailable = false;
   const installationIds = new Map();

@@ -1,4 +1,3 @@
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import { t, msg } from '../../i18n/index.js';
 
@@ -15,20 +14,12 @@ function localizeFeedLabel(raw) {
   const key = FEED_STATE_LABEL_KEYS[raw.trim()];
   return key ? t(key) : raw;
 }
-=======
-import { Cesium } from '../../cesium.js';
->>>>>>> theirs
 import {
   AIS_DEGRADED_STATUSES,
   AIS_HEALTHY_STATUSES,
   AIS_STATUS_REASON,
   REFRESH_MS,
   FOCUS_EVIDENCE_DEV,
-<<<<<<< ours
-=======
-  AIS_FIRST_CONNECT_LABEL,
-  RENDER_LIMIT_UNLIMITED,
->>>>>>> theirs
 } from './policy.js';
 
 export function createQueries({
@@ -531,40 +522,6 @@ export function createQueries({
           }),
         }
       : {}),
-
-    /**
-     * 当前运行参数。非侵入式「渲染上限」控件（gev-layer-limits.js）只有在该方法
-     * 返回有限 renderLimit 时才注入 UI，因此这里是该参数对外可见的唯一入口。
-     * @returns {{renderLimit: number}} 0–999；999 = 不限（默认）。
-     */
-    getParams() {
-      return {
-        renderLimit: vesselState._renderLimit,
-      };
-    },
-
-    /**
-     * 运行参数入口（DataLayerManager.setLayerParams → module.setParams）。
-     * renderLimit：0–999，只渲染离相机最近的 N 艘（0 = 除选中/跟踪船外不渲染），
-     * 999 = 不限。改动立即用上一帧快照重放 —— 否则上限要等下一次轮询（60 s）才生效。
-     * @param {Object} [params] - Partial parameter patch.
-     * @returns {boolean} Always true (the manager treats `false` as rejection).
-     */
-    setParams(params = {}) {
-      if (Number.isFinite(params.renderLimit)) {
-        const n = Math.max(
-          0,
-          Math.min(RENDER_LIMIT_UNLIMITED, Math.floor(params.renderLimit)),
-        );
-        if (n !== vesselState._renderLimit) {
-          vesselState._renderLimit = n;
-          state.lastVisibilityUpdate = 0;
-          components.ingestion?.methods?.reapply?.(state.viewer);
-          state.viewer?.scene?.requestRender?.();
-        }
-      }
-      return true;
-    },
 
     getStats() {
       const waitingForFirstPosition =

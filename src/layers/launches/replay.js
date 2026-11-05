@@ -1,9 +1,5 @@
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import { t } from '../../i18n/index.js';
-=======
-import { Cesium } from '../../cesium.js';
->>>>>>> theirs
 import {
   REPLAY_ASCENT_FALLBACK_SEC,
   REPLAY_ASCENT_MIN_SEC,
@@ -203,7 +199,6 @@ export function createReplay({ state: layerState, services, parts, source }) {
       layerState._selectedLaunchId &&
       layerState._replayTracks.has(layerState._selectedLaunchId),
     );
-<<<<<<< ours
     const paused = layerState._replayPaused;
     const speed = layerState._replaySpeed;
     return {
@@ -217,38 +212,6 @@ export function createReplay({ state: layerState, services, parts, source }) {
       speedText: `${speed.toFixed(speed % 1 ? 2 : 0)}×`,
       speedProgress: `${((speed - REPLAY_SPEED_MIN) / (REPLAY_SPEED_MAX - REPLAY_SPEED_MIN)) * 100}%`,
     };
-=======
-    if (speedControl) speedControl.hidden = !replayAvailable;
-    button.hidden = active || !replayAvailable;
-    button.disabled = !replayAvailable;
-    button.textContent = 'REPLAY ASCENT';
-    button.classList.remove('active');
-    button.setAttribute('aria-pressed', String(active));
-    button.title = 'Replay the estimated ascent with a following camera';
-    if (transport) {
-      transport.hidden = !active;
-      transport.classList.toggle(
-        'is-paused',
-        active && layerState._replayPaused,
-      );
-      const toggleButton = transport.querySelector(
-        '[data-mission-replay-toggle]',
-      );
-      if (toggleButton) {
-        toggleButton.disabled = !active;
-        toggleButton.innerHTML = layerState._replayPaused
-          ? '<span class="lc-tri lc-tri--r" aria-hidden="true"></span>'
-          : '<span class="lc-pause" aria-hidden="true"></span>';
-        toggleButton.setAttribute(
-          'aria-label',
-          layerState._replayPaused ? 'Resume replay' : 'Pause replay',
-        );
-        toggleButton.title = layerState._replayPaused
-          ? 'Resume replay'
-          : 'Pause replay';
-      }
-    }
->>>>>>> theirs
   }
 
   function syncReplayCountdownButton(state) {

@@ -213,12 +213,7 @@ export function stripKeylessBasemapFromHash(hash) {
   if (!hash) return null;
   try {
     const params = new URLSearchParams(hash);
-    if (
-      !['osm', 'esri-imagery', 'amap-satellite', 'amap-hybrid'].includes(
-        params.get('map'),
-      )
-    )
-      return null;
+    if (!['osm', 'esri-imagery'].includes(params.get('map'))) return null;
     params.delete('map');
     return params.toString();
   } catch {
@@ -304,39 +299,6 @@ export async function initKeySetup({
   };
 
   let status = null;
-<<<<<<< ours
-=======
-  /* Phase7A2：prod/preview 构建里根本没有 /api/setup/status（server/standalone
-     key-setup 只在 dev 挂载，preview 恒 404）。旧写法先发请求再靠 catch 自毁，
-     代价是每轮冷启动都往控制台塞一条 404（验收「无 404」项）。这里提前判掉，
-     行为与 catch 分支完全一致：surface 不存在，chip/dialog 都不建。 */
-  if (import.meta.env?.PROD === true) {
-    destroy();
-    return null;
-  }
-  try {
-    const response = await doFetch('/api/setup/status', {
-      cache: 'no-store',
-      signal: lifetime.signal,
-    });
-    if (!response.ok) throw new Error(String(response.status));
-    status = await response.json();
-    if (disposed) return null;
-  } catch {
-    // Prod build or non-loopback visitor: the surface cannot function, so it
-    // does not exist. (The README covers .env for headless/self-host setups.)
-    destroy();
-    return null;
-  }
-
-  const rowsHost = root.querySelector('[data-key-setup-rows]');
-  disposePlacement = bindKeySetupPlacement(documentRef, chip, root);
-  const applyButton = root.querySelector('[data-key-setup-apply]');
-  const closeButton = root.querySelector('[data-key-setup-close]');
-  const chipLabel = chip.querySelector('[data-key-setup-chip-label]') || chip;
-  const statusLine = root.querySelector('[data-key-setup-status]');
-  const defaultStatusText = statusLine?.textContent || '';
->>>>>>> theirs
   let busy = false;
   let open = false;
 
@@ -356,35 +318,15 @@ export async function initKeySetup({
     publish();
   };
 
-<<<<<<< ours
   // The chip and rows are translated here; show them again in a new locale.
   const offLocale = onLocaleChange(() => {
     if (status) render(status);
   });
-=======
-  // 灯箱（.cesium-credit-lightbox-overlay，z200 in root stacking）压住时，
-  // DOM 仍"可见"但用户看不到 —— 不能再 input.focus() 把焦点吸进去。
-  const coveredByOverlay = () => {
-    if (typeof documentRef.elementFromPoint !== 'function') return false;
-    const rect = root.getBoundingClientRect();
-    if (!(rect.width > 0 && rect.height > 0)) return false;
-    try {
-      const hit = documentRef.elementFromPoint(
-        rect.left + rect.width / 2,
-        rect.top + rect.height / 2,
-      );
-      return Boolean(hit) && !root.contains(hit);
-    } catch {
-      return false;
-    }
-  };
->>>>>>> theirs
 
   const visible = () =>
     root.isConnected &&
     root.classList.contains('visible') &&
-    root.getClientRects().length > 0 &&
-    !coveredByOverlay();
+    root.getClientRects().length > 0;
 
   const keyboard = createSurfaceKeyboard({
     root,

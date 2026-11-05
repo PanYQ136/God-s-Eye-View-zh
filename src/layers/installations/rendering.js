@@ -1,10 +1,6 @@
-<<<<<<< ours
 import { installationClassLabel, installationTitle } from './classLabel.js';
 import * as Cesium from 'cesium';
 import { t } from '../../i18n/index.js';
-=======
-import { Cesium } from '../../cesium.js';
->>>>>>> theirs
 import { LAYER_ID, MAX_RENDERED, COLOR_BY_CLASS } from './policy.js';
 
 export function createRendering({

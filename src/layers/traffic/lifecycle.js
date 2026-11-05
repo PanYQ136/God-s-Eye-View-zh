@@ -1,9 +1,5 @@
-<<<<<<< ours
 import { observeTrafficSurface } from './surface.js';
 import * as Cesium from 'cesium';
-=======
-import { Cesium } from '../../cesium.js';
->>>>>>> theirs
 import { TRAFFIC_TIMING_ENABLED } from './policy.js';
 import {
   claimCameraSensitivity,
@@ -28,8 +24,7 @@ export function createLifecycle({
      */
     init(viewer) {
       layerState._viewer = viewer;
-      // Car-shape icon markers (owner request), not dots.
-      layerState._pointCollection = new Cesium.BillboardCollection({
+      layerState._pointCollection = new Cesium.PointPrimitiveCollection({
         blendOption: Cesium.BlendOption.TRANSLUCENT,
       });
       // Add permanently — toggle with .show to avoid destroy-on-remove errors

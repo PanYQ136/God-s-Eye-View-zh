@@ -12,12 +12,7 @@ import {
   STYLE_PRESET_DEFAULTS,
   MILITARY_DETECTION_PRESET,
 } from './effects.js';
-<<<<<<< ours
 import { styleParameterRows, withParameterValue } from './styleParameters.js';
-=======
-import { createStyleParameters } from './visualInput.js';
-import { Cesium } from '../cesium.js';
->>>>>>> theirs
 import {
   BLOOM_SCALE_VERSION,
   clampBloomIntensity,
@@ -459,15 +454,8 @@ export class VisualSettings {
       this._setCockpitDisclosure?.('display', true);
       return;
     }
-<<<<<<< ours
     if (!this._cockpitDisclosureOpen?.('display')) return;
     this._presentPanel(this._sliderPanel, { collapsed: false });
-=======
-    if (this._cockpitDisplayToggleBtn?.getAttribute('aria-expanded') !== 'true')
-      return;
-    this._sliderPanel.classList.remove('collapsed');
-    this._syncPanelDisclosureState?.(this._sliderPanel);
->>>>>>> theirs
     this._lifetime.frame(() =>
       this._lifetime.frame(() => {
         this._sliderPanel?.scrollIntoView?.({ block: 'nearest' });
@@ -879,10 +867,6 @@ export class VisualSettings {
         focus: false,
       });
     }
-    // GEV owner 2026-09-28: the Display menu ships with ONLY the detection
-    // ("密集") overlay lit. Cyber sonar now defaults OFF on a fresh load (a
-    // share link or a stored session can still restore it on).
-    if (this._cyberSonarBtn) this._setCyberSonarEnabled(false);
   }
 
   _shareableDetectionState() {
@@ -1473,12 +1457,7 @@ export class VisualSettings {
   _revealStyleParameters() {
     if (!this._parameters) return;
     if (this._cockpitDisplayPortalActive) return;
-<<<<<<< ours
     this._presentPanel(this._sliderPanel, { collapsed: false });
-=======
-    this._sliderPanel.classList.remove('collapsed');
-    this._syncPanelDisclosureState?.(this._sliderPanel);
->>>>>>> theirs
     this.setPanelCollapsed('pp-toggles', false, { explicit: true });
     this._lifetime.frame(() =>
       this._lifetime.frame(() => {

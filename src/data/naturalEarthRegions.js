@@ -112,35 +112,12 @@ function suffixVariants(norm) {
 /** @type {Array|null} flat entry list for listRegions() */
 let _entries = null;
 
-// Node-test-only JSON module specifiers (see data/bundledJson.js): the browser
-// fetches `url` instead. The `importJson` specifiers below stay runtime-computed
-// (bare constants) so Rollup cannot statically resolve them — otherwise it would
-// emit a dead JSON-module duplicate of the same data as a ~2 MB chunk in dist.
-// The `new URL(...)` literals must stay literal: Vite needs them static to emit
-// the raw .json asset the browser fetches.
-const REGIONS_JSON = './local_data/natural_earth/regions.json';
-const MARINE_JSON = './local_data/natural_earth/marine.json';
-
 const PACKS = {
   regions: {
     url: new URL('./local_data/natural_earth/regions.json', import.meta.url),
-<<<<<<< ours
   },
   marine: {
     url: new URL('./local_data/natural_earth/marine.json', import.meta.url),
-=======
-    importJson: () =>
-      import(/* @vite-ignore */ REGIONS_JSON, {
-        with: { type: 'json' },
-      }),
-  },
-  marine: {
-    url: new URL('./local_data/natural_earth/marine.json', import.meta.url),
-    importJson: () =>
-      import(/* @vite-ignore */ MARINE_JSON, {
-        with: { type: 'json' },
-      }),
->>>>>>> theirs
   },
 };
 

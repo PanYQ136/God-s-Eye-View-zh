@@ -1,9 +1,5 @@
-<<<<<<< ours
 import { isUnavailableCapability } from '../../sources/capability.js';
 import * as Cesium from 'cesium';
-=======
-import { Cesium } from '../../cesium.js';
->>>>>>> theirs
 import {
   LAYER_ID,
   REQUEST_DEBOUNCE_MS,

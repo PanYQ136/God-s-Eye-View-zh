@@ -1,9 +1,5 @@
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import { t } from '../../i18n/index.js';
-=======
-import { Cesium } from '../../cesium.js';
->>>>>>> theirs
 import {
   EARTH_ROTATION_RAD_PER_SEC,
   PROJECTED_ASCENT_ROTATION_SEC,

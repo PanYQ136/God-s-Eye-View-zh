@@ -7,11 +7,7 @@ import { createGoogleGeocoder } from './google.js';
 import { createPhotonGeocoder } from '../keylessGeocoder.js';
 import { createCoordinateGeocoder } from './coordinateGeocoder.js';
 import { createPresetGeocoder } from './presetGeocoder.js';
-<<<<<<< ours
 import { createAlpsGeocoder } from './alpsGeocoder.js';
-=======
-import { createCnGeocoder } from './cnGeocoder.js';
->>>>>>> theirs
 
 /**
  * Coordinates, bundled names and the unqualified Alps first — all offline —
@@ -46,12 +42,7 @@ export function createDefaultPlaceSearch({
     providers: providers.geocode || [
       createCoordinateGeocoder(),
       ...(presets ? [createPresetGeocoder({ presets })] : []),
-<<<<<<< ours
       createAlpsGeocoder(),
-=======
-      // 国内地名主通道：只对中文查询出手，非中文直接 decline 让后链处理。
-      createCnGeocoder({ fetchImpl, endpoint: endpoints.cnGeocode }),
->>>>>>> theirs
       ...(selected
         ? [selected]
         : [

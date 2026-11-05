@@ -1,5 +1,4 @@
 import { CAMERA_SEEDS } from './policy.js';
-<<<<<<< ours
 import {
   lookupModelSpec,
   horizontalFovRangeDeg,
@@ -37,8 +36,6 @@ function applyModelEnrichment(camera, hardware, clamp) {
   }
   camera.spec = spec;
 }
-=======
->>>>>>> theirs
 
 export function createCatalog({ state: layerState, services, parts, source }) {
   const { CITY_POIS } = services.locations;

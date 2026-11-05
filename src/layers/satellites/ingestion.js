@@ -1,13 +1,8 @@
 import { twoline2satrec } from 'satellite.js';
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import { msg } from '../../i18n/index.js';
 import { noradIdFromSatnum, tleLineLaunchYear } from '../../sources/tle.js';
-=======
-import { Cesium } from '../../cesium.js';
->>>>>>> theirs
 import { CATALOG_GROUPS, ISS_NORAD, POINT_STYLES } from './policy.js';
-import { vehicleIcon } from '../../data/vehicleIcons.js';
 
 export function createIngestion({
   state: layerState,
@@ -154,10 +149,10 @@ export function createIngestion({
           const style = parts.controls._pointStyleFor(noradId, entry.group);
           const point = layerState._pointCollection.add({
             position: cartesian,
-            image: vehicleIcon('satellite'),
-            width: 18,
-            height: 18,
+            pixelSize: style.pixelSize,
             color: style.color,
+            outlineColor: style.outlineColor,
+            outlineWidth: style.outlineWidth,
             scaleByDistance: new Cesium.NearFarScalar(1e6, 1.5, 2e7, 0.6),
             id: noradId,
           });

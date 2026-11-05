@@ -1,10 +1,6 @@
 import { displayedKinematics } from '../../data/motionModel.js';
-<<<<<<< ours
 import { t } from '../../i18n/index.js';
 import * as Cesium from 'cesium';
-=======
-import { Cesium } from '../../cesium.js';
->>>>>>> theirs
 import { isExplicitLayerStateOrigin } from '../../data/layerState.js';
 import { aircraftIncludedInNearby } from '../../data/aircraftNearbyPolicy.js';
 import { modelVisualAnchor } from '../../data/modelVisualAnchor.js';
@@ -264,16 +260,6 @@ export function createQueries({
       ) {
         parts.tracking._cancelPendingTrackingRestore();
       }
-      if (Number.isFinite(params.renderLimit)) {
-        // Raised cap: the layer holds the full adsb.lol military set and the
-        // distance cull is now globe-spanning, so the slider must reach it.
-        const n = Math.max(0, Math.min(8000, Math.floor(params.renderLimit)));
-        if (n !== flightState._renderLimit) {
-          flightState._renderLimit = n;
-          parts.ingestion?.methods?.reapply?.(flightState._viewer);
-          flightState._viewer?.scene?.requestRender?.();
-        }
-      }
       if (
         typeof params.models3d === 'boolean' &&
         params.models3d !== flightState._models3dEnabled
@@ -342,7 +328,6 @@ export function createQueries({
         models3d: flightState._models3dEnabled,
         models3dMode: flightState._models3dMode,
         irBoost: flightState._irBoost,
-        renderLimit: flightState._renderLimit,
         selectedMilitaryTrackingId: flightState._trackedIcao,
       };
     },

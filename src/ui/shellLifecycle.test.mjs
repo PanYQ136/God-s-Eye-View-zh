@@ -171,45 +171,6 @@ test('panel layout coalesces each rail and cannot rearm after destruction', () =
   }
 });
 
-<<<<<<< ours
-=======
-test('legacy panel drag layer is retired: no card geometry is ever written', () => {
-  const f = fixture();
-  try {
-    const owner = new PanelPositionControls({
-      syncPanelDisclosureState() {},
-      showToast() {},
-    });
-    const panel = f.element(),
-      handle = f.element();
-    // Phase 3：拖拽/缩放/位置持久化整层删除 —— 方法本身不再存在。
-    assert.equal(owner._makePanelDraggable, undefined);
-    assert.equal(owner._reclampDraggablePanels, undefined);
-    assert.equal(owner._savePanelPosition, undefined);
-    const before = { ...panel.style };
-    owner._initPanelDrag?.();
-    handle.dispatchEvent(
-      Object.assign(new Event('pointerdown', { cancelable: true }), {
-        button: 0,
-        clientX: 30,
-        clientY: 40,
-      }),
-    );
-    window.dispatchEvent(
-      Object.assign(new Event('pointermove'), { clientX: 500, clientY: 300 }),
-    );
-    window.dispatchEvent(new Event('pointerup'));
-    assert.deepEqual(panel.style, before);
-    assert.equal(panel.classList.contains('panel-dragging'), false);
-    assert.equal(owner.removers.length, 0);
-    assert.deepEqual(f.writes, []);
-    owner.destroy();
-  } finally {
-    f.restore();
-  }
-});
-
->>>>>>> theirs
 test('feedback disposal clears toast and polling work and rejects retained notices', () => {
   const f = fixture();
   try {
@@ -350,15 +311,9 @@ test('weather rail orders between CCTV and Context, observes and presents chrome
       readHud: () => ({}),
       scheduleCockpitLayout() {},
       readDisplayScrollTop: () => 0,
-<<<<<<< ours
       presentPanel(panel, patch) {
         presented.push(panel.id);
         PanelChrome.prototype._presentPanel.call(chrome, panel, patch);
-=======
-      syncPanelDisclosureState(panel) {
-        synced.push(panel.id);
-        PanelChrome.prototype._syncPanelDisclosureState.call(chrome, panel);
->>>>>>> theirs
       },
     });
     owner._initRightPanelAdaptiveLayout();
@@ -367,7 +322,6 @@ test('weather rail orders between CCTV and Context, observes and presents chrome
       ['pp-toggles', 'cctv-panel', 'weather-panel', 'global-context-panel'],
     );
     assert.ok(observed.has(weather));
-<<<<<<< ours
     // Moving a panel into the rail leaves its state as it was.
     assert.deepEqual(presented, []);
     followPanelState(store, 'weather-panel', weather);
@@ -376,18 +330,6 @@ test('weather rail orders between CCTV and Context, observes and presents chrome
     });
     assert.equal(store.panels['weather-panel'].collapsed, false);
     assert.equal(weather.classList.contains('collapsed'), false);
-=======
-    assert.equal(weather.style.positions.size, 0);
-    assert.equal(weather.classList.contains('panel-draggable'), false);
-    assert.equal(weather.classList.contains('panel-dragging'), false);
-    // Phase 3：折叠按钮已删除 —— 披露同步只写 dock 把手 aria，不再碰任何按钮。
-    assert.equal(weather.button.textContent, '');
-    assert.equal(weather.button.getAttribute('aria-expanded'), undefined);
-    weather.classList.remove('collapsed');
-    PanelChrome.prototype._syncPanelDisclosureState.call(chrome, weather);
-    assert.equal(weather.button.textContent, '');
-    assert.equal(weather.button.getAttribute('aria-expanded'), undefined);
->>>>>>> theirs
     owner.destroy();
     assert.equal(observed.size, 0);
     assert.equal(f.frames.size, 0);

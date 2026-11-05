@@ -81,15 +81,7 @@ const PANEL_GROUPS = [
     ],
   },
   {
-<<<<<<< ours
     label: msg('Weather'),
-=======
-    label: 'China',
-    ids: ['cn-traffic', 'cn-admin', 'cn-quakes', 'cn-typhoon'],
-  },
-  {
-    label: 'Weather',
->>>>>>> theirs
     ids: [
       'air-quality',
       'wind',
@@ -362,17 +354,6 @@ export class LayerPanel {
     this._groupContainers = new Map();
     this._toggleContainer = null;
   }
-  /**
-   * Rebuild every toggle row from the current layer set.
-   *
-   * Phase8E2：后置注册的图层在挂载时还不存在，`_refreshTogglePanel()` 只更新
-   * 已有行，所以新到位的图层需要一次整表重建。重建会重放一次 `_renderToggles`
-   * （含分组标题与行内控件），代价是在遮罩期多做一次 DOM 构建。
-   */
-  rebuild() {
-    if (this._destroyed || !this._toggleContainer) return;
-    this._renderToggles();
-  }
   _renderToggles() {
     if (this._destroyed || !this._toggleContainer) return;
     this._releaseBindings();
@@ -392,7 +373,6 @@ export class LayerPanel {
     for (const layer of layers) {
       if (!layer.showInTogglePanel) continue;
       const group =
-<<<<<<< ours
         PANEL_ORDER[PANEL_POSITIONS.get(layer.id)]?.label ??
         msg('Other layers');
       const containerId =
@@ -404,71 +384,6 @@ export class LayerPanel {
       if (!container && group && group !== previousGroup)
         this._rows.push({ key: `group:${group}`, heading: group });
       previousGroup = container ? '' : group;
-=======
-        PANEL_ORDER[PANEL_POSITIONS.get(layer.id)]?.label ?? 'Other layers';
-      if (group && group !== previousGroup) {
-        const heading = document.createElement('h2');
-        heading.className = 'data-layer-group-heading';
-        heading.textContent = group;
-        this._toggleContainer.appendChild(heading);
-      }
-      previousGroup = group;
-      const row = document.createElement('div');
-      row.className = 'data-toggle-row';
-      row.dataset.layerId = layer.id;
-
-      const topRow = document.createElement('div');
-      topRow.className = 'data-toggle-top';
-
-      const left = document.createElement('div');
-      left.className = 'data-toggle-left';
-      const icon = document.createElement('span');
-      icon.className = 'data-icon';
-      icon.setAttribute('aria-hidden', 'true');
-      icon.textContent = layer.icon;
-      const name = document.createElement('span');
-      name.className = 'data-name';
-      name.textContent = panelLabel(layer);
-      left.appendChild(icon);
-      left.appendChild(name);
-
-      const right = document.createElement('div');
-      right.className = 'data-toggle-right';
-
-      const count = document.createElement('span');
-      count.className = 'data-count';
-      count.textContent = this._layerCountText(layer.stats);
-
-      const toggle = document.createElement('button');
-      toggle.type = 'button';
-      toggle.className = `data-toggle-btn${layer.enabled ? ' active' : ''}`;
-      this._syncToggleButton(toggle, layer);
-      this._bind(toggle, 'click', async () => {
-        // Native `disabled` immediately evicts keyboard focus in Chromium. Keep
-        // the lifecycle control focusable while it is busy, and enforce the
-        // same single-flight interaction contract through ARIA instead.
-        if (
-          this._destroyed ||
-          this._generation !== generation ||
-          toggle.getAttribute('aria-disabled') === 'true'
-        )
-          return;
-        toggle.setAttribute('aria-disabled', 'true');
-        toggle.setAttribute('aria-busy', 'true');
-        try {
-          await this.setEnabled(layer.id, !this.isEnabled(layer.id), {
-            origin: 'user',
-          });
-        } catch (error) {
-          console.warn(`[Data] ${layer.id} toggle error:`, error);
-        } finally {
-          const current = this.getAll().find(({ id }) => id === layer.id);
-          if (!this._destroyed && current && this._generation === generation)
-            this._syncToggleButton(toggle, current);
-        }
-      });
-
->>>>>>> theirs
       const readout = Boolean(this._rowControlsFor(layer.id)?.readout);
       const controls = this.hasRowControls(layer.id);
       if (controls) {

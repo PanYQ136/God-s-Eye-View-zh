@@ -2,12 +2,8 @@ import { rangeForBoundingSphere } from './data/cameraFraming.js';
 import { isUnavailableCapability } from './sources/capability.js';
 import { createOverpassFeatureSource } from './sources/overpassFeatures.js';
 import { applicationServices } from './services/application.js';
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import { greatCircleKm } from './geoDistance.js';
-=======
-import { Cesium } from './cesium.js';
->>>>>>> theirs
 import {
   viewportBias,
   placesNearViewRecovery,

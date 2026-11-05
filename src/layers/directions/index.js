@@ -16,12 +16,8 @@
  * route.
  */
 
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import { roadLabel } from '../../data/routeSteps.js';
-=======
-import { Cesium } from '../../cesium.js';
->>>>>>> theirs
 import {
   t,
   msg,

@@ -1,9 +1,5 @@
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import { approxDistanceKm } from '../data/approxDistance.js';
-=======
-import { Cesium } from '../cesium.js';
->>>>>>> theirs
 
 /** Construct an instance-owned meshFloorSampler service with explicit dependencies. */
 export function createMeshFloorSampler({

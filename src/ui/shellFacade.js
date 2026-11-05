@@ -1000,7 +1000,6 @@ export class ShellFacade {
   }
 
   /**
-<<<<<<< ours
    * Presents a panel's state, merged over what it shows now; its root and
    * buttons draw it from the panel chrome store.
    * @param {HTMLElement|string} panelOrId - The panel or its id.
@@ -1009,73 +1008,6 @@ export class ShellFacade {
    */
   _presentPanel(panelOrId, patch) {
     return this._panelChrome._presentPanel(...arguments);
-=======
-   * Syncs disclosure state that is not a collapse button (dock handle aria,
-   * Radio / Context launchers). The 7 card collapse buttons no longer exist.
-   * @param {HTMLElement} panelEl - The panel DOM element.
-   * @returns {void}
-   */
-  _syncPanelDisclosureState(panelEl) {
-    return this._panelChrome._syncPanelDisclosureState(...arguments);
-  }
-
-  /**
-   * Converts a panel from left-positioned to right-anchored so it expands
-   * leftward on resize. Used for the right-rail parameter panel.
-   * @param {HTMLElement} panelEl - The panel to re-anchor.
-   * @returns {void}
-   */
-  _pinPanelToRight(panelEl) {
-    return this._panelPosition._pinPanelToRight(panelEl);
-  }
-
-  /**
-   * Restores a panel's top/left position from localStorage.
-   * Right-rail panels are additionally pinned to the right edge.
-   * @param {string} panelId - DOM id of the panel.
-   * @param {HTMLElement} panelEl - The panel DOM element.
-   * @returns {void}
-   */
-  _restorePanelPosition(panelId, panelEl) {
-    return this._panelPosition._restorePanelPosition(panelId, panelEl);
-  }
-
-  /**
-   * Clamp a desired left/top so the panel stays fully on-screen (6px inset), matching the drag
-   * clamp (ui.js ~1822). Width/height are position-independent, so reading the rect first is safe.
-   * @param {number} left - desired left (px)
-   * @param {number} top - desired top (px)
-   * @param {HTMLElement} panelEl - the panel element
-   * @returns {{left:number, top:number}}
-   */
-  _clampToViewport(left, top, panelEl) {
-    return this._panelPosition._clampToViewport(left, top, panelEl);
-  }
-
-  /**
-   * Persists a panel's current bounding-rect position to localStorage.
-   * @param {string} panelId - DOM id of the panel.
-   * @param {HTMLElement} panelEl - The panel DOM element.
-   * @returns {void}
-   */
-  _savePanelPosition(panelId, panelEl) {
-    return this._panelPosition._savePanelPosition(panelId, panelEl);
-  }
-
-  /**
-   * Promotes a panel to the top of the panel z band [PANEL_Z_BASE, PANEL_Z_MAX].
-   * Renormalizes all promoted panels when the band is exhausted so panels can
-   * never climb above the voice pill (150), toasts (200), or clean-view exit (300).
-   * @param {HTMLElement} panelEl - Panel to bring to front.
-   * @returns {void}
-   */
-  _promotePanelZ(panelEl) {
-    return this._panelPosition._promotePanelZ(panelEl);
-  }
-
-  _makePanelDraggable(panelId, panelEl, handleEl) {
-    return this._panelPosition._makePanelDraggable(panelId, panelEl, handleEl);
->>>>>>> theirs
   }
 
   _buildSharePanelState() {

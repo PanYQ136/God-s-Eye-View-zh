@@ -1,9 +1,5 @@
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import { nextTick } from 'vue';
-=======
-import { Cesium } from '../cesium.js';
->>>>>>> theirs
 import { isPointerFree } from '../data/inputOwnership.js';
 import { createInteractionSession } from '../director/interactions/session.js';
 import { t } from '../i18n/index.js';

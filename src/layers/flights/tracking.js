@@ -1,15 +1,8 @@
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import { formatNumber, t } from '../../i18n/index.js';
 import { unitLabel } from '../../ui/unitLabels.js';
-=======
-import { Cesium } from '../../cesium.js';
->>>>>>> theirs
 import { nextCockpitNearContacts } from '../../data/cockpitAirLod.js';
-import {
-  trackedModelZoomActive,
-  trackedCrossfadeIconAlpha,
-} from '../../data/trackedModelRegime.js';
+import { trackedModelZoomActive } from '../../data/trackedModelRegime.js';
 import {
   screenProjectedRotation,
   stabilizeScreenRotation,
@@ -29,6 +22,7 @@ import {
   TRAIL_MAX_POINTS,
   RENDER_DELAY_SEC,
   TRAIL_COLOR,
+  CYAN_TRANSPARENT,
 } from './policy.js';
 import { roundHeadingDegrees } from '../../data/headingDegrees.js';
 
@@ -100,18 +94,10 @@ export function createTracking({
     const described = parts.queries._describeFlight(icao24);
     if (!described) return null;
     const altFt = Math.round((described.altitudeM || 0) * 3.28084);
-    const routeInfo =
+    const route =
       described.route && _routeIsPlausible(icao24, described.route)
-        ? described.route
+        ? `${described.route.origin.code} → ${described.route.destination.code}`
         : null;
-    const airportLabel = (a) => {
-      if (!a) return '';
-      const code = String(a.code || '').trim();
-      const name = String(a.name || '').trim();
-      if (name && code && name.toLowerCase() !== code.toLowerCase())
-        return `${name} (${code})`;
-      return name || code || '';
-    };
     return {
       id: icao24,
       layerId: 'flights',
@@ -143,11 +129,7 @@ export function createTracking({
         heading: Number.isFinite(described.track)
           ? `${roundHeadingDegrees(described.track)}°`
           : '',
-        route: routeInfo
-          ? `${routeInfo.origin.code} → ${routeInfo.destination.code}`
-          : '',
-        departure: routeInfo ? airportLabel(routeInfo.origin) : '',
-        arrival: routeInfo ? airportLabel(routeInfo.destination) : '',
+        route: route || '',
         icao24,
         // Honesty cue: the contact is coasting on dead reckoning, so the
         // narrated position/velocity are last-known rather than live.
@@ -806,27 +788,14 @@ export function createTracking({
   function _updateTrackedLabelModel(icao24) {
     if (!flightState._trackedEntity || icao24 !== flightState._trackedIcao)
       return;
-    const ctx = _contextSubjectMetadata(icao24);
-    const model = trackedLabelModelFromText(
+    flightState._trackedEntity.gevLabelModel = trackedLabelModelFromText(
       _trackedLabelText(icao24),
       '#39d0ff',
     );
-    // 详细档案框数据（型号 / 性能 / 航线）：复用图层已算好的实时描述字段，
-    // 额外补一个垂直速度。仅作为 label model 的附加字段，主渲染器忽略之。
-    if (ctx && ctx.properties) {
-      const specs = Object.assign({}, ctx.properties);
-      const info = flightState.records.data.get(icao24);
-      if (info && Number.isFinite(info.verticalRate)) {
-        const fpm = Math.round(info.verticalRate * 196.85); // m/s → ft/min
-        specs.verticalRate = `${fpm >= 0 ? '+' : ''}${fpm} ft/min`;
-      }
-      model.specs = specs;
-    }
-    flightState._trackedEntity.gevLabelModel = model;
     refreshTrackedReadout(flightState._trackedEntity);
     // The readout and the context slot describe the same contact — refresh them
     // together so voice never narrates a fix the card has already replaced.
-    refreshTrackedSubjectContext(ctx);
+    refreshTrackedSubjectContext(_contextSubjectMetadata(icao24));
   }
 
   /** Re-image the tracked entity's billboard from the current class/conversion. */
@@ -991,31 +960,23 @@ export function createTracking({
           ),
           TRACKED_ICON_PX,
         ),
-        width: 18,
-        height: 18,
+        width: 28,
+        height: 28,
         scale:
           CLASS_SCALE_2D[
             flightState.records.data.get(flightState._trackedIcao)?.klass
           ] || 1,
         // Solid cyan when the billboard is the visual (zoomed out, 3D off, or model still loading);
         // transparent once the STANDALONE tracked model is actually up (ready + shown).
-        // GEV cross-fade (owner 2026-09-28): the icon's opacity ramps with camera
-        // altitude so it fades out IN STEP with the 3D model fading in — no pop.
-        // Once the model renders, iconAlpha + modelAlpha = 1 (a true cross-fade);
-        // before it renders the icon is held mostly visible so a slow GLB never
-        // leaves the contact invisible.
-        color: new Cesium.CallbackProperty(() => {
-          const h = flightState._viewer?.camera?.positionCartographic?.height;
-          const iconA = trackedCrossfadeIconAlpha(h);
-          const modelUp = parts.rendering._modelOwnsVisual(
-            flightState._trackedIcao,
-          );
-          return Cesium.Color.CYAN.withAlpha(
-            modelUp ? iconA : Math.max(iconA, 0.85),
-          );
-        }, false),
+        color: new Cesium.CallbackProperty(
+          () =>
+            parts.rendering._modelOwnsVisual(flightState._trackedIcao)
+              ? CYAN_TRANSPARENT
+              : Cesium.Color.CYAN,
+          false,
+        ),
         sizeInMeters: false,
-        scaleByDistance: new Cesium.NearFarScalar(1000, 1.6, 8000000, 0.34),
+        scaleByDistance: new Cesium.NearFarScalar(1000, 3.0, 8000000, 0.5),
         alignedAxis: Cesium.Cartesian3.ZERO,
         // The tracked target must never vanish into tile geometry — tracking a
         // taxiing plane at street level would otherwise bury the cyan icon inside
