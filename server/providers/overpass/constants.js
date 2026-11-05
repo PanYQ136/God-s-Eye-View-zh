@@ -1,21 +1,96 @@
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 
 // ---------------------------------------------------------------------------
 // Overpass API proxy constants and cache state
 // ---------------------------------------------------------------------------
-/**
- * User-Agent sent to every Overpass mirror.
- *
- * The OSM API usage policy asks for a "Valid User-Agent identifying application
- * and version"; a generic proxy label is not one. A mirror is free to refuse a
- * client it cannot identify, and `src/overpassProxy.test.mjs` pins what that
- * costs: a refusal is never data, so the query falls through to whatever
- * mirrors are left. Keep this honest and stable — if it is ever refused, the
- * answer is less query volume, not a new name.
- */
+/** Stable application identity for operator-configured Overpass instances. */
 const OVERPASS_USER_AGENT =
   'gods-eye-view/0.1 (+https://github.com/bilawalsidhu/gods-eye-view)';
 
+<<<<<<< ours
+/** Parse only operator-supplied HTTP(S) endpoints; private instances are allowed. */
+function parseOverpassUpstreams(raw) {
+  const endpoints = [];
+  for (const token of String(raw || '').split(',')) {
+    try {
+      const url = new URL(token.trim());
+      if (
+        !['http:', 'https:'].includes(url.protocol) ||
+        !url.hostname ||
+        url.hash
+      )
+        continue;
+      if (!endpoints.includes(url.href)) endpoints.push(url.href);
+    } catch {
+      // Invalid configuration never becomes an upstream or appears in logs.
+    }
+  }
+  return endpoints.slice(0, 8);
+}
+
+let upstreamMemo = { raw: null, endpoints: [], tag: 'none' };
+
+/**
+ * Short, stable identifier for the configured upstream set. Cached responses
+ * carry it so an answer produced by a different instance is not served after
+ * the operator repoints `OVERPASS_UPSTREAMS` — the disk cache outlives the
+ * configuration change by 7 days, a month for boundary queries, and forever on
+ * the serve-stale path. It is a hash, never the URLs, and it is only ever
+ * compared on read: it is not sent to clients and does not appear in errors.
+ */
+function upstreamTag(endpoints) {
+  if (!endpoints.length) return 'none';
+  // Sorted, so reordering the same instances for failover keeps the cache.
+  return createHash('sha256')
+    .update([...endpoints].sort().join('\n'))
+    .digest('hex');
+}
+
+/** Resolve after environment loading. Public Overpass instances are not used by default. */
+function resolveOverpassUpstreams() {
+  readUpstreamMemo();
+  return [...upstreamMemo.endpoints];
+}
+
+/** The configured-upstream tag stored alongside, and checked against, cache entries. */
+function resolveOverpassUpstreamTag() {
+  return readUpstreamMemo().tag;
+}
+
+let reportedForeignCache = false;
+
+/**
+ * Was this cached entry produced by the upstream set configured now?
+ *
+ * With nothing configured there is no instance to contradict, and serving
+ * last-good data at any age is the point of the cache (the proxy's
+ * not-configured path depends on it), so any entry is accepted. Once an
+ * operator does configure an instance, only its own answers are served: an
+ * entry with no tag, or one from a different instance, is refused rather than
+ * matched on the query alone. Shared by both caches fed by these upstreams.
+ */
+function cachedByConfiguredUpstream(entry) {
+  const tag = resolveOverpassUpstreamTag();
+  if (tag === 'none' || entry?.upstreams === tag) return true;
+  if (!reportedForeignCache) {
+    reportedForeignCache = true;
+    console.warn(
+      '[Overpass] ignoring cached responses produced by a different OVERPASS_UPSTREAMS; they will be refetched from the configured instance.',
+    );
+  }
+  return false;
+}
+
+function readUpstreamMemo() {
+  const raw = process.env.OVERPASS_UPSTREAMS || '';
+  if (upstreamMemo.raw !== raw) {
+    const endpoints = parseOverpassUpstreams(raw);
+    upstreamMemo = { raw, endpoints, tag: upstreamTag(endpoints) };
+  }
+  return upstreamMemo;
+}
+=======
 /** Ordered list of Overpass API mirrors; tried sequentially on failure/rate-limit. */
 const OVERPASS_UPSTREAMS = [
   // Fastest + most reliable from this network (measured via proxy ≈2 s; the
@@ -31,6 +106,7 @@ const OVERPASS_UPSTREAMS = [
   'https://lz4.overpass-api.de/api/interpreter',
   'https://overpass.private.coffee/api/interpreter',
 ];
+>>>>>>> theirs
 
 /**
  * TTL for FRESH cached Overpass responses (ms). Road geometry is static for
@@ -146,7 +222,10 @@ export {
   OVERPASS_SIMPLIFY_MIN_POINTS,
   OVERPASS_SIMPLIFY_TOLERANCE_DEG,
   OVERPASS_MAX_RESPONSE_BYTES,
-  OVERPASS_UPSTREAMS,
+  parseOverpassUpstreams,
+  resolveOverpassUpstreams,
+  resolveOverpassUpstreamTag,
+  cachedByConfiguredUpstream,
   OVERPASS_USER_AGENT,
   OVERPASS_TIMEOUT_MS,
 };

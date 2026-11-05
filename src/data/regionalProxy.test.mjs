@@ -60,6 +60,11 @@ test('new data proxies install the same routes in dev and preview servers', asyn
   }
 });
 
+<<<<<<< ours
+test('Launch Library uses a 15-minute cache and optional server-side token header', () => {
+  assert.equal(LL2_CACHE_TTL_MS, 15 * 60_000);
+  const headers = {
+=======
 test('Launch Library uses a 3-hour cache and optional server-side token header', () => {
   /* 2026-11-01：TTL 由 15 分钟放宽到 3 小时 —— 发射计划几小时才变一次，而 LL2 在大陆
      经常连不上，缓存拉长后上游失败仍可用磁盘旧数据（serve-stale）。断言随之更新，
@@ -67,7 +72,13 @@ test('Launch Library uses a 3-hour cache and optional server-side token header',
   assert.equal(LL2_CACHE_TTL_MS, 3 * 60 * 60_000);
   assert.deepEqual(launchLibraryRequestHeaders(''), { Accept: 'application/json' });
   assert.deepEqual(launchLibraryRequestHeaders(' secret '), {
+>>>>>>> theirs
     Accept: 'application/json',
+    'User-Agent': 'gods-eye-view-launch-library-proxy/1.0 (+https://github.com/bilawalsidhu/gods-eye-view)',
+  };
+  assert.deepEqual(launchLibraryRequestHeaders(''), headers);
+  assert.deepEqual(launchLibraryRequestHeaders(' secret '), {
+    ...headers,
     Authorization: 'Token secret',
   });
 });

@@ -1,6 +1,8 @@
 import { Cesium } from './cesium.js';
 
 /**
+<<<<<<< ours
+=======
  * Camera presets for notable locations.
  * Phase 1 default: fly to Austin, TX on load.
  */
@@ -152,6 +154,7 @@ export function flyToDeviceLocation(
 }
 
 /**
+>>>>>>> theirs
  * Set camera to Austin on load with a cinematic fly-in.
  * @returns {Function} Cancels the pending or active startup flight.
  */

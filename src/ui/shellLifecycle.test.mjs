@@ -1,9 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { UiLifetime } from './uiLifetime.js';
+import { createPinia } from 'pinia';
 import { PanelChrome } from './panelChrome.js';
+import { followPanelState } from './rail/panelState.js';
+import { usePanelChromeStore } from './stores/panelChrome.js';
 import { PanelLayoutController } from './panelLayoutController.js';
-import { PanelPositionControls } from './panelPositionControls.js';
 import { ShellFeedback } from './shellFeedback.js';
 import { RecordingControls } from './recordingControls.js';
 
@@ -54,11 +56,6 @@ function fixture() {
       'left-panel-stack',
       'right-context-rail',
       'pp-toggles',
-      'toast',
-      'global-loading-status',
-      'global-loading-detail',
-      'safe-frame-overlay',
-      'safe-frame-box',
       'hud-toggle',
       'hud-layout-select',
     ].map((id) => [id, element()]),
@@ -152,7 +149,7 @@ test('panel layout coalesces each rail and cannot rearm after destruction', () =
     const owner = new PanelLayoutController({
       readHud: () => ({}),
       scheduleCockpitLayout() {},
-      syncPanelCollapseButton() {},
+      presentPanel() {},
       readDisplayScrollTop: () => 0,
     });
     owner._syncLeftPanelAdaptiveLayout = () => layouts++;
@@ -174,6 +171,8 @@ test('panel layout coalesces each rail and cannot rearm after destruction', () =
   }
 });
 
+<<<<<<< ours
+=======
 test('legacy panel drag layer is retired: no card geometry is ever written', () => {
   const f = fixture();
   try {
@@ -210,23 +209,45 @@ test('legacy panel drag layer is retired: no card geometry is ever written', () 
   }
 });
 
+>>>>>>> theirs
 test('feedback disposal clears toast and polling work and rejects retained notices', () => {
   const f = fixture();
   try {
-    const owner = new ShellFeedback({ readLayers: () => [] });
+    const loading = [];
+    const toasts = [];
+    const owner = new ShellFeedback({
+      readLayers: () => [],
+      store: {
+        toast: null,
+        publishToast(view) {
+          this.toast = view;
+          toasts.push(view);
+        },
+        publishLoading: (view) => loading.push(view),
+        publishTraffic() {},
+      },
+    });
     owner.observeVisibility();
     owner._startTrafficChipTicker();
     owner._showToast('Saved');
     assert.equal(f.timers.size, 2);
+    owner._showGlobalStatusNotice('Saving');
+    assert.equal(loading.at(-1).hidden, false);
     owner.destroy();
     owner._showToast('Late');
     owner._showGlobalStatusNotice('Late');
     owner._startTrafficChipTicker();
     document.dispatchEvent(new Event('visibilitychange'));
     assert.equal(f.timers.size, 0);
-    assert.equal(f.nodes.get('toast').textContent, 'Saved');
-    assert.equal(f.nodes.get('toast').classList.contains('visible'), false);
-    assert.equal(f.nodes.get('global-loading-status').hidden, true);
+    assert.deepEqual(
+      toasts.map(({ text, visible }) => ({ text, visible })),
+      [
+        { text: 'Saved', visible: true },
+        { text: 'Saved', visible: false },
+      ],
+    );
+    assert.equal(loading.at(-1).hidden, true);
+    assert.equal(loading.at(-1).label, 'Saving', 'the hidden label stays');
   } finally {
     f.restore();
   }
@@ -237,7 +258,13 @@ test('recording restores the original HUD after repeated entry and revokes retai
   try {
     let mode = 'auto',
       variant = 'tactical';
-    const owner = new RecordingControls({ syncShareState() {} });
+    const hudSyncs = [];
+    const frames = [];
+    const owner = new RecordingControls({
+      syncShareState() {},
+      syncHudControls: () => hudSyncs.push(variant),
+      publishSafeFrame: (frame) => frames.push(frame),
+    });
     owner.hud = {
       getMode: () => mode,
       getVariant: () => variant,
@@ -255,17 +282,23 @@ test('recording restores the original HUD after repeated entry and revokes retai
     owner.setRecordingMode(true);
     assert.equal(mode, 'auto');
     assert.equal(variant, 'tactical');
+    assert.deepEqual(
+      hudSyncs,
+      ['minimal', 'minimal', 'tactical'],
+      'each change shows the HUD layout it leaves',
+    );
     assert.equal(document.body.classList.contains('recording-mode'), false);
-    assert.equal(
-      f.nodes.get('safe-frame-overlay').classList.contains('active'),
-      false,
+    assert.deepEqual(
+      frames,
+      ['9:16', '16:9', null],
+      'the safe frame follows each change and leaves with the recording',
     );
   } finally {
     f.restore();
   }
 });
 
-test('weather rail orders between CCTV and Context, resets positions, observes and syncs chrome', (t) => {
+test('weather rail orders between CCTV and Context, observes and presents chrome', (t) => {
   const f = fixture();
   const observed = new Set();
   const previousResizeObserver = globalThis.ResizeObserver;
@@ -300,41 +333,32 @@ test('weather rail orders between CCTV and Context, resets positions, observes a
     ]) {
       const panel = f.nodes.get(id) || f.element();
       panel.id = id;
-      const positions = new Map(
-        ['top', 'right', 'bottom', 'left', 'z-index'].map((key) => [
-          key,
-          '20px',
-        ]),
-      );
-      panel.style = {
-        removeProperty: (key) => positions.delete(key),
-        positions,
-      };
-      panel.classList.add('panel-draggable', 'panel-dragging', 'collapsed');
-      const button = f.element();
-      button.closest = () => panel;
-      const attributes = new Map();
-      button.setAttribute = (name, value) => attributes.set(name, value);
-      button.getAttribute = (name) => attributes.get(name);
-      panel.button = button;
-      panel.querySelectorAll = () => [button];
-      panel.querySelector = (selector) =>
-        selector.startsWith('.panel-title')
-          ? { textContent: id === 'weather-panel' ? 'WEATHER' : id }
-          : null;
+      panel.style = {};
+      panel.classList.add('collapsed');
       f.nodes.set(id, panel);
     }
     const weather = f.nodes.get('weather-panel');
     stack.children = [weather, f.nodes.get('global-context-panel')];
-    const synced = [];
-    const chrome = { _syncContextRadioLauncherState() {} };
+    const store = usePanelChromeStore(createPinia());
+    const chrome = {
+      _chromeStore: store,
+      _chromeToken: store.connect({}),
+      _shownPanel: PanelChrome.prototype._shownPanel,
+    };
+    const presented = [];
     const owner = new PanelLayoutController({
       readHud: () => ({}),
       scheduleCockpitLayout() {},
       readDisplayScrollTop: () => 0,
+<<<<<<< ours
+      presentPanel(panel, patch) {
+        presented.push(panel.id);
+        PanelChrome.prototype._presentPanel.call(chrome, panel, patch);
+=======
       syncPanelDisclosureState(panel) {
         synced.push(panel.id);
         PanelChrome.prototype._syncPanelDisclosureState.call(chrome, panel);
+>>>>>>> theirs
       },
     });
     owner._initRightPanelAdaptiveLayout();
@@ -342,8 +366,17 @@ test('weather rail orders between CCTV and Context, resets positions, observes a
       stack.children.map((panel) => panel.id),
       ['pp-toggles', 'cctv-panel', 'weather-panel', 'global-context-panel'],
     );
-    assert.ok(synced.includes('weather-panel'));
     assert.ok(observed.has(weather));
+<<<<<<< ours
+    // Moving a panel into the rail leaves its state as it was.
+    assert.deepEqual(presented, []);
+    followPanelState(store, 'weather-panel', weather);
+    PanelChrome.prototype._presentPanel.call(chrome, weather, {
+      collapsed: false,
+    });
+    assert.equal(store.panels['weather-panel'].collapsed, false);
+    assert.equal(weather.classList.contains('collapsed'), false);
+=======
     assert.equal(weather.style.positions.size, 0);
     assert.equal(weather.classList.contains('panel-draggable'), false);
     assert.equal(weather.classList.contains('panel-dragging'), false);
@@ -354,9 +387,48 @@ test('weather rail orders between CCTV and Context, resets positions, observes a
     PanelChrome.prototype._syncPanelDisclosureState.call(chrome, weather);
     assert.equal(weather.button.textContent, '');
     assert.equal(weather.button.getAttribute('aria-expanded'), undefined);
+>>>>>>> theirs
     owner.destroy();
     assert.equal(observed.size, 0);
     assert.equal(f.frames.size, 0);
+  } finally {
+    f.restore();
+  }
+});
+
+test('busy traffic completion is polled promptly without accelerating idle or global reads', (t) => {
+  const f = fixture();
+  let now = 500;
+  t.mock.method(performance, 'now', () => now);
+  try {
+    const owner = new ShellFeedback({ readLayers: () => [] });
+    let traffic = 0,
+      global = 0;
+    owner._updateTrafficSyncChip = () => traffic++;
+    owner._updateGlobalLoadingFeedback = () => global++;
+    owner._startTrafficChipTicker();
+    const tick = f.timers.get(owner._trafficChipTicker);
+    tick();
+    assert.equal(traffic, 1);
+    assert.equal(global, 1);
+    now = 600;
+    tick();
+    assert.equal(traffic, 1, 'idle polling remains bounded');
+    owner._trafficSyncFeedbackState.busy = true;
+    now = 700;
+    tick();
+    assert.equal(traffic, 2, 'busy completion is observed on a 100 ms tick');
+    assert.equal(global, 1, 'other loading feedback keeps its prior budget');
+    owner._trafficSyncFeedbackState.busy = false;
+    now = 800;
+    tick();
+    assert.equal(traffic, 2);
+    document.hidden = true;
+    now = 1300;
+    tick();
+    assert.equal(traffic, 2, 'hidden pages do no polling');
+    owner.destroy();
+    assert.equal(f.timers.size, 0);
   } finally {
     f.restore();
   }

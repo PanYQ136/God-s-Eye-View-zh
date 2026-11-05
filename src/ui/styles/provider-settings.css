@@ -5,6 +5,37 @@
    mono kickers. The chip retires once every key is configured.
    ============================================================ */
 
+<<<<<<< ours
+/* The chip sits in the bottom-right corner row (#corner-actions,
+   locale-picker.css), which owns the position. */
+#key-setup-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.7rem;
+  color: rgba(225, 244, 248, 0.92);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.09rem;
+  background: linear-gradient(
+    145deg,
+    rgba(10, 27, 37, 0.92),
+    rgba(7, 13, 22, 0.9)
+  );
+  border: 1px solid rgba(54, 220, 255, 0.38);
+  border-radius: 0.42rem;
+  box-shadow:
+    0 0.4rem 1.6rem rgba(0, 0, 0, 0.5),
+    0 0 1.2rem rgba(0, 212, 255, 0.07);
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  cursor: pointer;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    transform var(--transition-fast);
+}
+=======
   #key-setup-chip {
     position: fixed;
     right: 0.9rem;
@@ -37,6 +68,7 @@
       background var(--transition-fast),
       transform var(--transition-fast);
   }
+>>>>>>> theirs
 
   #key-setup-chip:hover,
   #key-setup-chip:focus-visible {
@@ -182,6 +214,26 @@
     border-radius: 0.2rem;
   }
 
+<<<<<<< ours
+.key-setup-rows {
+  display: grid;
+  gap: 0.42rem;
+  margin-top: 1rem;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.key-setup-row {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.6rem 0.7rem;
+  background: rgba(29, 69, 81, 0.14);
+  border: 1px solid rgba(100, 200, 220, 0.15);
+  border-radius: 0.42rem;
+}
+=======
   .key-setup-rows {
     display: grid;
     gap: 0.42rem;
@@ -210,6 +262,7 @@
     border: 1px solid rgba(100, 200, 220, 0.15);
     border-radius: 0.42rem;
   }
+>>>>>>> theirs
 
   .key-setup-row[data-set='true'] {
     background: rgba(30, 81, 57, 0.12);
@@ -303,9 +356,52 @@
     color: rgba(148, 178, 188, 0.42);
   }
 
+<<<<<<< ours
+.key-setup-cloud-auth {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.key-setup-cloud-auth-state {
+  color: rgba(190, 214, 222, 0.7);
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.05rem;
+}
+
+.key-setup-cloud-auth-toggle {
+  margin-left: auto;
+  padding: 0.28rem 0.55rem;
+  color: rgba(54, 220, 255, 0.9);
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.06rem;
+  background: rgba(54, 220, 255, 0.08);
+  border: 1px solid rgba(54, 220, 255, 0.28);
+  border-radius: 0.32rem;
+  cursor: pointer;
+}
+
+.key-setup-cloud-auth-toggle:hover,
+.key-setup-cloud-auth-toggle:focus-visible {
+  border-color: rgba(54, 220, 255, 0.65);
+  outline: none;
+}
+
+.key-setup-cloud-auth-toggle[aria-disabled='true'] {
+  cursor: wait;
+  opacity: 0.5;
+}
+
+.key-setup-footer {
+  margin-top: 0.85rem;
+}
+=======
   .key-setup-footer {
     margin-top: 0.85rem;
   }
+>>>>>>> theirs
 
   .key-setup-apply {
     padding: 0.5rem 0.95rem;
@@ -355,6 +451,19 @@
     display: none;
   }
 
+<<<<<<< ours
+/* Provider Settings additions: externally-managed badge + per-row remove. */
+.key-setup-external {
+  padding: 0.05rem 0.3rem;
+  color: rgba(148, 200, 220, 0.7);
+  font-size: 0.5rem;
+  letter-spacing: 0.06rem;
+  text-transform: uppercase;
+  border: 1px solid rgba(148, 200, 220, 0.28);
+  border-radius: 0.3rem;
+  white-space: nowrap;
+}
+=======
   @media (max-width: 620px) {
     /* Clear the dock. Desktop-first app; this is a courtesy, not a layout. */
     #key-setup-chip {
@@ -373,6 +482,7 @@
     border-radius: 0.3rem;
     white-space: nowrap;
   }
+>>>>>>> theirs
 
   .key-setup-remove {
     justify-self: start;

@@ -1,3 +1,9 @@
+// Restore labels are marked with msg(); ui/shareRestoration.js translates them.
+// Local, not i18n/marker.js: the token-ledger tests run this file in isolation.
+const msg = (text) => text;
+import { normalizeIdSwitches, patchRequestedIdSwitches } from './idSwitches.js';
+import reservationRows from './layerStateTokenReservations.json' with { type: 'json' };
+
 const VALID_DISPOSITIONS = new Set([
   'enabled-only',
   'enabled+options',
@@ -5,8 +11,10 @@ const VALID_DISPOSITIONS = new Set([
 ]);
 
 export const LAYER_STATE_VERSION = 2;
-/** Re-check cadence while a shared subject waits for its feed row to arrive. */
-const PENDING_TRACKING_POLL_MS = 1_000;
+export const LAYER_STATE_TOKEN_ALPHABET =
+  '0123456789abcdefghijklmnopqrstuvwxyz';
+const LAYER_STATE_TOKEN_PATTERN = /^[a-z0-9]{1,2}$/;
+const NEW_SINGLE_CHARACTER_TOKEN_PATTERN = /^[0-9]$/;
 /**
  * A tracking ID is a transponder address, not free text: 6 hex digits for an
  * ICAO24, with slack for TIS-B (`~abc123`) and similar prefixed forms. Bounding
@@ -15,14 +23,15 @@ const PENDING_TRACKING_POLL_MS = 1_000;
  * out-of-grammar ID is rejected outright, because half an address is a
  * DIFFERENT aircraft, not a shorter name for the same one.
  */
-const TRACKING_ID_GRAMMAR = /^[0-9a-z~_-]{1,16}$/;
+export const TRACKING_ID_GRAMMAR = /^[0-9a-z~_-]{1,16}$/;
 /**
- * Ceilings for the untrusted v2 layer fields. Both are far above any legitimate
- * payload (16 one-character tokens; a dozen short option assignments), so a
- * value past them is malformed or hostile. Reject the WHOLE payload, matching
- * the unknown-token rule — never salvage a prefix.
+ * Ceilings for the untrusted v2 layer fields. The layer ceiling covers the
+ * complete reserved one-character space plus every two-character base-36
+ * allocation, while the option ceiling covers a dozen short assignments.
+ * Reject the WHOLE payload, matching the unknown-token rule — never salvage a
+ * prefix.
  */
-const MAX_ENABLED_LAYERS_CHARS = 64;
+const MAX_ENABLED_LAYERS_CHARS = 4_096;
 const MAX_LAYER_OPTIONS_CHARS = 512;
 export const LAYER_STATE_STORAGE_KEY = 'gev:layer-state:v2';
 export const LAYER_RESTORE_ORIGINS = Object.freeze({
@@ -270,7 +279,46 @@ function imageryPinOption(key, token) {
   });
 }
 
+function satelliteFilterOption() {
+  const percentage = boundedIntegerOption('infrared', 'i', 100, {
+    min: 0,
+    max: 100,
+  });
+  return Object.freeze({
+    ...percentage,
+    normalize: (value) =>
+      value === 'filtered'
+        ? 100
+        : value === 'full'
+          ? 0
+          : percentage.normalize(value),
+    decode: (value) =>
+      value === 'f' ? 100 : value === 'a' ? 0 : percentage.decode(value),
+  });
+}
+
 const OPTION_GROUPS = Object.freeze({
+  // Active Fires intensity filter (HAL-676). `minFrp` is whole megawatts on
+  // the codec side; the panel's log slider rounds to it. Both default to
+  // "show everything": many of the strongest fires are rated low confidence.
+  // The bounds and modes mirror MIN_FRP_MW_MAX / FIRMS_CONFIDENCE_MODES in
+  // firmsIntensity.js (pinned by layerState.test); spelled out here because
+  // this file runs in isolation in the token-ledger tests.
+  'local-firms': Object.freeze([
+    boundedIntegerOption('minFrp', 'f', 0, { min: 0, max: 10000 }),
+    enumOption('confidence', 'c', 'all', ['all', 'nominal', 'high'], {
+      all: 'a',
+      nominal: 'n',
+      high: 'h',
+    }),
+  ]),
+  traffic: Object.freeze([
+    enumOption('roadMode', 'r', null, ['tomtom', 'osm', 'hybrid'], {
+      tomtom: 't',
+      osm: 'o',
+      hybrid: 'h',
+    }),
+  ]),
   'weather-lightning': Object.freeze([
     enumOption('opacity', 'o', 'strong', ['light', 'strong'], {
       light: 'l',
@@ -284,10 +332,7 @@ const OPTION_GROUPS = Object.freeze({
     }),
   ]),
   'weather-satellite': Object.freeze([
-    enumOption('infrared', 'i', 'filtered', ['filtered', 'full'], {
-      filtered: 'f',
-      full: 'a',
-    }),
+    satelliteFilterOption(),
     enumOption('opacity', 'o', 'strong', ['light', 'strong'], {
       light: 'l',
       strong: 's',
@@ -382,6 +427,27 @@ const OPTION_GROUPS = Object.freeze({
     ),
     booleanOption('viirs', 'v', false),
   ]),
+  'street-level': Object.freeze([
+    // Preserve the published Mapillary token; custom switches use stable IDs.
+    booleanOption('mapillary', 'm', true),
+    Object.freeze({
+      key: 'providerSwitches',
+      patchRequested: patchRequestedIdSwitches,
+      token: 'r',
+      defaultValue: '',
+      normalize: (value) => normalizeIdSwitches(value, ['mapillary']),
+      encode: normalizeIdSwitches,
+      decode: (value) => normalizeIdSwitches(value, ['mapillary']),
+    }),
+    enumOption('pano', 'p', 'all', ['all', 'pano', 'flat'], {
+      all: 'a',
+      pano: 'p',
+      flat: 'f',
+    }),
+    // Relative days, so a link means the same next year. The max matches
+    // MAX_SINCE_DAYS in streetLevel/policy.js (pinned by layerState.test).
+    boundedIntegerOption('sinceDays', 's', 0, { min: 0, max: 36500 }),
+  ]),
   radio: Object.freeze([
     Object.freeze({
       key: 'filter',
@@ -403,38 +469,125 @@ const OPTION_GROUPS = Object.freeze({
   ]),
 });
 
-const TRACKING_OPTION_KEY_BY_LAYER = Object.freeze({
-  flights: 'selectedFlightsTrackingId',
-  military: 'selectedMilitaryTrackingId',
-  satellites: 'selectedSatTrackingId',
-});
-
 export const SHARE_TRACKING_RESTORE_POLICIES = Object.freeze({
   flights: Object.freeze({
     optionOwner: 'flights',
     optionKey: 'selectedFlightsTrackingId',
     expiryWindowMs: 90_000,
-    label: 'flight',
+    label: msg('flight'),
   }),
   military: Object.freeze({
     optionOwner: 'flights',
     optionKey: 'selectedMilitaryTrackingId',
     expiryWindowMs: 45_000,
-    label: 'military flight',
+    label: msg('military flight'),
   }),
   satellites: Object.freeze({
     optionOwner: 'satellites',
     optionKey: 'selectedSatTrackingId',
     expiryWindowMs: 300_000,
-    label: 'satellite',
+    label: msg('satellite'),
   }),
 });
+
+/**
+ * The original single-character assignments are a closed compatibility set.
+ * Keep their exact mapping pinned by the independent snapshot in the tests.
+ */
+export const LEGACY_LAYER_STATE_TOKENS = Object.freeze({
+  'ais-live-vessels': 'a',
+  'alpr-cameras': 'p',
+  'bhote-koshi-2026': 'h',
+  'bhote-koshi-locator': 'z',
+  bikeshare: 'b',
+  cctv: 'c',
+  directions: 'n',
+  earthquakes: 'e',
+  'fire-perimeters': '2',
+  flights: 'f',
+  'local-dams': 'q',
+  'local-datacenters': 'd',
+  'local-firms': 'w',
+  military: 'm',
+  'military-awareness': 'g',
+  'military-installations': 'i',
+  radio: 'r',
+  'recent-imagery': '1',
+  'rocket-launches': 'x',
+  satellites: 's',
+  'telegeography-submarine-cables': 'u',
+  traffic: 't',
+  transit: 'j',
+  'weather-cyclones': 'y',
+  'weather-lightning': 'l',
+  'weather-radar': 'v',
+  'weather-satellite': 'o',
+  wind: 'k',
+});
+
+/**
+ * Permanent token ownership. Existing share links are public authored state,
+ * so an allocation stays here even if its layer is later removed. The JSON
+ * ledger is also read directly from the published Git base by the checker.
+ */
+export function parseLayerStateTokenReservations(rows) {
+  if (!Array.isArray(rows)) {
+    throw new Error('Layer-state token ledger must be an array');
+  }
+  const reservations = Object.create(null);
+  const reservedIdsByToken = new Map();
+  for (const row of rows) {
+    if (
+      !Array.isArray(row) ||
+      row.length !== 2 ||
+      typeof row[0] !== 'string' ||
+      typeof row[1] !== 'string'
+    ) {
+      throw new Error('Invalid layer-state token ledger row');
+    }
+    const [id, token] = row;
+    if (!/^[a-z0-9-]+$/.test(id) || !LAYER_STATE_TOKEN_PATTERN.test(token)) {
+      throw new Error(`Invalid layer-state token reservation: ${id}`);
+    }
+    if (Object.hasOwn(reservations, id)) {
+      throw new Error(`Duplicate layer-state token reservation id: ${id}`);
+    }
+    if (reservedIdsByToken.has(token)) {
+      throw new Error(`Duplicate layer-state token reservation: ${token}`);
+    }
+    if (
+      (Object.hasOwn(LEGACY_LAYER_STATE_TOKENS, id) &&
+        token !== LEGACY_LAYER_STATE_TOKENS[id]) ||
+      (token.length === 1 &&
+        !NEW_SINGLE_CHARACTER_TOKEN_PATTERN.test(token) &&
+        LEGACY_LAYER_STATE_TOKENS[id] !== token)
+    ) {
+      throw new Error(`Legacy layer-state token is immutable: ${id}`);
+    }
+    reservations[id] = token;
+    reservedIdsByToken.set(token, id);
+  }
+  for (const [id, token] of Object.entries(LEGACY_LAYER_STATE_TOKENS)) {
+    if (reservations[id] !== token) {
+      throw new Error(`Missing or changed legacy layer-state token: ${id}`);
+    }
+  }
+  return Object.freeze(reservations);
+}
+
+export const LAYER_STATE_TOKEN_RESERVATIONS =
+  parseLayerStateTokenReservations(reservationRows);
 
 /**
  * Canonical serialization registry. Its order, not runtime registration order,
  * owns stable URL ordering.
  */
 export const LAYER_STATE_REGISTRY = Object.freeze([
+  Object.freeze({
+    id: 'air-quality',
+    token: '4',
+    disposition: 'enabled-only',
+  }),
   Object.freeze({
     id: 'ais-live-vessels',
     token: 'a',
@@ -467,6 +620,11 @@ export const LAYER_STATE_REGISTRY = Object.freeze([
   Object.freeze({ id: 'cn-traffic', token: '3', disposition: 'enabled-only' }),
   Object.freeze({ id: 'cn-typhoon', token: '6', disposition: 'enabled-only' }),
   Object.freeze({ id: 'directions', token: 'n', disposition: 'enabled-only' }),
+  Object.freeze({
+    id: 'drone-airspace',
+    token: '8',
+    disposition: 'enabled-only',
+  }),
   Object.freeze({ id: 'earthquakes', token: 'e', disposition: 'enabled-only' }),
   Object.freeze({
     id: 'fire-perimeters',
@@ -479,13 +637,23 @@ export const LAYER_STATE_REGISTRY = Object.freeze([
     disposition: 'enabled+options',
     optionOwner: 'flights',
   }),
+  Object.freeze({
+    id: 'gnss-integrity',
+    token: '3',
+    disposition: 'enabled-only',
+  }),
   Object.freeze({ id: 'local-dams', token: 'q', disposition: 'enabled-only' }),
   Object.freeze({
     id: 'local-datacenters',
     token: 'd',
     disposition: 'enabled-only',
   }),
-  Object.freeze({ id: 'local-firms', token: 'w', disposition: 'enabled-only' }),
+  Object.freeze({
+    id: 'local-firms',
+    token: 'w',
+    disposition: 'enabled+options',
+    optionOwner: 'local-firms',
+  }),
   Object.freeze({
     id: 'military',
     token: 'm',
@@ -520,17 +688,35 @@ export const LAYER_STATE_REGISTRY = Object.freeze([
     disposition: 'enabled-only',
   }),
   Object.freeze({
+    id: 's2-ghostmaps',
+    token: '5',
+    disposition: 'enabled-only',
+  }),
+  Object.freeze({
     id: 'satellites',
     token: 's',
     disposition: 'enabled+options',
     optionOwner: 'satellites',
+  }),
+  Object.freeze({ id: 'sea-marks', token: '6', disposition: 'enabled-only' }),
+  Object.freeze({ id: 'ski-pistes', token: '7', disposition: 'enabled-only' }),
+  Object.freeze({
+    id: 'street-level',
+    token: '0',
+    disposition: 'enabled+options',
+    optionOwner: 'street-level',
   }),
   Object.freeze({
     id: 'telegeography-submarine-cables',
     token: 'u',
     disposition: 'enabled-only',
   }),
-  Object.freeze({ id: 'traffic', token: 't', disposition: 'enabled-only' }),
+  Object.freeze({
+    id: 'traffic',
+    token: 't',
+    disposition: 'enabled+options',
+    optionOwner: 'traffic',
+  }),
   Object.freeze({ id: 'transit', token: 'j', disposition: 'enabled-only' }),
   Object.freeze({
     id: 'weather-cyclones',
@@ -567,7 +753,61 @@ export const REGISTERED_LAYER_IDS = Object.freeze(
   LAYER_STATE_REGISTRY.map((entry) => entry.id),
 );
 
-const REGISTRY_BY_ID = new Map(
+/** Consume unreserved digits before the two-character base-36 namespace. */
+export function nextLayerStateToken(
+  reservations = LAYER_STATE_TOKEN_RESERVATIONS,
+) {
+  const occupied = new Set(Object.values(reservations || {}));
+  for (const digit of '0123456789') {
+    if (!occupied.has(digit)) return digit;
+  }
+  for (const first of LAYER_STATE_TOKEN_ALPHABET) {
+    for (const second of LAYER_STATE_TOKEN_ALPHABET) {
+      const candidate = `${first}${second}`;
+      if (!occupied.has(candidate)) return candidate;
+    }
+  }
+  throw new Error('Layer-state token namespace exhausted');
+}
+
+function allocationRank(token) {
+  if (NEW_SINGLE_CHARACTER_TOKEN_PATTERN.test(token)) return Number(token);
+  if (typeof token !== 'string' || token.length !== 2) return Infinity;
+  const first = LAYER_STATE_TOKEN_ALPHABET.indexOf(token[0]);
+  const second = LAYER_STATE_TOKEN_ALPHABET.indexOf(token[1]);
+  return first < 0 || second < 0 ? Infinity : 10 + first * 36 + second;
+}
+
+/** Check a proposed ledger against the published merge-time base. */
+export function validateLayerStateAllocations(
+  baseReservations,
+  reservations = LAYER_STATE_TOKEN_RESERVATIONS,
+) {
+  if (!baseReservations || typeof baseReservations !== 'object') {
+    throw new Error('Base layer-state token reservations are required');
+  }
+  for (const [id, token] of Object.entries(baseReservations)) {
+    if (reservations[id] !== token) {
+      throw new Error(`Published layer-state token changed or removed: ${id}`);
+    }
+  }
+  const newlyReserved = Object.entries(reservations)
+    .filter(([id]) => !Object.hasOwn(baseReservations, id))
+    .sort((left, right) => allocationRank(left[1]) - allocationRank(right[1]));
+  const occupied = { ...baseReservations };
+  for (const [id, token] of newlyReserved) {
+    const expected = nextLayerStateToken(occupied);
+    if (token !== expected) {
+      throw new Error(
+        `Layer-state token for ${id} must be the next free token ${expected}`,
+      );
+    }
+    occupied[id] = token;
+  }
+  return true;
+}
+
+export const REGISTRY_BY_ID = new Map(
   LAYER_STATE_REGISTRY.map((entry) => [entry.id, entry]),
 );
 const REGISTRY_BY_TOKEN = new Map(
@@ -579,7 +819,7 @@ const OPTION_OWNER_IDS = Object.freeze([
   ),
 ]);
 
-function optionSpecs(ownerId) {
+export function optionSpecs(ownerId) {
   return OPTION_GROUPS[ownerId] || [];
 }
 
@@ -607,9 +847,38 @@ export function isExplicitLayerStateOrigin(origin) {
 }
 
 /** Validate the static registry itself before it is used to seal a manager. */
-export function validateLayerStateRegistry(registry = LAYER_STATE_REGISTRY) {
+export function validateLayerStateRegistry(
+  registry = LAYER_STATE_REGISTRY,
+  reservations = LAYER_STATE_TOKEN_RESERVATIONS,
+) {
   if (!Array.isArray(registry) || registry.length === 0) {
     throw new Error('Layer-state registry must be a non-empty array');
+  }
+  if (
+    !reservations ||
+    typeof reservations !== 'object' ||
+    Array.isArray(reservations)
+  ) {
+    throw new Error('Layer-state token reservations must be an object');
+  }
+  const reservedIdsByToken = new Map();
+  for (const [id, token] of Object.entries(reservations)) {
+    if (!/^[a-z0-9-]+$/.test(id) || !LAYER_STATE_TOKEN_PATTERN.test(token)) {
+      throw new Error(`Invalid layer-state token reservation: ${id}`);
+    }
+    if (
+      (Object.hasOwn(LEGACY_LAYER_STATE_TOKENS, id) &&
+        token !== LEGACY_LAYER_STATE_TOKENS[id]) ||
+      (token.length === 1 &&
+        !NEW_SINGLE_CHARACTER_TOKEN_PATTERN.test(token) &&
+        LEGACY_LAYER_STATE_TOKENS[id] !== token)
+    ) {
+      throw new Error(`Legacy layer-state token is immutable: ${id}`);
+    }
+    if (reservedIdsByToken.has(token)) {
+      throw new Error(`Duplicate layer-state token reservation: ${token}`);
+    }
+    reservedIdsByToken.set(token, id);
   }
   const ids = new Set();
   const tokens = new Set();
@@ -621,8 +890,14 @@ export function validateLayerStateRegistry(registry = LAYER_STATE_REGISTRY) {
     if (ids.has(entry.id))
       throw new Error(`Duplicate layer-state id: ${entry.id}`);
     ids.add(entry.id);
-    if (!/^[a-z0-9]$/.test(entry.token || ''))
+    if (!LAYER_STATE_TOKEN_PATTERN.test(entry.token || ''))
       throw new Error(`Invalid layer-state token: ${entry.id}`);
+    if (reservations[entry.id] !== entry.token) {
+      throw new Error(`Unreserved layer-state token: ${entry.id}`);
+    }
+    if (reservedIdsByToken.get(entry.token) !== entry.id) {
+      throw new Error(`Layer-state token reservation mismatch: ${entry.token}`);
+    }
     if (tokens.has(entry.token))
       throw new Error(`Duplicate layer-state token: ${entry.token}`);
     tokens.add(entry.token);
@@ -746,18 +1021,26 @@ export function encodeLayerStateParams(params, state) {
 
 /** Decode v2 fields. Null means that the layer payload is absent. */
 export function decodeLayerStateParams(params) {
-  if (params.get('v') !== String(LAYER_STATE_VERSION) || !params.has('l'))
+  const layerFields = params.getAll('l');
+  if (
+    params.get('v') !== String(LAYER_STATE_VERSION) ||
+    layerFields.length !== 1
+  )
     return null;
-  const rawLayers = String(params.get('l') || '');
+  const rawLayers = layerFields[0];
   const rawOptionsField = String(params.get('lo') || '');
   // Fail closed on an oversized payload rather than decoding a truncated one.
   if (rawLayers.length > MAX_ENABLED_LAYERS_CHARS) return null;
   if (rawOptionsField.length > MAX_LAYER_OPTIONS_CHARS) return null;
-  const layerTokens = rawLayers.split('.').filter(Boolean);
-  // `l=` is the one valid explicit-empty representation. Any non-empty token
-  // set containing an unknown member rejects the complete layer payload so a
-  // typo or future token cannot silently become an authoritative empty set.
-  if (layerTokens.some((token) => !REGISTRY_BY_TOKEN.has(token))) return null;
+  const layerTokens = rawLayers ? rawLayers.split('.') : [];
+  // `l=` is the one valid explicit-empty representation. Reject repeated
+  // fields, empty members, duplicate members, or unknown members; silently
+  // removing one would turn a malformed share into a different state.
+  if (
+    layerTokens.some((token) => !token || !REGISTRY_BY_TOKEN.has(token)) ||
+    new Set(layerTokens).size !== layerTokens.length
+  )
+    return null;
   const enabledLayerIds = layerTokens.map(
     (token) => REGISTRY_BY_TOKEN.get(token).id,
   );
@@ -841,6 +1124,8 @@ export function layerOptionsForRestore(state, layerId) {
   if (!entry?.optionOwner) return null;
   return { ...normalizeLayerState(state).options[entry.optionOwner] };
 }
+<<<<<<< ours
+=======
 
 function safeStorage() {
   try {
@@ -1620,3 +1905,4 @@ export class LayerStateCoordinator {
     this.onTrackingRestoreStatus = null;
   }
 }
+>>>>>>> theirs

@@ -20,6 +20,9 @@ import {
   governorRequestRender,
 } from '../renderGovernor.js';
 import { describeError } from './errors.js';
+<<<<<<< ours
+import { onLocaleChange, t } from '../i18n/index.js';
+=======
 import * as timeline from '../boot-timeline.js';
 import { sampleCanvasContent, isSceneContentVisible } from './sceneContent.js';
 
@@ -28,11 +31,13 @@ import { sampleCanvasContent, isSceneContentVisible } from './sceneContent.js';
 const bootStackProbe = resolveInitialStackId({ hasGoogle3d: false }).catch(
   () => 'amap-satellite',
 );
+>>>>>>> theirs
 
 /** Construct the application globe using the caller's local configuration. */
 export async function createApplicationScene({
   requestServices,
   googleApiKey,
+  googleTokens = null,
   cesiumToken,
   credits,
   MapController = MapStackController,
@@ -55,12 +60,16 @@ export async function createApplicationScene({
       else window.__GOOGLE_MAPS_API_KEY__ = previousKey;
     });
   }
+<<<<<<< ours
+  loaderStatus.textContent = t('Configuring viewer...');
+=======
   loaderStatus.textContent = 'Configuring viewer...';
   timeline.mark('scene:begin');
   /* Phase7A：底图探测（google 可达性）与 Viewer 构造并行；最迟 700ms 直接
      落 amap-satellite（大陆可用、无元数据往返）——base 只是过渡层，最终仍是
      photoreal 3D Tiles。旧链路串行等探测，实测 1.2s 全在关键路径上。 */
   const stackProbe = bootStackProbe;
+>>>>>>> theirs
   // Provider attribution stays visible, including clean-view and recording.
   const creditContainer = document.createElement('div');
   creditContainer.id = 'cesium-credits';
@@ -78,6 +87,14 @@ export async function createApplicationScene({
   defer(installTrackpadPinchZoom(viewer));
   registerDataCredits(viewer, credits);
   configureCreditKeyboardAccess(document);
+<<<<<<< ours
+  defer(onLocaleChange(() => configureCreditKeyboardAccess(document)));
+  loaderStatus.textContent =
+    googleApiKey || googleTokens || cesiumToken
+      ? t('Loading Google 3D Tiles...')
+      : t('Loading the keyless globe...');
+  const photoreal = await loadPhotorealisticTileset(Cesium, {
+=======
   /* ── base-first：Tiles 只「发起」，不 await（解耦首屏交互与 3D Tiles）───
      旧链路 await 了 Tiles 才 setStack + scene ready，于是 App 其余阶段与就绪门
      全部排在 3D Tiles 之后（C6 实测 tileset 2.5–3.5s / 最终视角影像 10.3–12.4s）。
@@ -86,10 +103,47 @@ export async function createApplicationScene({
   loaderStatus.textContent = 'Loading the base map...';
   timeline.mark('tileset:fetch:dispatched', { route });
   const photorealPromise = loadPhotorealisticTilesetPrimed(Cesium, {
+>>>>>>> theirs
     googleApiKey,
+    googleTokens,
     cesiumToken,
     warmEndpoint: takeWarmIonEndpoint(),
   });
+<<<<<<< ours
+  const tileset = photoreal.tileset;
+  // A provider can finish after cancellation; retain ownership of its result.
+  defer(() => {
+    if (tileset && !tileset.isDestroyed()) {
+      if (!viewer.scene.primitives.remove(tileset)) tileset.destroy();
+    }
+  });
+  signal.throwIfAborted();
+  if (tileset) {
+    viewer.scene.primitives.add(tileset);
+    // NOTE: Cesium World Terrain intentionally disabled — conflicts with Google 3D Tiles at high zoom.
+    // Google Photorealistic 3D Tiles provide their own terrain/elevation.
+    viewer.scene.globe.show = false;
+    console.info(`[Init] Google 3D Tiles loaded via ${photoreal.route}.`);
+  } else {
+    if (photoreal.errors.length) {
+      const tileError = photoreal.errors.at(-1);
+      console.warn(
+        '[Init] Google 3D Tiles unavailable, using the keyless globe:',
+        tileError,
+      );
+      const tileErrorDetail = describeError(tileError);
+      loaderStatus.textContent = t(
+        'Google 3D Tiles unavailable ({detail}). Loading the keyless globe...',
+        {
+          detail: tileErrorDetail,
+        },
+      );
+    }
+    viewer.scene.globe.show = true;
+  }
+
+  loaderStatus.textContent = t('Initializing systems...');
+=======
 
   loaderStatus.textContent = 'Initializing systems...';
   // Network-aware default base map: a browser that cannot reach Google's hosts
@@ -103,6 +157,7 @@ export async function createApplicationScene({
 
   /* 底图栈已定 → 立刻补该 provider 的 z12/13/14 视野环（探针区 640×420）。 */
   setBaseProvider(initialStackId);
+>>>>>>> theirs
 
   const mapStackController = new MapController(viewer, {
     requestRender: governorRequestRender,

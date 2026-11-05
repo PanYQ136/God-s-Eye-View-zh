@@ -1,35 +1,10 @@
 import { Cesium } from '../../cesium.js';
 
 /**
- * @file Street Traffic — animated dots along OSM road polylines, colored by
- * live TomTom congestion when a key is configured.
- *
- * Road geometry: OSM Overpass API (free, no auth). Fetches road polylines for
- * the camera viewport, spawns PointPrimitives that lerp along pre-computed
- * Cartesian3 waypoints. Camera-gated: only active below ~8 km altitude.
- *
- * Two modes (decided once per session via `/api/tomtom/status`):
- *  - `sim` (keyless default): white dots at hardcoded per-road-class speeds —
- *    the original simulation, byte-identical behavior.
- *  - `live`: TomTom flow tiles (`flowTiles.js`) are matched onto the same
- *    Overpass roads (`flowMatch.js`); matched roads color/slow/densify their
- *    dots by real congestion (`trafficFlowStyle.js`), closed roads spawn no
- *    dots, and unmatched roads keep the simulated white.
- *
- * Architecture overview:
- *  - Camera-change listener triggers debounced road fetching per viewport tile.
- *  - Fetch bounds center on the camera's look-at point (`trafficBounds.js`, C4).
- *  - Roads are fetched in two passes: major-only (fast) then full graph (detailed).
- *  - Fetched tiles are cached by clamped bounding-box key to avoid re-fetching.
- *  - Dot budget allocation distributes a hard cap fairly across visible roads.
- *  - Each dot lerps along pre-computed Cartesian3 waypoints every preRender frame.
- *
- * @module data/traffic
+ * @file Street Traffic selects TomTom, OpenMapTiles or Hybrid motor roads,
+ * with directional TomTom congestion in live mode. Tile acquisition is
+ * bounded and camera-driven; animation lerps precomputed Cartesian waypoints.
  */
-
-/** @const {string} Proxy endpoint for Overpass API queries */
-
-export const OVERPASS_URL = '/api/overpass';
 
 /** @const {number} Meters — hide all traffic dots above this camera altitude */
 
@@ -55,6 +30,15 @@ export const OVERLAP_THRESHOLD = 0.6;
 
 export const MAX_DOTS = 6000;
 
+<<<<<<< ours
+/** Keep a dense street view while bounding both dot and surface work at city scale. */
+export function roadDotBudget(altitude) {
+  return Math.max(
+    400,
+    Math.round(MAX_DOTS * Math.pow(1000 / Math.max(1000, altitude), 2)),
+  );
+}
+=======
 /**
  * @const {number} 操作员渲染上限 (0–999)：只渲染离相机最近的 N 个车流点；
  * 999 视为「不限」（默认值，行为与改造前完全一致）。语义与 flights / military
@@ -71,6 +55,7 @@ export const RENDER_LIMIT_UNLIMITED = 999;
  */
 
 export const RENDER_LIMIT_REFRESH_MS = 1000;
+>>>>>>> theirs
 
 /** @const {number} Polylines longer than this are simplified by sub-sampling */
 
@@ -181,17 +166,6 @@ export const HEAT_JAM_COLOR = Cesium.Color.fromCssColorString('#e05252');
 export const HEAT_SLOW_COLOR =
   Cesium.Color.fromCssColorString('#f0b23e').withAlpha(0.2);
 
-/**
- * @const {number} Meters — jam dots depth-test-punch through the 3D tiles out
- * to this camera distance so queues stay visible at city scale. The single
- * start-of-road terrain sample puts much of a road below the rendered mesh
- * at oblique city views (first A/B capture: 396 jam dots, zero visible), so
- * the shipped 2 km window hides exactly the congestion this prototype is
- * meant to surface. Live jam dots only; sim dots keep the shipped 2 km.
- */
-
-export const JAM_DOT_DEPTH_PUNCH = 15000;
-
 /** @const {number} Far-distance scale floor for jam dots (shipped: 0.3). */
 
 export const JAM_DOT_FAR_SCALE = 0.55;
@@ -220,13 +194,3 @@ export const STYLED_MIN_BASE_PX = 5;
 /** @const {number} Maximum tile cache entries before LRU eviction */
 
 export const TILE_CACHE_MAX_ENTRIES = 64;
-
-/**
- * Milliseconds the first dot paint will wait for flow data. Cached flow
- * settles within this window (decode cache, 120 s TTL) and renders fully
- * colored; a cold tile fetch loses the race, dots paint immediately in
- * white, and recolorDotsInPlace applies the colors when flow arrives —
- * field-test round 1's "takes forever to load" was the sequential wait.
- */
-
-export const FLOW_RENDER_RACE_MS = 250;

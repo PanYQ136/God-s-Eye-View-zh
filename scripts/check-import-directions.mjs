@@ -41,8 +41,11 @@ const renderer = (file) =>
     file,
   );
 // One compatibility composition entry intentionally selects standalone defaults.
+<<<<<<< ours
+=======
 // 2026-11-01：`src/ui.js`（@deprecated 兼容壳，零引用）已删除，原先给它的那条
 // 豁免边同时移除；若日后有人重建该入口，这里不再放行，需显式登记。
+>>>>>>> theirs
 const compatibilityEdge = (from, to) =>
   from === 'server/providers/local.js' &&
   to === 'server/standalone/key-setup.js';
@@ -54,6 +57,10 @@ const portableExport = (key) =>
   ) ||
   [
     './director',
+    './tools',
+    './tools/mcp',
+    './tools/services',
+    './view',
     './voice/action-schemas',
     './voice/session',
     './data/lifecycle',
@@ -178,14 +185,6 @@ export function checkImportDirections(
         report(
           file,
           'Actions must consume feed state without the manager facade',
-        );
-      if (
-        file === 'src/app/constructCatalog.js' &&
-        to === 'src/data/localGeojson.js'
-      )
-        report(
-          file,
-          'Catalog must use the services owner without compatibility layer construction',
         );
     }
     return record;

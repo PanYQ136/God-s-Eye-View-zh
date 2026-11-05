@@ -108,6 +108,36 @@
     margin-top: 1rem;
     /* The one part of the card allowed to scroll when the viewport is too short.
      min-height:0 is what actually lets this flex child shrink below its content. */
+<<<<<<< ours
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  /* A visible, non-overlaying affordance that the list continues; the
+     scrollbar itself is the kit's .ui-scroll. */
+  scrollbar-gutter: stable;
+}
+
+.first-run-choices button {
+  display: grid;
+  grid-template-columns: 1.7rem 1fr 1.3rem;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  min-height: 3.55rem;
+  padding: 0.6rem 0.7rem;
+  color: rgba(225, 244, 248, 0.92);
+  text-align: start;
+  background: rgba(29, 69, 81, 0.18);
+  border: 1px solid rgba(100, 200, 220, 0.18);
+  border-radius: 0.42rem;
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+=======
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -145,6 +175,7 @@
       border-color var(--transition-fast),
       transform var(--transition-fast);
   }
+>>>>>>> theirs
 
   .first-run-choices button:hover,
   .first-run-choices button:focus-visible {
@@ -211,6 +242,61 @@
     letter-spacing: 0.055rem;
   }
 
+<<<<<<< ours
+.first-run-dismiss {
+  position: relative;
+  padding: 0 0 0 0.75rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+/* A 44px touch target drawn outside the layout, so the footer row keeps the
+   height of its one line of text; a 44px button box would nearly treble it. */
+.first-run-dismiss::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 44px;
+  transform: translateY(-50%);
+}
+
+.first-run-dismiss:hover,
+.first-run-dismiss:focus-visible {
+  color: rgba(54, 220, 255, 0.86);
+}
+
+.first-run-dismiss-touch {
+  display: none;
+}
+
+/* No hover and a coarse pointer: a phone or tablet, where ESC means nothing. */
+@media (hover: none) and (pointer: coarse) {
+  .first-run-dismiss-key {
+    display: none;
+  }
+  .first-run-dismiss-touch {
+    display: inline;
+  }
+}
+
+.first-run-suppress {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: rgba(199, 225, 231, 0.66);
+  text-transform: none;
+  font-size: 0.62rem;
+  letter-spacing: 0.02rem;
+  cursor: pointer;
+}
+=======
   .first-run-suppress {
     display: flex;
     align-items: center;
@@ -221,6 +307,7 @@
     letter-spacing: 0.02rem;
     cursor: pointer;
   }
+>>>>>>> theirs
 
   .first-run-suppress input {
     width: 0.82rem;
@@ -261,6 +348,32 @@
     display: none;
   }
 
+<<<<<<< ours
+  #first-run-launcher.visible {
+    transform: translate(-50%, 0) scale(1);
+  }
+  /* Five tiles have to clear the dock on a 375 x 812 phone, so the rows
+     tighten. The dismiss button stays: it is the only way to close the card
+     without choosing a mission on a phone, which has no ESC key. */
+  #first-run-launcher h2 {
+    margin-top: 0.45rem;
+  }
+  #first-run-description {
+    margin-top: 0.25rem;
+    font-size: 0.72rem;
+  }
+  .first-run-choices {
+    margin-top: 0.75rem;
+  }
+  .first-run-choices button {
+    min-height: 3rem;
+    padding: 0.45rem 0.6rem;
+  }
+  .first-run-choices small {
+    font-size: 0.62rem;
+  }
+}
+=======
   @media (max-width: 620px) {
     #first-run-launcher {
       top: auto;
@@ -295,6 +408,7 @@
       display: none;
     }
   }
+>>>>>>> theirs
 
   /* Short viewports — landscape phones, small laptop windows. The chrome tightens
    so the mission list keeps a usable share of the height. The intro line STAYS:

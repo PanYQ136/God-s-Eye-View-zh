@@ -1,5 +1,4 @@
 import {
-  epoch,
   finite,
   httpError,
   LiveSourceError,
@@ -20,7 +19,7 @@ const defaultFetch = makeResilientFetch();
 const header = (response, name) => response.headers?.get?.(name);
 
 function openSkyError(response) {
-  const error = httpError(response, 'OpenSky');
+  const error = httpError(response, 'Flights');
   const mode = String(
     header(response, 'x-opensky-auth-mode-used') ||
       header(response, 'x-opensky-auth') ||
@@ -35,9 +34,7 @@ function openSkyError(response) {
     const reasons = {
       oauth_invalid_or_missing: 'OpenSky OAuth client missing/invalid',
       oauth_invalid_credentials: 'OpenSky OAuth rejected credentials',
-      basic_invalid_credentials: 'OpenSky username/password rejected',
-      missing_basic_creds: 'OpenSky auth missing',
-      missing_oauth_and_basic_creds: 'OpenSky auth missing',
+      missing_oauth_creds: 'OpenSky auth missing',
       auth_required: 'OpenSky auth required',
       forced_anonymous: 'OpenSky auth required',
     };
@@ -52,13 +49,25 @@ function openSkyError(response) {
   return error;
 }
 
-/** Existing same-origin aircraft routes; no request starts during construction. */
-export function createOpenSkySource({
+/**
+ * The provider a feed response names in `X-Feed-Source`, so a server that
+ * answers a feed route from another provider is reported as that provider.
+ */
+function feedSource(response, fallback) {
+  const named = header(response, 'x-feed-source');
+  return typeof named === 'string' && named.trim()
+    ? named.trim().slice(0, 80)
+    : fallback;
+}
+
+/** The flights feed (/api/flights); no request starts during construction. */
+export function createFlightSource({
   fetchImpl = defaultFetch,
   now = () => Date.now(),
 } = {}) {
   return {
-    label: 'OpenSky Network',
+    // i18n-ignore: feed source name, replaced by the provider from each snapshot and reported to AI tools
+    label: 'Flights',
     async getSnapshot(query = {}, { signal } = {}) {
       const params = new URLSearchParams();
       // Full live world: the server serves all of adsb.lol; the client's
@@ -70,9 +79,9 @@ export function createOpenSkySource({
       }
       const { response, payload } = await readResponse(
         fetchImpl,
-        `/api/opensky${params.size ? '?' + params : ''}`,
+        `/api/flights${params.size ? '?' + params : ''}`,
         { signal },
-        'OpenSky',
+        'Flights',
       );
       if (!response.ok) throw openSkyError(response);
       const reason = String(
@@ -86,7 +95,10 @@ export function createOpenSkySource({
         /(fallback|cooldown|circuit|stale|rate_limit)/.test(reason);
       return {
         ...openSkySnapshot(payload, {
-          source: header(response, 'x-flight-source') || 'OpenSky Network',
+          // A fallback provider names itself in X-Flight-Source.
+          source:
+            header(response, 'x-flight-source') ||
+            feedSource(response, 'Flights'),
           coverage:
             header(response, 'x-flight-coverage') ||
             'worldwide upstream snapshot',
@@ -99,11 +111,11 @@ export function createOpenSkySource({
     async getTrack(reference, { signal } = {}) {
       const { response, payload } = await readResponse(
         fetchImpl,
-        '/api/opensky-track?icao24=' + encodeURIComponent(reference),
+        '/api/flights/track?icao24=' + encodeURIComponent(reference),
         { signal },
-        'OpenSky',
+        'Flights',
       );
-      if (!response.ok) throw httpError(response, 'OpenSky');
+      if (!response.ok) throw httpError(response, 'Flights');
       return {
         records: normalizeAircraftTrack(payload?.path),
         complete: false,
@@ -124,81 +136,77 @@ export function createOpenSkySource({
   };
 }
 
-export function createAdsbLolSource({
+export function createMilitarySource({
   fetchImpl = defaultFetch,
   now = () => Date.now(),
 } = {}) {
   return {
-    label: 'adsb.lol',
+    // i18n-ignore: feed source name, replaced by the provider from each snapshot and reported to AI tools
+    label: 'Military aircraft',
     async getIdentities(_query = {}, { signal } = {}) {
       const { response, payload } = await readResponse(
         fetchImpl,
-        '/api/adsblol/mil',
+        '/api/military',
         { signal },
-        'adsb.lol',
+        'Military aircraft',
       );
-      if (!response.ok) throw httpError(response, 'adsb.lol');
+      if (!response.ok) throw httpError(response, 'Military aircraft');
       return readsbIdentities(payload);
     },
     async getSnapshot(_query = {}, { signal } = {}) {
       const { response, payload } = await readResponse(
         fetchImpl,
-        '/api/adsblol/mil',
+        '/api/military',
         { signal },
-        'adsb.lol',
+        'Military aircraft',
       );
-      if (!response.ok) throw httpError(response, 'adsb.lol');
-      const age = finite(header(response, 'x-ads-b-cache-age-ms'));
+      if (!response.ok) throw httpError(response, 'Military aircraft');
+      const age = finite(header(response, 'x-feed-age-ms'));
       return {
         ...readsbSnapshot(payload, {
+          source: feedSource(response, 'Military aircraft'),
           observedAtMs: now() - (age != null && age > 0 ? age : 0),
           now: now(),
-          stale: header(response, 'x-ads-b-cache') === 'STALE',
+          stale: header(response, 'x-feed-cache') === 'STALE',
         }),
         status: response.status,
       };
     },
-    async getTrack(reference, { signal } = {}) {
-      const { response, payload } = await readResponse(
-        fetchImpl,
-        '/api/adsblol/trace?hex=' + encodeURIComponent(reference),
-        { signal },
-        'adsb.lol',
-      );
-      if (!response.ok) throw httpError(response, 'adsb.lol');
-      const baseTimeMs = epoch(payload?.timestamp, 1000);
-      return {
-        records:
-          baseTimeMs == null
-            ? []
-            : normalizeAircraftTrack(payload?.trace, {
-                baseTimeMs,
-                readsb: true,
-              }),
-        complete: false,
-      };
-    },
+    // ADSB.lol does not expose a supported live-history endpoint. Omitting
+    // optional getTrack keeps the tracking layer on its accumulated trail.
   };
 }
 
-export function createAisStreamSource({
+export function createVesselSource({
   fetchImpl = defaultFetch,
-  apiUrl = '/api/ais-live',
+  apiUrl = '/api/vessels',
   origin = () => globalThis.location?.origin || 'http://localhost',
 } = {}) {
   return {
-    label: 'AISStream',
-    async getSnapshot({ maxRows = 12000 } = {}, { signal } = {}) {
+    // i18n-ignore: feed source name, replaced by the provider from each snapshot and reported to AI tools
+    label: 'Vessels',
+    async getSnapshot({ maxRows = 12000, area } = {}, { signal } = {}) {
       const url = new URL(apiUrl, origin());
       url.searchParams.set('maxRows', String(maxRows));
+      // An area asks for the vessels around a point; servers that hold every
+      // vessel may ignore it, since callers still keep only what they need.
+      if (
+        Number.isFinite(area?.lat) &&
+        Number.isFinite(area?.lon) &&
+        Number.isFinite(area?.radiusKm)
+      ) {
+        url.searchParams.set('lat', area.lat.toFixed(5));
+        url.searchParams.set('lon', area.lon.toFixed(5));
+        url.searchParams.set('radius_km', area.radiusKm.toFixed(1));
+      }
       const { response, payload } = await readResponse(
         fetchImpl,
         url.toString(),
         { signal, cache: 'no-store' },
-        'AIS live',
+        'Vessels',
       );
       if (!response.ok) {
-        const error = httpError(response, 'AIS live');
+        const error = httpError(response, 'Vessels');
         const reasons = {
           'missing-key': 'AISSTREAM_API_KEY not set',
           'auth-failed': 'API key rejected — check AISSTREAM_API_KEY',
@@ -209,16 +217,19 @@ export function createAisStreamSource({
         error.message = reasons[payload?.status] || error.message;
         throw error;
       }
-      return { ...vesselSnapshot(payload), status: response.status };
+      return {
+        ...vesselSnapshot(payload, { source: feedSource(response, 'Vessels') }),
+        status: response.status,
+      };
     },
     async getTrack(reference, { signal } = {}) {
       const { response, payload } = await readResponse(
         fetchImpl,
-        '/api/ais-live/track?mmsi=' + encodeURIComponent(reference),
+        '/api/vessels/track?mmsi=' + encodeURIComponent(reference),
         { signal },
-        'AIS live',
+        'Vessels',
       );
-      if (!response.ok) throw httpError(response, 'AIS live');
+      if (!response.ok) throw httpError(response, 'Vessels');
       return {
         records: normalizeVesselTrack(payload?.samples),
         complete: false,

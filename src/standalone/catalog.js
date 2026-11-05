@@ -17,6 +17,8 @@ export { createStandaloneReferenceSources } from './layerSources.js';
  */
 export async function createStandaloneCatalog({
   nepalBoundaryResolver,
+  sources = {},
+  streetLevelProviders,
   signal = new AbortController().signal,
   surface = createSurfaceServices({
     terrainSource: createApplicationRequestServices().terrain,
@@ -26,7 +28,8 @@ export async function createStandaloneCatalog({
   return createApplicationCatalog({
     nepalBoundaryResolver,
     surface,
-    sources: createStandaloneLayerSources(),
+    sources: createStandaloneLayerSources(sources),
+    streetLevelProviders,
     signal,
     deferRest:
       typeof location === 'undefined' ||

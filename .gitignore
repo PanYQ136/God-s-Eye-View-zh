@@ -14,6 +14,12 @@ qa-shots/
 output/
 .gev-logs/
 .gev-cache/
+# Browser QA gate evidence (screenshots, console and network dumps).
+qa-artifacts/
+# Playwright MCP session logs: browser consoles can carry tokens in URLs.
+.playwright-mcp/
+# Local Claude Code settings and preview configs.
+.claude/
 .DS_Store
 .gstack/
 3d-models/
@@ -26,6 +32,10 @@ public/models/_skb/
 pinokio/ENVIRONMENT
 pinokio/.installed
 
+<<<<<<< ours
+# Transient: a release interrupted mid-assembly (npm run changelog recovers it)
+changelog.d/.assembling/
+=======
 .vercel
 .env*
 
@@ -49,3 +59,4 @@ vite.err
 # 2026-11-05 清理：evidence 域已出库删除；QA 一次性脚本仍会写入 evidence/_collab/，
 # 属运行期生成物，不再入库（需要时用 git add -f 单独放行）。
 evidence/
+>>>>>>> theirs

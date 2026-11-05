@@ -3,6 +3,7 @@ import { cyberSonarBaseAlpha } from '../../cyberSonar.js';
 import { selectModelEligible } from '../../data/modelEligibility.js';
 import { civilAircraftModelSpec } from './modelSpec.js';
 import { CLASS_SCALE_2D } from '../../data/aircraftClass.js';
+import { isEmergency } from '../../data/aircraftEmergency.js';
 import { cockpitContactDotImage } from '../../data/cockpitContactDot.js';
 import { aircraftIcon, TRACKED_ICON_PX } from '../../data/aircraftIcons.js';
 import { trackedCrossfadeIconAlpha } from '../../data/trackedModelRegime.js';
@@ -14,6 +15,7 @@ import {
 import { limitCourseStep, courseSlewCapDps } from '../../data/motionModel.js';
 import {
   MIL_TINT,
+  EMERGENCY_TINT,
   GROUND_SCALE,
   COCKPIT_CONTACT_SIZE_PX,
   COCKPIT_CIVILIAN_COLOR,
@@ -32,10 +34,12 @@ import {
   TRACKED_MODEL_MIN_PX,
   TRACKED_MODEL_MAX_PX,
   FLEET_DR_INTERVAL_MS,
+  RENDER_DELAY_SEC,
   COURSE_SLEW_DT_MAX_SEC,
   ROTATION_REFRESH_MS,
   COURSE_MAX_DPS,
 } from './policy.js';
+import { AIRCRAFT_ENVIRONMENT_MAP_OPTIONS } from '../../data/aircraftModelLighting.js';
 
 export function createRendering({
   flightState,
@@ -56,11 +60,32 @@ export function createRendering({
   const { applyAircraftBillboardTreatment, applyAircraftModelTreatment } =
     services.recession;
 
-  /** Fleet (untracked) billboard tint: amber for known-military, white otherwise.
+  /** True while this contact's latest poll broadcast an emergency code. */
+
+  function _isEmergency(icao24, info = flightState.records.data.get(icao24)) {
+    return isEmergency(info?.emergency);
+  }
+
+  /** Fleet (untracked) billboard tint: red while broadcasting an emergency,
+   *  amber for known-military, white otherwise.
    *  Ground traffic gets NO special tint (owner verdict 2026-07-03 field test). */
 
-  function _fleetBillboardColor(icao24) {
+  function _fleetBillboardColor(
+    icao24,
+    info = flightState.records.data.get(icao24),
+  ) {
+    if (_isEmergency(icao24, info)) return EMERGENCY_TINT;
     return isMilitaryIcao(icao24) ? MIL_TINT : Cesium.Color.WHITE;
+  }
+
+  /** Cockpit far-contact dot tint: the emergency red outranks the category tint. */
+
+  function _cockpitContactColor(
+    icao24,
+    info = flightState.records.data.get(icao24),
+  ) {
+    if (_isEmergency(icao24, info)) return EMERGENCY_TINT;
+    return isMilitaryIcao(icao24) ? MIL_TINT : COCKPIT_CIVILIAN_COLOR;
   }
 
   /** Fleet billboard scale: per-class scale, ×GROUND_SCALE while grounded. */
@@ -133,9 +158,7 @@ export function createRendering({
       bb.height = COCKPIT_CONTACT_SIZE_PX;
       bb.scale = limbScale;
       bb.scaleByDistance = _cockpitBillboardScaleByDistance();
-      bb.color = (
-        isMilitaryIcao(icao24) ? MIL_TINT : COCKPIT_CIVILIAN_COLOR
-      ).withAlpha(freshnessAlpha);
+      bb.color = _cockpitContactColor(icao24).withAlpha(freshnessAlpha);
       bb.rotation = 0;
       return;
     }
@@ -166,7 +189,7 @@ export function createRendering({
 
   function _modelColor(icao24) {
     if (icao24 === flightState._trackedIcao) return Cesium.Color.CYAN;
-    return isMilitaryIcao(icao24) ? MIL_TINT : Cesium.Color.WHITE;
+    return _fleetBillboardColor(icao24);
   }
 
   /** The FLEET's 3D-model regime: models3d enabled AND the camera zoomed in past the altitude
@@ -411,17 +434,20 @@ export function createRendering({
    *    null or still-loading tracked model from claiming a visual it is not
    *    drawing yet.
    * @param {string} icao24
+   * @param {Cesium.Model|null} [model] Resolved fleet model; null means absent.
    * @returns {boolean}
    */
 
-  function _modelOwnsVisual(icao24) {
+  function _modelOwnsVisual(icao24, model) {
     if (icao24 === flightState._trackedIcao) {
       return (
         parts.tracking._trackedModelRegimeActive() &&
         _modelIsRendering(flightState._trackedModel)
       );
     }
-    return _modelIsRendering(flightState._models.get(icao24));
+    return _modelIsRendering(
+      model === undefined ? flightState._models.get(icao24) : model,
+    );
   }
 
   /** A model is the visual only once it actually draws — loaded AND shown.
@@ -541,10 +567,15 @@ export function createRendering({
       model = await Cesium.Model.fromGltfAsync({
         url: resolveAsset(spec.url),
         asynchronous: false,
+<<<<<<< ours
+        environmentMapOptions: AIRCRAFT_ENVIRONMENT_MAP_OPTIONS,
+        minimumPixelSize: MODEL_MIN_PX,
+=======
         // GEV (owner 2026-09-28): 0 — the min-pixel floor is driven per-frame from
         // range in _driveFleetModelHandoff (Cesium's sphere-based floor caused the
         // angle-dependent size pop). See trackedCamera.trackedModelScaleForPixelCap.
         minimumPixelSize: 0,
+>>>>>>> theirs
         scale: spec.scale,
         color: flightState._irBoost ? Cesium.Color.WHITE : _modelColor(icao24),
         colorBlendMode: Cesium.ColorBlendMode.MIX,
@@ -766,10 +797,15 @@ export function createRendering({
       Cesium.Model.fromGltfAsync({
         url: resolveAsset(trackedSpec.url),
         asynchronous: false,
+<<<<<<< ours
+        environmentMapOptions: AIRCRAFT_ENVIRONMENT_MAP_OPTIONS,
+        minimumPixelSize: TRACKED_MODEL_MIN_PX,
+=======
         // GEV (owner 2026-09-28): 0 — the tracked model's floor is driven per-frame
         // from range (see the scale call in _updateTrackedModel) so zooming stays
         // 360° smooth instead of popping at the bounding-sphere threshold.
         minimumPixelSize: 0,
+>>>>>>> theirs
         scale: trackedSpec.scale,
         color: flightState._irBoost ? Cesium.Color.WHITE : Cesium.Color.CYAN,
         colorBlendMode: Cesium.ColorBlendMode.MIX,
@@ -926,6 +962,12 @@ export function createRendering({
         )
       : 0.08;
     flightState._lastFleetTickMs = nowMs;
+    // Every contact in this pass shares the same delayed display instant.
+    const renderTime = Cesium.JulianDate.addSeconds(
+      Cesium.JulianDate.now(flightState._scratchFleetRenderTime),
+      -RENDER_DELAY_SEC,
+      flightState._scratchFleetRenderTime,
+    );
 
     _drainIrReloadQueue(); // bounded per-tick slice of any pending boost-flip reload
     if (flightState._cockpitContactMode)
@@ -1029,7 +1071,11 @@ export function createRendering({
 
       const info = flightState.records.data.get(icao24);
 
-      const dr = parts.motion._deadReckon(icao24, flightState._scratchFleetPos);
+      const dr = parts.motion._deadReckon(
+        icao24,
+        flightState._scratchFleetPos,
+        renderTime,
+      );
       // The dead-reckoned point drifts away from the fix whose cell supplied the
       // height, so a grounded contact's sprite ends up under the mesh it taxied
       // (or coasted) over. Re-floor at the DISPLAYED coordinate — read-only, and
@@ -1102,10 +1148,8 @@ export function createRendering({
         flightState._cockpitNearContacts.has(icao24);
       const layerBaseColor =
         flightState._cockpitContactMode && !isCockpitNear
-          ? isMilitaryIcao(icao24)
-            ? MIL_TINT
-            : COCKPIT_CIVILIAN_COLOR
-          : _fleetBillboardColor(icao24);
+          ? _cockpitContactColor(icao24, info)
+          : _fleetBillboardColor(icao24, info);
       const baseColor = layerBaseColor;
       const treatment = applyAircraftBillboardTreatment({
         billboard: bb,
