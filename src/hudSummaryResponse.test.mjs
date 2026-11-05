@@ -14,7 +14,6 @@ import {
   isHudSummaryUnconfigured,
   keylessHudSummaryResponse,
 } from './hudSummaryResponse.js';
-<<<<<<< ours
 import {
   SNAPSHOT_FEED_STATES,
   hudSummaryMatchesProvenance,
@@ -22,9 +21,6 @@ import {
 } from './data/layerSnapshot.js';
 import { parseHudSummaryReply } from '../server/providers/openai/hud-summary.js';
 import { openAiRealtimeProxy } from '../vite.config.js';
-=======
-import { openAiRealtimeProxy } from '../server/providers/index.js';
->>>>>>> theirs
 
 const UNCONFIGURED_PAYLOAD = {
   configured: false,

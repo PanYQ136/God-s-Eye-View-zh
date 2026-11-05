@@ -1,4 +1,3 @@
-<<<<<<< ours
 /**
  * Present Radio state without making playback or Context decisions: the
  * panel view renders the directory row, station card, transport, volume and
@@ -6,12 +5,6 @@
  * tuner from what this publishes (`gev-radio` store).
  */
 import { t } from '../i18n/index.js';
-=======
-/** Render Radio state without making playback or Context decisions. */
-/* 播放/暂停图形（纯 CSS 三角/双竖条，不再用 ▶ Ⅱ 字符） */
-const PLAY_HTML = '<span class="lc-tri lc-tri--r" aria-hidden="true"></span>';
-const PAUSE_HTML = '<span class="lc-pause" aria-hidden="true"></span>';
->>>>>>> theirs
 
 export function renderRadioState(state) {
   if (this.destroyed || !state || !this._radioPanel) return;
@@ -130,7 +123,6 @@ export function renderRadioState(state) {
       : t('Choose a globe marker or use next.');
   const tags = Array.isArray(selected?.tags) ? selected.tags.slice(0, 8) : [];
 
-<<<<<<< ours
   const playbackAction = activePlayback
     ? t('Pause')
     : state.audioState === 'paused'
@@ -156,110 +148,6 @@ export function renderRadioState(state) {
   let playbackError = false;
   {
     const stationName = selected?.name || t('station');
-=======
-  if (this._radioPrevBtn)
-    this._radioPrevBtn.disabled = !interactive || !hasStations;
-  if (this._radioNextBtn)
-    this._radioNextBtn.disabled = !interactive || !hasStations;
-  if (this._contextRadioMiniPrevBtn)
-    this._contextRadioMiniPrevBtn.disabled = !interactive || !hasStations;
-  if (this._contextRadioMiniNextBtn)
-    this._contextRadioMiniNextBtn.disabled = !interactive || !hasStations;
-  if (this._cockpitRadioPrevBtn)
-    this._cockpitRadioPrevBtn.disabled = !interactive || !hasStations;
-  if (this._cockpitRadioNextBtn)
-    this._cockpitRadioNextBtn.disabled = !interactive || !hasStations;
-  if (this._radioPlayBtn) {
-    const action = activePlayback
-      ? 'Pause'
-      : state.audioState === 'paused'
-        ? 'Resume'
-        : 'Play';
-    this._radioPlayBtn.disabled = !interactive || !hasStations;
-    this._radioPlayBtn.classList.toggle('active', activePlayback);
-    this._radioPlayBtn.textContent = action.toUpperCase();
-    this._radioPlayBtn.setAttribute(
-      'aria-label',
-      `${action} ${selected ? 'selected' : 'nearest'} radio station`,
-    );
-  }
-  if (this._contextRadioMiniPlayBtn) {
-    const action = activePlayback
-      ? 'Pause'
-      : state.audioState === 'paused'
-        ? 'Resume'
-        : 'Play';
-    this._contextRadioMiniPlayBtn.disabled = !interactive || !hasStations;
-    this._contextRadioMiniPlayBtn.classList.toggle('active', activePlayback);
-    this._contextRadioMiniPlayBtn.innerHTML = activePlayback
-      ? PAUSE_HTML
-      : PLAY_HTML;
-    this._contextRadioMiniPlayBtn.setAttribute(
-      'aria-label',
-      `${action} ${selected ? 'selected' : 'nearest'} radio station`,
-    );
-    this._contextRadioMiniPlayBtn.title = action;
-  }
-  if (this._cockpitRadioPlayBtn) {
-    const action = activePlayback
-      ? 'Pause'
-      : state.audioState === 'paused'
-        ? 'Resume'
-        : 'Play';
-    this._cockpitRadioPlayBtn.disabled = !interactive || !hasStations;
-    this._cockpitRadioPlayBtn.classList.toggle('active', activePlayback);
-    this._cockpitRadioPlayBtn.innerHTML = activePlayback
-      ? PAUSE_HTML
-      : PLAY_HTML;
-    this._cockpitRadioPlayBtn.setAttribute(
-      'aria-label',
-      `${action} ${selected ? 'selected' : 'nearest'} radio station`,
-    );
-    this._cockpitRadioPlayBtn.title = action;
-  }
-  if (this._radioStopBtn)
-    this._radioStopBtn.disabled =
-      !interactive || state.audioState === 'stopped';
-  if (this._radioVolume) this._radioVolume.disabled = !interactive;
-  if (this._radioVolume && document.activeElement !== this._radioVolume) {
-    this._radioVolume.value = String(Math.round(state.volume * 100));
-    if (this._radioVolumeValue)
-      this._radioVolumeValue.textContent = `${Math.round(state.volume * 100)}%`;
-  }
-  if (
-    this._contextRadioMiniVolume &&
-    document.activeElement !== this._contextRadioMiniVolume
-  ) {
-    this._contextRadioMiniVolume.value = String(Math.round(state.volume * 100));
-  }
-  if (this._contextRadioMiniVolume)
-    this._contextRadioMiniVolume.disabled = !interactive;
-  if (this._contextRadioMiniVolumeValue) {
-    this._contextRadioMiniVolumeValue.textContent = `${Math.round(state.volume * 100)}%`;
-  }
-  if (
-    this._cockpitRadioVolume &&
-    document.activeElement !== this._cockpitRadioVolume
-  ) {
-    this._cockpitRadioVolume.value = String(Math.round(state.volume * 100));
-  }
-  if (this._cockpitRadioVolume)
-    this._cockpitRadioVolume.disabled = !interactive;
-  if (this._cockpitRadioVolumeValue) {
-    this._cockpitRadioVolumeValue.textContent = `${Math.round(state.volume * 100)}%`;
-  }
-  if (this._contextRadioMiniStation) {
-    this._contextRadioMiniStation.textContent = uncertain
-      ? 'RADIO STATE UNCERTAIN'
-      : selected?.name || (state.loading ? 'SYNCING DIRECTORY' : 'RADIO READY');
-  }
-  if (this._cockpitRadioStation) {
-    this._cockpitRadioStation.textContent = uncertain
-      ? 'UNCERTAIN'
-      : selected?.name || (state.loading ? 'SYNCING' : 'READY');
-  }
-  if (this._radioPlaybackState) {
->>>>>>> theirs
     const catalogSuffix = state.degraded
       ? state.stale
         ? t(' · stale/degraded directory')

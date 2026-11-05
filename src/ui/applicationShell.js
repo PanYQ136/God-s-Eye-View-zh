@@ -29,7 +29,7 @@ import {
   setCyberSonarControls,
 } from './cyberSonarControls.js';
 
-import { Cesium } from '../cesium.js';
+import * as Cesium from 'cesium';
 
 import { aircraftTrackingTarget } from '../cockpitTracking.js';
 
@@ -236,12 +236,7 @@ export class StyleManager extends ShellFacade {
         _setCockpitDisclosure: (...args) => this._setCockpitDisclosure(...args),
         _cockpitDisclosureOpen: (kind) => this._cockpitDisclosureOpen(kind),
         _setMapStack: (...args) => this._setMapStack(...args),
-<<<<<<< ours
         _presentPanel: (...args) => this._presentPanel(...args),
-=======
-        _syncPanelDisclosureState: (...args) =>
-          this._syncPanelDisclosureState(...args),
->>>>>>> theirs
         _syncShareState: (...args) => this._syncShareState(...args),
         setPanelCollapsed: (...args) => this.setPanelCollapsed(...args),
       },
@@ -1747,11 +1742,6 @@ export class StyleManager extends ShellFacade {
    */
   _syncCctvPanelViewport() {
     if (!this._cctvPanel) return;
-    /* ── src/lc 外部几何开关（2026-10-28 Phase 2）───────────────────────────
-       卡片层把展开卡搬进 #lc-stage 后，卡片高度由 LayoutEngine 拥有；
-       App 这条「可用高度」规则此时量到的是旧的轨道 rect（实测把 430px 的卡压成 190px）。
-       删掉下面两行即完全还原。 */
-    if (this._cctvPanel.parentElement?.id === 'lc-stage') return;
     const inner = this._cctvPanel.querySelector('.cctv-panel-inner');
     this._lifetime.frame(() => {
       if (this._cctvPanel.parentElement?.id === 'right-context-rail') {

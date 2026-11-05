@@ -1,16 +1,5 @@
-<<<<<<< ours
 export { ACTIVE_FRAME_REFRESH_MS } from './sourcePolicy.js';
 import * as Cesium from 'cesium';
-=======
-export {
-  FRAME_ENDPOINT,
-  SOURCE_ENDPOINT,
-  HEALTH_ENDPOINT,
-  MEDIA_ENDPOINT,
-  ACTIVE_FRAME_REFRESH_MS,
-} from './sourcePolicy.js';
-import { Cesium } from '../../cesium.js';
->>>>>>> theirs
 import { CCTV_CARD_FETCH_BURST_SPACING_MS } from '../../data/cctvCards.js';
 import { CCTV_AMBIENT_CARD_MAX } from '../../data/cctvLod.js';
 

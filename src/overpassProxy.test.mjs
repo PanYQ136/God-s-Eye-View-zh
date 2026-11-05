@@ -11,42 +11,8 @@ import { mkdir, readFile, writeFile, unlink } from 'node:fs/promises';
 import { createHash, randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { Readable } from 'node:stream';
-<<<<<<< ours
 import createViteConfig, { fetchOverpassPayload, overpassPayloadIsData, readOverpassDisk } from '../vite.config.js';
 import { resolveOverpassUpstreamTag } from '../server/providers/overpass/constants.js';
-=======
-import createViteConfig from '../vite.config.js';
-import {
-  fetchOverpassPayload,
-  overpassPayloadIsData,
-  readOverpassDisk,
-} from '../server/providers/index.js';
-import { OVERPASS_UPSTREAMS } from '../server/providers/overpass/constants.js';
-
-const ENDPOINTS = ['https://a.example/api', 'https://b.example/api', 'https://c.example/api'];
-
-/** Answer each endpoint from a map of url → {status, body}; record the order. */
-function mirrors(byUrl) {
-  const tried = [];
-  const fetchImpl = async (url) => {
-    tried.push(url);
-    const answer = byUrl[url];
-    if (answer instanceof Error) throw answer;
-    return { status: answer.status, headers: { get: () => answer.contentType || 'application/json' } };
-  };
-  return { fetchImpl, tried, readBody: async (_, __) => byUrl[tried[tried.length - 1]]?.body ?? '' };
-}
-
-const run = (byUrl) => {
-  const m = mirrors(byUrl);
-  return fetchOverpassPayload('data=x', 1e6, {
-    endpoints: ENDPOINTS,
-    fetchImpl: m.fetchImpl,
-    readBody: m.readBody,
-    simplify: (body) => body,
-  }).then((payload) => ({ payload, tried: m.tried }), (error) => ({ error, tried: m.tried }));
-};
->>>>>>> theirs
 
 const DATA = { status: 200, body: '{"elements":[]}' };
 
@@ -304,7 +270,6 @@ test('caller cancellation aborts transport without cooling down the upstream', a
 });
 
 function proxyHandler() {
-<<<<<<< ours
   const plugin = createViteConfig({ mode: 'test' }).plugins.find(
     (p) => p.name === 'overpass-proxy',
   );
@@ -313,15 +278,6 @@ function proxyHandler() {
     middlewares: { use: (route, handler) => routes.set(route, handler) },
   });
   return routes.get('/api/overpass');
-=======
-  // The root config factory is async since the local-proxy bootstrap landed.
-  return createViteConfig({ mode: 'test' }).then((config) => {
-    const plugin = config.plugins.find((p) => p.name === 'overpass-proxy');
-    const routes = new Map();
-    plugin.configureServer({ middlewares: { use: (route, handler) => routes.set(route, handler) } });
-    return routes.get('/api/overpass');
-  });
->>>>>>> theirs
 }
 
 function invoke(handler, body) {
@@ -346,16 +302,12 @@ function invoke(handler, body) {
 }
 
 test('coalesced outage callers both receive last-good data, never a cached refusal', async (t) => {
-<<<<<<< ours
   const handler = proxyHandler();
   const prior = process.env.OVERPASS_UPSTREAMS;
   t.after(() => {
     if (prior === undefined) delete process.env.OVERPASS_UPSTREAMS;
     else process.env.OVERPASS_UPSTREAMS = prior;
   });
-=======
-  const handler = await proxyHandler();
->>>>>>> theirs
   for (const status of [406, 503, 429]) {
     process.env.OVERPASS_UPSTREAMS = `https://outage-${status}.example/api`;
     const query = `[out:json][timeout:12];node(around:10,30.27,-97.74)["name"="${randomUUID()}"];out;`;
@@ -400,15 +352,7 @@ test('coalesced outage callers both receive last-good data, never a cached refus
         assert.equal(response.body, DATA.body);
         assert.equal(response.headers['X-Overpass-Cache'], 'STALE');
       }
-<<<<<<< ours
       assert.equal(fetches, 1, 'one shared configured request');
-=======
-      // One coalesced refresh fans out over exactly ONE bounded mirror
-      // sequence: every shipped mirror tried once, with no second pass and no
-      // per-caller duplicate. Derived from the shipped list so adding a mirror
-      // cannot silently double (or half) the expected fan-out.
-      assert.equal(fetches, OVERPASS_UPSTREAMS.length, 'one shared, bounded mirror sequence');
->>>>>>> theirs
       assert.deepEqual(JSON.parse(await readFile(file, 'utf8')), stale);
     } finally {
       release.resolve();

@@ -1,9 +1,4 @@
-<<<<<<< ours
 import * as Cesium from 'cesium';
-=======
-import { Cesium } from '../../cesium.js';
-import { horizonOccluder } from '../../data/iconOrientation.js';
->>>>>>> theirs
 import { isHeadingEstimated } from './headingConfidence.js';
 import {
   ACTIVE_CAMERA_COLOR,

@@ -1,24 +1,8 @@
 import { readShellSource } from './testSupport/readShellSource.mjs';
 import { onKeyDown as cockpitKeyDown } from './ui/cockpitInput.js';
 import { readFileSync as readRadioSource } from 'node:fs';
-<<<<<<< ours
 const radioBindings = readRadioSource(new URL('./ui/radioBindings.js', import.meta.url), 'utf8');
 import { bindPanelDisclosure, collapsePanelOnEscape } from './ui/panelDisclosure.js';
-=======
-const radioBindings = readRadioSource(
-  new URL('./ui/radioBindings.js', import.meta.url),
-  'utf8',
-);
-const radioPresentation = readRadioSource(
-  new URL('./ui/radioPresentation.js', import.meta.url),
-  'utf8',
-);
-const radioControlsSource = readRadioSource(
-  new URL('./ui/radioControls.js', import.meta.url),
-  'utf8',
-);
-import { collapsePanelOnEscape } from './ui/panelDisclosure.js';
->>>>>>> theirs
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
@@ -31,23 +15,13 @@ function method(name, nextName) {
   return source.slice(start, end);
 }
 
-function panelFixture({
-  id = 'data-panel',
-  nested = false,
-  nestedCollapsed = false,
-  onDisclosure = false,
-} = {}) {
+function panelFixture({ id = 'data-panel', nested = false, nestedCollapsed = false, onDisclosure = false } = {}) {
   let collapsed = false;
   let focused = false;
   let blurred = false;
   const disclosure = {
-    focus: () => {
-      focused = true;
-    },
-    blur: () => {
-      blurred = true;
-      focused = false;
-    },
+    focus: () => { focused = true; },
+    blur: () => { blurred = true; focused = false; },
     contains: (candidate) => candidate === disclosure,
   };
   const panel = {
@@ -57,32 +31,18 @@ function panelFixture({
     querySelector: () => disclosure,
   };
   const inner = nested ? { id: 'param-slider-panel' } : panel;
-  const target = onDisclosure
-    ? disclosure
-    : {
-        panel,
-        closest: (selector) =>
-          nested && nestedCollapsed && selector.includes(':not(.collapsed)')
-            ? panel
-            : inner,
-      };
+  const target = onDisclosure ? disclosure : {
+    panel,
+    closest: (selector) => (
+      nested && nestedCollapsed && selector.includes(':not(.collapsed)') ? panel : inner
+    ),
+  };
   if (onDisclosure) {
     disclosure.panel = panel;
     disclosure.closest = () => panel;
   }
-<<<<<<< ours
   const document = { getElementById: (candidate) => candidate === id ? panel : null };
   const manager = new Function('document', 'getComputedStyle', 'collapsePanelOnEscape', `return {${method('_collapsePanelOnEscape', '_togglePanel')}};`)(document, (el) => ({ visibility: el.visibility ?? 'visible' }), collapsePanelOnEscape);
-=======
-  const document = {
-    getElementById: (candidate) => (candidate === id ? panel : null),
-  };
-  const manager = new Function(
-    'document',
-    'collapsePanelOnEscape',
-    `return {${method('_collapsePanelOnEscape', '_initCommandDockPins')}};`,
-  )(document, collapsePanelOnEscape);
->>>>>>> theirs
   manager.setPanelCollapsed = (candidate, value, options) => {
     assert.equal(candidate, id);
     assert.equal(value, true);
@@ -90,27 +50,12 @@ function panelFixture({
     collapsed = true;
   };
   const event = {
-    key: 'Escape',
-    target,
-    defaultPrevented: false,
-    propagationStopped: false,
-    preventDefault() {
-      this.defaultPrevented = true;
-    },
-    stopPropagation() {
-      this.propagationStopped = true;
-    },
+    key: 'Escape', target, defaultPrevented: false, propagationStopped: false,
+    preventDefault() { this.defaultPrevented = true; },
+    stopPropagation() { this.propagationStopped = true; },
   };
   return {
-<<<<<<< ours
     manager, panel, inner, target, event, document,
-=======
-    manager,
-    panel,
-    inner,
-    target,
-    event,
->>>>>>> theirs
     collapsed: () => collapsed,
     focused: () => focused,
     blurred: () => blurred,
@@ -119,10 +64,7 @@ function panelFixture({
 
 test('Escape collapses an expanded panel and returns focus to its disclosure', () => {
   const fixture = panelFixture();
-  assert.equal(
-    fixture.manager._collapsePanelOnEscape(fixture.event, 'data-panel'),
-    true,
-  );
+  assert.equal(fixture.manager._collapsePanelOnEscape(fixture.event, 'data-panel'), true);
   assert.equal(fixture.collapsed(), true);
   assert.equal(fixture.focused(), true);
   assert.equal(fixture.event.defaultPrevented, true);
@@ -166,10 +108,7 @@ test('Escape keeps the disclosure path when the rail is hidden', () => {
 
 test('Escape on an expanded panel disclosure closes it without retaining focus', () => {
   const fixture = panelFixture({ onDisclosure: true });
-  assert.equal(
-    fixture.manager._collapsePanelOnEscape(fixture.event, 'data-panel'),
-    true,
-  );
+  assert.equal(fixture.manager._collapsePanelOnEscape(fixture.event, 'data-panel'), true);
   assert.equal(fixture.collapsed(), true);
   assert.equal(fixture.focused(), false);
   assert.equal(fixture.blurred(), true);
@@ -179,26 +118,15 @@ test('Escape on an expanded panel disclosure closes it without retaining focus',
 
 test('non-Escape, handled, collapsed, and outside events do not collapse a panel', () => {
   for (const mutate of [
-    (fixture) => {
-      fixture.event.key = 'Enter';
-    },
-    (fixture) => {
-      fixture.event.defaultPrevented = true;
-    },
-    (fixture) => {
-      fixture.manager.setPanelCollapsed('data-panel', true, { explicit: true });
-    },
-    (fixture) => {
-      fixture.event.target = { panel: null, closest: () => null };
-    },
+    (fixture) => { fixture.event.key = 'Enter'; },
+    (fixture) => { fixture.event.defaultPrevented = true; },
+    (fixture) => { fixture.manager.setPanelCollapsed('data-panel', true, { explicit: true }); },
+    (fixture) => { fixture.event.target = { panel: null, closest: () => null }; },
   ]) {
     const fixture = panelFixture();
     mutate(fixture);
     const wasCollapsed = fixture.collapsed();
-    assert.equal(
-      fixture.manager._collapsePanelOnEscape(fixture.event, 'data-panel'),
-      false,
-    );
+    assert.equal(fixture.manager._collapsePanelOnEscape(fixture.event, 'data-panel'), false);
     assert.equal(fixture.collapsed(), wasCollapsed);
     assert.equal(fixture.focused(), false);
   }
@@ -206,37 +134,23 @@ test('non-Escape, handled, collapsed, and outside events do not collapse a panel
 
 test('an expanded nested panel owns Escape before its expanded parent', () => {
   const inner = panelFixture({ id: 'param-slider-panel' });
-  assert.equal(
-    inner.manager._collapsePanelOnEscape(inner.event, 'param-slider-panel'),
-    true,
-  );
+  assert.equal(inner.manager._collapsePanelOnEscape(inner.event, 'param-slider-panel'), true);
 
   const outer = panelFixture({ id: 'pp-toggles', nested: true });
-  assert.equal(
-    outer.manager._collapsePanelOnEscape(outer.event, 'pp-toggles'),
-    false,
-  );
+  assert.equal(outer.manager._collapsePanelOnEscape(outer.event, 'pp-toggles'), false);
   assert.equal(outer.collapsed(), false);
   assert.equal(outer.focused(), false);
 });
 
 test('a collapsed nested panel does not block the next Escape from closing its parent', () => {
-  const outer = panelFixture({
-    id: 'pp-toggles',
-    nested: true,
-    nestedCollapsed: true,
-  });
-  assert.equal(
-    outer.manager._collapsePanelOnEscape(outer.event, 'pp-toggles'),
-    true,
-  );
+  const outer = panelFixture({ id: 'pp-toggles', nested: true, nestedCollapsed: true });
+  assert.equal(outer.manager._collapsePanelOnEscape(outer.event, 'pp-toggles'), true);
   assert.equal(outer.collapsed(), true);
   assert.equal(outer.focused(), true);
 });
 
 test('Location Escape clears a hidden draft search before restoring disclosure focus', () => {
   const fixture = panelFixture({ id: 'location-bar' });
-<<<<<<< ours
   // The location controls close the field and drop its draft
   // (src/ui/locationControls.test.mjs).
   let closed = 0;
@@ -251,63 +165,6 @@ test('panel chrome wires Escape for every declared collapse target', () => {
   assert.match(init, /for \(const targetId of targets\)/);
   assert.match(init, /bindPanelDisclosure\(\{[\s\S]*?onEscape: \(event\) => this\._collapsePanelOnEscape\(event, targetId\)/);
   assert.match(source, /createHoverDisclosure\(\{[\s\S]*?onEscape: \(event\) => this\._collapsePanelOnEscape\(event, panelId\)/);
-=======
-  const removed = [];
-  let blurred = false;
-  fixture.manager._locationSearch = {
-    classList: { remove: (...names) => removed.push(...names) },
-    value: 'focus cleanup',
-    blur: () => {
-      blurred = true;
-    },
-  };
-  assert.equal(
-    fixture.manager._collapsePanelOnEscape(fixture.event, 'location-bar'),
-    true,
-  );
-  assert.deepEqual(removed, ['expanded']);
-  assert.equal(fixture.manager._locationSearch.value, '');
-  assert.equal(blurred, true);
-  assert.equal(fixture.focused(), true);
-});
-
-test('panel chrome hands the lc cards to src/lc and never re-creates a disclosure binding', () => {
-  /* Phase 3（2026-10-29）：7 张卡的折叠按钮 DOM 已删，App 侧只留 setPanelCollapsed API，
-     开合完全由 src/lc 拥有。这里守住两件事：① 不再有 bindPanelDisclosure 绑定层；
-     ② 仍然把 CollapsePort 需要的 API 挂出来（否则 Esc/旧入口会静默失效）。
-     Phase8D #15：挂载点从 `window.__lcPanelApi` 直写改成桥的兼容面
-     （`bridge.ensure('app.panelApi', { global: '__lcPanelApi' })`），所以断言跟着
-     移到「桥槽位 + 兼容名绑定 + api 上真的有 setPanelCollapsed」，强度不降：
-     直接写 window 反而要拒绝，因为那会绕开桥的 adopt/白名单。 */
-  const init = method('_initPanelChrome', '_bindLegacyPanelHeaders');
-  assert.match(
-    init,
-    /bridge\.ensure\(\s*'app\.panelApi',\s*\{[^}]*global:\s*'__lcPanelApi'/,
-    'the panel API must be published through the bridge slot bound to __lcPanelApi',
-  );
-  assert.match(
-    init,
-    /\.setPanelCollapsed\s*=\s*\(id, collapsed, options\)\s*=>\s*this\.setPanelCollapsed\(id, collapsed, options\)/,
-    'the published api must still carry setPanelCollapsed',
-  );
-  assert.doesNotMatch(
-    init,
-    /window\.__lcPanelApi\s*=/,
-    'the compat global belongs to the bridge whitelist, not a direct window write',
-  );
-  // 兼容名必须在白名单里，否则 bridge.ensure 会抛错（跑到这一行就说明运行时已经坏了）。
-  const bridge = fs.readFileSync(new URL('./bridge.js', import.meta.url), 'utf8');
-  const exposed = bridge.slice(bridge.indexOf('const EXPOSED = new Set(['), bridge.indexOf(']));', bridge.indexOf('const EXPOSED = new Set([')));
-  assert.match(exposed, /'__lcPanelApi'/, '__lcPanelApi must stay on the bridge window whitelist');
-  assert.match(exposed, /'__lcExternalDisclosure'/, '__lcExternalDisclosure must stay on the bridge window whitelist');
-  assert.match(init, /__lcExternalDisclosure/);
-  assert.doesNotMatch(init, /panel-collapse-btn/);
-  assert.doesNotMatch(source, /bindPanelDisclosure\(/);
-  assert.match(
-    source,
-    /createHoverDisclosure\(\{[\s\S]*?onEscape: \(event\) => this\._collapsePanelOnEscape\(event, panelId\)/,
-  );
->>>>>>> theirs
 });
 
 test('Cockpit Escape collapses Contact or Live Signals before exiting Cockpit', () => {
@@ -325,14 +182,8 @@ test('Cockpit Escape collapses Contact or Live Signals before exiting Cockpit', 
     onKeyDown,
     /this\.signalStream\?\.contains\(event\.target\)[\s\S]*?setSignalCollapsed\(true, \{ user: true \}\)[\s\S]*?event\.target === this\.signalToggle[\s\S]*?signalToggle\?\.blur[\s\S]*?signalToggle\?\.focus/,
   );
-  assert.ok(
-    onKeyDown.indexOf('setContextCollapsed(true)') <
-      onKeyDown.indexOf('this.exit()'),
-  );
-  assert.ok(
-    onKeyDown.indexOf('setSignalCollapsed(true') <
-      onKeyDown.indexOf('this.exit()'),
-  );
+  assert.ok(onKeyDown.indexOf('setContextCollapsed(true)') < onKeyDown.indexOf('this.exit()'));
+  assert.ok(onKeyDown.indexOf('setSignalCollapsed(true') < onKeyDown.indexOf('this.exit()'));
 });
 
 test('Cockpit utility Escape leaves an expanded nested Parameters panel to the shared handler', () => {
@@ -346,7 +197,6 @@ test('Cockpit utility Escape leaves an expanded nested Parameters panel to the s
     'Cockpit utility disclosures clear their own focus when Escape closes them',
   );
 });
-<<<<<<< ours
 
 
 test('panel bindings have a single owner and are inert after destruction', () => {
@@ -365,5 +215,3 @@ test('panel bindings have a single owner and are inert after destruction', () =>
   assert.equal(keys, 2);
   second.destroy();
 });
-=======
->>>>>>> theirs

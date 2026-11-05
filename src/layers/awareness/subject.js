@@ -2,12 +2,8 @@ import {
   AWARENESS_RADIUS_M,
   AWARENESS_RELATIONSHIP,
 } from '../../data/militaryAwarenessEngine.js';
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import { t } from '../../i18n/index.js';
-=======
-import { Cesium } from '../../cesium.js';
->>>>>>> theirs
 import {
   AWARENESS_QUERY_LIMIT,
   SOURCE_LABEL,

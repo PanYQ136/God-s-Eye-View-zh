@@ -46,16 +46,6 @@ test('module analysis parses dependencies and platform references without readin
   assert.throws(() => analyzeModule("require('node:fs')"), /ES imports/);
 });
 
-test('computed-import allowance is opt-in per module and records no edge', () => {
-  // data/bundledJson.js 的 Node 测试专用装载器（见门禁脚本白名单注释）：
-  // 豁免后不再抛错，但计算导入也不进方向图。
-  const source =
-    "import x from './known.js'; const spec = './x.json'; import(spec);";
-  assert.throws(() => analyzeModule(source), /Computed/);
-  const allowed = analyzeModule(source, { allowComputedImports: true });
-  assert.deepEqual(allowed.imports, ['./known.js']);
-});
-
 test('portable sources can share records, and standalone can assemble rendering', (t) => {
   const { root, write } = fixture(t, {
     './layers/demo/source': './src/layers/demo/source.js',
@@ -63,24 +53,8 @@ test('portable sources can share records, and standalone can assemble rendering'
   write('src/layers/demo/source.js', "export { read } from './records.js';");
   write('src/layers/demo/records.js', 'export const read = (value) => value;');
   write('src/standalone/catalog.js', "import '../layers/demo/index.js';");
-  /* Phase8E #14 pinned the single Cesium exit: `src/cesium.js` is the only file
-     allowed to import the npm package, and every rendering module goes through
-     it. The fixture has to model that shape — a demo renderer importing
-     `cesium` directly is now the very thing the checker rejects — so the
-     assembly keeps its rendering dependency while the sanctioned path is also
-     exercised (the returned warnings must stay empty). */
-  write('src/cesium.js', "export * from 'cesium';");
-  write(
-    'src/layers/demo/index.js',
-    "import { Viewer } from '../../cesium.js';",
-  );
-  const result = checkImportDirections(root);
-  assert.deepEqual(
-    result.warnings,
-    [],
-    'the sanctioned single exit must not warn',
-  );
-  assert.equal(result.modules, 6);
+  write('src/layers/demo/index.js', "import * as Cesium from 'cesium';");
+  assert.equal(checkImportDirections(root).modules, 5);
 });
 
 for (const [name, files, pattern] of [
@@ -182,7 +156,6 @@ test('self package imports cannot evade portable ownership', (t) => {
   assert.throws(() => checkImportDirections(root), /Source imports rendering/);
 });
 
-<<<<<<< ours
 test('the compatibility exception is limited to the existing composition entry', (t) => {
   const { root, write } = fixture(t);
   write('src/standalone/catalog.js');
@@ -190,26 +163,11 @@ test('the compatibility exception is limited to the existing composition entry',
   write('server/standalone/key-setup.js');
   assert.doesNotThrow(() => checkImportDirections(root));
   write('src/ui.js', "import './standalone/catalog.js';");
-=======
-test('compatibility exceptions are limited to the one remaining composition entry', (t) => {
-  // 2026-11-01：`src/ui.js` 这个 @deprecated 兼容入口已删除（零引用），
-  // 对应豁免边一并移除；这里只保留仍存在的 server/providers/local.js → key-setup。
-  const { root, write } = fixture(t);
-  write('server/providers/local.js', "import '../standalone/key-setup.js';");
-  write('server/standalone/key-setup.js');
-  assert.doesNotThrow(() => checkImportDirections(root));
-  // 被删掉的那条边不再放行：若有人重建同名入口，必须显式登记。
-  write('src/ui.js', "import './standalone/catalog.js';");
-  write('src/standalone/catalog.js');
->>>>>>> theirs
   assert.throws(
     () => checkImportDirections(root),
     /Reusable module imports standalone/,
   );
-<<<<<<< ours
   write('src/ui.js');
-=======
->>>>>>> theirs
   write('src/ui/new.js', "import '../standalone/catalog.js';");
   assert.throws(
     () => checkImportDirections(root),

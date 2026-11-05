@@ -26,25 +26,6 @@ export function bindRadioControls() {
     this._cockpitDisclosure = { display: displayOpen, radio: radioOpen };
     this.store?.publishUtility({ ...this._cockpitDisclosure });
     if (displayOpen) this.actions.revealStyleParameters();
-<<<<<<< ours
-=======
-    if (this._cockpitDisplayToggleBtn) {
-      const action = displayOpen ? 'Collapse' : 'Expand';
-      this._cockpitDisplayToggleBtn.setAttribute(
-        'aria-label',
-        `${action} Cockpit display options`,
-      );
-      this._cockpitDisplayToggleBtn.title = `${action} Cockpit display options`;
-    }
-    if (this._cockpitRadioToggleBtn) {
-      const action = radioOpen ? 'Collapse' : 'Expand';
-      this._cockpitRadioToggleBtn.setAttribute(
-        'aria-label',
-        `${action} Cockpit Radio controls`,
-      );
-      this._cockpitRadioToggleBtn.title = `${action} Cockpit Radio controls`;
-    }
->>>>>>> theirs
     if (!expanded && returnFocus) {
       (kind === 'display'
         ? this._cockpitDisplayToggleBtn

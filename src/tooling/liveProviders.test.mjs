@@ -6,13 +6,6 @@ import { setTimeout as delay } from 'node:timers/promises';
 import * as providers from '../../server/providers/live.js';
 import * as portable from '../../src/data/adsbLolFallback.js';
 
-/* 2026-11-01：军机路由改成「主 → 备」双上游兜底（adsb.lol → adsb.fi，见
-   server/providers/aircraft/adsb-lol.js 的 MIL_UPSTREAMS）。因此**一次刷新尝试**
-   在最坏情况下会打 N 次上游；下面的计数断言按「成功 = 1 次抓取，全失败 = N 次」记账。
-   列表长度变化时只需改这里一处。 */
-const MIL_UPSTREAMS = 2;
-const failedAttempt = MIL_UPSTREAMS; // 一条刷新里所有上游都失败时的抓取次数
-
 function install(plugin, preview = false) {
   const routes = new Map();
   plugin[preview ? 'configurePreviewServer' : 'configureServer']({
@@ -133,7 +126,7 @@ test('OpenSky state and track routes share tokens, retain cache and use regional
     ],
     'HIT',
   );
-  assert.equal(calls.length, 1);
+  assert.equal(calls.length, 2);
   const tracks = install(providers.trackBackfillProxies(), true);
   assert.equal(
     (await tracks('/api/flights/track', '?icao24=ABC123')).statusCode,
@@ -362,17 +355,8 @@ test('military aircraft route preserves fresh cache and stale response after ups
   assert.equal((await request('/api/military')).body, first.body);
   assert.equal(calls, 1);
   now += 13_000;
-<<<<<<< ours
   assert.equal((await request('/api/military')).body, first.body);
   assert.equal(calls, 2);
-=======
-  assert.equal((await request('/api/adsblol/mil')).body, first.body);
-  assert.equal(
-    calls,
-    1 + failedAttempt,
-    'refresh tries every upstream before serving stale',
-  );
->>>>>>> theirs
 });
 
 test('AIS preview route ingests through the socket, returns tracks and disposes before restart', async (t) => {
@@ -466,13 +450,8 @@ test('military aircraft route serves stale cache on an upstream 429 and cools do
   const first = await request('/api/military');
   assert.equal(first.statusCode, 200);
   now += 13_000;
-<<<<<<< ours
   const limited = await request('/api/military');
   assert.equal(calls, 2);
-=======
-  const limited = await request('/api/adsblol/mil');
-  assert.equal(calls, 1 + failedAttempt);
->>>>>>> theirs
   assert.equal(
     limited.statusCode,
     200,
@@ -483,7 +462,6 @@ test('military aircraft route serves stale cache on an upstream 429 and cools do
   assert.equal(limited.headers['x-ads-b-upstream-status'], '429');
   assert.equal(limited.headers['x-feed-age-ms'], '13000');
   now += 5_000;
-<<<<<<< ours
   const cooling = await request('/api/military');
   assert.equal(calls, 2, 'no upstream call inside the Retry-After window');
   assert.equal(cooling.headers['x-feed-cache'], 'STALE');
@@ -491,23 +469,6 @@ test('military aircraft route serves stale cache on an upstream 429 and cools do
   now += 16_000;
   await request('/api/military');
   assert.equal(calls, 3, 'upstream is retried once Retry-After elapses');
-=======
-  const cooling = await request('/api/adsblol/mil');
-  assert.equal(
-    calls,
-    1 + failedAttempt,
-    'no upstream call inside the Retry-After window',
-  );
-  assert.equal(cooling.headers['x-ads-b-cache'], 'STALE');
-  assert.equal(cooling.headers['x-ads-b-cache-age-ms'], '18000');
-  now += 16_000;
-  await request('/api/adsblol/mil');
-  assert.equal(
-    calls,
-    1 + 2 * failedAttempt,
-    'upstream is retried once Retry-After elapses',
-  );
->>>>>>> theirs
 });
 
 test('military aircraft route relays an upstream 429 when nothing is cached', async (t) => {
@@ -525,7 +486,7 @@ test('military aircraft route relays an upstream 429 when nothing is cached', as
   assert.equal(again.statusCode, 429);
   assert.equal(
     calls,
-    failedAttempt,
+    1,
     'the cooldown still protects upstream with nothing cached',
   );
   assert.ok(
@@ -542,9 +503,7 @@ test('military fallback cancels a stalled 5xx body and starts cooldown at receip
   t.mock.method(console, 'warn', () => {});
   t.mock.method(globalThis, 'fetch', async () => {
     if (++calls === 1) return Response.json({ ac: [] });
-    /* 「上游体阻塞期间时间流逝」按**一次尝试**推进一次。主备双上游会让一次刷新
-       打两次上游，若每次抓取都推进，时钟会被推两遍，cache-age 断言随之失真。 */
-    if (calls === 2) now += 10000;
+    now += 10000;
     return new Response(
       new ReadableStream({
         cancel() {
@@ -569,19 +528,11 @@ test('military fallback cancels a stalled 5xx body and starts cooldown at receip
   assert.equal(fallback.headers['x-feed-age-ms'], '23000');
   assert.equal(fallback.headers['x-ads-b-retry-after-seconds'], '20');
   now += 19000;
-<<<<<<< ours
   await request('/api/military');
   assert.equal(calls, 2);
   now += 2000;
   await request('/api/military');
   assert.equal(calls, 3);
-=======
-  await request('/api/adsblol/mil');
-  assert.equal(calls, 1 + failedAttempt);
-  now += 2000;
-  await request('/api/adsblol/mil');
-  assert.equal(calls, 1 + 2 * failedAttempt);
->>>>>>> theirs
 });
 
 test('military cooldown bounds untrusted Retry-After and defaults server errors', async (t) => {

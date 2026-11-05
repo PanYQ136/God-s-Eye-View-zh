@@ -1,4 +1,3 @@
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import { describeInstallationFeedback } from '../../data/installationFeedback.js';
 import {
@@ -33,11 +32,6 @@ function localizeInstallationFeedback(feedback) {
     ? t('No mapped sites in view')
     : tn(count, '{count} mapped site in view', '{count} mapped sites in view');
 }
-=======
-import { Cesium } from '../../cesium.js';
-import { installationFeedback } from '../../data/installationFeedback.js';
-import { LAYER_ID, DISTANCE_PREFILTER_MARGIN_M } from './policy.js';
->>>>>>> theirs
 
 export function createControls({ state: layerState, services, parts, source }) {
   const methods = {

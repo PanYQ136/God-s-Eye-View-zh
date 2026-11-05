@@ -1,4 +1,3 @@
-@layer components {
 /* Cyber is selected from DISPLAY > HUD > Layout. It skins the application
    shell while map imagery and source media retain their original colours. */
 
@@ -139,8 +138,7 @@
   content: '';
   position: fixed;
   inset: 0;
-  /* 纯装饰网格不应盖在模态/通知之上；降到世界浮层之下。 */
-  z-index: 3;
+  z-index: 9999;
   pointer-events: none;
   opacity: 0.32;
   background-image:
@@ -374,7 +372,7 @@
 }
 
 :root[data-ui-theme='cyber']
-  body.cockpit-mode .cockpit-utility-glyph {
+  :is(.panel-collapse-btn, body.cockpit-mode .cockpit-utility-glyph) {
   display: grid;
   width: var(--cyber-panel-control-size);
   min-width: var(--cyber-panel-control-size);
@@ -471,6 +469,12 @@
   background-image: var(--cyber-panel-surface-detail);
   box-shadow: var(--cyber-panel-shadow);
   clip-path: var(--cyber-panel-frame);
+}
+
+:root[data-ui-theme='cyber'] #pp-toggles > .pp-header-row .pp-collapse-btn {
+  width: var(--cyber-panel-control-size);
+  min-width: var(--cyber-panel-control-size);
+  height: var(--cyber-panel-control-size);
 }
 
 :root[data-ui-theme='cyber'] :where(button, select, input, textarea) {
@@ -597,7 +601,8 @@
     .pp-icon,
     .btn-icon,
     .dock-label-icon,
-    .first-run-arrow
+    .first-run-arrow,
+    .panel-collapse-btn
   ) {
   color: #f2f5f4;
   text-shadow: none;
@@ -819,14 +824,20 @@
 /* These controls are clipped to a chamfered tag. Keep focus inside that shape;
    an outside outline/shadow is clipped away, including in cockpit launchers. */
 :root[data-ui-theme='cyber']
-  body.cockpit-mode .cockpit-utility-glyph:is(:hover, :focus-visible) {
+  :is(.panel-collapse-btn, body.cockpit-mode .cockpit-utility-glyph):is(
+    :hover,
+    :focus-visible
+  ) {
   border-color: var(--cyber-red-bright);
   color: var(--text-primary);
   background-color: rgba(64, 45, 46, 0.94);
 }
 
 :root[data-ui-theme='cyber']
-  body.cockpit-mode .cockpit-utility-glyph:focus-visible {
+  :is(
+    .panel-collapse-btn,
+    body.cockpit-mode .cockpit-utility-glyph
+  ):focus-visible {
   outline: 2px solid var(--cyber-red-bright) !important;
   outline-offset: -3px;
   box-shadow: none;
@@ -909,9 +920,8 @@
 }
 
 :root[data-ui-theme='cyber'] #command-dock {
-  /* 与默认主题的 Dock 缩小保持一致，避免主题切换后宽度回弹压到面板。 */
-  --dock-side-compact: clamp(7.25rem, 8.5vw, 8rem);
-  --dock-voice-width: 7rem;
+  --dock-side-compact: clamp(9rem, 11vw, 9.75rem);
+  --dock-voice-width: 8rem;
   padding: 0.3rem 0.48rem 0.34rem;
   gap: 0.12rem;
   overflow: visible;
@@ -1744,7 +1754,6 @@
     bottom: 6px;
   }
 
-<<<<<<< ours
   :root[data-ui-theme='cyber']
     body:not(.cockpit-mode)
     :is(#data-panel, #utilities-panel, #scene-panel)
@@ -1754,8 +1763,6 @@
     height: var(--cyber-panel-control-size);
   }
 
-=======
->>>>>>> theirs
   :root[data-ui-theme='cyber'] #right-context-rail {
     --right-display-collapsed-width: var(--cyber-panel-collapsed-width);
     --right-context-collapsed-width: var(--cyber-panel-collapsed-width);
@@ -2899,5 +2906,4 @@
     min-height: 54px;
     padding: 10px 12px 18px 18px;
   }
-}
 }

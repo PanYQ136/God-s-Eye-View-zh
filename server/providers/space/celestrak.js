@@ -63,7 +63,6 @@ export function celestrakProxy() {
     }
   }
 
-<<<<<<< ours
   /** The largest group (`active`) measures ~2.7 MB; this bounds a runaway body. */
   const CELESTRAK_MAX_RESPONSE_BYTES = 16 * 1024 * 1024;
 
@@ -97,61 +96,6 @@ export function celestrakProxy() {
     // An upstream error page parses to zero TLEs — treat as failure, keep cache.
     if (!/^1 /m.test(body)) throw new Error('no TLE lines in response');
     return { at: Date.now(), body };
-=======
-  const TLE_USER_AGENT =
-    'gods-eye-view-celestrak-proxy/1.0 (+https://github.com/bilawalsidhu/gods-eye-view)';
-
-  /**
-   * Ordered TLE upstreams for a group. CelesTrak is primary; the two keyless
-   * mirrors below serve the SAME CelesTrak groups in 3LE and cover every group
-   * this app loads (including `starlink`). Tried in turn so one host being
-   * down or rate-limited (e.g. CelesTrak's ~2 h per-IP 403 window, which 502s
-   * `active`/`starlink`) never empties the satellites layer.
-   *  - retlector.eu            — community CelesTrak GP proxy, /[group]/tle
-   *  - satvisor-data (GitHub)  — GH-Actions mirror refreshed ~2 hourly
-   */
-  function tleUpstreamUrls(group) {
-    const slug = encodeURIComponent(group);
-    // 顺序按「中国大陆实测可达性」排：celestrak.org 在大陆经常整段超时，
-    // GitHub raw 镜像与 retlector 反而 0.5~2.2s 就能拿到同样分组，
-    // 所以镜像优先、官方垫底，避免每次都白等 20s 超时再回退。
-    return [
-      `https://raw.githubusercontent.com/satvisorcom/satvisor-data/master/celestrak/tle/${slug}.tle`,
-      `https://retlector.eu/${slug}/tle`,
-      celestrakTleUrl(group).toString(),
-    ];
-  }
-
-  async function fetchUpstream(group) {
-    let lastError = null;
-    for (const url of tleUpstreamUrls(group)) {
-      try {
-        const res = await fetch(url, {
-          signal: AbortSignal.timeout(20000),
-          // CelesTrak 403s bulk groups (e.g. `active`) unless the request
-          // carries a descriptive User-Agent with a contact point.
-          headers: { 'User-Agent': TLE_USER_AGENT },
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const body = await res.text();
-        // An upstream error page parses to zero TLEs — treat as failure, keep cache.
-        if (!/^1 /m.test(body)) throw new Error('no TLE lines in response');
-        return { at: Date.now(), body };
-      } catch (err) {
-        lastError = err;
-        // SECURITY: never echo upstream detail (response bodies, URLs, tokens)
-        // into the log — a failing upstream can return an HTML page or a
-        // credential-bearing URL, and this line is user-visible. Only the host
-        // plus a coarse reason class leaves this proxy.
-        const raw = String(err?.message ?? '');
-        const reason = /^HTTP \d{3}$/.test(raw) ? raw : 'request failed';
-        console.warn(
-          `[celestrak-proxy] upstream failed (${url.split('/')[2]}): ${reason}`,
-        );
-      }
-    }
-    throw lastError || new Error('all TLE upstreams failed');
->>>>>>> theirs
   }
 
   const installMiddleware = (server) => {

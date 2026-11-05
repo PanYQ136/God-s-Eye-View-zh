@@ -8,7 +8,6 @@ import { createHash } from 'node:crypto';
 const OVERPASS_USER_AGENT =
   'gods-eye-view/0.1 (+https://github.com/bilawalsidhu/gods-eye-view)';
 
-<<<<<<< ours
 /** Parse only operator-supplied HTTP(S) endpoints; private instances are allowed. */
 function parseOverpassUpstreams(raw) {
   const endpoints = [];
@@ -90,23 +89,6 @@ function readUpstreamMemo() {
   }
   return upstreamMemo;
 }
-=======
-/** Ordered list of Overpass API mirrors; tried sequentially on failure/rate-limit. */
-const OVERPASS_UPSTREAMS = [
-  // Fastest + most reliable from this network (measured via proxy ≈2 s; the
-  // DE/FR community mirrors below routinely refuse or stall this IP). Order:
-  // best latency first, public mirrors kept as later fallbacks.
-  'https://overpass.osm.ch/api/interpreter',
-  'https://overpass.openstreetmap.fr/api/interpreter',
-  // Original public mirrors — retained as fallbacks. overpass-api.de / lz4
-  // answer 406 to this client and kumi.systems times out here, but a refused
-  // connection fails in ms so the fast mirrors above still win.
-  'https://overpass-api.de/api/interpreter',
-  'https://overpass.kumi.systems/api/interpreter',
-  'https://lz4.overpass-api.de/api/interpreter',
-  'https://overpass.private.coffee/api/interpreter',
-];
->>>>>>> theirs
 
 /**
  * TTL for FRESH cached Overpass responses (ms). Road geometry is static for

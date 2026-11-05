@@ -1,4 +1,4 @@
-import { Cesium } from '../cesium.js';
+import * as Cesium from 'cesium';
 import {
   createCyberSonarSampler,
   isCyberContactSonarActive as isCyberSonarActive,
@@ -23,44 +23,6 @@ import {
 import { WORLD_OVERLAY_STYLE } from './worldOverlayTokens.js';
 import { t } from '../i18n/index.js';
 
-import {
-  ROOT_ID,
-  CANVAS_ID,
-  AMBIENT_CARD_COLLISION_CAPACITY,
-  WORLD_OVERLAY_PAINT_LANES,
-  WORLD_OVERLAY_OCCLUDER_SELECTORS,
-  DETECTION_SURFACE_ID,
-  ACCESSIBILITY_ROOT_ID,
-  ACCESSIBILITY_LIST_ID,
-  ACCESSIBILITY_STATUS_ID,
-  PAINT_TARGET_SHARED,
-  PAINT_TARGET_DETECTION,
-  OCCLUDER_PADDING_PX,
-  OCCLUDER_REFRESH_MS,
-  DEFAULT_COHORT_LIMIT,
-  MAX_SOURCE_COHORT_LIMIT,
-  DEFAULT_COLLISION_CAPACITY,
-  DEFAULT_MOVING_SOLVE_MS,
-  VALID_VARIANTS,
-  PAINT_LANE_INDEX,
-  nowMs,
-  clamp01,
-  assertSourceId,
-  entryKey,
-  compareProtectedEntries,
-  compareProtectedCandidates,
-  comparePaintItems,
-  sortPooledRange,
-  zeroDemandEntry,
-  pruneKeyedIndex,
-  defaultCollisionGroup,
-} from './worldOverlay/primitives.js';
-export {
-  AMBIENT_CARD_COLLISION_CAPACITY,
-  WORLD_OVERLAY_PAINT_LANES,
-  WORLD_OVERLAY_OCCLUDER_SELECTORS,
-} from './worldOverlay/primitives.js';
-
 /**
  * @module worldOverlay
  * @description Shared screen-space renderer/scheduler for world-anchored
@@ -68,7 +30,6 @@ export {
  * generation; this host owns projection, final placement, paint, and hits.
  */
 
-<<<<<<< ours
 const ROOT_ID = 'world-overlay-root';
 const CANVAS_ID = 'world-overlay-canvas';
 const DETECTION_SURFACE_ID = 'world-overlay-detection-surface';
@@ -162,8 +123,6 @@ export const WORLD_OVERLAY_OCCLUDER_SELECTORS = Object.freeze([
   '#cockpit-signal-stream',
 ]);
 
-=======
->>>>>>> theirs
 /** @typedef {{x:number,y:number,w:number,h:number}} OverlayRect */
 /**
  * @typedef {object} WorldOverlayEntry
@@ -275,36 +234,6 @@ let _keyholeFadeRatio = Number.NaN;
 let _keyholeOutsideOpacity = Number.NaN;
 let _layoutRevision = 0;
 
-/**
- * Interaction-period cadence ceiling for the host's two full-viewport 2D
- * surfaces (`world-overlay-canvas` and `world-overlay-detection-surface`).
- *
- * Every host frame clears and repaints the whole surface at DPR and hands a
- * brand-new full-screen texture to the compositor. Nothing the host draws is
- * display-rate content: cards and labels are already in screen space, so a
- * 33 ms cadence costs one skipped display frame and reads as glued to the map,
- * while halving the 2D paint + full-surface upload that runs alongside Cesium's
- * own render. The ceiling only applies while the camera POSE actually changed
- * (i.e. during a drag/zoom/orbit): fades, leader animations, card clicks and
- * data updates keep painting at display rate, so interaction stays
- * frame-accurate.
- */
-const MOTION_REPAINT_INTERVAL_MS = 33;
-/** Timestamp of the last frame that actually painted the host surfaces. */
-let _lastPaintAtMs = Number.NEGATIVE_INFINITY;
-/** Pending "one more frame" request armed by a cadence-skipped frame. */
-let _paintDeferTimer = null;
-/** Camera pose the last painted frame used, for the motion test. */
-const _lastPaintPose = {
-  x: Number.NaN,
-  y: Number.NaN,
-  z: Number.NaN,
-  dx: Number.NaN,
-  dy: Number.NaN,
-  dz: Number.NaN,
-  height: Number.NaN,
-};
-
 const _uiOcclusionRects = [];
 const _uiOcclusionRectPool = [];
 /** Shared, allocation-free frame contract passed to custom paint lanes. */
@@ -357,6 +286,88 @@ const _diagnostics = {
   entriesBySource: {},
   paintedBySource: _paintedBySource,
 };
+
+function nowMs() {
+  return globalThis.performance?.now?.() ?? Date.now();
+}
+
+function clamp01(value, fallback = 1) {
+  return Number.isFinite(Number(value))
+    ? Math.max(0, Math.min(1, Number(value)))
+    : fallback;
+}
+
+function assertSourceId(sourceId) {
+  if (typeof sourceId !== 'string' || !sourceId.trim()) {
+    throw new TypeError('WorldOverlay sourceId must be a non-empty string');
+  }
+  return sourceId.trim();
+}
+
+function entryKey(sourceId, entryId) {
+  return `${sourceId}\u0000${entryId}`;
+}
+
+function compareStableKeys(a, b) {
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
+function compareProtectedEntries(a, b) {
+  return (
+    b.priority - a.priority || compareStableKeys(a._overlayKey, b._overlayKey)
+  );
+}
+
+function compareProtectedCandidates(a, b) {
+  return b.priority - a.priority || compareStableKeys(a.key, b.key);
+}
+
+function comparePaintItems(a, b) {
+  return (
+    a.lane - b.lane || a.zIndex - b.zIndex || compareStableKeys(a.key, b.key)
+  );
+}
+
+/**
+ * Stable in-place insertion sort over the live prefix of a pooled array.
+ * `Array#sort` allocates a work buffer per call; the frame path only ever
+ * orders a short, nearly sorted prefix.
+ */
+function sortPooledRange(items, count, compare) {
+  for (let i = 1; i < count; i++) {
+    const item = items[i];
+    let j = i - 1;
+    while (j >= 0 && compare(items[j], item) > 0) {
+      items[j + 1] = items[j];
+      j--;
+    }
+    items[j + 1] = item;
+  }
+}
+
+/** Map#forEach callback that zeroes a demand tally without clearing the map. */
+function zeroDemandEntry(value, key, map) {
+  map.set(key, 0);
+}
+
+/**
+ * Amortized prune for a keyed index that is rebuilt every frame but only
+ * grows when a source publishes new identities. Clearing unconditionally
+ * reallocates the backing hash table per domain per frame, so the index is
+ * dropped only once it dwarfs the live cohort — the same policy the arbiter
+ * applies to its per-solve key stamps.
+ * @param {Map<string, object>} index
+ * @param {number} liveCount
+ */
+function pruneKeyedIndex(index, liveCount) {
+  if (index.size > liveCount * 4 + 64) index.clear();
+}
+
+function defaultCollisionGroup(variant) {
+  if (variant === 'label') return 'ambient-label';
+  if (variant === 'track' || variant === 'tracked') return 'ambient-track';
+  return 'ambient-card';
+}
 
 /** Resolve an entry to one of the seven binding paint lanes. */
 export function paintLaneForOverlayEntry(entry = {}) {
@@ -2583,54 +2594,6 @@ function resetFrameDiagnostics() {
   }
 }
 
-/**
- * True when the camera pose differs from the pose the last painted frame used.
- * Screen-space content is a pure function of that pose, so an unchanged pose
- * means the painted surfaces are still correct.
- */
-function cameraPoseChanged() {
-  const camera = _viewer?.camera;
-  const position = camera?.positionWC;
-  const direction = camera?.directionWC;
-  if (!position || !direction) return false;
-  return (
-    position.x !== _lastPaintPose.x ||
-    position.y !== _lastPaintPose.y ||
-    position.z !== _lastPaintPose.z ||
-    direction.x !== _lastPaintPose.dx ||
-    direction.y !== _lastPaintPose.dy ||
-    direction.z !== _lastPaintPose.dz ||
-    (camera.positionCartographic?.height ?? Number.NaN) !==
-      _lastPaintPose.height
-  );
-}
-
-function rememberCameraPose() {
-  const camera = _viewer?.camera;
-  const position = camera?.positionWC;
-  const direction = camera?.directionWC;
-  if (!position || !direction) return;
-  _lastPaintPose.x = position.x;
-  _lastPaintPose.y = position.y;
-  _lastPaintPose.z = position.z;
-  _lastPaintPose.dx = direction.x;
-  _lastPaintPose.dy = direction.y;
-  _lastPaintPose.dz = direction.z;
-  _lastPaintPose.height = camera.positionCartographic?.height ?? Number.NaN;
-}
-
-/** Arms exactly one trailing frame for a cadence-skipped paint. */
-function scheduleDeferredPaint(delayMs) {
-  if (_paintDeferTimer !== null) return;
-  _paintDeferTimer = setTimeout(
-    () => {
-      _paintDeferTimer = null;
-      if (!_destroyed) _viewer?.scene?.requestRender?.();
-    },
-    Math.max(1, Math.ceil(delayMs)),
-  );
-}
-
 function drawWorldOverlay() {
   if (_sonarRenderTimer !== null) {
     clearTimeout(_sonarRenderTimer);
@@ -2650,24 +2613,6 @@ function drawWorldOverlay() {
   }
   if (_resizeDirty) ensureCanvasSize();
   if (_canvasWidth <= 0 || _canvasHeight <= 0) return;
-  if (
-    cameraPoseChanged() &&
-    timestamp - _lastPaintAtMs < MOTION_REPAINT_INTERVAL_MS
-  ) {
-    // Pose moved again inside the cadence window: keep the surface that is
-    // already on screen (one display frame of lag) and make sure a trailing
-    // frame lands when the window closes.
-    scheduleDeferredPaint(
-      MOTION_REPAINT_INTERVAL_MS - (timestamp - _lastPaintAtMs),
-    );
-    return;
-  }
-  if (_paintDeferTimer !== null) {
-    clearTimeout(_paintDeferTimer);
-    _paintDeferTimer = null;
-  }
-  rememberCameraPose();
-  _lastPaintAtMs = timestamp;
   _frameStamp++;
   refreshUiOccluders(
     timestamp,
@@ -2763,8 +2708,6 @@ export function initWorldOverlay(viewer) {
 export function destroyWorldOverlay() {
   if (_sonarRenderTimer !== null) clearTimeout(_sonarRenderTimer);
   _sonarRenderTimer = null;
-  if (_paintDeferTimer !== null) clearTimeout(_paintDeferTimer);
-  _paintDeferTimer = null;
   // Tearing down a host that was never initialized must not arm the
   // post-destroy guard: sources are allowed to publish before the first
   // `initWorldOverlay`, and that buffering has to survive a stray destroy.
@@ -2863,14 +2806,6 @@ export function destroyWorldOverlay() {
   _viewport.height = 0;
   _canvasDpr = 1;
   _layoutRevision = 0;
-  _lastPaintAtMs = Number.NEGATIVE_INFINITY;
-  _lastPaintPose.x = Number.NaN;
-  _lastPaintPose.y = Number.NaN;
-  _lastPaintPose.z = Number.NaN;
-  _lastPaintPose.dx = Number.NaN;
-  _lastPaintPose.dy = Number.NaN;
-  _lastPaintPose.dz = Number.NaN;
-  _lastPaintPose.height = Number.NaN;
   _customPaintFrame.canvas = null;
   _customPaintFrame.surface = null;
   _customPaintFrame.ctx = null;

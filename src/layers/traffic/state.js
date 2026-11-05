@@ -1,9 +1,5 @@
-<<<<<<< ours
 import { normalizeRoadMode } from './roadModes.js';
 import * as Cesium from 'cesium';
-=======
-import { Cesium } from '../../cesium.js';
->>>>>>> theirs
 import { FLOW_BUCKET_COLORS } from './policy.js';
 
 export function createState({ services }) {
@@ -90,18 +86,6 @@ export function createState({ services }) {
   /** @type {number} User-adjustable speed multiplier (clamped 0.3–3.0) */
 
   layerState._speedScale = 1.0;
-
-  /**
-   * 操作员渲染上限 (0–999)：只渲染离相机最近的 N 个车流点（999 = 不限，默认）。
-   * 与 flights / military 同一语义；由 gev-layer-limits.js 经 setLayerParams 设置。
-   * @type {number}
-   */
-
-  layerState._renderLimit = 25;
-
-  /** @type {number} 上一次应用渲染上限的时间戳（animate 里限流重算用）。 */
-
-  layerState._renderLimitAt = 0;
 
   /** @type {{lat:number,lon:number}|null} Center of last-fetched viewport for shift gating */
 

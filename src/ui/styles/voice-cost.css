@@ -1,69 +1,67 @@
-@layer components {
-  /* ------------------------------------------------------------------ *
+/* ------------------------------------------------------------------ *
  * Voice cost control — model-tier toggle + running session estimate.
  * Appended (not woven into the dock passes above) so the three existing
  * #gev-voice-control cascades stay untouched; these rules only add the
  * new .gev-voice-cost cluster inside the existing .gev-voice-heading row.
  * ------------------------------------------------------------------ */
-  .gev-voice-cost {
-    display: flex;
-    align-items: center;
-    gap: 0.22rem;
-    margin-left: auto; /* pin right; kicker + status keep their left cluster */
-    flex: 0 0 auto;
-  }
+.gev-voice-cost {
+  display: flex;
+  align-items: center;
+  gap: 0.22rem;
+  margin-left: auto; /* pin right; kicker + status keep their left cluster */
+  flex: 0 0 auto;
+}
 
-  .gev-voice-tier-btn {
-    padding: 0 0.24rem;
-    height: 0.72rem;
-    min-width: 1.55rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 212, 255, 0.06);
-    border: 1px solid rgba(0, 212, 255, 0.34);
-    border-radius: 0.18rem;
-    color: var(--text-secondary);
-    font-family: var(--font-mono);
-    font-size: 0.4rem;
-    letter-spacing: 0.045rem;
-    line-height: 1;
-    cursor: pointer;
-    transition:
-      color var(--transition-fast),
-      border-color var(--transition-fast),
-      background var(--transition-fast);
-  }
+.gev-voice-tier-btn {
+  padding: 0 0.24rem;
+  height: 0.72rem;
+  min-width: 1.55rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 212, 255, 0.06);
+  border: 1px solid rgba(0, 212, 255, 0.34);
+  border-radius: 0.18rem;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.4rem;
+  letter-spacing: 0.045rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
 
-  .gev-voice-tier-btn:hover {
-    color: var(--text-primary);
-    border-color: rgba(0, 212, 255, 0.6);
-    background: rgba(0, 212, 255, 0.12);
-  }
+.gev-voice-tier-btn:hover {
+  color: var(--text-primary);
+  border-color: rgba(0, 212, 255, 0.6);
+  background: rgba(0, 212, 255, 0.12);
+}
 
-  /* MINI engaged — amber, distinct from the cyan default so the cheaper tier
+/* MINI engaged — amber, distinct from the cyan default so the cheaper tier
    is legible at a glance without reading the label. */
-  .gev-voice-tier-btn[aria-pressed='true'] {
-    color: #ffc46b;
-    border-color: rgba(255, 196, 107, 0.55);
-    background: rgba(255, 196, 107, 0.12);
-  }
+.gev-voice-tier-btn[aria-pressed='true'] {
+  color: #ffc46b;
+  border-color: rgba(255, 196, 107, 0.55);
+  background: rgba(255, 196, 107, 0.12);
+}
 
-  .gev-voice-cost-value {
-    color: var(--text-dim);
-    font-family: var(--font-mono);
-    font-size: 0.4rem;
-    letter-spacing: 0.02rem;
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
-    transition: color var(--transition-fast);
-  }
+.gev-voice-cost-value {
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.4rem;
+  letter-spacing: 0.02rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  transition: color var(--transition-fast);
+}
 
-  .gev-voice-cost-value[data-level='warn'] {
-    color: #ffc46b;
-  }
+.gev-voice-cost-value[data-level='warn'] {
+  color: #ffc46b;
+}
 
-<<<<<<< ours
 .gev-voice-cost-warning {
   margin-left: auto;
   flex: 0 0 auto;
@@ -77,74 +75,21 @@
   color: #ff6b6b;
   font-weight: 600;
 }
-=======
-  .gev-voice-cost-value[data-level='cap'] {
-    color: #ff6b6b;
-    font-weight: 600;
-  }
->>>>>>> theirs
 
-  /* The dock heading row is 0.8rem tall; keep the cluster inside it. */
-  #command-dock .gev-voice-cost {
-    max-height: 0.8rem;
-  }
+/* The dock heading row is 0.8rem tall; keep the cluster inside it. */
+#command-dock .gev-voice-cost {
+  max-height: 0.8rem;
+}
 
-  /* The dock collapses the kicker/readout when a tray is open — the cost
+/* The dock collapses the kicker/readout when a tray is open — the cost
    cluster follows the same rule so the row never overflows. */
-  #command-dock.tray-open .gev-voice-cost {
-    display: none;
-  }
+#command-dock.tray-open .gev-voice-cost {
+  display: none;
+}
 
-  .gev-voice-tier-btn[hidden],
-  .gev-voice-cost-value[hidden] {
-    display: none;
-  }
-
-  /* ── 紧凑语音卡（--dock-voice-width: 8.75rem = 140px）里的横向预算 ──────────
-   dock 把语音卡压到 140px 后，.gev-voice-heading 所在的文本列只剩 ≈75px：
-   关(10) + 间隙(5.6) + 标准按钮(48) + 间隙(3.5) + ~$0.00(38) ≈ 105px，
-   flex 行放不下就把整行往右撑，.gev-voice-cost 的右边缘落到 169px，
-   即 #gev-voice-control 的 scrollWidth 从 140 变成 169（可见溢出玻璃右缘 29px）。
-   常态隐藏预算数值、保留 标准 档位按钮（它是可点控件），即可让卡片内
-   麦克风 / 关 / 标准 / ON-OFF / 语音待命 全部坐标 0 位移且不再横向溢出；
-   悬停或键盘聚焦到卡片时再把数值放回来（此时 help tooltip 本来就浮在卡外，
-   属于设计内的浮层溢出）。 */
-  #command-dock #gev-voice-control .gev-voice-cost-value {
-    display: none;
-  }
-
-  /* 悬停/聚焦时把数值放回来，但**不留在标题行里**：140px 卡片的文本列只有 75px，
-   关(10)+标准(48)+数值(38)+两个间隙 ≈ 105px → 行内容撑到 111/75，成本簇右缘落到
-   767（卡右缘 738），数值被右侧邻卡（control-panel 起点 744）挡住＝审计里的「被裁」。
-   这里改成绝对定位到卡片第三行（底部 0.85rem 那条空行：紧凑形态下 readout 是
-   display:contents，整行是空的），左边界从麦克风列之后开始，右边界贴卡内缘 →
-   行内宽度回到 关+标准 ≈ 64/75，数值仍在卡内可见、不压邻卡。 */
-  #command-dock #gev-voice-control:hover .gev-voice-cost-value,
-  #command-dock #gev-voice-control:focus-within .gev-voice-cost-value {
-    display: block;
-    position: absolute;
-    left: 3.4rem;
-    right: 0.4rem;
-    bottom: 0.24rem;
-    text-align: right;
-    line-height: 1;
-  }
-
-  /* 预算数值隐藏后行内空出 ≈6px，flex 会把已经收缩到 0 的 kicker 撑回一点，
-   把 关 / 标准 整体右移 6px。kicker 在紧凑卡里本来就不可见（宽度 0、文字被裁），
-   这里把它固定成 0 宽；同时取消 .gev-voice-cost 的 margin-left:auto ——
-   有富余空间时 auto 会把 标准 按钮顶到行尾（80 → 86px），
-   改成紧跟在 关 后面，坐标与修复前逐像素一致。 */
-  #command-dock .gev-voice-heading .gev-voice-kicker {
-    flex: 0 0 0;
-    width: 0;
-    min-width: 0;
-    overflow: hidden;
-  }
-
-  #command-dock #gev-voice-control .gev-voice-cost {
-    margin-left: 0;
-  }
+.gev-voice-tier-btn[hidden],
+.gev-voice-cost-value[hidden] {
+  display: none;
 }
 
 /* The heading row is only as wide as the voice column: the cost cluster

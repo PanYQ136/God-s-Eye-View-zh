@@ -1,79 +1,77 @@
-@layer components {
-  /* ── Control Panel ────────────────────────────── */
-  #control-panel {
-    position: fixed;
-    bottom: 36px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 100;
-    width: auto;
-    max-width: 680px;
-  }
+/* ── Control Panel ────────────────────────────── */
+#control-panel {
+  position: fixed;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  width: auto;
+  max-width: 680px;
+}
 
-  #control-panel .panel-glow {
-    position: absolute;
-    inset: -30px;
-    background: radial-gradient(
-      ellipse at center bottom,
-      var(--accent-dim) 0%,
-      transparent 60%
-    );
-    filter: blur(30px);
-    opacity: 0.4;
-    pointer-events: none;
-  }
+#control-panel .panel-glow {
+  position: absolute;
+  inset: -30px;
+  background: radial-gradient(
+    ellipse at center bottom,
+    var(--accent-dim) 0%,
+    transparent 60%
+  );
+  filter: blur(30px);
+  opacity: 0.4;
+  pointer-events: none;
+}
 
-  .panel-inner {
-    position: relative;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--panel-radius);
-    padding: 16px 20px 18px;
-    backdrop-filter: blur(18px) saturate(1.4);
-    -webkit-backdrop-filter: blur(18px) saturate(1.4);
-    box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.5),
-      0 0 0 1px rgba(255, 255, 255, 0.03) inset,
-      0 1px 0 rgba(255, 255, 255, 0.06) inset;
-  }
+.panel-inner {
+  position: relative;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--panel-radius);
+  padding: 16px 20px 18px;
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset,
+    0 1px 0 rgba(255, 255, 255, 0.06) inset;
+}
 
-  .panel-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 14px;
-    padding: 0 4px;
-  }
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 0 4px;
+}
 
-  .panel-mini-status {
-    display: none;
-    align-items: center;
-    gap: 8px;
-    padding: 0 6px 2px;
-  }
+.panel-mini-status {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 0 6px 2px;
+}
 
-  #control-panel.collapsed .panel-mini-status {
-    display: flex;
-  }
+#control-panel.collapsed .panel-mini-status {
+  display: flex;
+}
 
-  .panel-mini-label {
-    font-family: var(--font-mono);
-    font-size: 8px;
-    letter-spacing: 1.4px;
-    color: var(--text-dim);
-    text-transform: uppercase;
-  }
+.panel-mini-label {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 1.4px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
 
-  .panel-mini-value {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 1.8px;
-    color: var(--accent);
-    text-transform: uppercase;
-    text-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
-  }
+.panel-mini-value {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.8px;
+  color: var(--accent);
+  text-transform: uppercase;
+  text-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
+}
 
-<<<<<<< ours
 .panel-title {
   font-family: var(--font-mono);
   font-size: 9px;
@@ -182,55 +180,13 @@ html:not([lang='en']):not(:lang(zh)):not(:lang(ja))
   font-size: 8px;
   letter-spacing: 1px;
 }
-=======
-  .panel-drag-handle {
-    cursor: grab;
-    user-select: none;
-  }
 
-  .panel-drag-handle:active {
-    cursor: grabbing;
-  }
+.panel-divider {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, var(--glass-border), transparent);
+}
 
-  .panel-drag-handle.compact {
-    margin-left: auto;
-    margin-bottom: 2px;
-    padding: 2px 8px;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.04);
-    font-family: var(--font-mono);
-    font-size: 8px;
-    letter-spacing: 1.4px;
-    color: var(--text-dim);
-  }
-
-  .panel-drag-handle.compact:hover {
-    color: var(--text-primary);
-    border-color: var(--glass-border-hover);
-  }
-
-  .panel-dragging {
-    opacity: 0.96;
-  }
-
-  .panel-title {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 3px;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
->>>>>>> theirs
-
-  .panel-divider {
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(to right, var(--glass-border), transparent);
-  }
-
-<<<<<<< ours
 .panel-collapse-btn {
   width: 22px;
   height: 22px;
@@ -249,23 +205,13 @@ html:not([lang='en']):not(:lang(zh)):not(:lang(ja))
     border-color var(--transition-fast),
     color var(--transition-fast);
 }
-=======
-  /* ── Button Grid ──────────────────────────────── */
-  .button-grid {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    scroll-behavior: smooth;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
->>>>>>> theirs
 
-  .button-grid::-webkit-scrollbar {
-    display: none;
-  }
+.panel-collapse-btn:hover {
+  border-color: var(--glass-border-hover);
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.07);
+}
 
-<<<<<<< ours
 /* A side panel answers the pointer as the command dock's trays do: a
    brighter edge and an accent title and toggle. Touch screens have no hover,
    so a tap must not leave a panel lit. */
@@ -315,378 +261,289 @@ html:not([lang='en']):not(:lang(zh)):not(:lang(ja))
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
-=======
-  .style-btn {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    padding: 14px 16px 10px;
-    min-width: 78px;
-    flex-shrink: 0;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: var(--btn-radius);
-    cursor: pointer;
-    /* Keep the keyboard focus outline immediate. */
-    transition:
-      background-color var(--transition-fast),
-      border-color var(--transition-fast),
-      box-shadow var(--transition-fast),
-      color var(--transition-fast),
-      transform var(--transition-fast);
-    overflow: hidden;
-    outline: none;
-  }
->>>>>>> theirs
 
-  /* Keep keyboard focus visible inside the scrolling preset row. */
-  .style-btn:focus-visible {
-    outline: 2px solid var(--text-primary);
-    outline-offset: -3px;
-  }
+.button-grid::-webkit-scrollbar {
+  display: none;
+}
 
-  .style-btn::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.04) 0%,
-      transparent 100%
-    );
-    opacity: 0;
-    transition: opacity var(--transition-fast);
-  }
+.style-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 16px 10px;
+  min-width: 78px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--btn-radius);
+  cursor: pointer;
+  /* Keep the keyboard focus outline immediate. */
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
+  overflow: hidden;
+  outline: none;
+}
 
-  .style-btn:hover {
-    border-color: var(--glass-border-hover);
-    background: rgba(255, 255, 255, 0.06);
-    transform: translateY(-1px);
-  }
+/* Keep keyboard focus visible inside the scrolling preset row. */
+.style-btn:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: -3px;
+}
 
-  .style-btn:hover::before {
+.style-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.style-btn:hover {
+  border-color: var(--glass-border-hover);
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-1px);
+}
+
+.style-btn:hover::before {
+  opacity: 1;
+}
+
+.style-btn:active {
+  transform: translateY(0);
+}
+
+.style-btn.active {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+  box-shadow:
+    0 0 20px rgba(0, 212, 255, 0.15),
+    0 0 0 1px rgba(0, 212, 255, 0.1) inset;
+}
+
+.style-btn.active .btn-icon {
+  color: var(--accent);
+  text-shadow: 0 0 12px var(--accent-glow);
+}
+
+.style-btn.active .btn-label {
+  color: var(--text-primary);
+}
+
+.btn-icon {
+  font-size: 20px;
+  line-height: 1;
+  color: var(--text-secondary);
+  transition:
+    color var(--transition-fast),
+    text-shadow var(--transition-fast);
+}
+
+.btn-label {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 0.3px;
+  transition: color var(--transition-fast);
+}
+
+.btn-key {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--text-dim);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.style-btn:hover .btn-key,
+.style-btn.active .btn-key {
+  opacity: 1;
+}
+
+/* ── Loading Screen ───────────────────────────── */
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--bg-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    opacity 0.8s ease,
+    visibility 0.8s ease;
+}
+
+#loading-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loader-content {
+  text-align: center;
+}
+
+.loader-logo {
+  display: block;
+  width: 128px;
+  height: auto;
+  margin: 0 auto 24px;
+  filter: drop-shadow(0 0 24px rgba(0, 246, 255, 0.42));
+  animation: logo-pulse 2s ease-in-out infinite;
+}
+
+@keyframes logo-pulse {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+.loader-content h2 {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 6px;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.loader-status {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
     opacity: 1;
   }
+}
 
-  .style-btn:active {
-    transform: translateY(0) scale(0.98);
-  }
+/* ── Post-Processing Toggles ─────────────────── */
+#pp-toggles {
+  --pp-expanded-width: var(--display-panel-expanded-width);
+  position: relative;
+  z-index: 110;
+  width: var(--pp-expanded-width);
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 7px;
+}
 
-  .style-btn.active {
-    border-color: var(--accent);
-    background: var(--accent-dim);
-    box-shadow:
-      0 0 20px rgba(0, 212, 255, 0.15),
-      0 0 0 1px rgba(0, 212, 255, 0.1) inset;
-  }
+#pp-toggles:not(.collapsed) {
+  box-sizing: border-box;
+  padding: 8px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--panel-radius);
+  background: var(--glass-bg);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+}
 
-  .style-btn.active .btn-icon {
-    color: var(--accent);
-    text-shadow: 0 0 12px var(--accent-glow);
-  }
+#pp-toggles:not(.collapsed) > .pp-header-row,
+#pp-toggles:not(.collapsed) > .pp-panel-body > .pp-toggle-group,
+#pp-toggles:not(.collapsed) > .pp-panel-body > #clean-view-toggle {
+  width: 100%;
+}
 
-  .style-btn.active .btn-label {
-    color: var(--text-primary);
-  }
+.pp-panel-body,
+.cyber-panel-body {
+  display: contents;
+}
 
-  /* ── Round2 控件微交互统一（transitions.dev / emil 原则：press 用 transform:scale，
-   不触发布局位移；token 计时；reduced-motion 回退）── */
-  .cockpit-utility-control,
-  .pp-toggle-btn,
-  .search-toggle-btn,
-  .cockpit-mode-chip,
-  .bhote-event-icon-btn {
-    transition:
-      transform var(--dur-1) var(--ease-out),
-      background-color var(--dur-2) var(--ease-out),
-      border-color var(--dur-2) var(--ease-out),
-      box-shadow var(--dur-2) var(--ease-out),
-      color var(--dur-2) var(--ease-out);
-  }
-  .cockpit-utility-control:active,
-  .pp-toggle-btn:active,
-  .search-toggle-btn:active,
-  .cockpit-mode-chip:active,
-  .bhote-event-icon-btn:active {
-    transform: scale(0.97);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .style-btn:active,
-    .cockpit-utility-control:active,
-    .pp-toggle-btn:active,
-    .search-toggle-btn:active,
-    .cockpit-mode-chip:active,
-    .bhote-event-icon-btn:active {
-      transform: none;
-    }
-  }
+.panel-collapsible.collapsed > .global-context-panel-inner > .cyber-panel-body {
+  display: none;
+}
 
-  .btn-icon {
-    font-size: 20px;
-    line-height: 1;
-    color: var(--text-secondary);
-    transition:
-      color var(--transition-fast),
-      text-shadow var(--transition-fast);
-  }
+.pp-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    color var(--transition-fast),
+    border-radius var(--transition-fast);
+  outline: none;
+}
 
-  .btn-label {
-    font-family: var(--font-sans);
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    letter-spacing: 0.3px;
-    transition: color var(--transition-fast);
-  }
+.pp-toggle-group {
+  width: var(--pp-expanded-width);
+  max-width: 100%;
+}
 
-  .btn-key {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    font-family: var(--font-mono);
-    font-size: 8px;
-    color: var(--text-dim);
-    opacity: 0;
-    transition: opacity var(--transition-fast);
-  }
+#pp-toggles .pp-toggle-btn {
+  width: 100%;
+  min-height: 38px;
+  box-sizing: border-box;
+}
 
-  .style-btn:hover .btn-key,
-  .style-btn.active .btn-key {
-    opacity: 1;
-  }
+#pp-toggles .pp-header-row {
+  width: var(--pp-expanded-width);
+  max-width: 100%;
+  min-height: 42px;
+  box-sizing: border-box;
+  margin-left: auto;
+  margin-bottom: 0;
+  padding: 8px 10px 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--panel-radius);
+  background: var(--glass-bg);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  cursor: default;
+}
 
-  /* ── Loading Screen ───────────────────────────── */
-  #loading-screen {
-    position: fixed;
-    inset: 0;
-    z-index: var(--z-boot, 1000);
-    background: var(--bg-dark);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition:
-      opacity 0.28s ease,
-      visibility 0.28s ease;
-  }
-
-  /* ── Phase7A-D：底图细化期的地图暗纱 ─────────────────────────────────
-   放行输入后遮罩不再盖全屏，但底图此时常有「左侧粗 LOD、右侧清晰」的撕裂
-   （实测截图：同帧内半屏马赛克半屏高清）。这层纱只盖 #cesiumContainer（卡片在
-   更高层，不受影响；无 backdrop-filter，不构成第二层玻璃），到 B5 达标时瞬时移除
-   —— 不设 transition，保证「撤遮罩那一刻」的截图就是地图本来的样子。 */
-  #cesiumContainer.boot-refining::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: radial-gradient(
-      120% 100% at 50% 45%,
-      rgba(4, 12, 18, 0.42) 0%,
-      rgba(4, 12, 18, 0.72) 72%
-    );
-  }
-
-  #loading-screen.hidden {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-  }
-
-  /* ── Phase7A-D：输入放行后遮罩退化为状态胶囊 ─────────────────────────
-   「卡片可点」不再等 B5 清晰度：放行后遮罩背景透明、pointer-events:none，
-   只保留顶部一枚不可点的进度胶囊；地图在可见区继续细化，B5 达标后
-   .hidden 把胶囊一起撤掉。不改卡片材质/文字/分辨率。 */
-  #loading-screen.input-released {
-    pointer-events: none;
-    background: transparent;
-    align-items: flex-start;
-    justify-content: center;
-  }
-
-  #loading-screen.input-released .loader-content {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 74px;
-    padding: 7px 14px 7px 10px;
-    border-radius: 999px;
-    background: rgba(4, 12, 18, 0.9);
-    border: 1px solid rgba(0, 246, 255, 0.16);
-  }
-
-  #loading-screen.input-released .loader-logo {
-    width: 20px;
-    margin: 0;
-    animation: none;
-    filter: none;
-  }
-
-  #loading-screen.input-released h2 {
-    display: none;
-  }
-
-  #loading-screen.input-released .loader-status {
-    margin: 0;
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    opacity: 0.82;
-  }
-
-  .loader-content {
-    text-align: center;
-  }
-
-  .loader-logo {
-    display: block;
-    width: 128px;
-    height: auto;
-    margin: 0 auto 24px;
-    filter: drop-shadow(0 0 24px rgba(0, 246, 255, 0.42));
-    animation: logo-pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes logo-pulse {
-    0%,
-    100% {
-      opacity: 0.72;
-      transform: scale(0.98);
-    }
-    50% {
-      opacity: 1;
-      transform: scale(1.02);
-    }
-  }
-
-  .loader-content h2 {
-    font-family: var(--font-mono);
-    font-size: 18px;
-    font-weight: 600;
-    letter-spacing: 6px;
-    color: var(--text-primary);
-    margin-bottom: 12px;
-  }
-
-  .loader-status {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 2px;
-    color: var(--text-dim);
-    animation: pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%,
-    100% {
-      opacity: 0.4;
-    }
-    50% {
-      opacity: 1;
-    }
-  }
-
-  /* ── Post-Processing Toggles ─────────────────── */
-  #pp-toggles {
-    --pp-expanded-width: var(--display-panel-expanded-width);
-    position: relative;
-    z-index: 110;
-    width: var(--pp-expanded-width);
-    max-width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 7px;
-  }
-
-  #pp-toggles:not(.collapsed) {
-    box-sizing: border-box;
-    padding: 8px;
-    border: 1px solid var(--glass-border);
-    border-radius: var(--panel-radius);
-    background: var(--glass-bg);
-    box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.42),
-      inset 0 1px 0 rgba(255, 255, 255, 0.04);
-    backdrop-filter: blur(18px) saturate(1.4);
-    -webkit-backdrop-filter: blur(18px) saturate(1.4);
-  }
-
-  #pp-toggles:not(.collapsed) > .pp-header-row,
-  #pp-toggles:not(.collapsed) > .pp-panel-body > .pp-toggle-group,
-  #pp-toggles:not(.collapsed) > .pp-panel-body > #clean-view-toggle {
-    width: 100%;
-  }
-
-  .pp-panel-body,
-  .cyber-panel-body {
-    display: contents;
-  }
-
-  .panel-collapsible.collapsed
-    > .global-context-panel-inner
-    > .cyber-panel-body {
-    display: none;
-  }
-
-  .pp-toggle-btn {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    padding: 7px 12px;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    cursor: pointer;
-    transition:
-      background-color var(--transition-fast),
-      border-color var(--transition-fast),
-      box-shadow var(--transition-fast),
-      color var(--transition-fast),
-      border-radius var(--transition-fast);
-    outline: none;
-  }
-
-  .pp-toggle-group {
-    width: var(--pp-expanded-width);
-    max-width: 100%;
-  }
-
-  #pp-toggles .pp-toggle-btn {
-    width: 100%;
-    min-height: 38px;
-    box-sizing: border-box;
-  }
-
-  #pp-toggles .pp-header-row {
-    width: var(--pp-expanded-width);
-    max-width: 100%;
-    min-height: 42px;
-    box-sizing: border-box;
-    margin-left: auto;
-    margin-bottom: 0;
-    padding: 8px 10px 8px 14px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    border: 1px solid var(--glass-border);
-    border-radius: var(--panel-radius);
-    background: var(--glass-bg);
-    box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.42),
-      inset 0 1px 0 rgba(255, 255, 255, 0.04);
-    backdrop-filter: blur(18px) saturate(1.4);
-    -webkit-backdrop-filter: blur(18px) saturate(1.4);
-    cursor: default;
-  }
-
-  /* Expanded Display already owns the glass shell. Keep its header visually
+/* Expanded Display already owns the glass shell. Keep its header visually
  * integrated with that container, matching the other expanded panel headers;
  * the collapsed launcher retains the standalone card treatment above. */
-<<<<<<< ours
 #pp-toggles:not(.collapsed) > .pp-header-row {
   min-height: 32px;
   padding: 0 4px;
@@ -735,83 +592,59 @@ html:not([lang='en']):not(:lang(zh)):not(:lang(ja))
 #pp-toggles.collapsed {
   gap: 0;
 }
-=======
-  #pp-toggles:not(.collapsed) > .pp-header-row {
-    min-height: 32px;
-    padding: 0 4px;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
 
-  #pp-toggles .pp-header-label {
-    font-family: var(--font-mono);
-    font-size: 8px;
-    letter-spacing: 1.4px;
-    color: var(--text-dim);
-  }
+#pp-toggles.collapsed .pp-header-row {
+  width: var(--right-collapsed-width, 132px);
+}
 
-  #pp-toggles.collapsed {
-    gap: 0;
-  }
->>>>>>> theirs
+#pp-toggles.collapsed .pp-toggle-group,
+#pp-toggles.collapsed #clean-view-toggle,
+#pp-toggles.collapsed #param-slider-panel {
+  display: none;
+}
 
-  #pp-toggles.collapsed .pp-header-row {
-    width: var(--right-collapsed-width, 132px);
-  }
+.pp-toggle-btn:hover {
+  border-color: var(--glass-border-hover);
+  background: rgba(255, 255, 255, 0.06);
+}
 
-  #pp-toggles.collapsed .pp-toggle-group,
-  #pp-toggles.collapsed #clean-view-toggle,
-  #pp-toggles.collapsed #param-slider-panel {
-    display: none;
-  }
+.pp-toggle-btn.active {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.15);
+}
 
-  .pp-toggle-btn:hover {
-    border-color: var(--glass-border-hover);
-    background: rgba(255, 255, 255, 0.06);
-  }
+.pp-icon {
+  font-size: 14px;
+  line-height: 1;
+}
 
-  .pp-toggle-btn.active {
-    border-color: var(--accent);
-    background: var(--accent-dim);
-    box-shadow: 0 0 12px rgba(0, 212, 255, 0.15);
-  }
+.pp-icon.material-symbols-outlined {
+  width: 14px;
+  overflow: hidden;
+  font-family: 'Material Symbols Outlined';
+  font-size: 14px;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 20;
+}
 
-  .pp-icon {
-    font-size: 14px;
-    line-height: 1;
-  }
+.pp-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
 
-  .pp-icon.material-symbols-outlined {
-    width: 14px;
-    overflow: hidden;
-    font-family: 'Material Symbols Outlined';
-    font-size: 14px;
-    font-weight: 400;
-    font-style: normal;
-    font-variation-settings:
-      'FILL' 0,
-      'wght' 400,
-      'GRAD' 0,
-      'opsz' 20;
-  }
+.pp-toggle-btn.active .pp-label {
+  color: var(--accent);
+}
 
-  .pp-label {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 1.5px;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-  }
-
-  .pp-toggle-btn.active .pp-label {
-    color: var(--accent);
-  }
-
-<<<<<<< ours
 .pp-scope-toggle input {
   width: 14px;
   height: 14px;
@@ -839,162 +672,43 @@ html:not([lang='en']):not(:lang(zh)):not(:lang(ja))
   flex-direction: column;
   gap: 0;
 }
-=======
-  /* ── Bloom Slider (inline with toggle) ───────── */
-  .pp-toggle-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
->>>>>>> theirs
 
-  .pp-slider-row {
-    display: none;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 10px 6px;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-top: none;
-    border-radius: 0 0 8px 8px;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-  }
+.pp-slider-row {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px 6px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
 
-  .pp-slider-row.visible {
-    display: flex;
-  }
+.pp-slider-row.visible {
+  display: flex;
+}
 
-  .pp-toggle-group .pp-slider-row.visible ~ .pp-toggle-btn,
-  .pp-toggle-group:has(.pp-slider-row.visible) .pp-toggle-btn {
-    border-radius: 8px 8px 0 0;
-  }
+.pp-toggle-group .pp-slider-row.visible ~ .pp-toggle-btn,
+.pp-toggle-group:has(.pp-slider-row.visible) .pp-toggle-btn {
+  border-radius: 8px 8px 0 0;
+}
 
-<<<<<<< ours
 .pp-slider {
   flex: 1;
   min-width: 0;
 }
-=======
-  .pp-slider {
-    flex: 1;
-    -webkit-appearance: none;
-    appearance: none;
-    height: 3px;
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 2px;
-    outline: none;
-    cursor: pointer;
-    min-width: 60px;
-  }
 
-  .pp-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 6px var(--accent-glow);
-    cursor: pointer;
-  }
+.pp-slider-mini-label {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
 
-  .pp-slider::-moz-range-thumb {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--accent);
-    border: none;
-    box-shadow: 0 0 6px var(--accent-glow);
-    cursor: pointer;
-  }
-
-  .pp-slider-value {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 0.5px;
-    color: var(--accent);
-    min-width: 28px;
-    text-align: right;
-    flex-shrink: 0;
-  }
-
-  /* Quantitative companion sliders share Display / Sharpen's visible rail,
- * circular thumb, glow, and value treatment while retaining a taller hit area. */
-  .gev-quantitative-slider {
-    width: 100%;
-    min-width: 0;
-    height: 18px;
-    margin: 0;
-    -webkit-appearance: none;
-    appearance: none;
-    background: transparent;
-    outline: none;
-    cursor: pointer;
-  }
-  .gev-quantitative-slider::-webkit-slider-runnable-track {
-    height: 3px;
-    border-radius: 2px;
-    background: rgba(255, 255, 255, 0.08);
-  }
-  .gev-quantitative-slider::-webkit-slider-thumb {
-    width: 10px;
-    height: 10px;
-    margin-top: -3.5px;
-    border: 0;
-    border-radius: 50%;
-    -webkit-appearance: none;
-    appearance: none;
-    background: var(--accent);
-    box-shadow: 0 0 6px var(--accent-glow);
-    cursor: pointer;
-  }
-  .gev-quantitative-slider::-moz-range-track,
-  .gev-quantitative-slider::-moz-range-progress {
-    height: 3px;
-    border: 0;
-    border-radius: 2px;
-    background: rgba(255, 255, 255, 0.08);
-  }
-  .gev-quantitative-slider::-moz-range-thumb {
-    width: 10px;
-    height: 10px;
-    border: 0;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 6px var(--accent-glow);
-    cursor: pointer;
-  }
-  .gev-quantitative-slider:focus-visible {
-    border-radius: 4px;
-    outline: 1px solid color-mix(in srgb, var(--accent) 80%, transparent);
-    outline-offset: 2px;
-  }
-  .gev-quantitative-slider:disabled {
-    opacity: 0.42;
-    cursor: not-allowed;
-  }
-  .gev-slider-value {
-    min-width: 28px;
-    color: var(--accent);
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 0.5px;
-    text-align: right;
-    flex-shrink: 0;
-  }
->>>>>>> theirs
-
-  .pp-slider-mini-label {
-    font-family: var(--font-mono);
-    font-size: 8px;
-    letter-spacing: 1px;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-
-<<<<<<< ours
 /* One label column across the Display rows: --pp-label-chars is the longest
    label of the active language (set in applicationShell.js); the labels are
    monospace. 0.125em is the 1px letter-spacing at 8px. */
@@ -1007,199 +721,174 @@ html:not([lang='en']) .pp-slider-row > .pp-slider-mini-label {
   min-width: 170px;
   padding: 5px 8px 6px;
 }
-=======
-  .detection-slider-row {
-    min-width: 170px;
-    padding: 5px 8px 6px;
-  }
->>>>>>> theirs
 
-  #detection-slider-row.visible,
-  #detection-allocation-row.visible,
-  #detection-fade-row.visible {
-    border-radius: 0;
-  }
+#detection-slider-row.visible,
+#detection-allocation-row.visible,
+#detection-fade-row.visible {
+  border-radius: 0;
+}
 
-  .detection-allocation-row {
-    min-width: 170px;
-    padding: 5px 8px 6px;
-  }
+.detection-allocation-row {
+  min-width: 170px;
+  padding: 5px 8px 6px;
+}
 
-  .detection-fade-row,
-  .detection-opacity-row {
-    min-width: 170px;
-    padding: 5px 8px 6px;
-  }
+.detection-fade-row,
+.detection-opacity-row {
+  min-width: 170px;
+  padding: 5px 8px 6px;
+}
 
-<<<<<<< ours
 #hud-layout-row {
   min-width: 200px;
 }
-=======
-  .detection-allocation-seg .pp-mode-btn {
-    font-size: 8px;
-    letter-spacing: 0.35px;
-  }
 
-  #hud-layout-row {
-    min-width: 200px;
-  }
->>>>>>> theirs
+.cyber-sonar-control {
+  display: none;
+}
 
-  .cyber-sonar-control {
-    display: none;
-  }
+:root[data-ui-theme='cyber'] .cyber-sonar-control {
+  display: flex;
+}
 
-  :root[data-ui-theme='cyber'] .cyber-sonar-control {
-    display: flex;
-  }
+.cyber-sonar-toggle-row,
+.cyber-sonar-setting {
+  min-width: 200px;
+}
 
-  .cyber-sonar-toggle-row,
-  .cyber-sonar-setting {
-    min-width: 200px;
-  }
-
-<<<<<<< ours
 .cyber-sonar-toggle-row .pp-mode-btn:not(.gev-segment) {
   margin-left: auto;
   min-width: 48px;
 }
-=======
-  .cyber-sonar-toggle-row .pp-mode-btn {
-    margin-left: auto;
-    min-width: 48px;
-  }
->>>>>>> theirs
 
-  :root[data-cyber-sonar='off'] .cyber-sonar-setting {
-    display: none;
-  }
+:root[data-cyber-sonar='off'] .cyber-sonar-setting {
+  display: none;
+}
 
-  /* Map Source tiles live with Visual Presets in the bottom command tray. */
-  .map-source-section {
-    display: grid;
-    gap: 6px;
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px solid rgba(123, 189, 211, 0.18);
-  }
+/* Map Source tiles live with Visual Presets in the bottom command tray. */
+.map-source-section {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(123, 189, 211, 0.18);
+}
 
-  .map-source-heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    color: rgba(190, 221, 230, 0.62);
-    font-family: var(--font-mono);
-    font-size: 8px;
-    letter-spacing: 1.35px;
-  }
+.map-source-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: rgba(190, 221, 230, 0.62);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 1.35px;
+}
 
-  .map-stack-chip-row {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 4px;
-  }
+.map-stack-chip-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+}
 
-  .map-stack-chip {
-    display: inline-flex;
-    align-items: baseline;
-    justify-content: center;
-    gap: 4px;
-    padding: 4px 7px;
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 0.6px;
-    text-transform: uppercase;
-    white-space: nowrap;
-    color: var(--text-dim);
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 4px;
-    cursor: pointer;
-    /* Explicit property list, NOT `transition: all`: `all` animates
+.map-stack-chip {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 7px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  cursor: pointer;
+  /* Explicit property list, NOT `transition: all`: `all` animates
      `outline-width` off the `outline: none` base, and Chrome leaves that
      transition parked at 0px for chips on a wrapped line — the keyboard ring
      silently never appeared on rows 2 and 3. A focus indicator should be
      instant anyway. */
-    transition:
-      color var(--transition-fast),
-      background-color var(--transition-fast),
-      border-color var(--transition-fast),
-      box-shadow var(--transition-fast);
-    outline: none;
-  }
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+  outline: none;
+}
 
-  #command-dock #control-panel.collapsed .map-source-section {
-    display: none;
-  }
+#command-dock #control-panel.collapsed .map-source-section {
+  display: none;
+}
 
-  @media (max-width: 620px) {
-    .map-stack-chip-row {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
+@media (max-width: 620px) {
+  .map-stack-chip-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+}
 
-  /* Order matters, and matches `.data-toggle-btn`: hover/focus, then active, then
+/* Order matters, and matches `.data-toggle-btn`: hover/focus, then active, then
    disabled — all at the same specificity, so the later rule wins. Hovering the
    active chip must not wash the cyan out, and a disabled chip must not light up
    under the cursor. Do not add `:not(...)` here: it would raise specificity and
    let hover beat `.active` again. */
-  .map-stack-chip:hover,
-  .map-stack-chip:focus-visible {
-    border-color: var(--glass-border-hover);
-    background: rgba(255, 255, 255, 0.06);
-    color: var(--text-primary);
-  }
+.map-stack-chip:hover,
+.map-stack-chip:focus-visible {
+  border-color: var(--glass-border-hover);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+}
 
-  /* The keyboard ring is an `outline`, a property NO other chip-state rule sets,
+/* The keyboard ring is an `outline`, a property NO other chip-state rule sets,
    so it survives on the active chip — whose `.active` rule legitimately wins
    the color/border/background/box-shadow it shares with the rule above. Without
    this, tabbing onto the active chip produced no visible change at all. */
-  .map-stack-chip:focus-visible {
-    outline: 1px solid color-mix(in srgb, var(--accent) 80%, transparent);
-    outline-offset: 2px;
-  }
+.map-stack-chip:focus-visible {
+  outline: 1px solid color-mix(in srgb, var(--accent) 80%, transparent);
+  outline-offset: 2px;
+}
 
-  .map-stack-chip.active {
-    color: var(--accent);
-    border-color: var(--accent);
-    background: var(--accent-dim);
-    box-shadow: 0 0 10px rgba(0, 212, 255, 0.15);
-  }
+.map-stack-chip.active {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-dim);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.15);
+}
 
-  .map-stack-chip.unavailable,
-  .map-stack-chip[aria-disabled='true'] {
-    color: rgba(232, 234, 237, 0.28);
-    border-color: rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.02);
-    cursor: not-allowed;
-  }
+.map-stack-chip.unavailable,
+.map-stack-chip[aria-disabled='true'] {
+  color: rgba(232, 234, 237, 0.28);
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+  cursor: not-allowed;
+}
 
-  .map-stack-chip-req {
-    font-size: 7px;
-    letter-spacing: 0.3px;
-    color: rgba(232, 234, 237, 0.28);
-  }
+.map-stack-chip-req {
+  font-size: 7px;
+  letter-spacing: 0.3px;
+  color: rgba(232, 234, 237, 0.28);
+}
 
-  .pp-stack-status {
-    min-width: 42px;
-    max-width: 54px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 0.8px;
-    color: var(--accent);
-    text-align: center;
-    text-transform: uppercase;
-  }
+.pp-stack-status {
+  min-width: 42px;
+  max-width: 54px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.8px;
+  color: var(--accent);
+  text-align: center;
+  text-transform: uppercase;
+}
 
-  .pp-stack-status.warn {
-    color: #ffb84d;
-  }
+.pp-stack-status.warn {
+  color: #ffb84d;
+}
 
-<<<<<<< ours
 .pp-select {
   flex: 1;
   min-width: 0;
@@ -1427,156 +1116,46 @@ body.gev-geo-import-drag #cesiumContainer {
   background: var(--accent);
   color: #000;
 }
-=======
-  .pp-select {
-    flex: 1;
-    min-width: 0;
-    height: 24px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 6px;
-    color: var(--text-primary);
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.6px;
-    padding: 2px 6px;
-    outline: none;
-  }
 
-  /* DISPLAY ▸ Draw: shape segment, label field, colour, and the one-line hint */
-  #draw-mode-row {
-    min-width: 184px;
-  }
-  #draw-label-row {
-    flex-wrap: wrap;
-    row-gap: 6px;
-  }
-  .pp-text-input {
-    flex: 1 1 110px;
-    min-width: 0;
-    height: 24px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 6px;
-    color: var(--text-primary);
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.6px;
-    padding: 2px 6px;
-    outline: none;
-  }
-  .pp-text-input:focus {
-    border-color: var(--accent);
-  }
-  .draw-color-select {
-    flex: 0 0 74px;
-  }
-  .draw-clear-btn {
-    flex: 0 0 auto;
-    padding: 0 8px;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 6px;
-  }
-  .draw-hint {
-    flex-basis: 100%;
-    font-family: var(--font-mono);
-    font-size: 8px;
-    letter-spacing: 0.6px;
-    color: var(--text-dim);
-    line-height: 1.4;
-  }
-  body.gev-drawing #cesiumContainer canvas {
-    cursor: crosshair;
-  }
-
-  /* Proximity / All segmented control under the 3D toggle */
-  #models3d-mode-row {
-    min-width: 184px;
-  }
-  .pp-mode-seg {
-    display: flex;
-    flex: 1;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 6px;
-    overflow: hidden;
-  }
-  .pp-mode-btn {
-    flex: 1;
-    height: 22px;
-    background: rgba(255, 255, 255, 0.04);
-    border: none;
-    color: var(--text-dim);
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 0.6px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition:
-      background-color var(--transition-fast),
-      color var(--transition-fast);
-  }
-  .pp-mode-btn + .pp-mode-btn {
-    border-left: 1px solid rgba(255, 255, 255, 0.14);
-  }
-  .pp-mode-btn:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--text-primary);
-  }
-  .pp-mode-btn.active {
-    background: color-mix(in srgb, var(--accent) 30%, #061014);
-    color: #eaf6ff;
-    border-color: color-mix(in srgb, var(--accent) 55%, transparent);
-  }
->>>>>>> theirs
-
-  /* These controls also move into Cockpit Display; keep focus on the control
+/* These controls also move into Cockpit Display; keep focus on the control
    itself and inside clipped button groups, independent of selection color. */
-  .pp-toggle-btn:focus-visible,
-  .pp-select:focus-visible,
-  .pp-mode-btn:focus-visible {
-    outline: 2px solid var(--text-primary);
-    outline-offset: -3px;
-  }
+.pp-toggle-btn:focus-visible,
+.pp-select:focus-visible,
+.pp-mode-btn:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: -3px;
+}
 
-<<<<<<< ours
+.pp-mode-btn:focus-visible {
+  box-shadow: inset 0 0 0 4px #061014;
+}
+
 #clean-view-toggle {
   width: var(--pp-expanded-width);
 }
-=======
-  .pp-mode-btn:focus-visible {
-    box-shadow: inset 0 0 0 4px #061014;
-  }
 
-  .pp-slider:focus-visible,
-  .param-slider:focus-visible {
-    outline: 2px solid var(--text-primary);
-    outline-offset: 4px;
-  }
->>>>>>> theirs
+#clean-view-exit {
+  position: fixed;
+  top: 18px;
+  right: 50%;
+  transform: translateX(50%);
+  z-index: 300;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(8, 10, 14, 0.88);
+  color: #d9f7ff;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1.8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  display: none;
+}
 
-  #clean-view-toggle {
-    width: var(--pp-expanded-width);
-  }
+body.ui-clean-view #clean-view-exit {
+  display: inline-flex;
+}
 
-  #clean-view-exit {
-    position: fixed;
-    top: 18px;
-    right: 50%;
-    transform: translateX(50%);
-    z-index: var(--z-overlay, 300);
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    background: rgba(8, 10, 14, 0.88);
-    color: #d9f7ff;
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 1.8px;
-    padding: 8px 14px;
-    cursor: pointer;
-    display: none;
-  }
-
-<<<<<<< ours
 body.ui-clean-view #title-bar,
 body.ui-clean-view #style-indicator,
 body.ui-clean-view #top-center-actions,
@@ -1597,165 +1176,139 @@ body.ui-clean-view #scene-panel {
   visibility: hidden !important;
   pointer-events: none !important;
 }
-=======
-  body.ui-clean-view #clean-view-exit {
-    display: inline-flex;
-  }
->>>>>>> theirs
 
-  body.ui-clean-view #title-bar,
-  body.ui-clean-view #style-indicator,
-  body.ui-clean-view #top-center-actions,
-  body.ui-clean-view #global-loading-status,
-  body.ui-clean-view #traffic-sync-chip,
-  body.ui-clean-view #cctv-sync-chip,
-  body.ui-clean-view #pp-toggles,
-  body.ui-clean-view #param-slider-panel,
-  body.ui-clean-view #control-panel,
-  body.ui-clean-view #location-bar,
-  body.ui-clean-view #data-panel,
-  body.ui-clean-view #cctv-panel,
-  body.ui-clean-view #radio-panel,
-  body.ui-clean-view #global-context-panel,
-  body.ui-clean-view #scene-panel {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-  }
+body.ui-clean-view #scene-runtime.active {
+  opacity: 1;
+  visibility: visible;
+}
 
-  body.ui-clean-view #scene-runtime.active {
-    opacity: 1;
-    visibility: visible;
-  }
+/* ── Detection Toggle States ─────────────────── */
+#detection-toggle.active {
+  border-color: rgba(0, 255, 80, 0.6);
+  background: rgba(0, 255, 80, 0.1);
+  box-shadow: 0 0 12px rgba(0, 255, 80, 0.15);
+}
 
-  /* ── Detection Toggle States ─────────────────── */
-  #detection-toggle.active {
-    border-color: rgba(0, 255, 80, 0.6);
-    background: rgba(0, 255, 80, 0.1);
+#detection-toggle.active .pp-label {
+  color: rgba(0, 255, 80, 0.9);
+}
+
+#detection-toggle.active .pp-icon {
+  color: rgba(0, 255, 80, 0.9);
+  text-shadow: 0 0 6px rgba(0, 255, 80, 0.5);
+}
+
+#detection-toggle.panoptic,
+#detection-toggle.god {
+  border-color: rgba(0, 255, 80, 0.8);
+  background: rgba(0, 255, 80, 0.18);
+  box-shadow: 0 0 16px rgba(0, 255, 80, 0.25);
+  animation: detection-pulse 2s ease-in-out infinite;
+}
+
+@keyframes detection-pulse {
+  0%,
+  100% {
     box-shadow: 0 0 12px rgba(0, 255, 80, 0.15);
   }
-
-  #detection-toggle.active .pp-label {
-    color: rgba(0, 255, 80, 0.9);
+  50% {
+    box-shadow: 0 0 22px rgba(0, 255, 80, 0.35);
   }
+}
 
-  #detection-toggle.active .pp-icon {
-    color: rgba(0, 255, 80, 0.9);
-    text-shadow: 0 0 6px rgba(0, 255, 80, 0.5);
-  }
+/* ── Parameter Slider Panel ──────────────────── */
+#param-slider-panel {
+  display: none;
+  position: relative;
+  top: auto;
+  right: auto;
+  left: auto;
+  bottom: auto;
+  z-index: 95;
+  width: 100%;
+  max-height: min(38vh, 360px);
+  box-sizing: border-box;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  transition:
+    opacity var(--transition-smooth),
+    visibility var(--transition-smooth),
+    transform var(--transition-smooth);
+}
 
-  #detection-toggle.panoptic,
-  #detection-toggle.god {
-    border-color: rgba(0, 255, 80, 0.8);
-    background: rgba(0, 255, 80, 0.18);
-    box-shadow: 0 0 16px rgba(0, 255, 80, 0.25);
-    animation: detection-pulse 2s ease-in-out infinite;
-  }
+#param-slider-panel::-webkit-scrollbar {
+  display: none;
+}
 
-  @keyframes detection-pulse {
-    0%,
-    100% {
-      box-shadow: 0 0 12px rgba(0, 255, 80, 0.15);
-    }
-    50% {
-      box-shadow: 0 0 22px rgba(0, 255, 80, 0.35);
-    }
-  }
+#param-slider-panel.active {
+  display: block;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
 
-  /* ── Parameter Slider Panel ──────────────────── */
-  #param-slider-panel {
-    display: none;
-    position: relative;
-    top: auto;
-    right: auto;
-    left: auto;
-    bottom: auto;
-    z-index: 95;
-    width: 100%;
-    max-height: min(38vh, 360px);
-    box-sizing: border-box;
-    overflow-y: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    padding: 14px 16px;
-    backdrop-filter: blur(18px) saturate(1.4);
-    -webkit-backdrop-filter: blur(18px) saturate(1.4);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(6px);
-    transition:
-      opacity var(--transition-smooth),
-      visibility var(--transition-smooth),
-      transform var(--transition-smooth);
-  }
-
-  #param-slider-panel::-webkit-scrollbar {
-    display: none;
-  }
-
-  #param-slider-panel.active {
-    display: block;
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-  }
-
-  /* Display owns the constrained desktop scroll surface. Keeping Parameters as
+/* Display owns the constrained desktop scroll surface. Keeping Parameters as
  * a second scroll container traps wheel/touch input at its boundary and lets
  * the flex column compress newly added preset rows below the visible panel. */
-  #pp-toggles:not(.collapsed) > .pp-panel-body > #param-slider-panel.active {
-    flex: 0 0 auto;
-    max-height: none;
-    overflow-y: visible;
-  }
+#pp-toggles:not(.collapsed) > .pp-panel-body > #param-slider-panel.active {
+  flex: 0 0 auto;
+  max-height: none;
+  overflow-y: visible;
+}
 
-  .param-panel-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
-  }
+.param-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
 
-  .param-panel-title {
-    font-family: var(--font-mono);
-    font-size: 8px;
-    letter-spacing: 2.5px;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
+.param-panel-title {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 2.5px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
 
-  .param-panel-divider {
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(to right, var(--glass-border), transparent);
-  }
+.param-panel-divider {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, var(--glass-border), transparent);
+}
 
-  #param-slider-panel:not(.collapsed) .param-panel-divider {
-    background: linear-gradient(
-      90deg,
-      rgb(0 212 255 / 28%),
-      rgba(0, 212, 255, 0.18) 58%,
-      transparent
-    );
-  }
+#param-slider-panel:not(.collapsed) .param-panel-divider {
+  background: linear-gradient(
+    90deg,
+    rgb(0 212 255 / 28%),
+    rgba(0, 212, 255, 0.18) 58%,
+    transparent
+  );
+}
 
-  .param-slider-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
+.param-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
 
-  .param-slider-row:last-child {
-    margin-bottom: 0;
-  }
+.param-slider-row:last-child {
+  margin-bottom: 0;
+}
 
-<<<<<<< ours
 /* One label column for every parameter, as wide as the longest translated
    label, so all slider tracks start and end at the same x. */
 html:not([lang='en']) #param-sliders {
@@ -1801,62 +1354,5 @@ html:not([lang='en']) .param-slider-row {
     height: 24px;
     transform: translate(-50%, -50%);
     content: '';
-=======
-  .param-label {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 1px;
-    color: var(--text-secondary);
-    min-width: 72px;
-    flex-shrink: 0;
-  }
-
-  .param-slider {
-    flex: 1;
-    min-width: 0;
-    -webkit-appearance: none;
-    appearance: none;
-    height: 3px;
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 2px;
-    outline: none;
-    cursor: pointer;
-  }
-
-  .param-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 6px var(--accent-glow);
-    cursor: pointer;
-    transition: box-shadow var(--transition-fast);
-  }
-
-  .param-slider::-webkit-slider-thumb:hover {
-    box-shadow: 0 0 12px var(--accent-glow);
-  }
-
-  .param-slider::-moz-range-thumb {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--accent);
-    border: none;
-    box-shadow: 0 0 6px var(--accent-glow);
-    cursor: pointer;
-  }
-
-  .param-value {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.5px;
-    color: var(--accent);
-    min-width: 32px;
-    text-align: right;
-    flex-shrink: 0;
->>>>>>> theirs
   }
 }

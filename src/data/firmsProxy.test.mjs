@@ -28,35 +28,9 @@ const recent = { acqDate: '2026-09-11', acqTime: '1100' };
 // Exercise the production refresh without opening a server or using a MAP_KEY.
 // Inject only its upstream, clock and filter dependencies; keep its aggregation
 // and source-status code intact, including failures while consuming records.
-// 2026-11-01：实现里新增了两处模块级依赖，这里必须一并注入，否则 new Function
-// 作用域里取不到它们 → 每个源都在 per-source try 里抛错 → 「all FIRMS sources failed」：
-//   · console.log —— 热路径打了每源条数日志，旧桩只给了 warn，调用即 TypeError
-//   · mem —— 跨刷新补齐缓存（只在该源失败时读），注入 null 即保持「无缓存」语义
-//   · fetchEonetFires —— 零结果时的 EONET 兜底，注入空实现避免 ReferenceError
 function createRefresh(fetchSource, filter = filterTrailing24h) {
-<<<<<<< ours
   return new Function('SOURCES', 'fetchSource', 'filterTrailing24h', 'describeFetchError', 'Date', 'console',
     `return (${refreshSource});`)(SOURCES, fetchSource, filter, describeFetchError, { now: () => NOW }, { warn() {} });
-=======
-  return new Function(
-    'SOURCES',
-    'fetchSource',
-    'filterTrailing24h',
-    'Date',
-    'console',
-    'mem',
-    'fetchEonetFires',
-    `return (${refreshSource});`,
-  )(
-    SOURCES,
-    fetchSource,
-    filter,
-    { now: () => NOW },
-    { log() {}, warn() {} },
-    null,
-    async () => [],
-  );
->>>>>>> theirs
 }
 
 test('FIRMS retains large sources in order and filters expired rows', async () => {

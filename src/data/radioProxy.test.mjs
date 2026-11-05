@@ -10,7 +10,6 @@ import {
   normalizeRadioBrowserStation,
   publicRadioStation,
   publicRadioHttpsUrl,
-<<<<<<< ours
 } from '../../vite.config.js';
 import {
   getRadioAcceptedCatalogSnapshot,
@@ -20,10 +19,6 @@ import {
 } from './radio.js';
 import { RADIO_REJECTED_STATION_COUNT_MAX as SERVER_REJECTED_MAX } from '../../server/providers/radio/constants.js';
 import { RADIO_REJECTED_STATION_COUNT_MAX as CLIENT_REJECTED_MAX } from '../layers/radio/policy.js';
-=======
-} from '../../server/providers/index.js';
-import { rankRadioStationsForRequest } from './radio.js';
->>>>>>> theirs
 
 const UUID = '12345678-1234-4234-8234-123456789abc';
 const publicLookup = async () => [{ address: '93.184.216.34', family: 4 }];

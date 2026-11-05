@@ -14,11 +14,6 @@ import { loadBundledJson } from './bundledJson.js';
 import { createRetryableLoader } from './retryableLoad.js';
 
 // bbox = [west, south, east, north]; only load a city file when the point falls in its box.
-// The `new URL(...)` literal must stay literal (Vite emits the raw asset the
-// browser fetches); the SF_JSON constant only feeds the Node-test-only import
-// below (see data/bundledJson.js) so Rollup emits no dead JSON-module chunk.
-const SF_JSON = './local_data/neighborhoods/san-francisco.json';
-
 const CITY_FILES = [
   {
     id: 'san-francisco',
@@ -27,13 +22,6 @@ const CITY_FILES = [
       './local_data/neighborhoods/san-francisco.json',
       import.meta.url,
     ),
-<<<<<<< ours
-=======
-    importJson: () =>
-      import(/* @vite-ignore */ SF_JSON, {
-        with: { type: 'json' },
-      }),
->>>>>>> theirs
   },
 ];
 

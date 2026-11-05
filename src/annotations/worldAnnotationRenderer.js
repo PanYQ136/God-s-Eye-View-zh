@@ -1,11 +1,7 @@
-<<<<<<< ours
 import { recordWorkSlice } from '../sources/phaseTiming.js';
 import { ringCentroid } from '../sources/featureGeometry.js';
 import * as Cesium from 'cesium';
 import { showOsmCredit, hideOsmCredit } from '../data/dataCredits.js';
-=======
-import { Cesium } from '../cesium.js';
->>>>>>> theirs
 
 /**
  * World-space annotation renderer (Direction A).

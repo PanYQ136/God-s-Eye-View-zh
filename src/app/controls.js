@@ -1,11 +1,7 @@
 import { catalogControlServices } from './catalog.js';
 import { StyleManager } from '../ui/composition.js';
-<<<<<<< ours
 import { flyToAustin } from '../camera.js';
 import { installZoomOutGuard } from './zoomOutGuard.js';
-=======
-import { flyToDeviceLocation } from '../camera.js';
->>>>>>> theirs
 import { initCockpitCloudEffects } from '../cockpitCloudEffects.js';
 import { t } from '../i18n/index.js';
 
@@ -61,19 +57,10 @@ export function createApplicationControls({
   });
   defer(() => cockpitCloudEffects?.destroy());
 
-  // If no share link state, default to the device's current location
-  // (falls back to Fuzhou when geolocation is unavailable or denied).
+  // If no share link state, do default fly-to Austin
   if (!styleManager.hasShareState) {
-<<<<<<< ours
     loaderStatus.textContent = t('Flying to Austin, TX...');
     defer(flyToAustin(viewer));
-=======
-    loaderStatus.textContent = '正在定位当前设备…';
-    // GEV (owner 2026-09-28): startup camera owned by gev-autolocate.js
-    // (地球上空 → 定位设备 → 手动逐帧电影补间放大到当前位置). The bundled call
-    // snapped straight to the device with no animation; disabling leaves one owner.
-    // defer(flyToDeviceLocation(viewer));
->>>>>>> theirs
   } else {
     loaderStatus.textContent = t('Restoring shared view...');
   }

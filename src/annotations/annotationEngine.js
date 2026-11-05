@@ -1,11 +1,7 @@
 import { isUnavailableCapability } from '../sources/capability.js';
 import { defaultGeospatial } from '../search/defaults.js';
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import { greatCircleMeters } from '../geoDistance.js';
-=======
-import { Cesium } from '../cesium.js';
->>>>>>> theirs
 import {
   holdContinuousRender,
   releaseContinuousRender,

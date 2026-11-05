@@ -8,7 +8,6 @@ import { SPEECH_BUILDERS, attachVoiceResult } from './speech.js';
 import { resolveDeicticArgs } from './deixis.js';
 export { readLayerLifecycleSummary } from './layerSummary.js';
 import { defaultGeospatial } from '../search/defaults.js';
-<<<<<<< ours
 import { msg } from '../i18n/index.js';
 import { useProviderSettingsStore } from '../ui/stores/providerSettings.js';
 import { applicationPinia } from '../ui/vueRuntime.js';
@@ -20,9 +19,6 @@ import {
   placeLookupView,
   placeLookupViewChanged,
 } from '../hudPlaceLookup.js';
-=======
-import { Cesium } from '../cesium.js';
->>>>>>> theirs
 import {
   findPoiByName,
   flyToGlobeView,
@@ -38,16 +34,12 @@ import {
   isContextRecordActive,
 } from '../data/contextStore.js';
 import { CCTV_FOCUS_RESULT } from '../layers/cctv/index.js';
-<<<<<<< ours
 import {
   createAnalystEngine,
   normalizeAnalystSpec,
   selectAnalystRows,
 } from '../data/analystEngine.js';
 import { voiceLayer, voiceLayerAliasMap } from './layerManifest.js';
-=======
-import { createAnalystEngine } from '../data/analystEngine.js';
->>>>>>> theirs
 import { layerFeedState } from '../data/feedState.js';
 import {
   initCameraVerbs,
@@ -77,7 +69,6 @@ import {
   registerDynamicCredit,
 } from '../data/dataCredits.js';
 
-<<<<<<< ours
 const ALLOWED_STYLES = new Set([
   'normal',
   'retro',
@@ -270,26 +261,6 @@ function cachesFor(service) {
 const VISIBLE_ENTITY_SHORTLIST = 64;
 const BASEMAP_CONTEXT_WAIT_MS = 1500;
 const viewTargetCache = new WeakMap();
-=======
-import {
-  ALLOWED_STYLES,
-  PANEL_ALIASES,
-  PANEL_IDS,
-  CONTEXT_MODE_ALIASES,
-  withContextModeVocabulary,
-  COCKPIT_ACTION_ALIASES,
-  COCKPIT_TARGET_LAYERS,
-  LAYER_ALIASES,
-  CITY_ALIASES,
-  STACK_ALIASES,
-  TRACKABLE_FAMILIES,
-  FRAME_TARGETS,
-  cachesFor,
-  VISIBLE_ENTITY_SHORTLIST,
-  BASEMAP_CONTEXT_WAIT_MS,
-  viewTargetCache,
-} from './actions/vocabulary.js';
->>>>>>> theirs
 
 /** Create application actions over the supplied scene and services. */
 export function createGevActionRunner({
@@ -4876,27 +4847,6 @@ function summarizeContextRecord(record, { includeProperties = false } = {}) {
   };
 }
 
-<<<<<<< ours
-=======
-function propertyObject(entity) {
-  const raw = entity?.properties?.getValue?.(Cesium.JulianDate.now()) || {};
-  return unwrapProperties(raw);
-}
-
-function unwrapProperties(value) {
-  if (!value || typeof value !== 'object') return value;
-  if (Array.isArray(value)) return value.map(unwrapProperties);
-  const out = {};
-  for (const [key, entry] of Object.entries(value)) {
-    out[key] =
-      entry && typeof entry.getValue === 'function'
-        ? unwrapProperties(entry.getValue(Cesium.JulianDate.now()))
-        : unwrapProperties(entry);
-  }
-  return out;
-}
-
->>>>>>> theirs
 function compactProperties(props) {
   const preferredKeys = [
     'name',

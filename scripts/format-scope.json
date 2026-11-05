@@ -291,11 +291,7 @@
   "src/ui/scenePresentation.js",
   "src/ui/sceneControls.test.mjs",
   "scripts/qa-scene-controls.mjs",
-<<<<<<< ours
   "scripts/qa-action-buttons.mjs",
-=======
-  "src/standalone/ui.js",
->>>>>>> theirs
   "src/ui/applicationShell.js",
   "src/ui/panelLayoutController.js",
   "src/ui/panelPositionControls.js",
@@ -957,7 +953,6 @@
   "src/ui/recentImagery.test.mjs",
   "src/layers/recentImagery/testDoubles.mjs",
   "scripts/qa-recent-imagery.mjs",
-<<<<<<< ours
   "src/ui/streetLevelControls.js",
   "src/ui/streetLevelPresentation.js",
   "src/ui/streetLevelPresentation.test.mjs",
@@ -1273,7 +1268,4 @@
   "src/voice/panelLayout.js",
   "src/voice/textChat.js",
   "src/voice/textProtocol.js"
-=======
-  "src/tooling/providerWarmup.test.mjs"
->>>>>>> theirs
 ]

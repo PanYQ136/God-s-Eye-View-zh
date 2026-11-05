@@ -71,36 +71,15 @@ function shortcuts() {
   return { documentRef, searchInput, calls, controller, press };
 }
 
-<<<<<<< ours
 test('number keys retain the six style mappings', () => {
-=======
-test('number keys retain the complete style mapping', () => {
->>>>>>> theirs
   const f = shortcuts();
-  // 1–9 plus 0 now cover the ten mapped styles (amber/ghost/predator were added
-  // on 2026-09-28); Space is not a style key and must stay inert.
-  for (const key of ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'Space'])
+  for (const key of ['1', '2', '3', '4', '5', '6', '7', '8', 'Space'])
     f.press(key);
   assert.deepEqual(
     f.calls,
-<<<<<<< ours
     ['normal', 'retro', 'surveillance', 'thermal', 'anime', 'noir'].map(
       (style) => ['setStyle', style],
     ),
-=======
-    [
-      'normal',
-      'retro',
-      'surveillance',
-      'thermal',
-      'anime',
-      'noir',
-      'snow',
-      'amber',
-      'ghost',
-      'predator',
-    ].map((style) => ['setStyle', style]),
->>>>>>> theirs
   );
 });
 

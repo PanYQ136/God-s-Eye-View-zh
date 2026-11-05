@@ -1,10 +1,6 @@
 import { applicationServices } from './services/application.js';
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import { greatCircleMeters } from './geoDistance.js';
-=======
-import { Cesium } from './cesium.js';
->>>>>>> theirs
 import {
   deriveWeatherEffectProfile,
   weatherAltitudeFactors,
@@ -273,15 +269,7 @@ class CockpitCloudEffectsController {
         stencil: false,
         premultipliedAlpha: false,
         preserveDrawingBuffer: false,
-        // GEV: 跟随画面设置的 GPU 偏好（默认高性能/独显），避免跨 GPU 合成拖慢。
-        powerPreference: (function () {
-          try {
-            var g = JSON.parse(localStorage.getItem('gev.gfx') || '{}');
-            return g.gpuPref || 'high-performance';
-          } catch (e) {
-            return 'high-performance';
-          }
-        })(),
+        powerPreference: 'low-power',
       });
       if (!gl) throw new Error('WebGL unavailable');
 

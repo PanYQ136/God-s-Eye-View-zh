@@ -203,13 +203,8 @@ function encode(state) {
 
 test('production registry is exact, canonical, and rejects incomplete contracts', async () => {
   assert.equal(validateLayerStateRegistry(), true);
-<<<<<<< ours
   assert.equal(REGISTERED_LAYER_IDS.length, 35);
   assert.equal(new Set(REGISTERED_LAYER_IDS).size, 35);
-=======
-  assert.equal(REGISTERED_LAYER_IDS.length, 32);
-  assert.equal(new Set(REGISTERED_LAYER_IDS).size, 32);
->>>>>>> theirs
   assert.ok(REGISTERED_LAYER_IDS.includes('transit'));
   assert.deepEqual(REGISTERED_LAYER_IDS, [...REGISTERED_LAYER_IDS].sort());
   assert.deepEqual(LEGACY_LAYER_STATE_TOKENS, {
@@ -676,7 +671,7 @@ test('a fresh boot starts 3D aircraft ON in proximity — codec, both layers, an
   // one alone ships a lit button over an unarmed layer, or an armed layer under a
   // dark button. Pinning them together is what makes "state and UI agree" a fact.
   const defaults = createDefaultLayerState().options.flights;
-  assert.equal(defaults.models3d, false, 'the durable default is 3D OFF (owner 2026-09-28)');
+  assert.equal(defaults.models3d, true, 'the durable default is 3D ON');
   assert.equal(defaults.models3dMode, 'proximity', 'and proximity, never all');
 
   const paramsCalls = [];
@@ -699,7 +694,7 @@ test('a fresh boot starts 3D aircraft ON in proximity — codec, both layers, an
   });
   await coordinator.start();
   assert.equal(coordinator.source, 'defaults');
-  assert.equal(coordinator.getDurableState().options.flights.models3d, false);
+  assert.equal(coordinator.getDurableState().options.flights.models3d, true);
   assert.equal(
     coordinator.getDurableState().options.flights.models3dMode,
     'proximity',
@@ -718,8 +713,8 @@ test('a fresh boot starts 3D aircraft ON in proximity — codec, both layers, an
     const source = readLayerSource(new URL(`./${name}`, import.meta.url));
     assert.match(
       source,
-      /^\s*(?:let |flightState\.)_models3dEnabled = false;$/m,
-      `${name}: the fleet starts DISARMED, matching the codec default`,
+      /^\s*(?:let |flightState\.)_models3dEnabled = true;$/m,
+      `${name}: the fleet starts armed, matching the codec default`,
     );
     assert.match(
       source,
@@ -730,8 +725,8 @@ test('a fresh boot starts 3D aircraft ON in proximity — codec, both layers, an
   const ui = await readShellSource();
   assert.match(
     ui,
-    /^\s*this\.(?:flightState\.)?_models3dEnabled = false;$/m,
-    'ui.js: the DISPLAY rail believes 3D is off before any layer-state sync arrives',
+    /^\s*this\.(?:flightState\.)?_models3dEnabled = true;$/m,
+    'ui.js: the DISPLAY rail believes 3D is on before any layer-state sync arrives',
   );
   assert.match(
     ui,
@@ -743,13 +738,8 @@ test('a fresh boot starts 3D aircraft ON in proximity — codec, both layers, an
   );
   assert.match(
     html,
-<<<<<<< ours
     /<button(?=[^>]*\sid="models3d-toggle")(?=[^>]*\sclass="(?=[^"]*\bpp-toggle-btn\b)(?=[^"]*\bactive\b))(?=[^>]*\saria-pressed="true")/,
     'index.html: the 3D button paints lit on first paint, before ui.js runs — and says so',
-=======
-    /class="pp-toggle-btn" id="models3d-toggle" aria-pressed="false"/,
-    'index.html: the 3D button paints DARK on first paint, before ui.js runs — and says so',
->>>>>>> theirs
   );
   assert.match(
     ui,
@@ -767,8 +757,8 @@ test('a fresh boot starts 3D aircraft ON in proximity — codec, both layers, an
   );
   assert.match(
     html,
-    /class="pp-slider-row" id="models3d-mode-row"/,
-    'index.html: and the Proximity/All row paints CLOSED with it',
+    /class="pp-slider-row visible" id="models3d-mode-row"/,
+    'index.html: and the Proximity/All row paints open with it',
   );
   assert.match(
     html,
@@ -819,11 +809,10 @@ test('the new default is written EXPLICITLY, so no omission is ambiguous', () =>
   // OFF links for their recipients.
   const on = createDefaultLayerState();
   on.enabledLayerIds = ['flights'];
-  on.options.flights.models3d = true;
   assert.equal(
     on.options.flights.models3d,
     true,
-    'precondition: pre-encoding, 3D is set ON',
+    'precondition: ON is the default',
   );
   const onEncoded = encode(on);
   assert.match(
@@ -1215,14 +1204,13 @@ test('share payload wins over local, passive restore writes nothing, and explici
   await coordinator.start({ shareLayerState: explicitEmpty });
 
   assert.equal(coordinator.source, 'share');
-  assert.deepEqual(coordinator.getDurableState().enabledLayerIds, ['flights']);
+  assert.deepEqual(coordinator.getDurableState().enabledLayerIds, []);
   assert.deepEqual(storage.writes, []);
-  assert.equal(share.provider().enabledLayerIds.length, 1);
+  assert.equal(share.provider().enabledLayerIds.length, 0);
 
   await manager.setEnabled('earthquakes', true, { origin: 'user' });
   assert.deepEqual(coordinator.getDurableState().enabledLayerIds, [
     'earthquakes',
-    'flights',
   ]);
   assert.equal(storage.writes.length, 1);
 
@@ -1230,14 +1218,12 @@ test('share payload wins over local, passive restore writes nothing, and explici
   assert.equal(storage.writes.length, 1);
   assert.deepEqual(coordinator.getDurableState().enabledLayerIds, [
     'earthquakes',
-    'flights',
   ]);
 
   await manager.setEnabled('traffic', true, { origin: 'tool' });
   assert.equal(storage.writes.length, 2);
   assert.deepEqual(coordinator.getDurableState().enabledLayerIds, [
     'earthquakes',
-    'flights',
     'traffic',
   ]);
 
@@ -1308,7 +1294,7 @@ test('historical share payload suppresses unrelated local layer preferences', as
   });
   await coordinator.start({ allowLocalState: false });
   assert.equal(coordinator.source, 'legacy-share');
-  assert.deepEqual(coordinator.getDurableState().enabledLayerIds, ['flights']);
+  assert.deepEqual(coordinator.getDurableState().enabledLayerIds, []);
   assert.equal(manager.getEnabledLayerIds().size, 0);
   assert.deepEqual(storage.writes, []);
   coordinator.destroy();
@@ -3107,35 +3093,4 @@ test('Active Fires: the codec accepts whole megawatts in bounds and the three co
     minFrp: 5,
     confidence: 'nominal',
   });
-});
-
-test('a deferred layer applies its stored visibility the moment its instance registers', async () => {
-  const pendingId = 'satellites';
-  const manager = new DataLayerManager({});
-  for (const id of REGISTERED_LAYER_IDS) {
-    if (id === pendingId) continue;
-    manager.register(fakeLayer(id));
-  }
-  manager.finalizeRegistrations(LAYER_STATE_REGISTRY, { allowPending: true });
-  assert.deepEqual(manager.pendingLayerIds, [pendingId]);
-
-  const stored = createDefaultLayerState();
-  stored.enabledLayerIds = [pendingId];
-  const coordinator = new LayerStateCoordinator(manager, shareSink(), {
-    storage: memoryStorage(serializeStoredLayerState(stored)),
-  });
-  const results = await coordinator.start();
-  const deferredResult = results.find((entry) => entry.layerId === pendingId);
-  assert.equal(deferredResult.phase, 'deferred');
-  assert.equal(deferredResult.succeeded, true);
-  assert.equal(manager.layers.has(pendingId), false);
-
-  // The factory chunk arrives after startup: registration must apply the
-  // visibility the restore was never allowed to drop.
-  manager.registerDeferred(fakeLayer(pendingId));
-  await new Promise((resolve) => setTimeout(resolve, 0));
-  assert.equal(manager.isEnabled(pendingId), true);
-  assert.deepEqual(manager.pendingLayerIds, []);
-  assert.equal(coordinator.getDurableState().enabledLayerIds.includes(pendingId), true);
-  coordinator.destroy();
 });

@@ -13,7 +13,6 @@ function listenerScope() {
   };
 }
 
-<<<<<<< ours
 /**
  * Bind bubbling Escape to an existing panel. Its collapse buttons are views
  * that ask the panel's owner to toggle it (PanelCollapseButton).
@@ -38,9 +37,6 @@ export function bindPanelDisclosure({ panel, onEscape, ...retired }) {
  * `returnFocusTo()` when that names a control (a rail item standing in for a
  * panel that collapsing hid).
  */
-=======
-/** Close the nearest expanded panel and return focus to its disclosure. */
->>>>>>> theirs
 export function collapsePanelOnEscape(
   event,
   { panel, onChange, beforeCollapse, returnFocusTo },
@@ -188,7 +184,7 @@ export function createHoverDisclosure({
   );
 
   listen(panelEl, 'click', (event) => {
-    if (event.target.closest('.dock-tray-toggle')) return;
+    if (event.target.closest('.panel-collapse-btn, .dock-tray-toggle')) return;
     clearOpen();
     clearClose();
     if (panelEl.classList.contains('collapsed')) {

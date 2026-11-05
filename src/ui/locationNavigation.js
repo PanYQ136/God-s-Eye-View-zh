@@ -1,9 +1,5 @@
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import { t } from '../i18n/index.js';
-=======
-import { Cesium } from '../cesium.js';
->>>>>>> theirs
 import { createStateChannel } from '../app/stateChannel.js';
 import { LocationControls } from './location.js';
 

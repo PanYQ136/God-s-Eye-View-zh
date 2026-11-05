@@ -1,9 +1,5 @@
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import { t } from '../../i18n/index.js';
-=======
-import { Cesium } from '../../cesium.js';
->>>>>>> theirs
 import { isPointerFree } from '../../data/inputOwnership.js';
 import {
   BIKESHARE_SELECTED_OVERLAY_SOURCE_ID,
@@ -99,9 +95,8 @@ export function createSelection({
    */
 
   function _clearSelection() {
-    const clearedKey = layerState._selectedKey;
-    if (clearedKey) {
-      const record = layerState._stationRenderMap.get(clearedKey);
+    if (layerState._selectedKey) {
+      const record = layerState._stationRenderMap.get(layerState._selectedKey);
       if (record?.point) {
         record.point.show = true;
       }
@@ -113,11 +108,6 @@ export function createSelection({
 
     layerState._selectedKey = null;
     layerState._selectedEntity = null;
-    // The selection above was exempt from the operator's render limit; with it
-    // dropped, re-decide every point (the blind re-show only holds while the
-    // limit is unlimited, otherwise the cap would have a hole in it until the
-    // next limit change or camera settle).
-    if (clearedKey) parts.rendering.applyRenderLimit();
     layerState._overlayHost.clearSource(BIKESHARE_SELECTED_OVERLAY_SOURCE_ID);
   }
 

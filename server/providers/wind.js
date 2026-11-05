@@ -3,22 +3,9 @@ import { fetchIfsWind } from './wind/ifs.js';
 import { decodeWindGribMessage } from './wind/decode.js';
 import { weatherScalarMetadata, weatherScalarError } from './wind/grid.js';
 
-<<<<<<< ours
 // Data, not UI copy: the client (src/layers/wind/index.js) marks this exact
 // English with msg() and translates it when shown, so keep the two in sync.
 const UPSTREAM_UNAVAILABLE = 'Wind upstream unavailable';
-=======
-// 有界抽样校验：对 1e6 网格做全量 every(Number.isFinite) 会阻塞事件循环数十毫秒；
-// 长度已严格校验，NaN/Inf 只可能来自解码 bug —— 抽样（≤~4096 点）+ 末点即可捕获，代价 O(1)。
-function hasNonFinite(values) {
-  const n = values.length;
-  const stride = Math.max(1, Math.floor(n / 4096));
-  for (let i = 0; i < n; i += stride)
-    if (!Number.isFinite(values[i])) return true;
-  if (n > 0 && !Number.isFinite(values[n - 1])) return true;
-  return false;
-}
->>>>>>> theirs
 
 /** Serve bounded, single-flight, per-model/overlay forecast snapshots from fixed providers. */
 export function windProxy({
@@ -103,7 +90,7 @@ export function windProxy({
           if (
             !(values instanceof Float32Array) ||
             values.length !== count ||
-            hasNonFinite(values)
+            !values.every(Number.isFinite)
           )
             throw new Error('Invalid wind grid');
         }
@@ -163,7 +150,7 @@ export function windProxy({
         return unavailable(model, overlay);
       } finally {
         clearTimeout(timer);
-        // 不再无条件 abort：成功路径 fetch 早已结束，abort 无意义；取消由 close() 或 fetch 自身处理。
+        controller.abort(); // Cancel a sibling request if the other component failed.
         if (loadings.get(key) === operation) loadings.delete(key);
       }
     })();

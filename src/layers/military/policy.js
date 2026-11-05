@@ -1,16 +1,5 @@
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import { EMERGENCY_TINT_CSS } from '../../data/aircraftEmergency.js';
-=======
-export {
-  GROUND_FLOOR_WARM_MAX_ALT_M,
-  POSITION_HISTORY_LIMIT,
-  LANDED_MISSING_POLL_LIMIT,
-  MISSING_POLL_LIMIT,
-  ERROR_BACKOFF_INTERVAL,
-} from './recordPolicy.js';
-import { Cesium } from '../../cesium.js';
->>>>>>> theirs
 
 /**
  * @module militaryFlights

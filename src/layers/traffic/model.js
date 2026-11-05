@@ -1,10 +1,6 @@
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import { roadSurfaceChunks } from './surface.js';
 import { t, translateKnown } from '../../i18n/index.js';
-=======
-import { Cesium } from '../../cesium.js';
->>>>>>> theirs
 import {
   flowDensityMult,
   flowBucket,
@@ -378,11 +374,6 @@ export function createModel({ state: layerState, services, parts, source }) {
         parts.style.activeSizeDelta(bucket);
       // Late flow can move a dot between buckets — keep the preset halo in
       // step (no-op writes under the normal profile, whose dots have none).
-      // Billboard marker (car icon): mirror the computed dot size onto width/height.
-      if (Number.isFinite(dot.point.pixelSize)) {
-        dot.point.width = dot.point.pixelSize * 1.7;
-        dot.point.height = dot.point.pixelSize * 1.7;
-      }
       if (parts.style.presetProfileActive())
         parts.style.applyOutline(dot.point, bucket);
       dot.mps = dot.baseMps * (flow ? flowSpeedScale(flow.level) : 1);

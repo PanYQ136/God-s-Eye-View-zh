@@ -1,13 +1,9 @@
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import { createTerrainRetryPolicy } from './terrainRetry.js';
 
 /** Re:Earth / Mapterhorn ellipsoidal quantized mesh, CC BY 4.0. */
 export const KEYLESS_TERRAIN_URL =
   'https://terrain.reearth.land/cesium-mesh/ellipsoid';
-=======
-import { Cesium } from '../cesium.js';
->>>>>>> theirs
 
 /** These factories are lazy: a hidden globe must not trigger terrain loading. */
 export async function createWorldTerrain(accessToken, { signal } = {}) {

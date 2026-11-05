@@ -1,4 +1,3 @@
-<<<<<<< ours
 /** Own panel collapsed-state preferences and the one-time layout-reset notice. */
 import { t } from '../i18n/index.js';
 import { readPanelState } from './rail/panelState.js';
@@ -22,33 +21,6 @@ export class PanelPositionControls {
     this._showToast = showToast;
   }
 
-=======
-/** Own panel disclosure persistence and the one-time layout-reset notice.
- *
- *  Phase 3（2026-10-29）：旧「自由拖拽 / 缩放 / z 轴提升 / 位置持久化」整层删除。
- *  7 张卡（以及其它面板）的几何只由 src/lc/layout.js + render.js 写入；
- *  任何在此文件里写 left/top 的路径都会和 Renderer 的 fixed 盒模型打架。
- */
-/** Versioned localStorage namespace prefix to invalidate stale panel layouts. */
-const PANEL_LAYOUT_STORAGE_VERSION = 'v6';
-/** Legacy position-key version. No longer written — only swept once on upgrade. */
-const PANEL_POSITION_STORAGE_VERSION = 'v8';
-export class PanelPositionControls {
-  constructor({ syncPanelDisclosureState, showToast } = {}) {
-    this._syncPanelDisclosureState = syncPanelDisclosureState;
-    this._showToast = showToast;
-    this.removers = [];
-    this.destroyed = false;
-  }
-  listen(target, type, callback) {
-    if (this.destroyed || !target) return;
-    const listener = (event) => {
-      if (!this.destroyed) callback(event);
-    };
-    target.addEventListener(type, listener);
-    this.removers.push(() => target.removeEventListener(type, listener));
-  }
->>>>>>> theirs
   _maybeNotifyLayoutReset() {
     this._dropRetiredPanelKeys();
     try {
@@ -56,25 +28,17 @@ export class PanelPositionControls {
       if (localStorage.getItem(marker)) return;
       localStorage.setItem(marker, '1');
       const hadOldPositions = Object.keys(localStorage).some((key) =>
-        key.startsWith(
-          `godsEyeView.${PANEL_POSITION_STORAGE_VERSION}.panelPos.`,
-        ),
+        key.startsWith('godsEyeView.v6.panelPos.'),
       );
       if (hadOldPositions) {
-<<<<<<< ours
         this._showToast(
           t('Panel layout updated — positions reset to new defaults'),
-=======
-        this._showToast?.(
-          'Panel layout updated — positions reset to new defaults',
->>>>>>> theirs
         );
       }
     } catch {
       // storage unavailable
     }
   }
-<<<<<<< ours
 
   _dropRetiredPanelKeys() {
     try {
@@ -86,11 +50,10 @@ export class PanelPositionControls {
     }
   }
 
-=======
->>>>>>> theirs
   _panelCollapseStorageKey(panelId) {
     return `godsEyeView.${PANEL_LAYOUT_STORAGE_VERSION}.panelCollapsed.${panelId}`;
   }
+
   _restorePanelCollapsedState(panelId, { allowStored = true } = {}) {
     const panelEl = document.getElementById(panelId);
     if (!panelEl) return;
@@ -105,6 +68,14 @@ export class PanelPositionControls {
         // storage unavailable
       }
     }
+    // DISPLAY starts COLLAPSED for a first-time visitor, then respects the
+    // user's persisted choice like every other panel.
+    //
+    // It used to start expanded, to advertise the HUD / DETECT / 3D toggles.
+    // That reason expired when those became ON by default: the rail now opens
+    // to offer controls for things already happening, while competing with the
+    // first-run mission card for the one first impression there is. A stored
+    // choice still wins in both directions, so anyone who opens it keeps it.
     if (panelId === 'pp-toggles' && stored === null) collapsed = true;
     this._presentPanel(panelEl, { collapsed });
     // Bodies that expand themselves on first appearance must not override a
@@ -115,11 +86,8 @@ export class PanelPositionControls {
         : stored === null
           ? 'default'
           : 'stored';
-<<<<<<< ours
-=======
-    this._syncPanelDisclosureState?.(panelEl);
->>>>>>> theirs
   }
+
   _savePanelCollapsedState(panelId, collapsed) {
     try {
       localStorage.setItem(
@@ -130,12 +98,4 @@ export class PanelPositionControls {
       // storage unavailable
     }
   }
-<<<<<<< ours
-=======
-  destroy() {
-    if (this.destroyed) return;
-    this.destroyed = true;
-    for (const remove of this.removers.splice(0)) remove();
-  }
->>>>>>> theirs
 }

@@ -1,4 +1,4 @@
-import { Cesium } from '../cesium.js';
+import * as Cesium from 'cesium';
 import { isPointerFree } from './inputOwnership.js';
 import {
   clearOverlaySource,
@@ -936,7 +936,6 @@ function panelRecord(initial = {}) {
   };
 }
 
-<<<<<<< ours
 /**
  * The panel's controls as the layer writes them, starting from the panel's
  * markup. The panel view renders what the layer publishes from them.
@@ -982,140 +981,6 @@ function createPanelRecords(event) {
     beatTitle: panelRecord({ textContent: t('CAUSE') }),
     beatMeta: panelRecord({ textContent: t('CAPTURE TIME UNVERIFIED') }),
   });
-=======
-function createPanel(event, handlers) {
-  const panel = document.createElement('aside');
-  panel.id = 'bhote-koshi-event-panel';
-  panel.setAttribute('aria-label', 'Bhote Koshi flood reconstruction controls');
-  panel.innerHTML = `
-    <div class="bhote-event-header">
-      <div>
-        <div class="bhote-event-kicker">EVENT RECONSTRUCTION · 26 AUG 2026</div>
-        <div class="bhote-event-title">BHOTE KOSHI OUTBURST FLOOD</div>
-      </div>
-      <button class="bhote-event-icon-btn" type="button" data-action="close" title="Close event layer" aria-label="Close event layer">×</button>
-    </div>
-    <div class="bhote-event-status-row">
-      <span class="bhote-event-status observed">OBSERVED IMAGERY</span>
-      <span class="bhote-event-status reconstructed">SCHEMATIC CORRIDOR</span>
-    </div>
-    <section class="bhote-event-section" data-role="imagery-comparison">
-      <div class="bhote-event-section-head">
-        <span>2021 HISTORICAL REFERENCE / 2026 POST-EVENT</span>
-        <span data-role="split-readout">50 / 50</span>
-      </div>
-      <input class="bhote-event-range" data-role="split" type="range" min="0" max="100" value="50" aria-label="Historical reference and post-event image split" />
-      <div class="bhote-event-dates">
-        <span data-role="before-date"></span>
-        <span data-role="after-date"></span>
-      </div>
-    </section>
-    <section class="bhote-event-section">
-      <div class="bhote-event-section-head">
-        <span data-role="timeline-label">RECONSTRUCTION CLOCK</span>
-        <span data-role="time"></span>
-      </div>
-      <input class="bhote-event-range flood" data-role="progress" type="range" min="0" max="1000" value="0" aria-label="Schematic downstream progression" />
-      <div class="bhote-event-story-nav" aria-label="Story beat navigation">
-        <button type="button" data-action="previous-beat" title="Previous story beat" aria-label="Previous story beat">‹</button>
-        <div class="bhote-event-story-current">
-          <span data-role="beat-index">01 / 06</span>
-          <strong data-role="beat-title" aria-live="polite">CAUSE</strong>
-          <small data-role="beat-meta">CAPTURE TIME UNVERIFIED</small>
-        </div>
-        <button type="button" data-action="next-beat" title="Next story beat" aria-label="Next story beat">›</button>
-      </div>
-      <div class="bhote-event-actions">
-        <button type="button" data-action="play">PLAY</button>
-        <button type="button" data-action="play-scene" hidden title="Play the next shot and continue through this scene">PLAY SCENE</button>
-        <button type="button" data-action="cinematic" aria-pressed="false">◉ CINEMATIC</button>
-        <button type="button" data-action="story-replay">↺ FULL STORY</button>
-        <button type="button" data-action="open-source">↗ OPEN ORIGINAL</button>
-        <button type="button" data-action="corridor">⌖ LOWER GORGE</button>
-      </div>
-    </section>
-    <details class="bhote-event-evidence">
-      <summary>FIELD REPORTS · ${event.fieldReports.length}</summary>
-      <div class="bhote-event-report-list"></div>
-    </details>
-    <div class="bhote-event-credit">
-      <span>GEOLOCATIONS · GEO GEORGE SHADRACH</span>
-      <button type="button" data-action="geolocation-map">↗ OPEN PUBLIC MAP</button>
-    </div>
-    <p class="bhote-event-caveat"><span data-role="caveat"></span><span data-role="imagery-cloud-note"> Clouds are preserved from the source imagery.</span></p>
-  `;
-
-  const refs = collectPanelReferences(panel);
-  refs.beforeDate.textContent = event.imagery.before.label;
-  refs.afterDate.textContent = event.imagery.after.label;
-  refs.time.textContent = `~0:00 / ${elapsedLabel(1, event.reconstruction.elapsedSeconds)}`;
-  refs.caveat.textContent = event.reconstruction.caveat;
-
-  for (const report of event.fieldReports) {
-    const button = document.createElement('button');
-    const label = document.createElement('span');
-    const status = document.createElement('small');
-    button.type = 'button';
-    button.className = 'bhote-event-report';
-    label.textContent = report.label;
-    status.textContent = report.status;
-    button.append(label, status);
-    button.addEventListener('click', () => openExternal(report.url));
-    refs.reportList.appendChild(button);
-  }
-
-  panel
-    .querySelector('[data-action="close"]')
-    .addEventListener('click', handlers.close);
-  panel
-    .querySelector('[data-action="play"]')
-    .addEventListener('click', handlers.play);
-  panel
-    .querySelector('[data-action="play-scene"]')
-    .addEventListener('click', handlers.playScene);
-  panel
-    .querySelector('[data-action="cinematic"]')
-    .addEventListener('click', handlers.toggleCinematic);
-  panel
-    .querySelector('[data-action="previous-beat"]')
-    .addEventListener('click', handlers.previousBeat);
-  panel
-    .querySelector('[data-action="next-beat"]')
-    .addEventListener('click', handlers.nextBeat);
-  panel
-    .querySelector('[data-action="story-replay"]')
-    .addEventListener('click', handlers.replayCinematic);
-  panel
-    .querySelector('[data-action="open-source"]')
-    .addEventListener('click', handlers.openActiveSource);
-  panel
-    .querySelector('[data-action="geolocation-map"]')
-    .addEventListener('click', handlers.openGeolocationMap);
-  panel
-    .querySelector('[data-action="corridor"]')
-    .addEventListener('click', handlers.focusCorridor);
-  panel
-    .querySelector('[data-role="split"]')
-    .addEventListener('input', (inputEvent) => {
-      handlers.setSplit(Number(inputEvent.target.value) / 100);
-    });
-  panel
-    .querySelector('[data-role="progress"]')
-    .addEventListener('input', (inputEvent) => {
-      handlers.previewProgress(Number(inputEvent.target.value) / 1000);
-    });
-  panel
-    .querySelector('[data-role="progress"]')
-    .addEventListener('change', (inputEvent) => {
-      handlers.commitProgress(Number(inputEvent.target.value) / 1000, {
-        final: true,
-      });
-    });
-  const rightRail = document.getElementById?.('right-context-rail');
-  rightRail?.classList.add('bhote-event-active');
-  (rightRail || document.body).appendChild(panel);
-  return { panel, refs };
->>>>>>> theirs
 }
 
 export function createBhoteKoshiEventLayer({
@@ -3214,7 +3079,6 @@ export function createBhoteKoshiEventLayer({
     );
     const playLabel = sceneDirected
       ? _sceneActionPending && _sceneActionPending.type !== 'scene'
-<<<<<<< ours
         ? t('… PLAYING SHOT')
         : t('▶ PLAY SHOT')
       : _playing
@@ -3224,28 +3088,13 @@ export function createBhoteKoshiEventLayer({
             ? t('↺ REPLAY CINEMATIC')
             : t('↺ REPLAY')
           : t('▶ PLAY');
-=======
-        ? '… PLAYING SHOT'
-        : 'PLAY SHOT'
-      : _playing
-        ? 'PAUSE'
-        : _progress >= 1
-          ? _cinematicReplayArmed
-            ? '↺ REPLAY CINEMATIC'
-            : '↺ REPLAY'
-          : 'PLAY';
->>>>>>> theirs
     setElementProperty(_panelRefs.playButton, 'textContent', playLabel);
     setElementProperty(
       _panelRefs.playSceneButton,
       'textContent',
-<<<<<<< ours
       _sceneActionPending?.type === 'scene'
         ? t('… PLAYING SCENE')
         : t('▶ PLAY SCENE'),
-=======
-      _sceneActionPending?.type === 'scene' ? '… PLAYING SCENE' : 'PLAY SCENE',
->>>>>>> theirs
     );
     setElementProperty(
       _panelRefs.playSceneButton,

@@ -25,12 +25,8 @@ import {
   resolveMilitaryInstallationTier,
   validMilitaryInstallationBox,
   writeMilitaryInstallationDisk,
-<<<<<<< ours
 } from '../../vite.config.js';
 import { resolveOverpassUpstreamTag } from '../../server/providers/overpass/constants.js';
-=======
-} from '../../server/providers/index.js';
->>>>>>> theirs
 
 const DAY_MS = 86_400_000;
 test('installation failure reasons disclose no raw upstream error and do not guess overload', () => {

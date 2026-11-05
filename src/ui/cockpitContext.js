@@ -1,11 +1,7 @@
 /** Contact readouts and nearby-signal presentation for the Cockpit controller. */
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import { formatNumber, t, tn } from '../i18n/index.js';
 import { unitLabel } from './unitLabels.js';
-=======
-import { Cesium } from '../cesium.js';
->>>>>>> theirs
 import {
   bearingBetweenCoordinates,
   formatCockpitContextScope,

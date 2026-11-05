@@ -82,17 +82,12 @@ export function roadRequestError(status, cause) {
 
 /** Supply tile-derived road geometry and flow availability without Overpass queries. */
 export function createTrafficSource({
-<<<<<<< ours
   fetchImpl = (...args) => globalThis.fetch(...args),
   tileFetchImpl = (...args) => globalThis.fetch(...args),
   mapTiles = createOpenFreeMapSource({
     fetchImpl: tileFetchImpl,
     selectDecoded: ({ roads }) => ({ roads }),
   }),
-=======
-  fetchImpl = (...args) =>
-    (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
->>>>>>> theirs
 } = {}) {
   const flow = createFlowTileSource({ fetchImpl });
   const api = {

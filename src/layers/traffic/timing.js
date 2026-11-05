@@ -1,15 +1,6 @@
-<<<<<<< ours
 import * as Cesium from 'cesium';
 import { roadSurfaceChunks } from './surface.js';
 import { TRAFFIC_TIMING_ENABLED, DOT_HEIGHT_OFFSET } from './policy.js';
-=======
-import { Cesium } from '../../cesium.js';
-import {
-  TRAFFIC_TIMING_ENABLED,
-  MAX_WAYPOINTS_PER_ROAD,
-  DOT_HEIGHT_OFFSET,
-} from './policy.js';
->>>>>>> theirs
 
 export function createTiming({ state: layerState, services, parts, source }) {
   /**

@@ -3,8 +3,6 @@ import { openSkyProxy } from './aircraft/opensky.js';
 import { celestrakProxy, rocketLaunchesProxy } from './space.js';
 import { tomtomProxy } from './traffic.js';
 import { firmsProxy } from './firms.js';
-import { earthquakesProxy } from './earthquakes.js';
-import { imageryProxy } from './imagery.js';
 import { terrainHeightsProxy } from './terrain.js';
 import { adsbdbProxy } from './aircraft/enrichment.js';
 import { overpassProxy } from './overpass.js';
@@ -19,7 +17,6 @@ import { gbfsProxy } from './gbfs.js';
 import { localReceiversProxy } from './local-receivers.js';
 import { transitProxy } from './transit.js';
 import { adsbLolProxy } from './aircraft/adsb-lol.js';
-import { aircraftPhotoProxy } from './aircraft/photo.js';
 import { aisLiveProxy } from './vessels/ais-live.js';
 import { trackBackfillProxies } from './aircraft/tracks.js';
 import { openAiRealtimeProxy } from './openai.js';
@@ -34,14 +31,7 @@ import { ghostMapsProxy } from './ghostMaps.js';
 import { droneAirspaceProxy } from './droneAirspace.js';
 import { cycloneProxy } from './cyclones.js';
 import { windProxy } from './wind.js';
-import { infraStaticProxy } from './infra-static.js';
-import { trafficFlowProxy } from './traffic-flow.js';
-import { miniFlightsProxy } from './mini-flights.js';
-import { miniGeocodeProxy } from './mini-geocode.js';
-import { miniSourcesProxy } from './mini-sources.js';
-import { cnLiveProxy } from './cn-live.js';
 
-<<<<<<< ours
 /**
  * Construct the local provider plugins in their established order.
  * `realtime` configures OpenAI; `gemini` explicitly opts into Gemini Live.
@@ -59,38 +49,14 @@ function localProviderPlugins({
     !path.isAbsolute(nominatimStorageDir)
   )
     throw new TypeError('nominatimStorageDir must be an absolute directory');
-=======
-/** Construct the local provider plugins in their established order. */
-/**
- * 让所有 provider 的 JSON 响应自动 gzip：把补丁挂到「第一个 provider 的
- * configureServer 之前」，这样它是 connect 栈里的第一层，能拿到完整的 res 和 req.url。
- * （各自用 middlewares.use 注册会排到最后，那时 provider 的 mount 已经把 /api 前缀剥掉了。）
- */
-function withGzipPatch(plugin) {
-  /*
-   * ⛔ 已停用（2026-10-20）。
-   * 无差别劫持 res.writeHead/res.end 会毁掉一部分响应：实测 /api/setup/status
-   * 在带 Accept-Encoding: gzip 时，客户端收到的**连状态行都没有**，
-   * 只有裸 JSON —— 浏览器 ERR_INVALID_HTTP_RESPONSE，整站打不开，curl 却看着正常。
-   * 现在压缩只在 sendJson() 里显式做（自己控制头，不碰别人的 res）。
-   * 保留函数是为了留一条明确的“不要这么干”的记录。
-   */
-  if (true) return plugin;
-}
-
-function localProviderPlugins() {
->>>>>>> theirs
   return [
-    withGzipPatch(openSkyProxy()),
+    openSkyProxy(),
     celestrakProxy(),
     tomtomProxy(),
     firmsProxy(),
-    earthquakesProxy(),
-    imageryProxy(),
     rocketLaunchesProxy(),
     terrainHeightsProxy(),
     adsbdbProxy(),
-    aircraftPhotoProxy(),
     overpassProxy(),
     militaryInstallationsProxy(),
     regionalBriefProxy(),
@@ -108,12 +74,6 @@ function localProviderPlugins() {
     ...(gemini ? [geminiLiveProxy({ realtime: gemini })] : []),
     googlePlacesContextProxy(),
     windProxy(),
-    infraStaticProxy(),
-    trafficFlowProxy(),
-    miniFlightsProxy(),
-    miniGeocodeProxy(),
-    cnLiveProxy(),
-    miniSourcesProxy(),
     weatherProxy(),
     cycloneProxy(),
     mapillaryProxy(),
