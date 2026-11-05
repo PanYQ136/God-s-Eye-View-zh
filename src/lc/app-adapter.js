@@ -26,14 +26,6 @@ const rectOf = (el) => {
     bottom: px(b.bottom),
   };
 };
-const visible = (el) => {
-  if (!el || !el.isConnected) return false;
-  const cs = getComputedStyle(el);
-  if (cs.display === 'none' || cs.visibility === 'hidden') return false;
-  const b = el.getBoundingClientRect();
-  return b.width > 4 && b.height > 4;
-};
-
 export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
   const stage = (() => {
     let el = doc.getElementById('lc-stage');

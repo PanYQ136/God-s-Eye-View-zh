@@ -1,5 +1,4 @@
 import { Cesium } from '../../cesium.js';
-import { RENDER_LIMIT_DEFAULT } from './policy.js';
 
 export function createState({ services }) {
   const { setOverlayEntries, setOverlaySourceVisible, clearOverlaySource } =

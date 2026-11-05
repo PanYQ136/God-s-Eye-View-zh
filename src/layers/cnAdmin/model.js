@@ -1,4 +1,3 @@
-import { Cesium } from '../../cesium.js';
 import { normalizeCnAdminSnapshot } from './records.js';
 
 /**

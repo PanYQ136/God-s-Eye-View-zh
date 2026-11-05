@@ -1,6 +1,5 @@
 import {
   TRAFFIC_TIMING_ENABLED,
-  OVERPASS_URL,
   TILE_CACHE_MAX_ENTRIES,
   FAST_FETCH_ALTITUDE,
 } from './policy.js';

@@ -46,7 +46,6 @@ import {
   clamp01,
   assertSourceId,
   entryKey,
-  compareStableKeys,
   compareProtectedEntries,
   compareProtectedCandidates,
   comparePaintItems,

@@ -23,7 +23,6 @@ import {
   TRAIL_MAX_POINTS,
   RENDER_DELAY_SEC,
   TRAIL_COLOR,
-  CYAN_TRANSPARENT,
 } from './policy.js';
 
 export function createTracking({
