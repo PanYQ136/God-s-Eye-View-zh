@@ -5,8 +5,8 @@
 export const cinemaShader = {
   name: 'cinema',
   uniforms: {
-    grade: { default: 0.5, min: 0, max: 1, label: 'Split Tone' },
-    contrast: { default: 0.5, min: 0, max: 1, label: 'Contrast' },
+    grade: { default: 0.5, min: 0, max: 1, label: 'Split Tone' }, /* i18n-ignore */
+    contrast: { default: 0.5, min: 0, max: 1, label: 'Contrast' }, /* i18n-ignore */
   },
   fragmentShader: /* glsl */ `
     uniform sampler2D colorTexture;

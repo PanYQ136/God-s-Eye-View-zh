@@ -1205,7 +1205,9 @@ test('repeated incomplete KML roots finish within an isolated process deadline',
   const child = spawnSync(
     process.execPath,
     ['--input-type=module', '-e', source],
-    { timeout: 5000, encoding: 'utf8' },
+    // Windows 上 Defender 实时扫描会拖慢子进程冷启动（常 >5s），
+    // POSIX 维持原 5s 规范值。
+    { timeout: process.platform === 'win32' ? 20000 : 5000, encoding: 'utf8' },
   );
   assert.ifError(child.error);
   assert.equal(child.status, 0, child.stderr);

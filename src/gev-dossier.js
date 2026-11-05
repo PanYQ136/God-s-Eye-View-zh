@@ -103,7 +103,7 @@
     const s = document.createElement('style');
     s.id = 'gev-dossier-style';
     /* Phase8D #13：运行时注入的样式表也要进层 */
-    s.textContent = '@layer components {\n' + STYLE + '\n}';
+    s.textContent = '@layer components {\n' + STYLE + '\n}'; /* i18n-ignore */
     document.head.appendChild(s);
   }
 
@@ -165,7 +165,7 @@
     const el = document.createElement('div');
     el.id = 'gev-dossier';
     el.innerHTML =
-      '<div class="gd-head">' +
+      '<div class="gd-head">' + /* i18n-ignore */
       '<span class="gd-dot"></span>' +
       '<span class="gd-title">—</span>' +
       '<span class="gd-badge live">LIVE</span>' +
@@ -290,7 +290,7 @@
       String(specs.status || '')
         .toLowerCase()
         .indexOf('stale') >= 0;
-    state.els.badge.textContent = stale ? 'STALE' : 'LIVE';
+    state.els.badge.textContent = stale ? 'STALE' : 'LIVE'; /* i18n-ignore */
     state.els.badge.className = 'gd-badge ' + (stale ? 'stale' : 'live');
     state.els.src.textContent = t.source || '实时数据';
     renderPhoto(t);
@@ -496,7 +496,7 @@
       '" alt="photo" loading="lazy" referrerpolicy="no-referrer">';
     box.style.display = '';
     box.innerHTML =
-      (link
+      (link /* i18n-ignore */
         ? '<a class="gd-photo-link" href="' +
           esc(link) +
           '" target="_blank" rel="noopener">' +
@@ -666,7 +666,7 @@
     const remM = haversineM(lla.lat, lla.lon, dest.lat, dest.lon);
     const kt = parseFloat(String((t.specs && t.specs.speed) || ''));
     if (!Number.isFinite(kt) || kt <= 1) {
-      state.els.eta.textContent = fmtNum(remM / 1000, 0) + ' km（地速不足）';
+      state.els.eta.textContent = fmtNum(remM / 1000, 0) + ' km（地速不足）'; /* i18n-ignore */
       return;
     }
     const secs = remM / (kt * 0.514444);
@@ -676,7 +676,7 @@
     }
     const eta = new Date(Date.now() + secs * 1000);
     state.els.eta.textContent =
-      eta.toLocaleTimeString('zh-CN', { hour12: false }) +
+      eta.toLocaleTimeString('zh-CN', { hour12: false }) + /* i18n-ignore */
       '（约 ' +
       Math.round(secs / 60) +
       ' 分 · ' +

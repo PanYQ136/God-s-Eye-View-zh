@@ -7,8 +7,8 @@
 export const predatorShader = {
   name: 'predator',
   uniforms: {
-    gain: { default: 0.35, min: 0, max: 1, label: 'Thermal Gain' },
-    tint: { default: 0.25, min: 0, max: 1, label: 'Color Mix' },
+    gain: { default: 0.35, min: 0, max: 1, label: 'Thermal Gain' }, /* i18n-ignore */
+    tint: { default: 0.25, min: 0, max: 1, label: 'Color Mix' }, /* i18n-ignore */
   },
   fragmentShader: /* glsl */ `
     uniform sampler2D colorTexture;

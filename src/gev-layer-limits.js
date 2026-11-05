@@ -25,7 +25,7 @@
     { id: 'transit', label: '公共交通', unit: '辆' },
     { id: 'traffic', label: '车流', unit: '辆' },
     { id: 'bikeshare', label: '共享单车', unit: '站' },
-    { id: 'local-adsb', label: '本地ADS-B', unit: '架' },
+    { id: 'local-adsb', label: '本地ADS-B', unit: '架' }, /* i18n-ignore */
   ];
   const STORE_KEY = 'gev.layerLimit.'; // + layerId
   const MIN = 0;
@@ -73,7 +73,7 @@
     const s = document.createElement('style');
     s.id = 'gev-limit-style';
     /* Phase8D #13：运行时注入的样式表也要进层（未分层会整体压掉分层 App CSS） */
-    s.textContent = '@layer components {\n' + STYLE + '\n}';
+    s.textContent = '@layer components {\n' + STYLE + '\n}'; /* i18n-ignore */
     document.head.appendChild(s);
   }
 

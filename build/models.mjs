@@ -33,6 +33,7 @@ export const RUNTIME_MODEL_FILES = Object.freeze([
   'a380.glb',
   'atr72.glb',
   'b737.glb',
+  'b789.glb',
   'bell206.glb',
   'c172.glb',
   'citation2.glb',

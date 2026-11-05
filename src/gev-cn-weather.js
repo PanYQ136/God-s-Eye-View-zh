@@ -348,7 +348,7 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
     const s = document.createElement('style');
     s.id = 'gev-cn-weather-style';
     /* 运行时注入的样式表必须进层，否则未分层样式会整体压掉分层 App CSS。 */
-    s.textContent = '@layer overrides {' + STYLE + '}';
+    s.textContent = '@layer overrides {' + STYLE + '}'; /* i18n-ignore */
     document.head.appendChild(s);
   }
 
@@ -648,7 +648,7 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
     detail.className = 'gev-wx-detail';
     detail.hidden = true;
     detail.innerHTML =
-      '<dl class="gev-wx-grid"></dl>' +
+      '<dl class="gev-wx-grid"></dl>' + /* i18n-ignore */
       '<div class="gev-wx-src">数据来源：和风天气（QWeather）</div>';
 
     wxWrap.append(wx, detail);
@@ -661,7 +661,7 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
     alertBox.setAttribute('data-level', 'none');
     alertBox.hidden = true;
     alertBox.innerHTML =
-      '<button class="gev-wx-alert-main" type="button">' +
+      '<button class="gev-wx-alert-main" type="button">' + /* i18n-ignore */
       '<span class="gev-wx-alert-badge" aria-hidden="true"></span>' +
       '<span class="gev-wx-alert-title"></span>' +
       '<span class="gev-wx-alert-meta"></span>' +

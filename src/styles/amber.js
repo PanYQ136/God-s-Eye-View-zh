@@ -6,8 +6,8 @@
 export const amberShader = {
   name: 'amber',
   uniforms: {
-    warmth: { default: 0.5, min: 0, max: 1, label: 'Amber Warmth' },
-    scan: { default: 0.6, min: 0, max: 1, label: 'Scanline' },
+    warmth: { default: 0.5, min: 0, max: 1, label: 'Amber Warmth' }, /* i18n-ignore */
+    scan: { default: 0.6, min: 0, max: 1, label: 'Scanline' }, /* i18n-ignore */
   },
   fragmentShader: /* glsl */ `
     uniform sampler2D colorTexture;

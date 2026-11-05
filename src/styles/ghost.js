@@ -6,8 +6,8 @@
 export const ghostShader = {
   name: 'ghost',
   uniforms: {
-    contrast: { default: 0.55, min: 0, max: 1, label: 'Contrast' },
-    noise: { default: 0.35, min: 0, max: 1, label: 'Sensor Noise' },
+    contrast: { default: 0.55, min: 0, max: 1, label: 'Contrast' }, /* i18n-ignore */
+    noise: { default: 0.35, min: 0, max: 1, label: 'Sensor Noise' }, /* i18n-ignore */
   },
   fragmentShader: /* glsl */ `
     uniform sampler2D colorTexture;

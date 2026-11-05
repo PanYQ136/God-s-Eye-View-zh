@@ -109,7 +109,7 @@ export function createCnQuakesLayer({ source } = {}) {
         if (request.signal.aborted || _request !== request || !_enabled)
           return false;
         console.warn('[Data:CnQuakes] Fetch error:', e);
-        _lastError = e?.message || 'cnQuakes source unavailable';
+        _lastError = e?.message || 'cnQuakes source unavailable'; /* i18n-ignore */
         return false;
       } finally {
         if (_request === request) _request = null;

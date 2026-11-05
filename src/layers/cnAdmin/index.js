@@ -94,7 +94,7 @@ export function createCnAdminLayer({ source } = {}) {
         if (request.signal.aborted || _request !== request || !_enabled)
           return false;
         console.warn('[Data:CnAdmin] Fetch error:', e);
-        _lastError = e?.message || 'cnAdmin source unavailable';
+        _lastError = e?.message || 'cnAdmin source unavailable'; /* i18n-ignore */
         return false;
       } finally {
         if (_request === request) _request = null;

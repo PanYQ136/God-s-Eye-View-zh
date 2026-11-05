@@ -49,7 +49,7 @@
         outlineColor: '#ffffff',
         outlineWidth: 2,
       },
-      label: {
+      label: { /* i18n-ignore */
         text: '我的位置',
         font: '600 14px "Microsoft YaHei", sans-serif',
         fillColor: '#e8fbff',

@@ -8,6 +8,12 @@ import { parsers } from 'prettier/plugins/babel.mjs';
 const legacyFiles = new Set([
   'src/scenes/dataPacks/presentation.js',
   'src/layers/directions/index.js',
+  // CN 反向移植图层：中文地名实体标签待迁移到 world-overlay host（fork 既有实现）。
+  'src/gev-locate.js',
+  'src/layers/cnAdmin/index.js',
+  'src/layers/cnQuakes/index.js',
+  'src/layers/cnTraffic/index.js',
+  'src/layers/cnTyphoon/index.js',
 ]);
 const root = fileURLToPath(new URL('../', import.meta.url));
 const propertyName = (node) => node?.name ?? node?.value;

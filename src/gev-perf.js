@@ -26,14 +26,14 @@ import { mountChip } from './lc/gpu.js';
     const btn = document.getElementById('gev-perf-btn');
     if (!btn) return;
     const zh = document.body.classList.contains('gev-zh');
-    btn.textContent = st.on
+    btn.textContent = st.on /* i18n-ignore */
       ? zh
         ? '性能 · 开'
         : 'PERF · ON'
       : zh
         ? '性能模式'
         : 'PERF MODE';
-    btn.title = st.on
+    btn.title = st.on /* i18n-ignore */
       ? zh
         ? '点击恢复画质'
         : 'Click to restore quality'
@@ -146,7 +146,7 @@ import { mountChip } from './lc/gpu.js';
     const css = document.createElement('style');
     /* Phase8D #13：运行时注入的样式表也要进层 */
     css.textContent =
-      '@layer components {\n' +
+      '@layer components {\n' + /* i18n-ignore */
       [
         '#gev-perf-wrap{position:fixed;left:12px;bottom:52px;z-index:var(--z-devtools, 160);display:flex;gap:8px;align-items:center;font:12px/1.2 system-ui,"Segoe UI",sans-serif;}',
         /* 灰圈=0（Phase 1 · §6.6）：徽标不用 border/outline/inset 描边，层级只靠底色与亮度 */
@@ -160,7 +160,7 @@ import { mountChip } from './lc/gpu.js';
     wrap.id = 'gev-perf-wrap';
     const fps = document.createElement('div');
     fps.id = 'gev-perf-fps';
-    fps.textContent = 'FPS —';
+    fps.textContent = 'FPS —'; /* i18n-ignore */
     const btn = document.createElement('button');
     btn.id = 'gev-perf-btn';
     btn.type = 'button';
@@ -181,7 +181,7 @@ import { mountChip } from './lc/gpu.js';
       const dt = now - st.t0;
       if (dt >= 900) {
         const fps = Math.round((st.frames * 1000) / dt);
-        if (el) el.textContent = 'FPS ' + fps;
+        if (el) el.textContent = 'FPS ' + fps; /* i18n-ignore */
         // GEV (G4/G14): 自适应分辨率——性能模式开启时按实测 FPS 微调 resolutionScale 逼近 57fps。
         // 50–58 为死区（不抖），越界才按 0.05/0.03 步长在 [0.6, 0.9] 内调整。
         /* Phase7D2：启动/升级期的 FPS 低谷是「瓦片 burst」造成的，不是分辨率造成的

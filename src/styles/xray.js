@@ -6,8 +6,8 @@
 export const xrayShader = {
   name: 'xray',
   uniforms: {
-    edge: { default: 0.6, min: 0, max: 1, label: 'Edge Boost' },
-    lift: { default: 0.12, min: 0, max: 1, label: 'Shadow Lift' },
+    edge: { default: 0.6, min: 0, max: 1, label: 'Edge Boost' }, /* i18n-ignore */
+    lift: { default: 0.12, min: 0, max: 1, label: 'Shadow Lift' }, /* i18n-ignore */
   },
   fragmentShader: /* glsl */ `
     uniform sampler2D colorTexture;

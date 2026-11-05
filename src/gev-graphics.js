@@ -274,7 +274,7 @@ import { probe as gpuProbe } from './lc/gpu.js';
     if (document.getElementById('gev-gfx-panel')) return;
     const style = document.createElement('style');
     /* Phase8D #13：运行时注入的样式表也要进层 */
-    style.textContent = '@layer components {\n' + CSS + '\n}';
+    style.textContent = '@layer components {\n' + CSS + '\n}'; /* i18n-ignore */
     document.head.appendChild(style);
 
     const fab = el('button', null, '⚙');
