@@ -1,4 +1,4 @@
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import { destinationPointDeg } from './model.js';
 import {
   DIRECTION_CONE_M,

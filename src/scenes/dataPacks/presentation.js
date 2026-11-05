@@ -1,4 +1,4 @@
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import { renderPackGeometry } from './geometry.js';
 import { useDataPacksStore } from '../../ui/stores/dataPacks.js';
 import { applicationPinia } from '../../ui/vueRuntime.js';

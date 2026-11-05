@@ -1,4 +1,4 @@
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import {
   EMPTY_ACCEPTED_CATALOG_SNAPSHOT,
   DEFAULT_RADIO_FILTER,

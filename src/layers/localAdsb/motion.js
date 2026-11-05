@@ -1,4 +1,4 @@
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import {
   COURSE_HOLD_SPEED_MPS,
   TURN_MIN_SPEED_MPS,

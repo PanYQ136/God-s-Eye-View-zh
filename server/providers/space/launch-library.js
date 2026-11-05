@@ -7,9 +7,7 @@ import {
 } from '../common/http.js';
 import { launchLibraryRecentUrl } from '../../../src/data/spaceProviderRequests.js';
 
-// 发射计划几小时才变一次；LL2 在大陆常连不上，缓存拉长到 3h，
-// 上游失败时 continue 用 disk 里的旧数据（serve-stale 已有）。
-export const LL2_CACHE_TTL_MS = 3 * 60 * 60_000;
+export const LL2_CACHE_TTL_MS = 15 * 60_000;
 
 /** Build LL2 request headers without exposing its optional token client-side. */
 export function launchLibraryRequestHeaders(token = process.env.LL2_API_TOKEN) {
@@ -114,90 +112,8 @@ export function rocketLaunchesProxy() {
     return fresh;
   }
 
-  /** 只保留小程序真正用到的字段（LL2 原始对象 700KB+，其中 95% 是描述/机构/图库） */
-  function slimLaunch(l) {
-    if (!l || typeof l !== 'object') return null;
-    const out = {};
-    ['id', 'slug', 'name', 'net', 'window_start', 'window_end'].forEach((k) => {
-      if (l[k] !== undefined && l[k] !== null) out[k] = l[k];
-    });
-    if (l.pad && typeof l.pad === 'object') {
-      out.pad = {
-        name: l.pad.name,
-        latitude: l.pad.latitude,
-        longitude: l.pad.longitude,
-      };
-      if (l.pad.location && l.pad.location.name)
-        out.pad.location = { name: l.pad.location.name };
-    }
-    if (l.mission && typeof l.mission === 'object') {
-      out.mission = { name: l.mission.name };
-      const o = l.mission.orbit || l.orbit;
-      if (o) out.mission.orbit = { name: o.name, abbrev: o.abbrev };
-    }
-    if (l.status && typeof l.status === 'object') {
-      out.status = { name: l.status.name, abbrev: l.status.abbrev };
-    }
-    if (l.launch_service_provider && l.launch_service_provider.name) {
-      out.launch_service_provider = { name: l.launch_service_provider.name };
-    }
-    if (l.rocket && typeof l.rocket === 'object') {
-      out.rocket = {};
-      if (l.rocket.configuration && l.rocket.configuration.name) {
-        out.rocket.configuration = { name: l.rocket.configuration.name };
-      }
-      const payloads = Array.isArray(l.rocket.payloads)
-        ? l.rocket.payloads
-        : Array.isArray(l.payloads)
-          ? l.payloads
-          : [];
-      if (payloads.length) {
-        out.rocket.payloads = payloads
-          .slice(0, 8)
-          .map((entry) => {
-            const pl = (entry && entry.payload) || entry || {};
-            return { name: pl.name || (entry && entry.name) || '' };
-          })
-          .filter((x) => x.name);
-      }
-    }
-    if (l.image && typeof l.image === 'object') {
-      out.image = {
-        image_url: l.image.image_url,
-        thumbnail_url: l.image.thumbnail_url,
-        name: l.image.name,
-      };
-    }
-    return out;
-  }
-
-  /** ?slim=1 的响应体；同一份上游 body 只转换一次 */
-  function slimBody(text) {
-    if (slimMemo.src === text) return slimMemo.body;
-    let body = text;
-    try {
-      const parsed = JSON.parse(text);
-      const results = Array.isArray(parsed && parsed.results)
-        ? parsed.results
-        : [];
-      body = JSON.stringify({
-        count: results.length,
-        next: null,
-        previous: null,
-        results: results.map(slimLaunch).filter(Boolean),
-      });
-    } catch (e) {
-      /* 解析失败就原样返回 */
-    }
-    slimMemo = { src: text, body: body };
-    return body;
-  }
-  let slimMemo = { src: '', body: '' };
-
   function install(middlewares) {
     middlewares.use('/api/launches', async (req, res) => {
-      const slimWanted = /[?&]slim=1/.test(String(req.url || ''));
-      const outBody = (body) => (slimWanted ? slimBody(body) : body);
       if (req.method !== 'GET') {
         send(res, 405, JSON.stringify({ error: 'Method Not Allowed' }), 'NONE');
         return;
@@ -205,7 +121,7 @@ export function rocketLaunchesProxy() {
       await loadDiskCache();
       const now = Date.now();
       if (cache && now - cache.at < ttlMs) {
-        send(res, 200, outBody(cache.body), 'HIT');
+        send(res, 200, cache.body, 'HIT');
         return;
       }
       const stale = cache;
@@ -226,12 +142,7 @@ export function rocketLaunchesProxy() {
       );
       try {
         const fresh = await request.promise;
-        send(
-          res,
-          200,
-          outBody(fresh.body),
-          request.shared ? 'INFLIGHT' : 'MISS',
-        );
+        send(res, 200, fresh.body, request.shared ? 'INFLIGHT' : 'MISS');
       } catch (error) {
         if (Date.now() >= cooldownUntil) {
           cooldownUntil = Date.now() + 60000;

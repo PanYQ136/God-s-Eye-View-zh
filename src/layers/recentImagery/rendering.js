@@ -6,7 +6,7 @@
  * host switch or a replaced image never strands one. Tile requests pass a
  * small semaphore of our own; Cesium's global request limits stay untouched.
  */
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import { PRODUCTS, gibsTemplate } from './model.js';
 
 const SLOT_IDS = ['a', 'b'];

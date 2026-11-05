@@ -1,4 +1,4 @@
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import { FOCUS_EVIDENCE_DEV } from './policy.js';
 
 export function createEvidence({

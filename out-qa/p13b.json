@@ -1,0 +1,49 @@
+{
+ "errors": [],
+ "frozen": true,
+ "idleGlassOn": {
+  "frames": 173,
+  "p50": 12,
+  "p95": 18.2,
+  "max": 139.3,
+  "fps": 83.3
+ },
+ "idleGlassOff": {
+  "frames": 167,
+  "p50": 12,
+  "p95": 18.1,
+  "max": 151.9,
+  "fps": 83.3
+ },
+ "stats": {
+  "fps": 83,
+  "scale": 2,
+  "count": 13,
+  "dpr": 2
+ },
+ "audit": {
+  "present": 9,
+  "cards": 9,
+  "innerBackdrop": [],
+  "blackText": 0,
+  "scrollers": [],
+  "glassSurfaces": 13
+ },
+ "voice": {
+  "isGevLc": true,
+  "lum": "dark",
+  "bg": "rgba(5, 9, 14, 0.48)",
+  "backdrop": "none",
+  "vars": [
+   [
+    "--gev-std-bg",
+    "rgba(6, 10, 16, 0.22)"
+   ],
+   [
+    "--gev-std-bg-bright",
+    "rgba(5, 9, 14, 0.62)"
+   ]
+  ],
+  "detail": "rgb(207, 224, 238)"
+ }
+}

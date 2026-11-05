@@ -3,13 +3,6 @@ const START_ORDER = ['scene', 'controls', 'data', 'tools'];
 // Controls cancel restoration while the data manager and viewer still exist.
 const STOP_ORDER = ['tools', 'controls', 'data', 'scene'];
 
-/* 观测（boot-timeline）：无时间线时是空操作。 */
-const bootMark = (name, meta) => {
-  const timeline = globalThis.__bootTimeline;
-  if (timeline && typeof timeline.mark === 'function')
-    timeline.mark(name, meta);
-};
-
 /**
  * Own application startup and teardown without importing an application entry.
  * Constructors receive earlier components, an AbortSignal and defer(cleanup).
@@ -82,7 +75,6 @@ export function createApplication({
       for (const phase of START_ORDER) {
         controller.signal.throwIfAborted();
         publish('starting', phase);
-        bootMark('app:phase:' + phase);
         controller.signal.throwIfAborted();
         let acceptingCleanup = true;
         try {
@@ -104,7 +96,6 @@ export function createApplication({
         controller.signal.throwIfAborted();
       }
       publish('ready');
-      bootMark('app:ready');
       controller.signal.throwIfAborted();
       return Object.freeze({ ...components });
     } catch (error) {

@@ -95,9 +95,6 @@ export class LayerLifecycle {
     this._visibilityGuards = new Set();
     this._registrationsFinalized = false;
     this._registrationDispositions = null;
-    // Phase8E2：允许「注册表已知、实例后到」的图层。finalize 时若放行，未注册
-    // 的注册表条目进入这里，`registerDeferred()` 只接受这些 id。
-    this._pendingLayerIds = new Set();
     this._allowQaRegistration = allowQaRegistration === true;
     this._qaLayerIds = new Set();
   }
@@ -107,38 +104,6 @@ export class LayerLifecycle {
       throw new Error('Data-layer registrations are finalized');
     }
     this._registerLayer(layerModule);
-  }
-
-  /**
-   * Register a layer whose factory chunk arrives after startup was sealed.
-   * Only ids that were pending at `finalizeRegistrations()` time are accepted,
-   * so the registered set can never drift from the declared registry.
-   */
-  registerDeferred(layerModule) {
-    if (!this._registrationsFinalized)
-      throw new Error('Deferred registration requires finalized registrations');
-    const id = layerModule?.id;
-    if (!this._pendingLayerIds.has(id))
-      throw new Error(`Data layer is not pending registration: ${id}`);
-    this._registerLayer(layerModule);
-    this._pendingLayerIds.delete(id);
-    // Lets presentation/state owners pick the layer up exactly once, after its
-    // manager entry exists.
-    this._publishActivity({ type: 'layer-registered', layerId: id });
-    return layerModule;
-  }
-
-  /** Ids declared by the sealed registry whose instances have not arrived yet. */
-  get pendingLayerIds() {
-    return [...this._pendingLayerIds];
-  }
-
-  get pendingRegistrationComplete() {
-    return this._registrationsFinalized && this._pendingLayerIds.size === 0;
-  }
-
-  isPendingLayer(layerId) {
-    return this._pendingLayerIds.has(layerId);
   }
 
   /** Register a synthetic layer after sealing in an explicitly dev-enabled manager. */
@@ -221,12 +186,8 @@ export class LayerLifecycle {
     });
   }
 
-  /**
-   * Seal registration and prove each production layer has one share disposition.
-   * `allowPending` keeps registry entries without an instance as pending ids,
-   * which `registerDeferred()` may later fill in (Phase8E2 deferred layers).
-   */
-  finalizeRegistrations(serializationRegistry, { allowPending = false } = {}) {
+  /** Seal registration and prove each production layer has one share disposition. */
+  finalizeRegistrations(serializationRegistry) {
     if (this._registrationsFinalized)
       throw new Error('Data-layer registrations are already finalized');
     if (!Array.isArray(serializationRegistry))
@@ -247,13 +208,12 @@ export class LayerLifecycle {
     const registeredIds = [...this.layers.keys()];
     const missing = registeredIds.filter((id) => !dispositions.has(id));
     const extra = [...dispositions.keys()].filter((id) => !this.layers.has(id));
-    if (missing.length || (extra.length && !allowPending)) {
+    if (missing.length || extra.length) {
       throw new Error(
         `Layer serialization registry mismatch (missing: ${missing.join(', ') || 'none'}; extra: ${extra.join(', ') || 'none'})`,
       );
     }
     this._registrationDispositions = dispositions;
-    this._pendingLayerIds = new Set(allowPending ? extra : []);
     this._registrationsFinalized = true;
     return true;
   }
@@ -2061,17 +2021,16 @@ export class LayerLifecycle {
     const entry = this.layers.get(layerId);
     const targetEnabled = Boolean(enabled);
     if (!entry) {
-      const pending = this._pendingLayerIds.has(layerId);
       return {
         layerId,
         targetEnabled,
         origin,
-        phase: pending ? 'pending' : 'missing',
+        phase: 'missing',
         settledEnabled: false,
-        lifecycleState: pending ? 'pending' : 'missing',
+        lifecycleState: 'missing',
         lifecycleUncertain: false,
         appliedOptions: {},
-        errorClass: pending ? 'PendingLayer' : 'UnknownLayer',
+        errorClass: 'UnknownLayer',
         persistenceWrite: false,
         succeeded: false,
       };

@@ -1,35 +1,4 @@
-/* Phase8D · #13：样式层叠显式化。层序（低 → 高）：
-     vendor < foundation < components < material < overrides
-   · vendor      第三方字体表（Google Fonts）。进层的理由：未分层 > 任何 @layer，字体表留在
-                 外面就会整体压掉所有分层 App 规则（实测 .material-symbols-outlined{font-size:24px}
-                 会盖掉 #top-center-actions 的 18px）。归到最低层后 App 规则按自己的意图生效。
-                 注意 Vite 会把外部 @import 提到 CSS 顶部，所以这一句必须带 layer(vendor)，
-                 层序以「第一条出现的 @layer」为准 —— 这里的 vendor 是第 0 层（最低）。
-   · foundation  tokens / reset / 排版基线
-   · components  各功能组件（层内 source order = 原 @import / <link> 顺序，与改动前一致）
-                 —— 运行时由 JS 注入的 <style>（gev-layer-limits / gev-dossier / gev-gfx /
-                    gev-perf / gev-gpu / 标注白板）也挂在这一层，它们自带 `@layer components{}`；
-                 否则未分层注入表会整体压掉 App 规则（实测会改动 pp 行距、档案卡内边距）。
-   · material    src/lc 材质层（index.html 单独 <link>，原顺序在组件之后、public 补丁之前）
-   · overrides   public/gev-* 补丁层（原 <link> 顺序：cn → responsive → fix → panel-win）
-   仍不进层的：Cesium widgets.css（构建期注入的 <link>，改不动）。它现在压过 App 规则，
-   受影响处用分层内的 !important 反压（如 foundation.css 的 #cesium-credits a）。
-   规则：新样式先想清楚属于哪一层，不要再靠 link 顺序和 !important 取胜。
-
-   层序（Phase8F 修）：**只在 index.html 的 <style> 里声明一次**，本文件不再重复。
-   CSS 的层顺序在某个层名「首次出现」时锁定，而 index.html 的 <style> 排在所有样式表
-   之前，所以那一条就是唯一事实源；这里再写一遍会让两处可能不同步（8F FAIL ④）。
-   —— 2026-11-01 删除本行重复声明，行为不变。
-
-   注意：下面两条字体 @import 必须单行写完（`... &display=swap') layer(vendor);`）。
-   `src/annotations/drawTool.test.mjs` 断言「本文件只允许 @import / @layer 语句」，
-   而 prettier 会在 80 列处把 `layer(vendor);` 折到下一行，折行后的续行不以 @import
-   开头，断言就会失败。所以用 prettier-ignore 锁住单行，别让格式化改回去。 */
-/* prettier-ignore */
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap') layer(vendor);
-/* prettier-ignore */
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0&icon_names=adjust,arrow_drop_down,arrow_forward,arrow_left,arrow_right,bolt,chevron_left,chevron_right,close,close_fullscreen,dark_mode,draw,east,flare,flight,layers_clear,light_mode,local_fire_department,my_location,navigation,normal,on,open_in_full,public,radar,radio,right_panel_close,right_panel_open,rocket_launch,skip_next,skip_previous,view_in_ar') layer(vendor);
-
+/* Preserve component and responsive rule order in one stylesheet entry. */
 @import './src/ui/styles/foundation.css';
 @import './src/ui/styles/action-button.css';
 @import './src/ui/styles/form-field.css';
@@ -69,5 +38,3 @@
 @import './src/ui/styles/annotations.css';
 @import './src/ui/styles/ai-chat.css';
 @import './src/ui/styles/cyber.css';
-/* 手机竖屏适配 mobile-portrait.css 已移至 index.html 独立 <link>：
-   避免其 @media 覆盖层被 creditAttribution 桌面布局模型当作 base 样式扫描而误判。 */

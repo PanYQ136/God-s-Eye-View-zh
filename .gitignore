@@ -23,40 +23,29 @@ qa-artifacts/
 .DS_Store
 .gstack/
 3d-models/
-# Runtime scratch dirs and generated model caches (derived from public/models/*.glb
-# by the local bake/normalize experiments; not referenced by any source file).
+pinokio/ENVIRONMENT
+pinokio/.installed
+
+# Transient: a release interrupted mid-assembly (npm run changelog recovers it)
+changelog.d/.assembling/
+
+# ---- fork-only rules (preserved through the upstream merge) ----
+# Runtime scratch dirs and generated model caches (local bake/normalize experiments).
 cache/
 public/models/_baked/
 public/models/_norm/
 public/models/_skb/
-pinokio/ENVIRONMENT
-pinokio/.installed
-
-<<<<<<< ours
-# Transient: a release interrupted mid-assembly (npm run changelog recovers it)
-changelog.d/.assembling/
-=======
-.vercel
-.env*
-
-# 2026-11-01 清理：归档区与改动前备份。两者都可手工删除，不该进版本库。
-# dist-* 覆盖历史构建副本（dist-8e / dist-8e2 / dist-baseline-8e 等）。
 .gev-trash/
 .gev-backup/
 dist-*/
-
+# 2026-11-05 清理：evidence 域已出库删除；QA 一次性脚本仍会写入 evidence/_collab/，
+# 属运行期生成物，不再入库（需要时用 git add -f 单独放行）。
+evidence/
 # 小程序相关内容一律不上传 GitHub（本地保留；需要单独放行时用 git add -f）。
-# 覆盖小程序工程档案/移植清单、wx-cloud 云开发与 miniprogram 代码。
 wx-cloud/
 *小程序*
 *miniprogram*
 *mini-program*
-
 # 运行/验收产物不入库（本地保留，需要时用 git add -f 单独放行）
 out-qa/
 vite.err
-
-# 2026-11-05 清理：evidence 域已出库删除；QA 一次性脚本仍会写入 evidence/_collab/，
-# 属运行期生成物，不再入库（需要时用 git add -f 单独放行）。
-evidence/
->>>>>>> theirs

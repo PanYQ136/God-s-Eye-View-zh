@@ -168,38 +168,6 @@ Uses progressive SSE refinement and automatic ground-height sampling. Street-lev
 
 ---
 
-## net_route_audit.mjs
-
-上游 host「直连 vs 代理」路由归类 + NO_PROXY 收敛。本机用 7890 代理托底被墙站点，但不少 geo/科学/相机类上游是「直连可达、走代理反被 ECONNRESET」——它们被代理挡住时数据源表现为"down"（假 down）。本工具把每个上游 host 同时用「直连」与「经代理」各探一次，归类后把「直连可达+代理失败」的 host 并入 `start-dev.cmd` 的 `NO_PROXY`（**只增不删**，绝不误删"必须走代理"的条目）。
-
-```sh
-# 扫描（host 自动从 server/providers + server/standalone + start-dev.cmd NO_PROXY 抽取）
-node tools/net_route_audit.mjs
-
-# 扫描并把 ADD 组并入 start-dev.cmd 的 NO_PROXY（改完需重启 dev server 生效）
-node tools/net_route_audit.mjs --sync
-
-# 只测指定 host / 用自定义探测 URL（默认 https://host/）
-node tools/net_route_audit.mjs --hosts a.com,b.com
-node tools/net_route_audit.mjs --urls urls.json   # {"host":"https://host/some/path"}
-
-# 机器可读输出（CI/脚本用）
-node tools/net_route_audit.mjs --json --proxy http://127.0.0.1:7890 --timeout 10000
-```
-
-输出四组：
-
-| 组 | 含义 | 处置 |
-|----|------|------|
-| **ADD** | 直连可达 + 代理失败 | 应加入 NO_PROXY（`--sync` 自动并入） |
-| **KEEP_PROXY** | 直连失败 + 代理可达 | 必须走代理，**勿加** |
-| **BOTH_OK** | 两者都可达 | 无需处理 |
-| **BOTH_ERR** | 两者都不可达 | 上游真挂 / 需鉴权 / 超时，退出码 2 |
-
-> 注意：KEEP_PROXY 里若出现已在 NO_PROXY 的 host（如 `api.adsb.lol`），属「根路径直连失败但数据路径直连可用」的探测误差；`--sync` 只增不删，不会误删。
-
----
-
 ## Typical Workflow
 
 ```sh

@@ -1,5 +1,5 @@
 import { attachCctvVideo } from './videoPlayback.js';
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import {
   CCTV_PROJECTION_OVERLAY_SOURCE_ID,
   CCTV_PROJECTION_OVERLAY_SOURCE_OPTIONS,
@@ -225,17 +225,8 @@ export function createProjection({
       const bindVideoTexture = () => {
         if (runtime.video !== video || !runtime.planeMaterial) return;
         if (!(video.videoWidth > 0 && video.videoHeight > 0)) return;
-        // GEV perf (G20): 视频纹理降采样封顶 1280 宽，避免按源分辨率(可能 4K)每帧上传纹理。
-        const MAXW = 1280;
-        const vw = video.videoWidth;
-        const vh = video.videoHeight;
-        if (vw > MAXW) {
-          video.width = MAXW;
-          video.height = Math.round((vh * MAXW) / vw);
-        } else {
-          video.width = vw;
-          video.height = vh;
-        }
+        video.width = video.videoWidth;
+        video.height = video.videoHeight;
         runtime.planeMaterial.image = runtime.canvas;
         runtime.planeMaterial.image = video;
       };

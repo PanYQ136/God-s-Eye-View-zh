@@ -1,4 +1,4 @@
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 
 export const BASE_CABLE_COLOR = '#39d5ff';
 
@@ -78,14 +78,7 @@ export const CABLE_LABEL_DEPTH_DECISION = Object.freeze({
  */
 
 export const CABLE_GLOBE_STACK_IDS = Object.freeze(
-  new Set([
-    'bing-aerial',
-    'bing-labels',
-    'esri-imagery',
-    'amap-satellite',
-    'amap-hybrid',
-    'osm',
-  ]),
+  new Set(['bing-aerial', 'bing-labels', 'esri-imagery', 'osm']),
 );
 
 /** EntityCluster's private marker collections and their required types. */

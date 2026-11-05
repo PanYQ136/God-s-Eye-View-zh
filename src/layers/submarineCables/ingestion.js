@@ -4,7 +4,7 @@ import {
   featureReference,
   normalizeFeatures,
 } from './geometry.js';
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 
 const SOURCE_FEATURE_INDEX = '__gevSourceFeatureIndex';
 

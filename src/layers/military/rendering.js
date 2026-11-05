@@ -7,7 +7,7 @@ import {
   visualCenterForModel,
   trailAnchorForModel,
 } from '../../data/modelVisualAnchor.js';
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import { selectModelEligible } from '../../data/modelEligibility.js';
 import { cyberSonarBaseAlpha } from '../../cyberSonar.js';
 import { cockpitContactDotImage } from '../../data/cockpitContactDot.js';

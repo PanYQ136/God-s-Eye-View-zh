@@ -15,17 +15,8 @@ const browserGlobals = new Set([
   'getComputedStyle',
 ]);
 
-/** Inspect literal module dependencies and browser-platform references without executing code.
- *
- * allowComputedImports exempts one module from the computed-dynamic-import ban.
- * Narrow escape hatch (2026-11-05) for the Node-test-only JSON loaders of
- * data/bundledJson.js: their specifiers must stay runtime-computed, otherwise
- * Rollup bundles the literal attributed import into a dead ~2 MB JSON-module
- * chunk for data the browser fetches via `new URL` assets instead. Direction
- * analysis simply records no edge for a computed import — the allowlisted
- * files target import-less data files, so the graph stays complete.
- */
-export function analyzeModule(source, { allowComputedImports = false } = {}) {
+/** Inspect literal module dependencies and browser-platform references without executing code. */
+export function analyzeModule(source) {
   const imports = [];
   const browser = new Set();
   function walk(node, parent, field) {
@@ -39,17 +30,11 @@ export function analyzeModule(source, { allowComputedImports = false } = {}) {
       ].includes(node.type) &&
       node.source
     ) {
-      if (node.source.type !== 'StringLiteral') {
-        if (allowComputedImports && node.type === 'ImportExpression') {
-          // Computed target: not trackable, record nothing (see docstring).
-        } else {
-          throw new Error(
-            'Computed module imports are not allowed in runtime code',
-          );
-        }
-      } else {
-        imports.push(node.source.value);
-      }
+      if (node.source.type !== 'StringLiteral')
+        throw new Error(
+          'Computed module imports are not allowed in runtime code',
+        );
+      imports.push(node.source.value);
     }
     if (node.type === 'CallExpression' && node.callee?.name === 'require')
       throw new Error('Runtime modules must use ES imports');

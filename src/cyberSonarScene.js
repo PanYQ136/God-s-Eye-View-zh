@@ -1,4 +1,4 @@
-import { Cesium } from './cesium.js';
+import * as Cesium from 'cesium';
 import { createCyberSonarGpu } from './cyberSonarGpu.js';
 import {
   applyCyberSonarPrimitive,

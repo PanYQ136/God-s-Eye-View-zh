@@ -16,7 +16,7 @@
  * presentation-only and volumes are rebuilt only at the moments the frustum
  * wireframe already rewrites (pose edits / visible-set changes).
  */
-import { Cesium } from '../cesium.js';
+import * as Cesium from 'cesium';
 
 /** Golden angle in degrees — maximally spreads consecutive indices around the hue wheel. */
 const GOLDEN_ANGLE_DEG = 137.50776405003785;

@@ -1,4 +1,4 @@
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import { twoline2satrec } from 'satellite.js';
 import { noradIdFromSatnum, tleLineLaunchYear } from '../../sources/tle.js';
 import {

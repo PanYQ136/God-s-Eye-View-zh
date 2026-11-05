@@ -1,5 +1,5 @@
 import { destroyTrack } from '../../data/contactPlayback.js';
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import {
   claimCameraSensitivity,
   releaseCameraSensitivity,
@@ -150,7 +150,6 @@ export function createLifecycle({ state, services, parts }) {
       }
       state._vehicles.clear();
       parts.height.clear();
-      state._capAllowed = null;
       state._selectedKey = null;
       state._lastUpdate = null;
       state._error = null;
@@ -217,7 +216,6 @@ export function createLifecycle({ state, services, parts }) {
       state._detectCache = null;
       state._detectBuiltAt = -Infinity;
       state._visible.clear();
-      state._capAllowed = null;
       clearTimeout(state._cameraDebounceTimer);
       state._cameraDebounceTimer = null;
       parts.selection.clearSelection();

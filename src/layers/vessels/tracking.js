@@ -1,4 +1,4 @@
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import {
   TRAIL_HEIGHT_M,
   VESSEL_LIFT_M,

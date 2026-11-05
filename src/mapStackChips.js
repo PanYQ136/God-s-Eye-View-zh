@@ -18,8 +18,6 @@ export const PRESENTED_MAP_STACK_IDS = Object.freeze([
   'bing-aerial',
   'bing-labels',
   'esri-imagery',
-  'amap-satellite',
-  'amap-hybrid',
   'osm',
 ]);
 

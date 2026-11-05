@@ -38,7 +38,6 @@ export function createIngestion({
         const snapshot = await feed._source.getSnapshot(getQuery(viewer), {
           signal: updateSignal,
         });
-        feed._lastSnapshot = snapshot; // 供 reapply：改渲染上限后立即重放，无需等下一轮
         updateSignal.throwIfAborted();
         feed._lastStatus = snapshot.status ?? 200;
         const sourceEpochMs = snapshot.observedAtMs;
@@ -54,7 +53,6 @@ export function createIngestion({
           : null;
         feed._lastSource = snapshot.source;
         feed._lastCoverage = snapshot.coverage;
-        feed._lastFallback = snapshot.fallback === true;
         setSourceLabel(feed._lastSource);
         const accepted = applySnapshot(snapshot, viewer);
         feed._count = accepted.count;
@@ -91,15 +89,6 @@ export function createIngestion({
         feed._activeUpdateControllers.delete(resourceController);
       }
     },
-    /** 用上一帧快照重放一次（改渲染上限后立即生效，无需联网，不消耗配额）。 */
-    reapply(viewer) {
-      if (!feed._lastSnapshot) return;
-      try {
-        applySnapshot(feed._lastSnapshot, viewer || undefined);
-      } catch {
-        /* 非致命：下次轮询会纠正 */
-      }
-    },
   };
 
   return { methods };
@@ -114,12 +103,10 @@ export function createFlightFeed(source) {
   feed._backoff = false;
   feed._retryAt = 0;
   feed._lastError = null;
-  feed._lastSnapshot = null;
   feed._activeUpdateControllers = new Set();
   feed._lastStatus = null;
   feed._lastSource = source?.label || 'Aircraft';
   feed._lastCoverage = 'worldwide upstream snapshot';
-  feed._lastFallback = false;
   feed._trackingRefreshEpoch = 0;
   feed._lastTrackingRefreshOutcome = {
     epoch: 0,

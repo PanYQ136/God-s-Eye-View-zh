@@ -1,6 +1,6 @@
 import { cancelCameraArrival } from '../data/cameraArrival.js';
 import { createStateChannel } from '../app/stateChannel.js';
-import { Cesium } from '../cesium.js';
+import * as Cesium from 'cesium';
 import {
   beginDeferredNavigation,
   reassertNavigationHandoff,

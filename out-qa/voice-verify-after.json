@@ -1,0 +1,1938 @@
+{
+ "cardBox": [
+  698,
+  632,
+  140,
+  86
+ ],
+ "A_fixed": {
+  "sw": 169,
+  "cw": 140,
+  "ow": 140,
+  "rect": [
+   698,
+   632,
+   140,
+   86
+  ],
+  "overflowX": "visible",
+  "display": "grid"
+ },
+ "B_legacy": {
+  "sw": 330,
+  "cw": 140,
+  "ow": 140,
+  "rect": [
+   698,
+   632,
+   140,
+   86
+  ],
+  "overflowX": "visible",
+  "display": "grid"
+ },
+ "A2_regression_check": {
+  "sw": 169,
+  "cw": 140,
+  "ow": 140,
+  "rect": [
+   698,
+   632,
+   140,
+   86
+  ],
+  "overflowX": "visible",
+  "display": "grid"
+ },
+ "overflowNodesA_visible": [
+  {
+   "key": "gev-voice-cost|标准\n          ~$0.0",
+   "relRight": 169
+  },
+  {
+   "key": "gev-voice-cost-value|~$0.00",
+   "relRight": 169
+  }
+ ],
+ "overflowNodesB_visible": [
+  {
+   "key": "gev-voice-cost|标准\n          ~$0.0",
+   "relRight": 169
+  },
+  {
+   "key": "gev-voice-cost-value|~$0.00",
+   "relRight": 169
+  },
+  {
+   "key": "gev-voice-help-detail|Hold Space to spea",
+   "relRight": 330
+  }
+ ],
+ "visibleElementsMoved": [
+  {
+   "key": "SPAN|",
+   "A": [
+    61,
+    49,
+    3,
+    5
+   ],
+   "B": [
+    128,
+    49,
+    3,
+    5
+   ]
+  },
+  {
+   "key": "SPAN|",
+   "A": [
+    66,
+    49,
+    3,
+    5
+   ],
+   "B": [
+    128,
+    49,
+    3,
+    5
+   ]
+  },
+  {
+   "key": "SPAN|",
+   "A": [
+    71,
+    49,
+    3,
+    5
+   ],
+   "B": [
+    128,
+    49,
+    3,
+    5
+   ]
+  },
+  {
+   "key": "SPAN|",
+   "A": [
+    76,
+    49,
+    3,
+    5
+   ],
+   "B": [
+    128,
+    49,
+    3,
+    5
+   ]
+  },
+  {
+   "key": "SPAN|",
+   "A": [
+    80,
+    49,
+    3,
+    5
+   ],
+   "B": [
+    128,
+    49,
+    3,
+    5
+   ]
+  },
+  {
+   "key": "SPAN|",
+   "A": [
+    85,
+    49,
+    3,
+    5
+   ],
+   "B": [
+    128,
+    49,
+    3,
+    5
+   ]
+  },
+  {
+   "key": "SPAN|",
+   "A": [
+    90,
+    49,
+    3,
+    5
+   ],
+   "B": [
+    128,
+    49,
+    3,
+    5
+   ]
+  },
+  {
+   "key": "SPAN|",
+   "A": [
+    95,
+    49,
+    3,
+    5
+   ],
+   "B": [
+    128,
+    49,
+    3,
+    5
+   ]
+  },
+  {
+   "key": "SPAN|",
+   "A": [
+    100,
+    49,
+    3,
+    5
+   ],
+   "B": [
+    128,
+    49,
+    3,
+    5
+   ]
+  },
+  {
+   "key": "SPAN|",
+   "A": [
+    104,
+    49,
+    3,
+    5
+   ],
+   "B": [
+    128,
+    49,
+    3,
+    5
+   ]
+  },
+  {
+   "key": "SPAN|",
+   "A": [
+    109,
+    49,
+    3,
+    5
+   ],
+   "B": [
+    128,
+    49,
+    3,
+    5
+   ]
+  },
+  {
+   "key": "SPAN|",
+   "A": [
+    114,
+    49,
+    3,
+    5
+   ],
+   "B": [
+    128,
+    49,
+    3,
+    5
+   ]
+  },
+  {
+   "key": "SPAN|",
+   "A": [
+    119,
+    49,
+    3,
+    5
+   ],
+   "B": [
+    128,
+    49,
+    3,
+    5
+   ]
+  },
+  {
+   "key": "SPAN|",
+   "A": [
+    123,
+    49,
+    3,
+    5
+   ],
+   "B": [
+    128,
+    49,
+    3,
+    5
+   ]
+  },
+  {
+   "key": "gev-lc-edge|",
+   "A": [
+    16,
+    0,
+    108,
+    8
+   ],
+   "B": [
+    124,
+    70,
+    16,
+    16
+   ]
+  },
+  {
+   "key": "gev-lc-edge|",
+   "A": [
+    16,
+    78,
+    108,
+    8
+   ],
+   "B": [
+    124,
+    70,
+    16,
+    16
+   ]
+  },
+  {
+   "key": "gev-lc-edge|",
+   "A": [
+    0,
+    16,
+    10,
+    54
+   ],
+   "B": [
+    124,
+    70,
+    16,
+    16
+   ]
+  },
+  {
+   "key": "gev-lc-edge|",
+   "A": [
+    130,
+    16,
+    10,
+    54
+   ],
+   "B": [
+    124,
+    70,
+    16,
+    16
+   ]
+  },
+  {
+   "key": "gev-lc-edge|",
+   "A": [
+    0,
+    0,
+    16,
+    16
+   ],
+   "B": [
+    124,
+    70,
+    16,
+    16
+   ]
+  },
+  {
+   "key": "gev-lc-edge|",
+   "A": [
+    124,
+    0,
+    16,
+    16
+   ],
+   "B": [
+    124,
+    70,
+    16,
+    16
+   ]
+  },
+  {
+   "key": "gev-lc-edge|",
+   "A": [
+    0,
+    70,
+    16,
+    16
+   ],
+   "B": [
+    124,
+    70,
+    16,
+    16
+   ]
+  }
+ ],
+ "hover": {
+  "display": "flex",
+  "visibility": "visible",
+  "opacity": "1",
+  "rect": [
+   698,
+   572,
+   140,
+   48
+  ]
+ },
+ "afterLeave": {
+  "trayDisplay": "none",
+  "sw": 169,
+  "cw": 140
+ },
+ "A": [
+  {
+   "key": "gev-voice-heading|AI AGENT\n        关",
+   "tag": "div",
+   "display": "flex",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    59,
+    5,
+    75,
+    14
+   ],
+   "relRight": 134,
+   "relLeft": 59,
+   "txt": "AI AGENT\n        关\n       "
+  },
+  {
+   "key": "gev-voice-kicker|AI AGENT",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    59,
+    6,
+    0,
+    12
+   ],
+   "relRight": 59,
+   "relLeft": 59,
+   "txt": "AI AGENT"
+  },
+  {
+   "key": "gev-voice-status|关",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    64,
+    5,
+    10,
+    14
+   ],
+   "relRight": 74,
+   "relLeft": 64,
+   "txt": "关"
+  },
+  {
+   "key": "gev-voice-cost|标准\n          ~$0.0",
+   "tag": "div",
+   "display": "flex",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    80,
+    5,
+    89,
+    13
+   ],
+   "relRight": 169,
+   "relLeft": 80,
+   "txt": "标准\n          ~$0.00"
+  },
+  {
+   "key": "gev-voice-tier|标准",
+   "tag": "button",
+   "display": "flex",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "relative",
+   "rect": [
+    80,
+    4,
+    48,
+    16
+   ],
+   "relRight": 128,
+   "relLeft": 80,
+   "txt": "标准"
+  },
+  {
+   "key": "gev-voice-cost-value|~$0.00",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    131,
+    7,
+    38,
+    10
+   ],
+   "relRight": 169,
+   "relLeft": 131,
+   "txt": "~$0.00"
+  },
+  {
+   "key": "gev-voice-button|ON/OFF",
+   "tag": "button",
+   "display": "flex",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "relative",
+   "rect": [
+    6,
+    10,
+    42,
+    56
+   ],
+   "relRight": 48,
+   "relLeft": 6,
+   "txt": "ON/OFF"
+  },
+  {
+   "key": "gev-mic-orbit|",
+   "tag": "span",
+   "display": "grid",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    8,
+    9,
+    39,
+    39
+   ],
+   "relRight": 47,
+   "relLeft": 8,
+   "txt": ""
+  },
+  {
+   "key": "IMG|",
+   "tag": "img",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.68",
+   "pos": "static",
+   "rect": [
+    15,
+    17,
+    25,
+    25
+   ],
+   "relRight": 40,
+   "relLeft": 15,
+   "txt": ""
+  },
+  {
+   "key": "gev-mic-label|ON/OFF",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    8,
+    54,
+    39,
+    13
+   ],
+   "relRight": 47,
+   "relLeft": 8,
+   "txt": "ON/OFF"
+  },
+  {
+   "key": "gev-voice-visualizer|",
+   "tag": "div",
+   "display": "flex",
+   "vis": "visible",
+   "op": "0.54",
+   "pos": "static",
+   "rect": [
+    59,
+    20,
+    75,
+    36
+   ],
+   "relRight": 134,
+   "relLeft": 59,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    61,
+    49,
+    3,
+    5
+   ],
+   "relRight": 64,
+   "relLeft": 61,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    66,
+    49,
+    3,
+    5
+   ],
+   "relRight": 69,
+   "relLeft": 66,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    71,
+    49,
+    3,
+    5
+   ],
+   "relRight": 74,
+   "relLeft": 71,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    76,
+    49,
+    3,
+    5
+   ],
+   "relRight": 79,
+   "relLeft": 76,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    80,
+    49,
+    3,
+    5
+   ],
+   "relRight": 83,
+   "relLeft": 80,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    85,
+    49,
+    3,
+    5
+   ],
+   "relRight": 88,
+   "relLeft": 85,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    90,
+    49,
+    3,
+    5
+   ],
+   "relRight": 93,
+   "relLeft": 90,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    95,
+    49,
+    3,
+    5
+   ],
+   "relRight": 98,
+   "relLeft": 95,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    100,
+    49,
+    3,
+    5
+   ],
+   "relRight": 102,
+   "relLeft": 100,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    104,
+    49,
+    3,
+    5
+   ],
+   "relRight": 107,
+   "relLeft": 104,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    109,
+    49,
+    3,
+    5
+   ],
+   "relRight": 112,
+   "relLeft": 109,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    114,
+    49,
+    3,
+    5
+   ],
+   "relRight": 117,
+   "relLeft": 114,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    119,
+    49,
+    3,
+    5
+   ],
+   "relRight": 122,
+   "relLeft": 119,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    123,
+    49,
+    3,
+    5
+   ],
+   "relRight": 126,
+   "relLeft": 123,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    128,
+    49,
+    3,
+    5
+   ],
+   "relRight": 131,
+   "relLeft": 128,
+   "txt": ""
+  },
+  {
+   "key": "gev-voice-readout|语音待命",
+   "tag": "div",
+   "display": "contents",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    -698,
+    -632,
+    0,
+    0
+   ],
+   "relRight": -698,
+   "relLeft": -698,
+   "txt": "语音待命"
+  },
+  {
+   "key": "gev-voice-detail|语音待命",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    59,
+    58,
+    75,
+    14
+   ],
+   "relRight": 134,
+   "relLeft": 59,
+   "txt": "语音待命"
+  },
+  {
+   "key": "gev-voice-help|VOICE CONTROL\n    ",
+   "tag": "div",
+   "display": "none",
+   "vis": "hidden",
+   "op": "0.00",
+   "pos": "absolute",
+   "rect": [
+    -698,
+    -632,
+    0,
+    0
+   ],
+   "relRight": -698,
+   "relLeft": -698,
+   "txt": "VOICE CONTROL\n        Hold"
+  },
+  {
+   "key": "gev-voice-help-kicker|VOICE CONTROL",
+   "tag": "span",
+   "display": "inline",
+   "vis": "hidden",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    -698,
+    -632,
+    0,
+    0
+   ],
+   "relRight": -698,
+   "relLeft": -698,
+   "txt": "VOICE CONTROL"
+  },
+  {
+   "key": "gev-voice-help-detail|Hold Space to spea",
+   "tag": "span",
+   "display": "inline",
+   "vis": "hidden",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    -698,
+    -632,
+    0,
+    0
+   ],
+   "relRight": -698,
+   "relLeft": -698,
+   "txt": "Hold Space to speak · tap "
+  },
+  {
+   "key": "gev-voice-error-tray|VOICE SYSTEM ERROR",
+   "tag": "div",
+   "display": "block",
+   "vis": "hidden",
+   "op": "0.00",
+   "pos": "absolute",
+   "rect": [
+    1,
+    -125,
+    138,
+    123
+   ],
+   "relRight": 139,
+   "relLeft": 1,
+   "txt": "VOICE SYSTEM ERROR\n       "
+  },
+  {
+   "key": "gev-voice-error-header|VOICE SYSTEM ERROR",
+   "tag": "div",
+   "display": "flex",
+   "vis": "hidden",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    15,
+    -112,
+    110,
+    38
+   ],
+   "relRight": 125,
+   "relLeft": 15,
+   "txt": "VOICE SYSTEM ERROR\n       "
+  },
+  {
+   "key": "SPAN|VOICE SYSTEM ERROR",
+   "tag": "span",
+   "display": "block",
+   "vis": "hidden",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    15,
+    -112,
+    49,
+    38
+   ],
+   "relRight": 65,
+   "relLeft": 15,
+   "txt": "VOICE SYSTEM ERROR"
+  },
+  {
+   "key": "gev-voice-error-dismiss|DISMISS",
+   "tag": "button",
+   "display": "block",
+   "vis": "hidden",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    76,
+    -101,
+    48,
+    17
+   ],
+   "relRight": 125,
+   "relLeft": 76,
+   "txt": "DISMISS"
+  },
+  {
+   "key": "gev-voice-error-detail|",
+   "tag": "div",
+   "display": "block",
+   "vis": "hidden",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    15,
+    -63,
+    110,
+    0
+   ],
+   "relRight": 125,
+   "relLeft": 15,
+   "txt": ""
+  },
+  {
+   "key": "gev-voice-error-hint|Check microphone p",
+   "tag": "div",
+   "display": "block",
+   "vis": "hidden",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    15,
+    -63,
+    110,
+    47
+   ],
+   "relRight": 125,
+   "relLeft": 15,
+   "txt": "Check microphone permissio"
+  },
+  {
+   "key": "gev-lc-edge|",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "absolute",
+   "rect": [
+    16,
+    0,
+    108,
+    8
+   ],
+   "relRight": 124,
+   "relLeft": 16,
+   "txt": ""
+  },
+  {
+   "key": "gev-lc-edge|",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "absolute",
+   "rect": [
+    16,
+    78,
+    108,
+    8
+   ],
+   "relRight": 124,
+   "relLeft": 16,
+   "txt": ""
+  },
+  {
+   "key": "gev-lc-edge|",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "absolute",
+   "rect": [
+    0,
+    16,
+    10,
+    54
+   ],
+   "relRight": 10,
+   "relLeft": 0,
+   "txt": ""
+  },
+  {
+   "key": "gev-lc-edge|",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "absolute",
+   "rect": [
+    130,
+    16,
+    10,
+    54
+   ],
+   "relRight": 140,
+   "relLeft": 130,
+   "txt": ""
+  },
+  {
+   "key": "gev-lc-edge|",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "absolute",
+   "rect": [
+    0,
+    0,
+    16,
+    16
+   ],
+   "relRight": 16,
+   "relLeft": 0,
+   "txt": ""
+  },
+  {
+   "key": "gev-lc-edge|",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "absolute",
+   "rect": [
+    124,
+    0,
+    16,
+    16
+   ],
+   "relRight": 140,
+   "relLeft": 124,
+   "txt": ""
+  },
+  {
+   "key": "gev-lc-edge|",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "absolute",
+   "rect": [
+    0,
+    70,
+    16,
+    16
+   ],
+   "relRight": 16,
+   "relLeft": 0,
+   "txt": ""
+  },
+  {
+   "key": "gev-lc-edge|",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "absolute",
+   "rect": [
+    124,
+    70,
+    16,
+    16
+   ],
+   "relRight": 140,
+   "relLeft": 124,
+   "txt": ""
+  }
+ ],
+ "B": [
+  {
+   "key": "gev-voice-heading|AI AGENT\n        关",
+   "tag": "div",
+   "display": "flex",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    59,
+    5,
+    75,
+    14
+   ],
+   "relRight": 134,
+   "relLeft": 59,
+   "txt": "AI AGENT\n        关\n       "
+  },
+  {
+   "key": "gev-voice-kicker|AI AGENT",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    59,
+    6,
+    0,
+    12
+   ],
+   "relRight": 59,
+   "relLeft": 59,
+   "txt": "AI AGENT"
+  },
+  {
+   "key": "gev-voice-status|关",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    64,
+    5,
+    10,
+    14
+   ],
+   "relRight": 74,
+   "relLeft": 64,
+   "txt": "关"
+  },
+  {
+   "key": "gev-voice-cost|标准\n          ~$0.0",
+   "tag": "div",
+   "display": "flex",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    80,
+    5,
+    89,
+    13
+   ],
+   "relRight": 169,
+   "relLeft": 80,
+   "txt": "标准\n          ~$0.00"
+  },
+  {
+   "key": "gev-voice-tier|标准",
+   "tag": "button",
+   "display": "flex",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "relative",
+   "rect": [
+    80,
+    4,
+    48,
+    16
+   ],
+   "relRight": 128,
+   "relLeft": 80,
+   "txt": "标准"
+  },
+  {
+   "key": "gev-voice-cost-value|~$0.00",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    131,
+    7,
+    38,
+    10
+   ],
+   "relRight": 169,
+   "relLeft": 131,
+   "txt": "~$0.00"
+  },
+  {
+   "key": "gev-voice-button|ON/OFF",
+   "tag": "button",
+   "display": "flex",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "relative",
+   "rect": [
+    6,
+    10,
+    42,
+    56
+   ],
+   "relRight": 48,
+   "relLeft": 6,
+   "txt": "ON/OFF"
+  },
+  {
+   "key": "gev-mic-orbit|",
+   "tag": "span",
+   "display": "grid",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    8,
+    9,
+    39,
+    39
+   ],
+   "relRight": 47,
+   "relLeft": 8,
+   "txt": ""
+  },
+  {
+   "key": "IMG|",
+   "tag": "img",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.68",
+   "pos": "static",
+   "rect": [
+    15,
+    17,
+    25,
+    25
+   ],
+   "relRight": 40,
+   "relLeft": 15,
+   "txt": ""
+  },
+  {
+   "key": "gev-mic-label|ON/OFF",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    8,
+    54,
+    39,
+    13
+   ],
+   "relRight": 47,
+   "relLeft": 8,
+   "txt": "ON/OFF"
+  },
+  {
+   "key": "gev-voice-visualizer|",
+   "tag": "div",
+   "display": "flex",
+   "vis": "visible",
+   "op": "0.54",
+   "pos": "static",
+   "rect": [
+    59,
+    20,
+    75,
+    36
+   ],
+   "relRight": 134,
+   "relLeft": 59,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    61,
+    49,
+    3,
+    5
+   ],
+   "relRight": 64,
+   "relLeft": 61,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    66,
+    49,
+    3,
+    5
+   ],
+   "relRight": 69,
+   "relLeft": 66,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    71,
+    49,
+    3,
+    5
+   ],
+   "relRight": 74,
+   "relLeft": 71,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    76,
+    49,
+    3,
+    5
+   ],
+   "relRight": 79,
+   "relLeft": 76,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    80,
+    49,
+    3,
+    5
+   ],
+   "relRight": 83,
+   "relLeft": 80,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    85,
+    49,
+    3,
+    5
+   ],
+   "relRight": 88,
+   "relLeft": 85,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    90,
+    49,
+    3,
+    5
+   ],
+   "relRight": 93,
+   "relLeft": 90,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    95,
+    49,
+    3,
+    5
+   ],
+   "relRight": 98,
+   "relLeft": 95,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    100,
+    49,
+    3,
+    5
+   ],
+   "relRight": 102,
+   "relLeft": 100,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    104,
+    49,
+    3,
+    5
+   ],
+   "relRight": 107,
+   "relLeft": 104,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    109,
+    49,
+    3,
+    5
+   ],
+   "relRight": 112,
+   "relLeft": 109,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    114,
+    49,
+    3,
+    5
+   ],
+   "relRight": 117,
+   "relLeft": 114,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    119,
+    49,
+    3,
+    5
+   ],
+   "relRight": 122,
+   "relLeft": 119,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    123,
+    49,
+    3,
+    5
+   ],
+   "relRight": 126,
+   "relLeft": 123,
+   "txt": ""
+  },
+  {
+   "key": "SPAN|",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "pos": "static",
+   "rect": [
+    128,
+    49,
+    3,
+    5
+   ],
+   "relRight": 131,
+   "relLeft": 128,
+   "txt": ""
+  },
+  {
+   "key": "gev-voice-readout|语音待命",
+   "tag": "div",
+   "display": "contents",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    -698,
+    -632,
+    0,
+    0
+   ],
+   "relRight": -698,
+   "relLeft": -698,
+   "txt": "语音待命"
+  },
+  {
+   "key": "gev-voice-detail|语音待命",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    59,
+    58,
+    75,
+    14
+   ],
+   "relRight": 134,
+   "relLeft": 59,
+   "txt": "语音待命"
+  },
+  {
+   "key": "gev-voice-help|VOICE CONTROL\n    ",
+   "tag": "div",
+   "display": "flex",
+   "vis": "hidden",
+   "op": "0.00",
+   "pos": "absolute",
+   "rect": [
+    1,
+    -48,
+    138,
+    48
+   ],
+   "relRight": 139,
+   "relLeft": 1,
+   "txt": "VOICE CONTROL\n        Hold"
+  },
+  {
+   "key": "gev-voice-help-kicker|VOICE CONTROL",
+   "tag": "span",
+   "display": "block",
+   "vis": "hidden",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    12,
+    -39,
+    77,
+    10
+   ],
+   "relRight": 89,
+   "relLeft": 12,
+   "txt": "VOICE CONTROL"
+  },
+  {
+   "key": "gev-voice-help-detail|Hold Space to spea",
+   "tag": "span",
+   "display": "block",
+   "vis": "hidden",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    12,
+    -25,
+    318,
+    15
+   ],
+   "relRight": 330,
+   "relLeft": 12,
+   "txt": "Hold Space to speak · tap "
+  },
+  {
+   "key": "gev-voice-error-tray|VOICE SYSTEM ERROR",
+   "tag": "div",
+   "display": "block",
+   "vis": "hidden",
+   "op": "0.00",
+   "pos": "absolute",
+   "rect": [
+    1,
+    -125,
+    138,
+    123
+   ],
+   "relRight": 139,
+   "relLeft": 1,
+   "txt": "VOICE SYSTEM ERROR\n       "
+  },
+  {
+   "key": "gev-voice-error-header|VOICE SYSTEM ERROR",
+   "tag": "div",
+   "display": "flex",
+   "vis": "hidden",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    15,
+    -112,
+    110,
+    38
+   ],
+   "relRight": 125,
+   "relLeft": 15,
+   "txt": "VOICE SYSTEM ERROR\n       "
+  },
+  {
+   "key": "SPAN|VOICE SYSTEM ERROR",
+   "tag": "span",
+   "display": "block",
+   "vis": "hidden",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    15,
+    -112,
+    49,
+    38
+   ],
+   "relRight": 65,
+   "relLeft": 15,
+   "txt": "VOICE SYSTEM ERROR"
+  },
+  {
+   "key": "gev-voice-error-dismiss|DISMISS",
+   "tag": "button",
+   "display": "block",
+   "vis": "hidden",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    76,
+    -101,
+    48,
+    17
+   ],
+   "relRight": 125,
+   "relLeft": 76,
+   "txt": "DISMISS"
+  },
+  {
+   "key": "gev-voice-error-detail|",
+   "tag": "div",
+   "display": "block",
+   "vis": "hidden",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    15,
+    -63,
+    110,
+    0
+   ],
+   "relRight": 125,
+   "relLeft": 15,
+   "txt": ""
+  },
+  {
+   "key": "gev-voice-error-hint|Check microphone p",
+   "tag": "div",
+   "display": "block",
+   "vis": "hidden",
+   "op": "1.00",
+   "pos": "static",
+   "rect": [
+    15,
+    -63,
+    110,
+    47
+   ],
+   "relRight": 125,
+   "relLeft": 15,
+   "txt": "Check microphone permissio"
+  },
+  {
+   "key": "gev-lc-edge|",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "absolute",
+   "rect": [
+    16,
+    0,
+    108,
+    8
+   ],
+   "relRight": 124,
+   "relLeft": 16,
+   "txt": ""
+  },
+  {
+   "key": "gev-lc-edge|",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "absolute",
+   "rect": [
+    16,
+    78,
+    108,
+    8
+   ],
+   "relRight": 124,
+   "relLeft": 16,
+   "txt": ""
+  },
+  {
+   "key": "gev-lc-edge|",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "absolute",
+   "rect": [
+    0,
+    16,
+    10,
+    54
+   ],
+   "relRight": 10,
+   "relLeft": 0,
+   "txt": ""
+  },
+  {
+   "key": "gev-lc-edge|",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "absolute",
+   "rect": [
+    130,
+    16,
+    10,
+    54
+   ],
+   "relRight": 140,
+   "relLeft": 130,
+   "txt": ""
+  },
+  {
+   "key": "gev-lc-edge|",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "absolute",
+   "rect": [
+    0,
+    0,
+    16,
+    16
+   ],
+   "relRight": 16,
+   "relLeft": 0,
+   "txt": ""
+  },
+  {
+   "key": "gev-lc-edge|",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "absolute",
+   "rect": [
+    124,
+    0,
+    16,
+    16
+   ],
+   "relRight": 140,
+   "relLeft": 124,
+   "txt": ""
+  },
+  {
+   "key": "gev-lc-edge|",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "absolute",
+   "rect": [
+    0,
+    70,
+    16,
+    16
+   ],
+   "relRight": 16,
+   "relLeft": 0,
+   "txt": ""
+  },
+  {
+   "key": "gev-lc-edge|",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "pos": "absolute",
+   "rect": [
+    124,
+    70,
+    16,
+    16
+   ],
+   "relRight": 140,
+   "relLeft": 124,
+   "txt": ""
+  }
+ ]
+}

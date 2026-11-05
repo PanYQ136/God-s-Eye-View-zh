@@ -667,7 +667,7 @@ test('without a lease (another owner held it first) a switch to Google 3D takes 
 
 /**
  * The real `MapSourceController` on Google 3D over the default sources, with
- * Esri tiles that can fail after it activated (`failEsriTiles`) and an AMap
+ * Esri tiles that can fail after it activated (`failEsriTiles`) and an OSM
  * map that never activates, so a tile fallback recovers to Google 3D.
  * Every `setStack` (the layer's, the operator's, the fallback's) is
  * recorded in `calls`.
@@ -685,9 +685,9 @@ function failingMapController() {
     if (!source.imagery) continue;
     const id = source.descriptor.id;
     source.imagery =
-      id === 'amap-satellite'
+      id === 'osm'
         ? async () => {
-            throw new Error('AMap offline');
+            throw new Error('OSM offline');
           }
         : async () => ({
             id,
@@ -765,16 +765,12 @@ for (const path of ['subscription', 'stats poll']) {
     assert.equal(f.snap().comparison.active, true);
     assert.deepEqual(calls, ['esri-imagery']);
 
-    // Esri tiles fail: the controller falls back to AMap, AMap cannot
+    // Esri tiles fail: the controller falls back to OSM, OSM cannot
     // activate, and it recovers to Google 3D. Nobody chose Google 3D, so
     // the layer lets the lease go and shows both days without a swipe.
     failEsriTiles();
     await watch();
-    assert.deepEqual(
-      calls,
-      ['esri-imagery', 'amap-satellite'],
-      'no Esri retry',
-    );
+    assert.deepEqual(calls, ['esri-imagery', 'osm'], 'no Esri retry');
     assert.equal(controller.getActiveId(), 'photoreal');
     assert.equal(controller.getSwitchOrigin(), 'automatic');
     assert.equal(f.diag().lease, false);
@@ -794,7 +790,7 @@ for (const path of ['subscription', 'stats poll']) {
     f.layer.setMode('basemap');
     f.layer.setMode('ab');
     await watch();
-    assert.deepEqual(calls, ['esri-imagery', 'amap-satellite']);
+    assert.deepEqual(calls, ['esri-imagery', 'osm']);
 
     // The operator picks Google 3D by hand: that is answered once.
     await controller.setStack('photoreal');
@@ -802,7 +798,7 @@ for (const path of ['subscription', 'stats poll']) {
     await watch();
     assert.deepEqual(calls, [
       'esri-imagery',
-      'amap-satellite',
+      'osm',
       'photoreal',
       'esri-imagery',
     ]);

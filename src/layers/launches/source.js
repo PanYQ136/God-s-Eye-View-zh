@@ -4,8 +4,7 @@ const msg = (text) => text;
 
 /** Read launch records and their optional active-orbit catalog with explicit cancellation. */
 export function createLaunchSource({
-  fetchImpl = (...args) =>
-    (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
+  fetchImpl = (...args) => globalThis.fetch(...args),
 } = {}) {
   /** The launch payload, and whether the proxy served it from a stale cache. */
   async function getLaunchSnapshot({ signal } = {}) {

@@ -10,8 +10,7 @@ const GROUPS = new Set([
 
 /** Read catalog text from the existing group endpoint using a supplied transport. */
 export function createSatelliteSource({
-  fetchImpl = (...args) =>
-    (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
+  fetchImpl = (...args) => globalThis.fetch(...args),
 } = {}) {
   return {
     async readGroup(group, { signal } = {}) {

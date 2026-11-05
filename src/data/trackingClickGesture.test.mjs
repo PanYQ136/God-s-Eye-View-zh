@@ -124,13 +124,7 @@ test('civilian and military click handlers apply duration only at the deselect b
   );
 });
 
-test('civilian and military tracked model caps stay pinned per layer', () => {
-  // The civilian cap was raised from 200 to 100000 on 2026-09-28 as part of the
-  // owner's close-range tracked-target pass — the ceiling no longer binds, so
-  // the model keeps its calibrated real-world scale instead of being clamped
-  // down. The military layer still carries the original 200 px ceiling, so the
-  // two are pinned SEPARATELY: a silent change to either one shows up as a
-  // tracked aircraft that balloons (or refuses to) at close range.
-  assert.equal(CIVIL_TRACKED_MODEL_MAX_PX, 100000);
+test('civilian and military tracked model caps both expose the owner-selected 200 px feel', () => {
+  assert.equal(CIVIL_TRACKED_MODEL_MAX_PX, 200);
   assert.equal(MILITARY_TRACKED_MODEL_MAX_PX, 200);
 });

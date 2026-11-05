@@ -1,8 +1,6 @@
 <div align="center">
 
-# 🌐 God's Eye View / 上帝之眼 Pro
-
-> **上帝之眼 Pro** — 本仓库是 [bilawalsidhu/gods-eye-view](https://github.com/bilawalsidhu/gods-eye-view) 的中文增强版：中文界面与词典、新增显示风格（amber / cinema / ghost / predator / xray）、amvlab 客机模型，以及面向国内网络的可达性代理层与本地启动脚本。
+# 🌐 God's Eye View
 
 [![CI](https://github.com/bilawalsidhu/gods-eye-view/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/bilawalsidhu/gods-eye-view/actions/workflows/ci.yml) [![Reached #1 on GitHub Trending](https://img.shields.io/badge/%231_GitHub_Trending-thank_you!-F0A63C?style=flat-square&logo=github)](https://x.com/bilawalsidhu/status/2093798887815348521)
 
@@ -731,42 +729,3 @@ One heads-up from the inside: build in this space for a week and you learn that 
 **🌐 God's Eye View. No place left behind.**
 
 </div>
-
-## 数据源通道策略（中国大陆可达性）
-
-所有上游都在服务端抓；小程序只连本机/局域网的 GEV，境外源能否用取决于服务器出口。
-
-### 实测（福州家宽，关代理）
-
-| 源 | 结果 | 处理 |
-|---|---|---|
-| `restapi.amap.com`（高德） | 200 / 0.18–0.25s | **地名/POI 检索主通道** |
-| `api.adsb.lol`、USGS、open-meteo、FIRMS、pocketworld | 200 / 0.5–2.5s | 保持直连 |
-| `nominatim.openstreetmap.org` | 常 8s 超时 | 降为备用（英文查询 3.5s 抢答） |
-| `overpass-api.de` | 8s 超时 | 已被 `overpass.osm.ch` / `.fr` 镜像替代 |
-| `celestrak.org` | 8s 超时 | 镜像 `raw.githubusercontent.com/satvisor…` 优先 |
-| `ll.thespacedevs.com` | 连不上 | 缓存 3h + serve-stale |
-
-### 主/备自动切换
-
-| 端点 | 主通道 | 备用 |
-|---|---|---|
-| `/api/mini/geocode` | 高德 place/text + geocode | Nominatim → Photon |
-| `/api/celestrak/{group}` | GitHub raw 镜像（新） | retlector.eu → celestrak.org |
-| Overpass 相关 | overpass.osm.ch | openstreetmap.fr → overpass-api.de |
-| `/api/launches` | LL2（缓存 3h） | 磁盘旧数据（stale） |
-| 地震 | USGS | EMSC |
-
-### 坐标坑（重要）
-
-高德返回 **GCJ-02**，Nominatim/Photon 返回 **WGS-84**。`/api/mini/geocode` 每条结果带 `crs`，
-小程序端按 `crs === 'gcj02'` 跳过 WGS84→GCJ02 转换——否则高德结果会被二次偏移约 500 米。
-
-### 国内源（/api/cn/*）
-
-| 端点 | 上游 | 缓存 | 说明 |
-|---|---|---|---|
-| `GET /api/cn/traffic?bbox=minLng,minLat,maxLng,maxLat&grid=2` | 高德交通态势 `traffic/status/circle` | 3 min | 网格采样，返回每格拥堵等级；只在有高德路况的区域有数据 |
-| `GET /api/cn/typhoon` | 中央气象台 `typhoon.nmc.cn` | 30 min | 活动台风实况点 + 官方预报点（BABJ） |
-
-实现注意：台风网接口要**浏览器 UA**，且 JSONP 是**双层括号** `name(({...}))`，剥括号时两层都要剥。

@@ -1,4 +1,4 @@
-import { Cesium } from './cesium.js';
+import * as Cesium from 'cesium';
 import { BLOOM_INTENSITY_DEFAULT, BLOOM_SCALE_VERSION } from './bloom.js';
 import {
   migrateDetectionState,

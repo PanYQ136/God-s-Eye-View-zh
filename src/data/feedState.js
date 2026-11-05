@@ -33,16 +33,12 @@ export function layerFeedState(stats = {}) {
   if (GUIDANCE_STATUSES.includes(status)) {
     return state.stale ? 'stale' : 'nominal';
   }
-  const explicitlyPrimary = state.fallback === false;
   if (
     state.fallback === true ||
     status === 'fallback' ||
     state.mode === 'sim' ||
-    // An explicit `fallback: false` (a layer that names its live source) escapes
-    // the string heuristics: adsb.lol is now the intended live-regional SOURCE,
-    // so its label must not force the FALLBACK chip. The word match still fires
-    // for layers that never declare an explicit flag.
-    (!explicitlyPrimary && /\bfallback\b/i.test(source))
+    /\bfallback\b/i.test(source) ||
+    (!hasExplicitFallback && /\badsb\.lol\b/i.test(source))
   ) {
     return 'fallback';
   }

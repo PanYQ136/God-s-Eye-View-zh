@@ -1,0 +1,1533 @@
+{
+ "acceptance": {
+  "sw": 140,
+  "cw": 140,
+  "pass": true
+ },
+ "A_fixed": {
+  "sw": 140,
+  "cw": 140,
+  "ow": 140,
+  "rect": [
+   698,
+   632,
+   140,
+   86
+  ],
+  "overflowX": "visible"
+ },
+ "B_legacy": {
+  "sw": 330,
+  "cw": 140,
+  "ow": 140,
+  "rect": [
+   698,
+   632,
+   140,
+   86
+  ],
+  "overflowX": "visible"
+ },
+ "A2_recheck": {
+  "sw": 140,
+  "cw": 140,
+  "ow": 140,
+  "rect": [
+   698,
+   632,
+   140,
+   86
+  ],
+  "overflowX": "visible"
+ },
+ "overflowVisibleAtRest": [],
+ "visibleElementsMoved": [
+  {
+   "key": "vc/0:div/2:div",
+   "txt": "标准 ~$0.00",
+   "A": [
+    80,
+    5,
+    48,
+    13
+   ],
+   "B": [
+    80,
+    5,
+    89,
+    13
+   ]
+  }
+ ],
+ "onlyInA": [],
+ "onlyInB": [],
+ "hover": {
+  "trayDisplay": "flex",
+  "trayOpacity": "1",
+  "trayRect": [
+   698,
+   572,
+   140,
+   48
+  ],
+  "trayText": "VOICE CONTROL Hold Space to speak · tap Space to activate focused controls",
+  "costValueDisplay": "block",
+  "costValueRect": [
+   829,
+   639,
+   38,
+   10
+  ],
+  "cardSw": 334,
+  "cardCw": 140
+ },
+ "afterLeave": {
+  "trayDisplay": "none",
+  "sw": 140,
+  "cw": 140
+ },
+ "A": [
+  {
+   "key": "vc/0:div",
+   "tag": "div",
+   "display": "flex",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    59,
+    5,
+    75,
+    14
+   ],
+   "relLeft": 59,
+   "relRight": 134,
+   "txt": "AI AGENT 关 标准 ~$0.00"
+  },
+  {
+   "key": "vc/0:div/0:div",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    59,
+    6,
+    0,
+    12
+   ],
+   "relLeft": 59,
+   "relRight": 59,
+   "txt": "AI AGENT"
+  },
+  {
+   "key": "vc/0:div/1:div#gev-voice-status",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    64,
+    5,
+    10,
+    14
+   ],
+   "relLeft": 64,
+   "relRight": 74,
+   "txt": "关"
+  },
+  {
+   "key": "vc/0:div/2:div",
+   "tag": "div",
+   "display": "flex",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    80,
+    5,
+    48,
+    13
+   ],
+   "relLeft": 80,
+   "relRight": 128,
+   "txt": "标准 ~$0.00"
+  },
+  {
+   "key": "vc/0:div/2:div/0:button#gev-voice-tier",
+   "tag": "button",
+   "display": "flex",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    80,
+    4,
+    48,
+    16
+   ],
+   "relLeft": 80,
+   "relRight": 128,
+   "txt": "标准"
+  },
+  {
+   "key": "vc/0:div/2:div/1:span#gev-voice-cost-value",
+   "tag": "span",
+   "display": "none",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    -698,
+    -632,
+    0,
+    0
+   ],
+   "relLeft": -698,
+   "relRight": -698,
+   "txt": "~$0.00"
+  },
+  {
+   "key": "vc/1:button#gev-voice-button",
+   "tag": "button",
+   "display": "flex",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    6,
+    10,
+    42,
+    56
+   ],
+   "relLeft": 6,
+   "relRight": 48,
+   "txt": "ON/OFF"
+  },
+  {
+   "key": "vc/1:button#gev-voice-button/0:span",
+   "tag": "span",
+   "display": "grid",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    8,
+    9,
+    39,
+    39
+   ],
+   "relLeft": 8,
+   "relRight": 47,
+   "txt": ""
+  },
+  {
+   "key": "vc/1:button#gev-voice-button/0:span/0:img",
+   "tag": "img",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.68",
+   "rect": [
+    15,
+    17,
+    25,
+    25
+   ],
+   "relLeft": 15,
+   "relRight": 40,
+   "txt": ""
+  },
+  {
+   "key": "vc/1:button#gev-voice-button/1:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    8,
+    54,
+    39,
+    13
+   ],
+   "relLeft": 8,
+   "relRight": 47,
+   "txt": "ON/OFF"
+  },
+  {
+   "key": "vc/2:div",
+   "tag": "div",
+   "display": "flex",
+   "vis": "visible",
+   "op": "0.54",
+   "rect": [
+    59,
+    20,
+    75,
+    36
+   ],
+   "relLeft": 59,
+   "relRight": 134,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/0:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    61,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 61,
+   "relRight": 64,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/1:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    66,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 66,
+   "relRight": 69,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/2:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    71,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 71,
+   "relRight": 74,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/3:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    76,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 76,
+   "relRight": 79,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/4:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    80,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 80,
+   "relRight": 83,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/5:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    85,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 85,
+   "relRight": 88,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/6:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    90,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 90,
+   "relRight": 93,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/7:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    95,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 95,
+   "relRight": 98,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/8:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    100,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 100,
+   "relRight": 102,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/9:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    104,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 104,
+   "relRight": 107,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/10:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    109,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 109,
+   "relRight": 112,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/11:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    114,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 114,
+   "relRight": 117,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/12:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    119,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 119,
+   "relRight": 122,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/13:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    123,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 123,
+   "relRight": 126,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/14:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    128,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 128,
+   "relRight": 131,
+   "txt": ""
+  },
+  {
+   "key": "vc/3:div",
+   "tag": "div",
+   "display": "contents",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    -698,
+    -632,
+    0,
+    0
+   ],
+   "relLeft": -698,
+   "relRight": -698,
+   "txt": "语音待命"
+  },
+  {
+   "key": "vc/3:div/0:div#gev-voice-detail",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    59,
+    58,
+    75,
+    14
+   ],
+   "relLeft": 59,
+   "relRight": 134,
+   "txt": "语音待命"
+  },
+  {
+   "key": "vc/4:div#gev-voice-help",
+   "tag": "div",
+   "display": "none",
+   "vis": "hidden",
+   "op": "0.00",
+   "rect": [
+    -698,
+    -632,
+    0,
+    0
+   ],
+   "relLeft": -698,
+   "relRight": -698,
+   "txt": "VOICE CONTROL Hold Space"
+  },
+  {
+   "key": "vc/4:div#gev-voice-help/0:span",
+   "tag": "span",
+   "display": "inline",
+   "vis": "hidden",
+   "op": "1.00",
+   "rect": [
+    -698,
+    -632,
+    0,
+    0
+   ],
+   "relLeft": -698,
+   "relRight": -698,
+   "txt": "VOICE CONTROL"
+  },
+  {
+   "key": "vc/4:div#gev-voice-help/1:span",
+   "tag": "span",
+   "display": "inline",
+   "vis": "hidden",
+   "op": "1.00",
+   "rect": [
+    -698,
+    -632,
+    0,
+    0
+   ],
+   "relLeft": -698,
+   "relRight": -698,
+   "txt": "Hold Space to speak · ta"
+  },
+  {
+   "key": "vc/5:div",
+   "tag": "div",
+   "display": "block",
+   "vis": "hidden",
+   "op": "0.00",
+   "rect": [
+    1,
+    -125,
+    138,
+    123
+   ],
+   "relLeft": 1,
+   "relRight": 139,
+   "txt": "VOICE SYSTEM ERROR DISMI"
+  },
+  {
+   "key": "vc/5:div/0:div",
+   "tag": "div",
+   "display": "flex",
+   "vis": "hidden",
+   "op": "1.00",
+   "rect": [
+    15,
+    -112,
+    110,
+    38
+   ],
+   "relLeft": 15,
+   "relRight": 125,
+   "txt": "VOICE SYSTEM ERROR DISMI"
+  },
+  {
+   "key": "vc/5:div/0:div/0:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "hidden",
+   "op": "1.00",
+   "rect": [
+    15,
+    -112,
+    49,
+    38
+   ],
+   "relLeft": 15,
+   "relRight": 65,
+   "txt": "VOICE SYSTEM ERROR"
+  },
+  {
+   "key": "vc/5:div/0:div/1:button",
+   "tag": "button",
+   "display": "block",
+   "vis": "hidden",
+   "op": "1.00",
+   "rect": [
+    76,
+    -101,
+    48,
+    17
+   ],
+   "relLeft": 76,
+   "relRight": 125,
+   "txt": "DISMISS"
+  },
+  {
+   "key": "vc/5:div/1:div#gev-voice-error-detail",
+   "tag": "div",
+   "display": "block",
+   "vis": "hidden",
+   "op": "1.00",
+   "rect": [
+    15,
+    -63,
+    110,
+    0
+   ],
+   "relLeft": 15,
+   "relRight": 125,
+   "txt": ""
+  },
+  {
+   "key": "vc/5:div/2:div",
+   "tag": "div",
+   "display": "block",
+   "vis": "hidden",
+   "op": "1.00",
+   "rect": [
+    15,
+    -63,
+    110,
+    47
+   ],
+   "relLeft": 15,
+   "relRight": 125,
+   "txt": "Check microphone permiss"
+  },
+  {
+   "key": "vc/6:div",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    16,
+    0,
+    108,
+    8
+   ],
+   "relLeft": 16,
+   "relRight": 124,
+   "txt": ""
+  },
+  {
+   "key": "vc/7:div",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    16,
+    78,
+    108,
+    8
+   ],
+   "relLeft": 16,
+   "relRight": 124,
+   "txt": ""
+  },
+  {
+   "key": "vc/8:div",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    0,
+    16,
+    10,
+    54
+   ],
+   "relLeft": 0,
+   "relRight": 10,
+   "txt": ""
+  },
+  {
+   "key": "vc/9:div",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    130,
+    16,
+    10,
+    54
+   ],
+   "relLeft": 130,
+   "relRight": 140,
+   "txt": ""
+  },
+  {
+   "key": "vc/10:div",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    0,
+    0,
+    16,
+    16
+   ],
+   "relLeft": 0,
+   "relRight": 16,
+   "txt": ""
+  },
+  {
+   "key": "vc/11:div",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    124,
+    0,
+    16,
+    16
+   ],
+   "relLeft": 124,
+   "relRight": 140,
+   "txt": ""
+  },
+  {
+   "key": "vc/12:div",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    0,
+    70,
+    16,
+    16
+   ],
+   "relLeft": 0,
+   "relRight": 16,
+   "txt": ""
+  },
+  {
+   "key": "vc/13:div",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    124,
+    70,
+    16,
+    16
+   ],
+   "relLeft": 124,
+   "relRight": 140,
+   "txt": ""
+  }
+ ],
+ "B": [
+  {
+   "key": "vc/0:div",
+   "tag": "div",
+   "display": "flex",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    59,
+    5,
+    75,
+    14
+   ],
+   "relLeft": 59,
+   "relRight": 134,
+   "txt": "AI AGENT 关 标准 ~$0.00"
+  },
+  {
+   "key": "vc/0:div/0:div",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    59,
+    6,
+    0,
+    12
+   ],
+   "relLeft": 59,
+   "relRight": 59,
+   "txt": "AI AGENT"
+  },
+  {
+   "key": "vc/0:div/1:div#gev-voice-status",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    64,
+    5,
+    10,
+    14
+   ],
+   "relLeft": 64,
+   "relRight": 74,
+   "txt": "关"
+  },
+  {
+   "key": "vc/0:div/2:div",
+   "tag": "div",
+   "display": "flex",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    80,
+    5,
+    89,
+    13
+   ],
+   "relLeft": 80,
+   "relRight": 169,
+   "txt": "标准 ~$0.00"
+  },
+  {
+   "key": "vc/0:div/2:div/0:button#gev-voice-tier",
+   "tag": "button",
+   "display": "flex",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    80,
+    4,
+    48,
+    16
+   ],
+   "relLeft": 80,
+   "relRight": 128,
+   "txt": "标准"
+  },
+  {
+   "key": "vc/0:div/2:div/1:span#gev-voice-cost-value",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    131,
+    7,
+    38,
+    10
+   ],
+   "relLeft": 131,
+   "relRight": 169,
+   "txt": "~$0.00"
+  },
+  {
+   "key": "vc/1:button#gev-voice-button",
+   "tag": "button",
+   "display": "flex",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    6,
+    10,
+    42,
+    56
+   ],
+   "relLeft": 6,
+   "relRight": 48,
+   "txt": "ON/OFF"
+  },
+  {
+   "key": "vc/1:button#gev-voice-button/0:span",
+   "tag": "span",
+   "display": "grid",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    8,
+    9,
+    39,
+    39
+   ],
+   "relLeft": 8,
+   "relRight": 47,
+   "txt": ""
+  },
+  {
+   "key": "vc/1:button#gev-voice-button/0:span/0:img",
+   "tag": "img",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.68",
+   "rect": [
+    15,
+    17,
+    25,
+    25
+   ],
+   "relLeft": 15,
+   "relRight": 40,
+   "txt": ""
+  },
+  {
+   "key": "vc/1:button#gev-voice-button/1:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    8,
+    54,
+    39,
+    13
+   ],
+   "relLeft": 8,
+   "relRight": 47,
+   "txt": "ON/OFF"
+  },
+  {
+   "key": "vc/2:div",
+   "tag": "div",
+   "display": "flex",
+   "vis": "visible",
+   "op": "0.54",
+   "rect": [
+    59,
+    20,
+    75,
+    36
+   ],
+   "relLeft": 59,
+   "relRight": 134,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/0:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    61,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 61,
+   "relRight": 64,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/1:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    66,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 66,
+   "relRight": 69,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/2:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    71,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 71,
+   "relRight": 74,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/3:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    76,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 76,
+   "relRight": 79,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/4:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    80,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 80,
+   "relRight": 83,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/5:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    85,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 85,
+   "relRight": 88,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/6:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    90,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 90,
+   "relRight": 93,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/7:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    95,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 95,
+   "relRight": 98,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/8:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    100,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 100,
+   "relRight": 102,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/9:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    104,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 104,
+   "relRight": 107,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/10:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    109,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 109,
+   "relRight": 112,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/11:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    114,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 114,
+   "relRight": 117,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/12:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    119,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 119,
+   "relRight": 122,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/13:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    123,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 123,
+   "relRight": 126,
+   "txt": ""
+  },
+  {
+   "key": "vc/2:div/14:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "visible",
+   "op": "0.56",
+   "rect": [
+    128,
+    49,
+    3,
+    5
+   ],
+   "relLeft": 128,
+   "relRight": 131,
+   "txt": ""
+  },
+  {
+   "key": "vc/3:div",
+   "tag": "div",
+   "display": "contents",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    -698,
+    -632,
+    0,
+    0
+   ],
+   "relLeft": -698,
+   "relRight": -698,
+   "txt": "语音待命"
+  },
+  {
+   "key": "vc/3:div/0:div#gev-voice-detail",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    59,
+    58,
+    75,
+    14
+   ],
+   "relLeft": 59,
+   "relRight": 134,
+   "txt": "语音待命"
+  },
+  {
+   "key": "vc/4:div#gev-voice-help",
+   "tag": "div",
+   "display": "flex",
+   "vis": "hidden",
+   "op": "0.00",
+   "rect": [
+    1,
+    -48,
+    138,
+    48
+   ],
+   "relLeft": 1,
+   "relRight": 139,
+   "txt": "VOICE CONTROL Hold Space"
+  },
+  {
+   "key": "vc/4:div#gev-voice-help/0:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "hidden",
+   "op": "1.00",
+   "rect": [
+    12,
+    -39,
+    77,
+    10
+   ],
+   "relLeft": 12,
+   "relRight": 89,
+   "txt": "VOICE CONTROL"
+  },
+  {
+   "key": "vc/4:div#gev-voice-help/1:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "hidden",
+   "op": "1.00",
+   "rect": [
+    12,
+    -25,
+    318,
+    15
+   ],
+   "relLeft": 12,
+   "relRight": 330,
+   "txt": "Hold Space to speak · ta"
+  },
+  {
+   "key": "vc/5:div",
+   "tag": "div",
+   "display": "block",
+   "vis": "hidden",
+   "op": "0.00",
+   "rect": [
+    1,
+    -125,
+    138,
+    123
+   ],
+   "relLeft": 1,
+   "relRight": 139,
+   "txt": "VOICE SYSTEM ERROR DISMI"
+  },
+  {
+   "key": "vc/5:div/0:div",
+   "tag": "div",
+   "display": "flex",
+   "vis": "hidden",
+   "op": "1.00",
+   "rect": [
+    15,
+    -112,
+    110,
+    38
+   ],
+   "relLeft": 15,
+   "relRight": 125,
+   "txt": "VOICE SYSTEM ERROR DISMI"
+  },
+  {
+   "key": "vc/5:div/0:div/0:span",
+   "tag": "span",
+   "display": "block",
+   "vis": "hidden",
+   "op": "1.00",
+   "rect": [
+    15,
+    -112,
+    49,
+    38
+   ],
+   "relLeft": 15,
+   "relRight": 65,
+   "txt": "VOICE SYSTEM ERROR"
+  },
+  {
+   "key": "vc/5:div/0:div/1:button",
+   "tag": "button",
+   "display": "block",
+   "vis": "hidden",
+   "op": "1.00",
+   "rect": [
+    76,
+    -101,
+    48,
+    17
+   ],
+   "relLeft": 76,
+   "relRight": 125,
+   "txt": "DISMISS"
+  },
+  {
+   "key": "vc/5:div/1:div#gev-voice-error-detail",
+   "tag": "div",
+   "display": "block",
+   "vis": "hidden",
+   "op": "1.00",
+   "rect": [
+    15,
+    -63,
+    110,
+    0
+   ],
+   "relLeft": 15,
+   "relRight": 125,
+   "txt": ""
+  },
+  {
+   "key": "vc/5:div/2:div",
+   "tag": "div",
+   "display": "block",
+   "vis": "hidden",
+   "op": "1.00",
+   "rect": [
+    15,
+    -63,
+    110,
+    47
+   ],
+   "relLeft": 15,
+   "relRight": 125,
+   "txt": "Check microphone permiss"
+  },
+  {
+   "key": "vc/6:div",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    16,
+    0,
+    108,
+    8
+   ],
+   "relLeft": 16,
+   "relRight": 124,
+   "txt": ""
+  },
+  {
+   "key": "vc/7:div",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    16,
+    78,
+    108,
+    8
+   ],
+   "relLeft": 16,
+   "relRight": 124,
+   "txt": ""
+  },
+  {
+   "key": "vc/8:div",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    0,
+    16,
+    10,
+    54
+   ],
+   "relLeft": 0,
+   "relRight": 10,
+   "txt": ""
+  },
+  {
+   "key": "vc/9:div",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    130,
+    16,
+    10,
+    54
+   ],
+   "relLeft": 130,
+   "relRight": 140,
+   "txt": ""
+  },
+  {
+   "key": "vc/10:div",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    0,
+    0,
+    16,
+    16
+   ],
+   "relLeft": 0,
+   "relRight": 16,
+   "txt": ""
+  },
+  {
+   "key": "vc/11:div",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    124,
+    0,
+    16,
+    16
+   ],
+   "relLeft": 124,
+   "relRight": 140,
+   "txt": ""
+  },
+  {
+   "key": "vc/12:div",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    0,
+    70,
+    16,
+    16
+   ],
+   "relLeft": 0,
+   "relRight": 16,
+   "txt": ""
+  },
+  {
+   "key": "vc/13:div",
+   "tag": "div",
+   "display": "block",
+   "vis": "visible",
+   "op": "1.00",
+   "rect": [
+    124,
+    70,
+    16,
+    16
+   ],
+   "relLeft": 124,
+   "relRight": 140,
+   "txt": ""
+  }
+ ]
+}

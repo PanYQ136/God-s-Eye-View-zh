@@ -1,4 +1,4 @@
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 
 export function createTesting({ state: layerState, services, parts, source }) {
   /** Test seam: republishes host entries through the real push path, so tests

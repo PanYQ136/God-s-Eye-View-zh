@@ -1,4 +1,4 @@
-import { Cesium } from '../cesium.js';
+import * as Cesium from 'cesium';
 
 const ALPHA_STOPS = [
   [0, 0.8],

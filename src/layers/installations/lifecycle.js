@@ -1,4 +1,4 @@
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import { LAYER_ID } from './policy.js';
 import {
   claimCameraSensitivity,

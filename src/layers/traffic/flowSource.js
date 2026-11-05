@@ -35,8 +35,7 @@ function clipFlowSegment(segment, bbox) {
 
 /** Own one bounded decoded flow cache; every request still passes the server tile budget. */
 export function createFlowTileSource({
-  fetchImpl = (...args) =>
-    (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
+  fetchImpl = (...args) => globalThis.fetch(...args),
 } = {}) {
   // Freshness travels in response headers, but the tile cache keeps only
   // decoded segments: hold each response's freshness until its tile decodes,

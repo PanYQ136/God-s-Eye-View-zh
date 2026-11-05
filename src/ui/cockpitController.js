@@ -61,7 +61,7 @@ import {
   syncSignalLayout,
 } from './cockpitLayout.js';
 import { onKeyDown } from './cockpitInput.js';
-import { Cesium } from '../cesium.js';
+import * as Cesium from 'cesium';
 
 export class CockpitViewController {
   constructor(

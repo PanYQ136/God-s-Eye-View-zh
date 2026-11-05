@@ -7,8 +7,7 @@ const msg = (text) => text;
 
 /** Create a bounded, cancellable source for the same-origin wind provider. */
 export function createWindSource({
-  fetchImpl = (...args) =>
-    (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
+  fetchImpl = (...args) => globalThis.fetch(...args),
   timeoutMs = 45_000,
 } = {}) {
   return {

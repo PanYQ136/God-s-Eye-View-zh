@@ -37,25 +37,8 @@ export function createApplicationData({
   for (const layer of catalog.layers) layer.attachDataManager?.(dataManager);
   for (const layer of catalog.layers)
     layer.attachMapStackController?.(mapStackController);
-  // Phase8E2：catalog 可以是 append-only 的（波次 2 在首帧之后才注册）。
-  // 已到位的图层在这里一次性注册；后到的图层通过 catalog.subscribeLayers
-  // 逐个补注册——注册表完整性仍由 finalizeRegistrations 的 pending 名单保证。
-  const pendingLayerIds = Array.isArray(catalog.pendingLayerIds)
-    ? catalog.pendingLayerIds
-    : [];
-  if (typeof catalog.subscribeLayers === 'function') {
-    const release = catalog.subscribeLayers((layer) => {
-      dataManager.registerDeferred(layer);
-      layer.attachDataManager?.(dataManager);
-      layer.attachMapStackController?.(mapStackController);
-      presentation.refresh();
-    });
-    defer(() => release());
-  }
   // Restoration starts only after the caller's complete registry is sealed.
-  dataManager.finalizeRegistrations(catalog.metadata, {
-    allowPending: pendingLayerIds.length > 0,
-  });
+  dataManager.finalizeRegistrations(catalog.metadata);
   if (allowQaRegistration) {
     window.__gevQaRegisterLayer = (targetManager, layerModule) => {
       if (targetManager !== dataManager)

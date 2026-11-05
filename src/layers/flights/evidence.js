@@ -1,4 +1,4 @@
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import { aircraftIcon } from '../../data/aircraftIcons.js';
 import { FOCUS_EVIDENCE_DEV } from './policy.js';
 
@@ -86,8 +86,8 @@ export function createEvidence({
       const bb = flightState._billboardCollection.add({
         position,
         image: aircraftIcon(parts.rendering._iconKind(id, klass)),
-        width: 12,
-        height: 12,
+        width: 20,
+        height: 20,
         scale: parts.rendering._fleetBillboardScale(id, klass),
         rotation: 0,
         alignedAxis: Cesium.Cartesian3.ZERO,

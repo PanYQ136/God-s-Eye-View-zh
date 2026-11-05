@@ -1,5 +1,5 @@
 import { getRegisteredTransitFeed } from '../../data/transitFeeds.js';
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import {
   readFix,
   correctHeight,

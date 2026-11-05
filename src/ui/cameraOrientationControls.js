@@ -1,4 +1,4 @@
-import { Cesium } from '../cesium.js';
+import * as Cesium from 'cesium';
 import { isPickedWorldPosition } from '../data/scenePick.js';
 import { t } from '../i18n/index.js';
 
