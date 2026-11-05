@@ -1,4 +1,4 @@
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 
 export const BIKESHARE_SELECTED_OVERLAY_SOURCE_ID = 'bikeshare-selected';
 
@@ -53,15 +53,6 @@ export const POINT_HEIGHT_OFFSET_M = 2.0;
 /** Hard cap on total rendered station points across all cities. */
 
 export const MAX_TOTAL_POINTS = 8000;
-
-// --- Operator render limit ---
-/** Lower bound of the operator render limit (0 = render no unselected station). */
-
-export const RENDER_LIMIT_MIN = 0;
-
-/** Upper bound; at this value the operator limit means "unlimited". */
-
-export const RENDER_LIMIT_MAX = 999;
 
 // --- Availability color palette ---
 /** Station has >60% bikes available. */

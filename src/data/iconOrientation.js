@@ -21,7 +21,7 @@
  * keeps rotation continuous through tracked orbits; field evidence, not an
  * unverified math swap, decides whether exact projection becomes preferred.
  */
-import { Cesium } from '../cesium.js';
+import * as Cesium from 'cesium';
 
 /** Meters used to give the course vector a stable projection magnitude. */
 const FORWARD_PROBE_M = 2000;

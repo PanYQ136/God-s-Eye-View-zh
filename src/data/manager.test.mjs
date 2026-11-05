@@ -1760,11 +1760,7 @@ test('layer feed states distinguish unavailable, fallback, stale, and degraded c
     lastUpdate: 1,
   }), 'unavailable', 'an explicit total outage stays unavailable while last-good data is preserved');
   assert.equal(layerFeedState({ mode: 'sim', count: 100, lastUpdate: 1 }), 'fallback');
-  assert.equal(
-    layerFeedState({ source: 'adsb.lol', count: 10, lastUpdate: 1 }),
-    'nominal',
-    'adsb.lol is the live primary source, not a fallback',
-  );
+  assert.equal(layerFeedState({ source: 'adsb.lol', count: 10, lastUpdate: 1 }), 'fallback');
   assert.equal(layerFeedState({
     source: 'adsb.lol',
     fallback: false,
@@ -2768,59 +2764,4 @@ test('periodic polls realign to the deadline after a between-ticks resume', asyn
 
 test('periodic polls realign to the deadline after a failed resume refresh', async (t) => {
   await resumeBetweenTicks(t, { failResume: true });
-});
-
-test('deferred registration is gated by the sealed registry', async () => {
-  const manager = new DataLayerManager({});
-  assert.throws(
-    () => manager.registerDeferred({ id: 'flights' }),
-    /finalized/,
-  );
-  manager.register(makeSlowLayer('flights').module);
-  manager.finalizeRegistrations(
-    [
-      { id: 'flights', disposition: 'enabled-only' },
-      { id: 'satellites', disposition: 'enabled-only' },
-    ],
-    { allowPending: true },
-  );
-  assert.deepEqual(manager.pendingLayerIds, ['satellites']);
-  assert.equal(manager.pendingRegistrationComplete, false);
-  assert.throws(
-    () => manager.registerDeferred({ id: 'other' }),
-    /not pending/,
-  );
-  const events = [];
-  const stop = manager.subscribeActivity((change) => events.push(change));
-  manager.registerDeferred(makeSlowLayer('satellites').module);
-  stop();
-  assert.deepEqual(manager.pendingLayerIds, []);
-  assert.equal(manager.pendingRegistrationComplete, true);
-  assert.deepEqual(
-    events
-      .filter((change) => change.type === 'layer-registered')
-      .map((change) => change.layerId),
-    ['satellites'],
-  );
-  assert.deepEqual(
-    manager.getAll().map(({ id }) => id),
-    ['flights', 'satellites'],
-  );
-  // A second registration of the same id stays refused.
-  assert.throws(
-    () => manager.registerDeferred(makeSlowLayer('satellites').module),
-    /not pending/,
-  );
-
-  // The default (strict) seal keeps rejecting an incomplete registry.
-  const strict = new DataLayerManager({});
-  strict.register(makeSlowLayer('flights').module);
-  assert.throws(
-    () =>
-      strict.finalizeRegistrations([
-        { id: 'flights', disposition: 'enabled-only' },
-        { id: 'satellites', disposition: 'enabled-only' },
-      ]),
-    /mismatch/,
-  );
 });

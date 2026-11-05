@@ -97,7 +97,6 @@ export function openSkySnapshot(
   {
     source = 'OpenSky Network',
     coverage = 'worldwide upstream snapshot',
-    fallback = false,
     now = Date.now(),
     stale = false,
   } = {},
@@ -120,7 +119,6 @@ export function openSkySnapshot(
     ...admitted,
     source,
     coverage,
-    fallback,
     observedAtMs,
     ageMs,
     stale: stale || (ageMs != null && ageMs > 120000),

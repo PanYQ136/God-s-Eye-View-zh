@@ -1,4 +1,4 @@
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import { satelliteClassLabel } from '../../data/satelliteClass.js';
 import { t } from '../../i18n/index.js';
 import { formatQuantity, unitLabel } from '../../ui/unitLabels.js';

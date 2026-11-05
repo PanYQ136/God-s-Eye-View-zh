@@ -132,21 +132,7 @@ function defaultProbeContext() {
       typeof OffscreenCanvas === 'function'
         ? new OffscreenCanvas(1, 1)
         : globalThis.document?.createElement('canvas');
-    /* Phase 1 · S1g（§13.3 R1）：探测上下文也必须请求高性能，
-       否则探测到的 renderer 可能不是渲染用的那块 GPU。
-       注意：这个上下文随后要被 probeOutParamVaryingLinkFailure() 真编译/链接，
-       所以**不能**在这里 loseContext()，由调用方在 finally 里删 program 后自然丢弃。 */
-    return (
-      canvas?.getContext('webgl2', {
-        powerPreference: 'high-performance',
-        failIfMajorPerformanceCaveat: false,
-        antialias: false,
-        depth: false,
-        stencil: false,
-        alpha: false,
-        preserveDrawingBuffer: false,
-      }) ?? null
-    );
+    return canvas?.getContext('webgl2') ?? null;
   } catch {
     return null;
   }

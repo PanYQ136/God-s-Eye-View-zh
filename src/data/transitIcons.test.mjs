@@ -1,9 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  FLEET_RASTER_PX,
   FLEET_SCREEN_PX,
-  SELECTED_ICON_PX,
   TRANSIT_ICON_KINDS,
   haloFrame,
   transitIcon,
@@ -30,12 +28,7 @@ test('a halo is sized in screen pixels and pads the frame so it cannot clip', ()
 
 test('a haloed glyph draws the dark ring under the shipped white body', () => {
   const plain = decode(transitIcon('bus'));
-  // Explicitly the FLEET raster: the fleet size is DPR-aware (28 px on a DPR=1
-  // panel, up to 128 on Retina), so a literal size no longer means "fleet" —
-  // anything above FLEET_RASTER_PX is the SELECTED variant.
-  const haloed = decode(
-    transitIcon('bus', FLEET_RASTER_PX, { haloScreenPx: 2 }),
-  );
+  const haloed = decode(transitIcon('bus', 48, { haloScreenPx: 2 }));
   assert.notEqual(plain, haloed);
   assert.match(
     haloed,
@@ -52,8 +45,8 @@ test('a haloed glyph draws the dark ring under the shipped white body', () => {
 test('the raster cache is bounded by kind, size and halo — never by call count', () => {
   const before = transitIconCacheSize();
   for (let i = 0; i < 50; i += 1) {
-    transitIcon('tram', FLEET_RASTER_PX, { haloScreenPx: 2 });
-    transitIcon('tram', FLEET_RASTER_PX);
+    transitIcon('tram', 48, { haloScreenPx: 2 });
+    transitIcon('tram', 48);
     transitIcon('tram', 128, { haloScreenPx: 1.25 });
   }
   assert.ok(
@@ -61,11 +54,11 @@ test('the raster cache is bounded by kind, size and halo — never by call count
     `three variants, not ${transitIconCacheSize() - before}`,
   );
   assert.equal(
-    transitIcon('tram', FLEET_RASTER_PX, { haloScreenPx: 2 }),
-    transitIcon('tram', FLEET_RASTER_PX, { haloScreenPx: 2 }),
+    transitIcon('tram', 48, { haloScreenPx: 2 }),
+    transitIcon('tram', 48, { haloScreenPx: 2 }),
   );
   for (const kind of TRANSIT_ICON_KINDS)
-    transitIcon(kind, FLEET_RASTER_PX, { haloScreenPx: 2 });
+    transitIcon(kind, 48, { haloScreenPx: 2 });
   assert.ok(transitIconCacheSize() <= before + 3 + TRANSIT_ICON_KINDS.length);
 });
 
@@ -77,8 +70,7 @@ test('all 36 variants retain the specified final halo at both display sizes', as
       for (const style of ['normal', 'thermal', 'retro']) {
         const display =
           (selected ? 30 : 20) * presetSpriteScale(style, selected);
-        const rasterPx = selected ? SELECTED_ICON_PX : FLEET_RASTER_PX;
-        const svg = decode(transitIcon(kind, rasterPx, { style }));
+        const svg = decode(transitIcon(kind, selected ? 96 : 48, { style }));
         const units = Number(
           svg.match(/stroke-opacity="(?:0.95|1)" stroke-width="([\d.]+)"/)[1],
         );
@@ -93,7 +85,9 @@ test('all 36 variants retain the specified final halo at both display sizes', as
         );
         assert.match(
           svg,
-          new RegExp(`width="${Math.round(rasterPx * frame.ratio)}"`),
+          new RegExp(
+            `width="${Math.round((selected ? 96 : 48) * frame.ratio)}"`,
+          ),
         );
       }
     }
@@ -140,12 +134,11 @@ test('every mono raster preserves the normal silhouette mask and aspect at CRT d
   };
   for (const selected of [false, true])
     for (const kind of TRANSIT_ICON_KINDS) {
-      const rasterPx = selected ? SELECTED_ICON_PX : FLEET_RASTER_PX;
       const normal = await rasterBody(
-        decode(transitIcon(kind, rasterPx, { style: 'normal' })),
+        decode(transitIcon(kind, selected ? 96 : 48, { style: 'normal' })),
       );
       for (const style of ['surveillance', 'thermal', 'noir', 'nvg']) {
-        const svg = decode(transitIcon(kind, rasterPx, { style }));
+        const svg = decode(transitIcon(kind, selected ? 96 : 48, { style }));
         const mono = await rasterBody(svg);
         assert.deepEqual(
           mono.mask,
@@ -208,9 +201,7 @@ test('sensor raster halo stays dark across its screen-space band on a white roof
       );
       const size = Math.round(display * frame.ratio * 8);
       const svg = decode(
-        transitIcon(kind, selected ? SELECTED_ICON_PX : FLEET_RASTER_PX, {
-          style: 'thermal',
-        }),
+        transitIcon(kind, selected ? 96 : 48, { style: 'thermal' }),
       );
       const { data, info } = await sharp(Buffer.from(svg))
         .resize(size, size)
@@ -246,30 +237,4 @@ test('sensor raster halo stays dark across its screen-space band on a white roof
     );
     assert.ok(black.pass, JSON.stringify({ selected, black }));
   }
-});
-
-test('an explicit selected flag survives a fleet raster at or above the selected size', () => {
-  // DPR >= 3.8 puts FLEET_RASTER_PX at 96-128 px — at or above
-  // SELECTED_ICON_PX — so `px > FLEET_RASTER_PX` can no longer separate the two
-  // variants. The explicit flag is the authoritative switch: it must still take
-  // the selected branch (its own halo frame and 30 px display size) whether the
-  // caller also passes the selected px or something below the fleet size.
-  const selectedByPx = transitIcon('bus', SELECTED_ICON_PX);
-  const selectedByFlag = transitIcon('bus', FLEET_RASTER_PX, {
-    selected: true,
-  });
-  const fleet = transitIcon('bus', FLEET_RASTER_PX);
-  assert.notEqual(fleet, selectedByPx, 'selected stays a distinct variant');
-  assert.equal(selectedByFlag, selectedByPx, 'flag picks the selected variant');
-  assert.equal(
-    transitIcon('bus', 1, { selected: true }),
-    selectedByPx,
-    'flag wins even when the px argument cannot express the choice',
-  );
-  assert.equal(transitIcon('bus', 1), fleet, 'no flag keeps the fleet default');
-  assert.equal(
-    transitIcon('bus', FLEET_RASTER_PX, { selected: false }),
-    fleet,
-    'an explicit false stays on the fleet branch',
-  );
 });

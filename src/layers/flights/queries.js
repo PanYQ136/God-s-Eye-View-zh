@@ -1,6 +1,6 @@
 import { approxDistanceKm as _approxDistanceKm } from './recordPolicy.js';
 import { displayedKinematics } from '../../data/motionModel.js';
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import { isExplicitLayerStateOrigin } from '../../data/layerState.js';
 import { modelVisualAnchor } from '../../data/modelVisualAnchor.js';
 import {
@@ -83,13 +83,8 @@ export function createQueries({
    * @returns {string} Trimmed string, or '' if falsy.
    */
 
-  // 上游 OpenSky 对未广播呼号的飞机把 callsign 填成 8 个 @ / ? / 空白 / U+FFFD 占位；
-  // 与小程序端 _isGarbageVal 同规则：整串仅由这些字符组成(≥2)即视为无值，让标签链
-  // callsign → registration → icao24 自然回退，避免驾驶舱/标签显示 "@@@@@@@@"。
   function _toCleanText(value) {
-    const s = String(value == null ? '' : value).trim();
-    if (s.length >= 2 && /^[@?？\s\uFFFD]+$/.test(s)) return '';
-    return s;
+    return String(value || '').trim();
   }
 
   /**
@@ -368,18 +363,6 @@ export function createQueries({
         // own conversions, so this never touches the ordinary fleet.
         parts.tracking._refreshTr3bForStyle();
       }
-      if (Number.isFinite(params.renderLimit)) {
-        // Raised cap: the layer now holds the full adsb.lol world (~6k), so the
-        // slider must be able to render far more than the old 999 ceiling.
-        const n = Math.max(0, Math.min(8000, Math.floor(params.renderLimit)));
-        if (n !== flightState._renderLimit) {
-          flightState._renderLimit = n;
-          flightState._lastFleetTickMs = 0;
-          // 立即用上一帧快照重放 —— 否则上限要等下一次轮询(30s)才生效。
-          parts.ingestion?.methods?.reapply?.(flightState._viewer);
-          flightState._viewer?.scene?.requestRender?.();
-        }
-      }
       if (Object.hasOwn(params, 'selectedFlightsTrackingId')) {
         const requested = _normalizeTrackedIcao(
           params.selectedFlightsTrackingId,
@@ -410,7 +393,6 @@ export function createQueries({
         models3d: flightState._models3dEnabled,
         models3dMode: flightState._models3dMode,
         irBoost: flightState._irBoost,
-        renderLimit: flightState._renderLimit,
         selectedFlightsTrackingId: flightState._trackedIcao,
       };
     },
@@ -491,7 +473,7 @@ export function createQueries({
         // no `_modelDisplayPosition` call from postRender. Sprite-owned contacts keep
         // `bb.position` — sprite and bracket are co-located there, so association holds.
         const spec = modelOwnsVisual
-          ? parts.rendering._modelSpec(info?.klass, info?.typeCode)
+          ? parts.rendering._modelSpec(info?.klass)
           : null;
         const pos = isTracked
           ? parts.motion._trackedVisualCached() || bb.position
@@ -994,9 +976,6 @@ export function createQueries({
         retryInSec,
         source: flightState.feed._lastSource,
         coverage: flightState.feed._lastCoverage,
-        // Explicit live-vs-fallback flag so the chip does not infer FALLBACK
-        // from the adsb.lol source label (it is the intended live source).
-        fallback: flightState.feed._lastFallback === true,
       };
     },
   };

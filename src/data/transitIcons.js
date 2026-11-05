@@ -111,24 +111,11 @@ const _b64 = (s) =>
 /**
  * Fleet raster size. Same reasoning as the aircraft fleet glyphs: Cesium's
  * billboard atlas has no mipmaps, so a texture far larger than its on-screen
- * footprint is GPU-minified into mush. DPR-aware so a DPR=1 panel rasterizes
- * near its ~14–20 px device footprint (crisp) while Retina keeps the fuller
- * source. EXPORTED (2026-09-30) so callers and tests ask for the fleet variant
- * by name: `transitIcon(kind, FLEET_RASTER_PX)` takes the fleet branch, any
- * larger value the selected one, because a literal px no longer means "fleet"
- * now that the size depends on the device pixel ratio.
+ * footprint is GPU-minified into mush. Transit billboards render around 14–20
+ * CSS px, so 48 px of source covers the band on a Retina display with very
+ * little minification.
  */
-export const FLEET_RASTER_PX = Math.min(
-  Math.max(
-    Math.round(
-      18 *
-        ((typeof window !== 'undefined' && window.devicePixelRatio) || 1) *
-        1.4,
-    ),
-    28,
-  ),
-  128,
-);
+const FLEET_RASTER_PX = 48;
 /** The selected vehicle draws bigger and deserves a crisper source. */
 export const SELECTED_ICON_PX = 96;
 
@@ -184,15 +171,7 @@ export function transitIconCacheSize() {
  */
 export function transitIcon(kind, px = FLEET_RASTER_PX, options = {}) {
   const k = BODIES[kind] ? kind : 'unknown';
-  // `options.selected` is the AUTHORITATIVE switch. The numeric comparison
-  // below cannot survive a panel whose FLEET_RASTER_PX reaches or passes
-  // SELECTED_ICON_PX: DPR 3.8 puts the fleet raster at 96 px and DPR 4 at 101,
-  // so `px > FLEET_RASTER_PX` is false for the selected 96 px source and the
-  // selected variant — its halo frame, its thermal profile and its 30 px
-  // display size — silently collapses into the fleet branch. Callers that know
-  // which variant they want say so out loud; the comparison stays only as a
-  // fallback for positional `px` callers.
-  const selected = options.selected ?? px > FLEET_RASTER_PX;
+  const selected = px > FLEET_RASTER_PX;
   px = selected ? SELECTED_ICON_PX : FLEET_RASTER_PX;
   const profile = transitStyleProfile(
     options.style ||

@@ -89,11 +89,8 @@ export function createApplicationTools({
   // DATA ▸ Recent Imagery: the box tool claims the pointer like Draw and the
   // panel lives on the right rail, so both belong to the application
   // lifetime. The tileset lets the layer drape while the globe is hidden.
-  // Phase8E2：recent-imagery 属于后置注册的波次 2，tools 阶段可能还没到，
-  // 所以接线拆成幂等函数，谁先到（构造时 / layer-registered）谁触发。
-  let recentImageryWiring = null;
-  const wireRecentImagery = (recentImagery) => {
-    if (!recentImagery || recentImageryWiring) return;
+  const recentImagery = dataManager.layers.get('recent-imagery')?.module;
+  if (recentImagery) {
     recentImagery.attachTileset(tileset);
     const imageryBoxTool = initImageryBoxTool({
       viewer,
@@ -119,25 +116,13 @@ export function createApplicationTools({
     // The live gate's handle (scripts/qa-recent-imagery.mjs).
     const recentImageryHandle = { layer: recentImagery, tool: imageryBoxTool };
     window.__gevRecentImagery = recentImageryHandle;
-    recentImageryWiring = { imageryBoxTool, recentImageryHandle };
-  };
-  wireRecentImagery(dataManager.layers.get('recent-imagery')?.module);
-  if (!recentImageryWiring) {
-    const stopWaiting = dataManager.subscribeActivity((change) => {
-      if (change.type !== 'layer-registered') return;
-      if (change.layerId !== 'recent-imagery') return;
-      stopWaiting();
-      wireRecentImagery(dataManager.layers.get('recent-imagery')?.module);
+    defer(() => {
+      if (window.__gevRecentImagery === recentImageryHandle)
+        delete window.__gevRecentImagery;
+      data.presentation.attachRecentImagery(null);
+      imageryBoxTool?.destroy();
     });
-    defer(() => stopWaiting());
   }
-  defer(() => {
-    if (!recentImageryWiring) return;
-    if (window.__gevRecentImagery === recentImageryWiring.recentImageryHandle)
-      delete window.__gevRecentImagery;
-    data.presentation.attachRecentImagery(null);
-    recentImageryWiring.imageryBoxTool?.destroy();
-  });
   if (startChrome)
     defer(startChrome({ loadingScreen, styleManager, dataManager, signal }));
   // Idle render governor: flips the scene into requestRenderMode whenever

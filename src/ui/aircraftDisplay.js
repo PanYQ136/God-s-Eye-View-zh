@@ -14,10 +14,8 @@ export class AircraftDisplay {
       store,
       _layoutRightPanels: layout,
     });
-    // GEV owner 2026-09-28: 3D aircraft models now default OFF (a fresh load
-    // shows only the detection overlay); the operator turns them on. When on,
-    // the default mode stays proximity.
-    this._models3dEnabled = false;
+    // Both aircraft layers default to models enabled in proximity mode.
+    this._models3dEnabled = true;
     this._models3dMode = 'proximity';
     // What the button, mode row and mode segments show; null until first
     // synced, so the initial markup stands. Enabling from the button leaves

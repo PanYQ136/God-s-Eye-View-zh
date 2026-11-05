@@ -1,8 +1,7 @@
 import { DOT_FADE_MS } from './retention.js';
 import { flowBucket, flowSpeedScale } from '../../data/trafficFlowStyle.js';
-import { vehicleIcon } from '../../data/vehicleIcons.js';
 import { presetDotOutline } from '../../data/trafficPresetStyle.js';
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import { queuePlatoons, locateAlongRoad } from '../../data/trafficQueue.js';
 import {
   SPEED_MPS,
@@ -13,8 +12,6 @@ import {
   CREEP_BURST,
   HEAT_JAM_BASE_ALPHA,
   HEAT_JAM_PULSE_ALPHA,
-  RENDER_LIMIT_UNLIMITED,
-  RENDER_LIMIT_REFRESH_MS,
 } from './policy.js';
 
 export function createAnimation({
@@ -155,10 +152,7 @@ export function createAnimation({
       const id = layerState._nextDotId++;
       const point = layerState._pointCollection.add({
         position: Cesium.Cartesian3.clone(layerState._scratchLerp),
-        // Car-shape marker (owner request); the congestion colour still tints it.
-        image: vehicleIcon('car'),
-        width: pixelSize * 1.7,
-        height: pixelSize * 1.7,
+        pixelSize,
         // No flow data → today's exact simulated white.
         color: flowColor || Cesium.Color.WHITE.withAlpha(0.85),
         scaleByDistance: new Cesium.NearFarScalar(
@@ -327,16 +321,6 @@ export function createAnimation({
     if (layerState._heatJamPrim?.appearance) {
       layerState._heatJamPrim.appearance.material.uniforms.color.alpha =
         HEAT_JAM_BASE_ALPHA + HEAT_JAM_PULSE_ALPHA * Math.sin(now / 260);
-    }
-
-    // 操作员渲染上限 (renderLimit)：点一直在动、相机也会移动，「离相机最近的
-    // N 个」会漂移，所以有上限时按秒级重算一次 show。默认 999(不限) 整段跳过
-    // —— 正常路径零额外开销。
-    if (
-      layerState._renderLimit < RENDER_LIMIT_UNLIMITED &&
-      now - layerState._renderLimitAt >= RENDER_LIMIT_REFRESH_MS
-    ) {
-      parts.rendering.applyRenderLimit();
     }
 
     layerState._animFrame++;

@@ -14,35 +14,11 @@ function fixture() {
   const timers = new Map();
   const listeners = new Map();
   const events = [];
-  const bridgeCalls = [];
-  const refining = [];
   let restored;
   let nextTimer = 0;
   const controller = new AbortController();
   const context = {
     console,
-    /* Phase7A-D added the veil removal (`#cesiumContainer` loses
-       `boot-refining` on the frame the map is actually sharp) next to the
-       cover hide. The sandbox models the one element that call touches so the
-       sequence stays observable instead of throwing ReferenceError. */
-    document: {
-      getElementById(id) {
-        if (id !== 'cesiumContainer') return null;
-        return { classList: { remove: (name) => refining.push(name) } };
-      },
-    },
-    /* Phase8D #15: the boot gate is reached through the explicit module bus
-       (`import * as bridge` + `bridge.get('boot')`), not through a `window.*`
-       global. The sandbox has to model that dependency like it already models
-       initFirstRunExperience: a bus with no `boot` slot is the old "no gate →
-       reveal as soon as restoration settles" behaviour, and the call itself is
-       recorded so the wiring stays pinned. */
-    bridge: {
-      get(name) {
-        bridgeCalls.push(name);
-        return undefined;
-      },
-    },
     setTimeout(fn, delay) {
       const id = ++nextTimer;
       timers.set(id, { fn, delay });
@@ -79,8 +55,6 @@ function fixture() {
   return {
     events,
     listeners,
-    bridgeCalls,
-    refining,
     stop,
     restored,
     controller,
@@ -104,18 +78,9 @@ test('welcome waits for restoration, minimum delay, and the cover transition', a
   f.fire(1000);
   await flush();
   assert.deepEqual(f.events, []);
-  assert.ok(
-    f.bridgeCalls.includes('boot'),
-    'the cover must consult the boot gate before it hides',
-  );
   f.restored();
   await flush();
   assert.deepEqual(f.events, ['hidden']);
-  assert.deepEqual(
-    f.refining,
-    ['boot-refining'],
-    'the map veil comes off on the same frame the cover hides',
-  );
   f.listeners.get('transitionend')();
   f.fire(900);
   assert.deepEqual(f.events, ['hidden', 'welcome']);

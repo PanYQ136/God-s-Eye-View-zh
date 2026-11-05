@@ -3,7 +3,6 @@ import { createRequire } from 'node:module';
 import { createAisStreamAdapter } from '../../../src/data/aisStreamAdapter.js';
 import { parseSilenceTimeoutEnv } from '../../../src/data/aisWatchdog.js';
 import { clampInt } from '../common/query.js';
-import { wsProxyAgent } from '../common/ws-proxy-agent.js';
 import {
   AISSTREAM_CACHE_MAX,
   AISSTREAM_STALE_MS,
@@ -115,41 +114,7 @@ export function aisLiveProxy() {
           AISSTREAM_CACHE_MAX,
           AISSTREAM_CACHE_MAX,
         );
-        const allRows = aisStreamRows(maxRows);
-
-        // 可选服务端裁剪：?bbox=w,s,e,n&limit=N（网页版不传 → 行为不变）。
-        // 不裁的话快照约 2.3 MB，小程序每次轮询都要整包下来。
-        const box = (() => {
-          const raw = incoming.searchParams.get('bbox');
-          if (!raw) return null;
-          const v = String(raw).split(',').map(Number);
-          if (v.length < 4 || !v.slice(0, 4).every(Number.isFinite))
-            return null;
-          return { w: v[0], s: v[1], e: v[2], n: v[3] };
-        })();
-        const limit = (() => {
-          const n = Number(incoming.searchParams.get('limit'));
-          return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
-        })();
-        let rows = allRows;
-        const totalRows = allRows.length;
-        if (box) {
-          rows = rows.filter(
-            (r) =>
-              Number.isFinite(r.lat) &&
-              Number.isFinite(r.lon) &&
-              r.lat >= box.s &&
-              r.lat <= box.n &&
-              r.lon >= box.w &&
-              r.lon <= box.e,
-          );
-        }
-        const inBox = rows.length;
-        let truncated = false;
-        if (limit && rows.length > limit) {
-          rows = rows.slice(0, limit);
-          truncated = true;
-        }
+        const rows = aisStreamRows(maxRows);
 
         const feed = aisStreamStatusSnapshot();
 
@@ -159,11 +124,6 @@ export function aisLiveProxy() {
         res.end(
           JSON.stringify({
             rows,
-            totalRows,
-            inBox,
-            truncated,
-            window: box || null,
-            limit: limit || null,
             source: 'AISStream',
             status: feed.status,
             error: feed.error,
@@ -295,11 +255,7 @@ function aisAdapter() {
     createSocket: (url) => {
       const WebSocketCtor = aisWebSocketImpl();
       if (!WebSocketCtor) throw new Error('ws transport unavailable');
-      // `ws` ignores NODE_USE_ENV_PROXY, so hand it the local proxy agent (built
-      // from HTTP(S)_PROXY; null when none is set, or when this URL is a
-      // loopback/NO_PROXY or plaintext `ws://` target that must dial direct).
-      const agent = wsProxyAgent(url);
-      return new WebSocketCtor(url, agent ? { agent } : undefined);
+      return new WebSocketCtor(url);
     },
     resolveUrl: () => aisWatchdogPolicy().url,
     buildSubscription: aisStreamSubscription,

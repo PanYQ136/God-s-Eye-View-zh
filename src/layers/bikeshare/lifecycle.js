@@ -1,4 +1,4 @@
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import { GBFS_CITY_REGISTRY } from './registry.js';
 import { BIKESHARE_SELECTED_OVERLAY_SOURCE_ID } from './policy.js';
 import {

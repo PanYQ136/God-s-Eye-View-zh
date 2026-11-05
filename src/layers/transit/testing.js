@@ -1,4 +1,4 @@
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import { recordFix, updatePlayback, attachFloorToPlace } from './movement.js';
 import { seek, setRate, mergeHistory } from '../../data/contactPlayback.js';
 import { getRegisteredTransitFeed } from '../../data/transitFeeds.js';

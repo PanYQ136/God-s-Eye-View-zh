@@ -151,7 +151,7 @@ test('repeated Esri shot handoffs retain imagery and keep tile fallback live', a
   errors.raise();
   errors.raise();
   await settle();
-  assert.equal(env.controller.getActiveId(), 'amap-satellite');
+  assert.equal(env.controller.getActiveId(), 'osm');
   assert.equal(env.removed.length, 1);
   assert.equal(errors.size, 0);
   env.controller.destroy();
@@ -261,14 +261,13 @@ test('Esri construction fallback reports and attributes the source actually rend
     throw new Error('unreachable');
   };
   await env.controller.setStack('esri-imagery');
-  assert.equal(env.controller.getActiveId(), 'amap-satellite');
+  assert.equal(env.controller.getActiveId(), 'osm');
   assert.equal(
     env.controller.getState().lastError,
-    'Esri Satellite is unavailable; using AMap (高德)',
+    'Esri Satellite is unavailable; using OSM',
   );
-  assert.equal(env.imagery[0].provider, env.providers.get('amap-satellite'));
-  // AMap imagery carries its own attribution credit (OSM had none).
-  assert.equal(env.credits.size, 1);
+  assert.equal(env.imagery[0].provider, env.providers.get('osm'));
+  assert.equal(env.credits.size, 0);
   env.controller.destroy();
 });
 
@@ -282,12 +281,11 @@ test('one Esri tile failure stays put, two fall back, and stale errors cannot re
   assert.equal(env.controller.getActiveId(), 'esri-imagery');
   errorEvent.raise();
   await settle();
-  assert.equal(env.controller.getActiveId(), 'amap-satellite');
-  // The Esri credit is released and AMap's attribution credit takes its place.
-  assert.equal(env.credits.size, 1);
+  assert.equal(env.controller.getActiveId(), 'osm');
+  assert.equal(env.credits.size, 0);
   assert.equal(
     env.controller.getState().lastError,
-    'Esri Satellite tile requests failed; using AMap (高德)',
+    'Esri Satellite tile requests failed; using OSM',
   );
   assert.equal(errorEvent.size, 0);
   await env.controller.setStack('photoreal');
@@ -586,10 +584,10 @@ test('release keeps a fallback that replaced the comparison stack', async () => 
   errors.raise();
   errors.raise();
   await settle();
-  assert.equal(env.controller.getActiveId(), 'amap-satellite');
+  assert.equal(env.controller.getActiveId(), 'osm');
   await lease.release();
-  assert.equal(env.controller.getActiveId(), 'amap-satellite');
-  assert.deepEqual(env.switches, ['esri-imagery', 'amap-satellite']);
+  assert.equal(env.controller.getActiveId(), 'osm');
+  assert.deepEqual(env.switches, ['esri-imagery', 'osm']);
   env.controller.destroy();
 });
 
@@ -790,12 +788,12 @@ test('each switch generation reports its origin: an outside setStack is manual, 
   await env.controller.setStack('esri-imagery');
   assert.equal(env.controller.getSwitchOrigin(), 'manual');
   const generation = env.controller.getSwitchGeneration();
-  // Two tile failures: the controller falls back to AMap on its own.
+  // Two tile failures: the controller falls back to OSM on its own.
   const errors = env.providers.get('esri-imagery').errorEvent;
   errors.raise();
   errors.raise();
   await settle();
-  assert.equal(env.controller.getActiveId(), 'amap-satellite');
+  assert.equal(env.controller.getActiveId(), 'osm');
   assert.equal(env.controller.getSwitchGeneration(), generation + 1);
   assert.equal(env.controller.getSwitchOrigin(), 'automatic');
   assert.equal(env.controller.getState().switchOrigin, 'automatic');
@@ -804,7 +802,7 @@ test('each switch generation reports its origin: an outside setStack is manual, 
   assert.equal(env.controller.getSwitchOrigin(), 'manual');
   assert.deepEqual(heard, [
     ['esri-imagery', 'manual'],
-    ['amap-satellite', 'automatic'],
+    ['osm', 'automatic'],
     ['photoreal', 'manual'],
   ]);
   env.controller.destroy();

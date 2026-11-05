@@ -1,4 +1,4 @@
-import { Cesium } from '../cesium.js';
+import * as Cesium from 'cesium';
 
 /** Static credits follow the source actually on screen, including fallback. */
 export function createMapCredits(viewer) {

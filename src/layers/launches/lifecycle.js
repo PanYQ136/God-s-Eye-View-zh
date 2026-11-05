@@ -1,4 +1,4 @@
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import { isPointerFree } from '../../data/inputOwnership.js';
 
 const HOVER_PICK_INTERVAL_MS = 120;

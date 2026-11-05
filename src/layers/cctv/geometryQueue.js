@@ -1,4 +1,4 @@
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import {
   GEO_PROGRESS_NOTIFY_INTERVAL_MS,
   GEO_PROGRESS_NOTIFY_BATCH_LIMIT,

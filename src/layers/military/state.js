@@ -1,6 +1,6 @@
 import { MilitaryFlightRecords } from './records.js';
 import { createMilitaryFeed } from './ingestion.js';
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 
 export function createFlightState({ source, services }) {
   const { createGroundSnap } = services.groundSnap;
@@ -54,21 +54,15 @@ export function createFlightState({ source, services }) {
 
   flightState._modelEpoch = 0;
 
-  /** DEFAULT-OFF (owner 2026-09-28: a fresh load shows only the detection overlay;
-   *  supersedes the 2026-08-22 default-ON). A fresh boot never runs
+  /** DEFAULT-ON in PROXIMITY (owner directive 2026-08-22). A fresh boot never runs
    *  layer-state restoration, so this initializer — not the codec — is what the app
    *  actually starts with; it must stay in lockstep with the `models3d` default in
    *  `layerState.js` and `this._models3dEnabled` in ui.js, or the DISPLAY rail would
    *  light a button the layer has not armed. */
 
-  flightState._models3dEnabled = false;
+  flightState._models3dEnabled = true;
 
   flightState._models3dMode = 'proximity';
-
-  /** 操作员渲染上限 (0–999)：只保留离相机最近的 N 架（999 ≈ 不限）。见 flights/state.js。 */
-  // Military is a small set (~100): render it all by default; the render-count
-  // slider can still lower it.
-  flightState._renderLimit = 999;
   // 'proximity' = nearest MODEL_MAX in view; 'all' = every in-view plane (≤ MODEL_MAX_ALL)
 
   flightState._lastModelCapWarnMs = 0;

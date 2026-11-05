@@ -30,7 +30,7 @@
  * drapes finished areas and routes onto the surface, so the height is dropped
  * at finish, deliberately and in one place — see `finishSpec` in drawMode.js.
  */
-import { Cesium } from '../cesium.js';
+import * as Cesium from 'cesium';
 import { pickWorldFromScreen } from './annotationResolver.js';
 import {
   claimPointer,

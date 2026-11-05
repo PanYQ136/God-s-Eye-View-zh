@@ -1,4 +1,4 @@
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import { isPointerFree } from '../../data/inputOwnership.js';
 import {
   LAYER_ID,

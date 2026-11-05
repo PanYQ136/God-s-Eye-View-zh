@@ -1,4 +1,4 @@
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import {
   SELECTED_CARD_REFRESH_MS,
   TRANSIT_SELECTED_OVERLAY_SOURCE_ID,

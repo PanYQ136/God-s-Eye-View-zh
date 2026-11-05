@@ -14,7 +14,7 @@ import {
   nearestPointOnLines,
 } from '../sources/featureGeometry.js';
 import { defaultGeospatial } from '../search/defaults.js';
-import { Cesium } from '../cesium.js';
+import * as Cesium from 'cesium';
 import { lookupNeighborhoodRing } from '../data/neighborhoodPolygons.js';
 import {
   lookupNaturalRegionOutline,

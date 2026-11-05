@@ -56,8 +56,7 @@ function shiftTime(value, offset) {
  * @returns {object} Feed session: start, stop, probe, getState, subscribe.
  */
 export function createLocalReceiverFeeds({
-  fetchImpl = (...args) =>
-    (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
+  fetchImpl = (...args) => globalThis.fetch(...args),
   url = LOCAL_RECEIVERS_URL,
   intervalMs = LOCAL_RECEIVER_POLL_MS,
   requestTimeoutMs = LOCAL_RECEIVER_REQUEST_TIMEOUT_MS,

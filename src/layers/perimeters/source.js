@@ -6,8 +6,7 @@ const msg = (text) => text;
 
 /** Request a normalized snapshot through the bounded, same-origin WFIGS proxy. */
 export function createWfigsPerimeterSource({
-  fetchImpl = (...args) =>
-    (globalThis.__gevResilientFetch || globalThis.fetch)(...args),
+  fetchImpl = (...args) => globalThis.fetch(...args),
 } = {}) {
   /**
    * The rows with how fresh they are: the proxy answers from its last

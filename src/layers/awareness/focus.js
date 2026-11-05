@@ -1,4 +1,4 @@
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import { VESSEL_FOCUS_RADIUS_M } from './policy.js';
 
 export function createFocus({ state: layerState, services, parts, source }) {

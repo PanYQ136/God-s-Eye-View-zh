@@ -11,11 +11,8 @@ import {
   readsbIdentities,
 } from './aircraft.js';
 import { normalizeVesselTrack, vesselSnapshot } from './vessels.js';
-import { makeResilientFetch } from './resilientFetch.js';
 
-// 默认取数带超时+重试+退避：主源瞬时超时/429/5xx 自动恢复，无感知、不阻塞。
-// 调用方仍可传自定义 fetchImpl（测试/覆盖）。
-const defaultFetch = makeResilientFetch();
+const defaultFetch = (...args) => globalThis.fetch(...args);
 const header = (response, name) => response.headers?.get?.(name);
 
 function openSkyError(response) {
@@ -70,9 +67,6 @@ export function createFlightSource({
     label: 'Flights',
     async getSnapshot(query = {}, { signal } = {}) {
       const params = new URLSearchParams();
-      // Full live world: the server serves all of adsb.lol; the client's
-      // render-count slider caps what is drawn.
-      if (query.all) params.set('all', '1');
       if (Number.isFinite(query.latitude) && Number.isFinite(query.longitude)) {
         params.set('lat', query.latitude.toFixed(4));
         params.set('lon', query.longitude.toFixed(4));
@@ -84,15 +78,6 @@ export function createFlightSource({
         'Flights',
       );
       if (!response.ok) throw openSkyError(response);
-      const reason = String(
-        header(response, 'x-opensky-auth-reason') || '',
-      ).toLowerCase();
-      // The server names its route: a live-primary pull is the intended source,
-      // not a degradation. Only genuine fallback reasons mark the feed so.
-      const isPrimary = /primary/.test(reason);
-      const fallback =
-        !isPrimary &&
-        /(fallback|cooldown|circuit|stale|rate_limit)/.test(reason);
       return {
         ...openSkySnapshot(payload, {
           // A fallback provider names itself in X-Flight-Source.
@@ -102,7 +87,6 @@ export function createFlightSource({
           coverage:
             header(response, 'x-flight-coverage') ||
             'worldwide upstream snapshot',
-          fallback,
           now: now(),
         }),
         status: response.status,

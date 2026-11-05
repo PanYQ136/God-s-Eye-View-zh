@@ -46,7 +46,7 @@
  * are per-layer, keyed by that layer's icao space).
  */
 
-import { Cesium } from '../cesium.js';
+import * as Cesium from 'cesium';
 
 /** Taxi threshold: a cached snap answers directly for moves up to this far from
  *  the sampled spot (m). Past it the value is demoted to a held last-known and a

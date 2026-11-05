@@ -7,9 +7,6 @@ import { fileURLToPath } from 'node:url';
 const SRC_ROOT = fileURLToPath(new URL('.', import.meta.url));
 const REPO_ROOT = path.resolve(SRC_ROOT, '..');
 const INDEX_HTML = path.join(REPO_ROOT, 'index.html');
-/* Phase8D #13：字体表从 index.html 的 <link> 迁到 style.css 的 @import ... layer(vendor)（为了把它归层），
-   icon_names 子集的唯一来源随之搬家 —— 这里两处都读，判据不变（少一个 glyph 仍然失败）。 */
-const STYLE_CSS = path.join(REPO_ROOT, 'style.css');
 
 /** The glyph written as element text: `<span class="material-symbols-outlined">radar</span>`. */
 const SPAN_TEXT =
@@ -79,9 +76,7 @@ function referencedGlyphs() {
 }
 
 /** The `icon_names` list index.html asks Google for. */
-function subsettedGlyphs(
-  html = readFileSync(INDEX_HTML, 'utf8') + readFileSync(STYLE_CSS, 'utf8'),
-) {
+function subsettedGlyphs(html = readFileSync(INDEX_HTML, 'utf8')) {
   const match =
     /Material\+Symbols\+Outlined[^"]*[?&]icon_names=([a-z0-9_,]+)/.exec(html);
   assert.ok(

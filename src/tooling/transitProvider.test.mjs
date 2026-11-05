@@ -2,24 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PbfWriter } from 'pbf';
 import { transitProxy } from 'gods-eye-view/server/providers/transit';
-/* 2026-11-01：transit 路由外面多了一层熔断层（server/providers/transit-circuit.js）：
-   超时 / 5xx / 异常一律转成 **200 + {available:false, reason, retryInSec}** 并打
-   `x-transit-circuit` 头，让客户端把「这个城市的实时数据暂时没有」当业务状态，
-   而不是当网络错误反复重试。下面几条用例原先断言服务层的 502/503/504，
-   现在按熔断契约断言，判据保留：不是正常数据、车辆为空、且成因可辨。 */
-function expectUnavailable(res, reason) {
-  assert.equal(
-    res.status,
-    200,
-    'circuit reports business state, not an HTTP error',
-  );
-  const body = JSON.parse(res.body);
-  assert.equal(body.available, false);
-  assert.deepEqual(body.vehicles, []);
-  if (reason) assert.equal(body.reason, reason);
-  return body;
-}
-
 import {
   TRANSIT_BACKOFF_LADDER_MS,
   TRANSIT_PROXY_TTL_MS,
@@ -177,23 +159,21 @@ test('a differential feed condemns the snapshot that preceded it', async (t) => 
 
   t.mock.timers.setTime(Date.now() + TRANSIT_PROXY_TTL_MS + 1_000);
   const refused = await call('/vehicles/mbta');
-  /* 熔断层只保留上游状态码，不转发服务层的错误文案，所以「differential」这个
-     成因字符串不再出现在响应里；能断言的是：被拒（502 上游状态）+ 无数据。 */
-  const refusedBody = expectUnavailable(refused, 'upstream_error');
-  assert.equal(refusedBody.upstreamStatus, 502);
+  assert.equal(refused.status, 502);
+  assert.match(JSON.parse(refused.body).error, /differential/);
 
   // The next caller arrives INSIDE the cooldown the failure just started, which
   // is precisely the path that used to hand back the condemned snapshot as a
   // 200 because it was still inside the serve-stale window.
   t.mock.timers.setTime(Date.now() + 2_000);
   const after = await call('/vehicles/mbta');
-  assert.equal(after.status, 200);
-  assert.equal(
-    JSON.parse(after.body).available,
-    false,
-    'the condemned snapshot is never handed back as data',
+  assert.notEqual(
+    after.status,
+    200,
+    `served ${after.status} with ${after.body}`,
   );
-  assert.equal(after.headers.get('x-transit-circuit'), 'open');
+  assert.equal(after.headers.get('X-GEV-Cache'), 'NONE');
+  assert.equal(after.headers.get('X-Transit-Backoff'), 'cooldown');
 });
 
 test('a failing operator is put on a cooldown instead of being re-asked every poll', async (t) => {
@@ -205,23 +185,28 @@ test('a failing operator is put on a cooldown instead of being re-asked every po
   const call = install(transitProxy({ fetchImpl }));
 
   const failed = await call('/vehicles/mbta');
-  const failedBody = expectUnavailable(failed, 'upstream_error');
-  // 熔断层看到的是服务层对上游 500 的映射结果（502），不是城市上游的原始状态码。
-  assert.equal(failedBody.upstreamStatus, 502);
+  assert.equal(failed.status, 502);
+  assert.equal(
+    failed.headers.get('Retry-After'),
+    String(TRANSIT_BACKOFF_LADDER_MS[0] / 1000),
+  );
   assert.equal(calls.length, 1);
 
   // Inside the cooldown the operator is not contacted at all.
   t.mock.timers.setTime(Date.now() + 1_000);
   const held = await call('/vehicles/mbta');
-  expectUnavailable(held);
-  assert.equal(held.headers.get('x-transit-circuit'), 'open');
+  assert.equal(held.status, 503);
+  assert.equal(held.headers.get('X-Transit-Backoff'), 'cooldown');
   assert.equal(calls.length, 1, 'the operator was left alone');
 
   // Past the first rung it is tried again, and a second failure waits longer.
   t.mock.timers.setTime(Date.now() + TRANSIT_BACKOFF_LADDER_MS[0]);
   const retried = await call('/vehicles/mbta');
   assert.equal(calls.length, 2);
-  expectUnavailable(retried);
+  assert.equal(
+    retried.headers.get('Retry-After'),
+    String(TRANSIT_BACKOFF_LADDER_MS[1] / 1000),
+  );
 });
 
 test('a redirect is followed only within the feed origin, and never contacted first', async (t) => {
@@ -252,7 +237,7 @@ test('a redirect is followed only within the feed origin, and never contacted fi
   ]);
   const refuse = install(transitProxy({ fetchImpl: offOrigin.fetchImpl }));
   const blocked = await refuse('/vehicles/capmetro-austin');
-  expectUnavailable(blocked, 'upstream_error');
+  assert.equal(blocked.status, 504);
   assert.equal(
     offOrigin.calls.length,
     1,
@@ -432,20 +417,15 @@ test('development and preview mount the same transit service and close it on shu
         writeHead(status) {
           this.status = status;
         },
-        end(body) {
-          this.body = String(body ?? '');
-        },
+        end() {},
       };
       await handler({ url: '/feeds', method }, res);
-      return res;
+      return res.status;
     }
-    assert.equal((await call('GET')).status, 200);
-    assert.equal((await call('TRACE')).status, 405);
+    assert.equal(await call('GET'), 200);
+    assert.equal(await call('TRACE'), 405);
     close();
-    // 关闭后服务层返回 503，但熔断层会把它转成 200 + available:false。
-    const closed = await call('GET');
-    assert.equal(closed.status, 200);
-    assert.equal(JSON.parse(closed.body).available, false);
+    assert.equal(await call('GET'), 503);
     plugin.closeBundle();
   }
 });

@@ -1,4 +1,4 @@
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import { ISS_NORAD, ISS_OVERLAY_SOURCE_ID } from './policy.js';
 
 export function createTesting({ state: layerState, services, parts, source }) {

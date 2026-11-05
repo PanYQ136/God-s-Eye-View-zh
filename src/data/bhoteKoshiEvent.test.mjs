@@ -1305,11 +1305,11 @@ test('Bhote Koshi scene beats preserve photoreal and never take camera ownership
     assert.equal(panel.querySelector('[data-role="time"]').textContent, '~0:30 / 2:00');
     assert.equal(panel.querySelector('[data-role="beat-index"]').textContent, '01 / 14');
     assert.equal(panel.querySelector('[data-role="beat-title"]').textContent, 'Global Incident Context');
-    assert.equal(panel.querySelector('[data-action="play"]').textContent, 'PLAY SHOT');
+    assert.equal(panel.querySelector('[data-action="play"]').textContent, '▶ PLAY SHOT');
     const playScene = panel.querySelector('[data-action="play-scene"]');
     assert.equal(playScene.hidden, false);
     assert.equal(playScene.disabled, false);
-    assert.equal(playScene.textContent, 'PLAY SCENE');
+    assert.equal(playScene.textContent, '▶ PLAY SCENE');
     assert.equal(playScene.getAttribute('aria-label'), 'Continue Nepal Flood Incident from next shot');
     assert.equal(panel.querySelector('[data-action="cinematic"]').hidden, true);
     assert.equal(panel.querySelector('[data-action="cinematic"]').disabled, true);
@@ -1389,7 +1389,7 @@ test('Bhote Koshi scene beats preserve photoreal and never take camera ownership
     assert.equal(playScene.disabled, true);
     assert.equal(playScene.textContent, '… PLAYING SCENE');
     assert.equal(panel.querySelector('[data-action="play"]').disabled, true);
-    assert.equal(panel.querySelector('[data-action="play"]').textContent, 'PLAY SHOT');
+    assert.equal(panel.querySelector('[data-action="play"]').textContent, '▶ PLAY SHOT');
     await playScene.dispatch('click');
     assert.deepEqual(sceneCalls.at(-1), {
       action: 'scene', sceneId: 'nepal-scene', shotId: 'global-context',
@@ -1398,7 +1398,7 @@ test('Bhote Koshi scene beats preserve photoreal and never take camera ownership
     finishScene({ started: true });
     await run;
     assert.equal(playScene.disabled, false);
-    assert.equal(playScene.textContent, 'PLAY SCENE');
+    assert.equal(playScene.textContent, '▶ PLAY SCENE');
     sceneClock.value = '500';
     sceneClock.dispatch('input');
     assert.equal(panel.querySelector('[data-role="time"]').textContent, '~1:00 / 2:00');

@@ -640,7 +640,7 @@ test('the selection bar reads the mode, both rows and a preview, with × reserve
       unpinA.classList.contains('is-reserved'),
       unpinA.textContent,
     ],
-    [true, true, '−'],
+    [true, true, '×'],
   );
   f.key('s');
   assert.equal(rowText(f, 'a'), 'IMAGE | Sep 18 · Sentinel-2 · 30\u00a0m');

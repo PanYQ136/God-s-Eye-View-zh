@@ -87,11 +87,7 @@ const SCOPE_TERMINUS_SAMPLE_MS = 120;
 let _canvas = null;
 let _container = null;
 let _viewer = null;
-// GEV owner 2026-09-28: the Display menu ships with ONLY the detection
-// ("密集") overlay lit, so the scope mask now defaults OFF on a fresh load
-// (was `true`). The operator re-enables it from the Scope toggle; a share link
-// or a stored session still restores it on.
-let _enabled = false;
+let _enabled = true;
 let _featherRatio = SCOPE_FEATHER_RATIO_DEFAULT;
 let _resizeObserver = null;
 let _dprQuery = null;
@@ -107,19 +103,6 @@ let _lastTerminusSampleMs = -Infinity;
 let _terminusRepaints = 0;
 /** Whether the canvas currently holds ink (drives the disabled-state early-out). */
 let _painted = false;
-/**
- * Frame-cost guard (2026-10-28 t_834a621c): an EMPTY full-viewport canvas is
- * still a composited layer — the compositor blends its quad into every
- * presented frame whether or not it holds a single pixel. Measured on the
- * audit box (Intel UHD): each extra full-screen layer ≈ 2.5 fps at 1536×730.
- * So an inkless scope canvas is taken out of the layer tree entirely and put
- * back on the first paint. Visual output is unchanged (empty = transparent).
- */
-function setCanvasComposited(on) {
-  if (!_canvas) return;
-  const want = on ? 'block' : 'none';
-  if (_canvas.style.display !== want) _canvas.style.display = want;
-}
 /** Set while a coalescing scope is open; draw() defers to its single paint. */
 let _paintDirty = false;
 let _coalescingPaint = false;
@@ -377,24 +360,18 @@ function draw() {
   // on every disabled draw. The last painted mask is cleared exactly once, on
   // the transition, and after that a disabled mask does no canvas work at all.
   if (!_enabled) {
-    if (!_painted) {
-      setCanvasComposited(false);
-      return;
-    }
+    if (!_painted) return;
     const clearCtx = _canvas.getContext('2d');
     if (clearCtx) {
       clearCtx.setTransform(1, 0, 0, 1, 0, 0);
       clearCtx.clearRect(0, 0, _canvas.width, _canvas.height);
     }
     _painted = false;
-    setCanvasComposited(false);
     return;
   }
   const width = _container.clientWidth;
   const height = _container.clientHeight;
   if (!(width > 0) || !(height > 0)) return;
-  // Ink is about to go down → the canvas must be back in the layer tree.
-  setCanvasComposited(true);
   const dpr = scopeMaskDevicePixelRatio();
   _canvas.width = Math.round(width * dpr);
   _canvas.height = Math.round(height * dpr);

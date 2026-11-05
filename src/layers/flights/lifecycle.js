@@ -1,4 +1,4 @@
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import { PLANE_MODEL_URL } from './policy.js';
 
 export function createLifecycle({

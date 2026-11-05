@@ -1,4 +1,4 @@
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import {
   CABLE_REFERENCE_LABEL_WINNER_CAP,
   CABLE_REFERENCE_LABEL_MAX_DISTANCE_M,

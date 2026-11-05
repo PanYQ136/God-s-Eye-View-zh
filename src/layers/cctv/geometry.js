@@ -1,4 +1,4 @@
-import { Cesium } from '../../cesium.js';
+import * as Cesium from 'cesium';
 import { createFrustumVolumePrimitive } from '../../data/cctvViewshed.js';
 import {
   FRUSTUM_GROUND_CLEARANCE_M,

@@ -263,7 +263,6 @@ export function cycloneProxy({
   now = () => Date.now(),
   timeoutMs = 12_000,
 } = {}) {
-  const CACHE_TTL_MS = 30 * 60_000; // 气旋通告 6 小时一次，30 分钟足够新鲜
   let cache = null;
   let operation = null;
   let attemptedAt = -Infinity;
@@ -328,41 +327,9 @@ export function cycloneProxy({
     cache = { storms, fetchedAt: now() };
     return cache;
   }
-  /* 2026-11-01：last-good 的 12 小时上限原先只写在 catch 分支里，
-     stale-while-revalidate 分支却无条件把缓存发出去 —— 过期 12 小时后仍然当数据返回，
-     永远走不到 unavailable。抽成同一谓词，两条路径共用。 */
-  const LAST_GOOD_MAX_MS = 12 * HOUR;
-  const acceptableStale = (value) =>
-    Boolean(value) &&
-    now() - value.fetchedAt <= LAST_GOOD_MAX_MS &&
-    value.storms.every(
-      (storm) => now() - Date.parse(storm.issuedAt) <= LAST_GOOD_MAX_MS,
-    );
-
   async function acquire(signal) {
     signal.throwIfAborted();
-    if (cache && now() - cache.fetchedAt < CACHE_TTL_MS) return cache;
-    // stale-while-revalidate：缓存过期但还有旧数据时，先返回旧数据，后台去 NHC 拉新的。
-    // NHC 在大陆出口要 6s+，等它等于让用户白屏 6 秒。
-    if (
-      cache &&
-      acceptableStale(cache) &&
-      !operation &&
-      now() - attemptedAt >= 60_000
-    ) {
-      attemptedAt = now();
-      const controller = new AbortController();
-      const owned = { controller, waiters: 0 };
-      const timer = setTimeout(() => controller.abort(), timeoutMs);
-      owned.promise = refresh(controller.signal)
-        .catch(() => {})
-        .finally(() => {
-          clearTimeout(timer);
-          if (operation === owned) operation = null;
-        });
-      operation = owned;
-      return cache;
-    }
+    if (cache && now() - cache.fetchedAt < 300_000) return cache;
     if (operation?.controller.signal.aborted) operation = null;
     if (!operation) {
       if (now() - attemptedAt < 60_000) throw new Error('cyclone_retry_later');
@@ -432,15 +399,15 @@ export function cycloneProxy({
       if (req.url !== '/' && req.url !== '')
         return json(400, { error: 'invalid_cyclone_query' });
       try {
-        /* 2026-11-01：acquire 的 stale-while-revalidate 分支会把「已过期但还在」的缓存
-           直接返回，这里却统一按 stale:false 描述 —— 客户端会把过期通告当最新数据。
-           按 fetchedAt 判定新鲜度后再描述。 */
-        const value = await acquire(controller.signal);
-        const stale = Boolean(value) && now() - value.fetchedAt >= CACHE_TTL_MS;
-        json(200, describe(value, stale));
+        json(200, describe(await acquire(controller.signal)));
       } catch (error) {
         if (error.status === 429) return json(429, { error: 'cyclone_busy' });
-        const usable = acceptableStale(cache);
+        const usable =
+          cache &&
+          now() - cache.fetchedAt <= 12 * HOUR &&
+          cache.storms.every(
+            (storm) => now() - Date.parse(storm.issuedAt) <= 12 * HOUR,
+          );
         json(200, describe(usable ? cache : null, true));
       }
     } finally {
