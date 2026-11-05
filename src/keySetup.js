@@ -254,10 +254,28 @@ export async function initKeySetup({
       rowsHost.append(buildRow(documentRef, key));
   };
 
+  // 灯箱（.cesium-credit-lightbox-overlay，z200 in root stacking）压住时，
+  // DOM 仍"可见"但用户看不到 —— 不能再 input.focus() 把焦点吸进去。
+  const coveredByOverlay = () => {
+    if (typeof documentRef.elementFromPoint !== 'function') return false;
+    const rect = root.getBoundingClientRect();
+    if (!(rect.width > 0 && rect.height > 0)) return false;
+    try {
+      const hit = documentRef.elementFromPoint(
+        rect.left + rect.width / 2,
+        rect.top + rect.height / 2,
+      );
+      return Boolean(hit) && !root.contains(hit);
+    } catch {
+      return false;
+    }
+  };
+
   const visible = () =>
     root.isConnected &&
     root.classList.contains('visible') &&
-    root.getClientRects().length > 0;
+    root.getClientRects().length > 0 &&
+    !coveredByOverlay();
 
   const keyboard = createSurfaceKeyboard({
     root,

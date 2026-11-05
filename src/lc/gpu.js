@@ -195,7 +195,7 @@ function ensureCss() {
     [
       `#${CHIP_ID}{border:0;outline:0;box-shadow:none;background:rgba(8,20,30,.72);color:#8fe3ff;padding:6px 10px;border-radius:16px;font:12px/1.2 system-ui,"Segoe UI",sans-serif;max-width:360px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-variant-numeric:tabular-nums;}`,
       `#${CHIP_ID}[data-gpu-tier="software"],#${CHIP_ID}[data-gpu-tier="none"]{background:rgba(58,20,10,.78);color:#ffc9a8;}`,
-      `#${NOTICE_ID}{position:fixed;left:50%;bottom:200px;transform:translateX(-50%);z-index:2147483000;border:0;outline:0;box-shadow:0 8px 28px rgba(0,0,0,.35);background:rgba(24,12,8,.86);color:#ffe2cf;padding:10px 16px;border-radius:14px;font:13px/1.45 system-ui,"Segoe UI",sans-serif;max-width:min(520px,78vw);backdrop-filter:none;cursor:pointer;animation:gev-gpu-notice 9s linear forwards;}`,
+      `#${NOTICE_ID}{position:fixed;left:50%;border:0;outline:0;box-shadow:0 8px 28px rgba(0,0,0,.35);background:rgba(24,12,8,.86);color:#ffe2cf;padding:10px 16px;border-radius:14px;font:13px/1.45 system-ui,"Segoe UI",sans-serif;max-width:min(520px,78vw);backdrop-filter:none;cursor:pointer;animation:gev-gpu-notice 9s linear forwards;}`,
       `#${NOTICE_ID} b{color:#fff;font-weight:600;}`,
       `@keyframes gev-gpu-notice{0%{opacity:0}4%{opacity:1}88%{opacity:1}100%{opacity:0}}`,
     ].join('\n') +

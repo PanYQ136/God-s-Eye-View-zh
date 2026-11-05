@@ -174,3 +174,10 @@ label.radio-filter-label, #radio-station-meta, .radio-volume-row > span { color:
 #cctv-summary, #context-mode-standby > span, p.radio-privacy, #sdr-radio-card > p { font-size: 12px; }
 
 }
+
+/* ── 录制 / 净屏：隐藏全部非画面元素（credits 按 ToS 保留） ── */
+@layer overrides {
+  body.recording-mode :is(#gev-dossier,#gev-perf-wrap,#gev-gfx-fab,#gev-gfx-panel,#gev-pw-reset,#gev-lang-toggle,#gev-locate-btn,#gev-toast,#toast),
+  body.recording-mode .lc-stage,
+  body.ui-clean-view :is(#gev-dossier,#gev-perf-wrap,#gev-gfx-fab,#gev-gfx-panel,#gev-pw-reset,#gev-lang-toggle,#gev-locate-btn,#gev-toast,#toast) { display: none; }
+}

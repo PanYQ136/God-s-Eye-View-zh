@@ -353,7 +353,8 @@
      /Cesium attribution ToS). */
     bottom: 36px;
     left: 36px;
-    z-index: 90;
+    /* 高于 hud(100)：attribution 必须始终可见（Google/Cesium ToS） */
+    z-index: 101;
     max-width: 90vw;
     /* Keep the Google logo + "Data attribution" link on ONE line — they were wrapping to a second
      row (looked like it was falling over). nowrap + a roomy max-width holds them inline. */
