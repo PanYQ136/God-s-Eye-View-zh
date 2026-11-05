@@ -26,7 +26,9 @@ function reachableModelLiterals() {
 
 test('every /models literal reachable from src/ ships in the build output', () => {
   const literals = reachableModelLiterals();
-  assert.ok(literals.length >= 11, `expected model literals, got ${literals.length}`);
+  // 上游 2026-11 合并后 src 仅引用 8 个 /models 字面量（b789 由
+  // aircraftClass.js/modelVisualAnchor.js 引入，已加入 RUNTIME_MODEL_FILES）。
+  assert.ok(literals.length >= 8, `expected model literals, got ${literals.length}`);
   for (const name of literals)
     assert.ok(
       RUNTIME_MODEL_FILES.includes(name),

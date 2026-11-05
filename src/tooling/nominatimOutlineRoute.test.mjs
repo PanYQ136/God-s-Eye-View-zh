@@ -654,7 +654,9 @@ test('cache lifetimes: 90 days for outlines, 30 for places, 24 hours for no resu
   assert.equal(await cache.get('o'), null);
 });
 
-test('the disk cache survives a restart and stays within its bounds', async () => {
+// Windows/NTFS 不呈现 POSIX 目录权限位（mkdtemp 0o700 在 stat 里报告 0o666），
+// 该断言仅对 POSIX 文件系统有意义（上游 CI 为 Linux/macOS）。
+test('the disk cache survives a restart and stays within its bounds', { skip: process.platform === 'win32' }, async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gev-nominatim-cache-'));
   const time = clock();
   const first = createNominatimCache({

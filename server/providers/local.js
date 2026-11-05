@@ -31,6 +31,11 @@ import { ghostMapsProxy } from './ghostMaps.js';
 import { droneAirspaceProxy } from './droneAirspace.js';
 import { cycloneProxy } from './cyclones.js';
 import { windProxy } from './wind.js';
+// fork-only proxies（小程序/CN 数据通道；上游无这些文件）
+import { miniFlightsProxy } from './mini-flights.js';
+import { miniGeocodeProxy } from './mini-geocode.js';
+import { miniSourcesProxy } from './mini-sources.js';
+import { cnLiveProxy } from './cn-live.js';
 
 /**
  * Construct the local provider plugins in their established order.
@@ -81,6 +86,10 @@ function localProviderPlugins({
     gnssIntegrityProxy(),
     ghostMapsProxy(),
     droneAirspaceProxy(),
+    miniFlightsProxy(),
+    miniGeocodeProxy(),
+    miniSourcesProxy(),
+    cnLiveProxy(),
     keySetupEndpoint(),
   ];
 }

@@ -128,7 +128,7 @@ export function createCnTrafficLayer({ source } = {}) {
         if (request.signal.aborted || _request !== request || !_enabled)
           return false;
         console.warn('[Data:CnTraffic] Fetch error:', e);
-        _lastError = e?.message || 'cnTraffic source unavailable';
+        _lastError = e?.message || 'cnTraffic source unavailable'; /* i18n-ignore */
         return false;
       } finally {
         if (_request === request) _request = null;

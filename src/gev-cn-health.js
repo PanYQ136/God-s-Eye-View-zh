@@ -209,7 +209,7 @@
     const s = document.createElement('style');
     s.id = 'gev-cn-health-style';
     /* 运行时注入必须进层，否则未分层样式会整体压掉分层 App CSS。 */
-    s.textContent = '@layer overrides {' + STYLE + '}';
+    s.textContent = '@layer overrides {' + STYLE + '}'; /* i18n-ignore */
     document.head.appendChild(s);
   }
 
@@ -292,7 +292,7 @@
     panel.setAttribute('aria-labelledby', 'gev-cn-health-title');
     panel.hidden = true;
     panel.innerHTML =
-      '<div class="gev-hp-head">' +
+      '<div class="gev-hp-head">' + /* i18n-ignore */
       '<h2 id="gev-cn-health-title" tabindex="-1">数据源健康</h2>' +
       '<button class="gev-hp-close" type="button">关闭</button>' +
       '</div>' +
@@ -534,7 +534,7 @@
 
     const rows = layerRows();
     const shown = state.showAll ? rows : rows.slice(0, DEFAULT_ROWS);
-    el.list.innerHTML = shown.length
+    el.list.innerHTML = shown.length /* i18n-ignore */
       ? shown.map(rowMarkup).join('')
       : '<div class="gev-hp-row"><span class="gev-hp-dot is-unknown" aria-hidden="true"></span>' +
         '<span class="gev-hp-name"><b>' +

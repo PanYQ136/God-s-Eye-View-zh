@@ -425,7 +425,7 @@ function fitOptionBoxes() {
 function translateTree() {
   walk(document.body);
   fitOptionBoxes();
-  document.title = document.title.includes('God')
+  document.title = document.title.includes('God') /* i18n-ignore */
     ? "上帝之眼 · God's Eye View"
     : document.title;
   document.documentElement.lang = 'zh-CN';
@@ -498,7 +498,7 @@ function mount() {
     pill.dataset.on = '1';
     pill.setAttribute('aria-label', '在中英文界面之间切换');
     pill.innerHTML =
-      '<span class="gev-zh-on">中</span><span>/</span><span>EN</span>';
+      '<span class="gev-zh-on">中</span><span>/</span><span>EN</span>'; /* i18n-ignore */
     pill.addEventListener('click', () => setEnabled(!enabled));
     document.body.appendChild(pill);
   }
