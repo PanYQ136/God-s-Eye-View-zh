@@ -23,9 +23,14 @@ const CITY_FILES = [
       import.meta.url,
     ),
     importJson: () =>
-      import('./local_data/neighborhoods/san-francisco.json', {
-        with: { type: 'json' },
-      }),
+      // @vite-ignore — Node-test-only path (see data/bundledJson.js): the browser
+      // fetches `url` instead; ignoring it avoids a dead JSON-module chunk in dist.
+      import(
+        /* @vite-ignore */ './local_data/neighborhoods/san-francisco.json',
+        {
+          with: { type: 'json' },
+        }
+      ),
   },
 ];
 
