@@ -19,6 +19,7 @@ const DEFERRED = [
   () => import('./ui/mobile-ui.js'),
   () => import('./gev-panel-win.js'),
   () => import('./gev-cn-weather.js'),
+  () => import('./gev-cn-health.js'),
 ];
 
 /* 立刻发起（并行下载），失败不影响首屏：每个入口自己 console.error。 */
