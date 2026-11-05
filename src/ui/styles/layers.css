@@ -147,7 +147,7 @@
     --right-display-collapsed-width: var(--left-collapsed-width);
     --right-context-collapsed-width: var(--left-collapsed-width);
     position: fixed;
-    z-index: 110;
+    z-index: var(--z-panel, 110);
     top: var(--right-stack-safe-top, 26vh);
     right: var(--right-rail-x);
     width: 330px;

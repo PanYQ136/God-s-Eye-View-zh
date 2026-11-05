@@ -39,11 +39,17 @@
     --z-world-overlay: 10;
     --z-hud: 100; /* 顶栏/状态/左右面板栈/场景/图层基座 */
     --z-panel: 110; /* 侧栏 / 展开面板 */
-    --z-dock: 145; /* 底部指令坞（实际 151，见 command-dock.css） */
+    --z-dock: 151; /* 底部指令坞 */
     --z-devtools: 160; /* 性能/画面浮标：高于坞，低于所有弹窗与通知 */
+    --z-stage: 138; /* 展开卡舞台：低于坞与座舱 HUD */
+    --z-hud-status: 102; /* 顶部加载状态条 */
+    --z-sync: 101; /* traffic / cctv 同步胶囊 */
     --z-popup: 200; /* 二级弹窗：设置/下拉/详情 */
+    --z-attribution: 220; /* 版权灯箱：高于二级弹窗，低于模态 */
+    --z-modal: 240; /* 模态：key-setup / first-run */
     --z-overlay: 300; /* 三级浮窗 / 模态遮罩 */
-    --z-toast: 1100; /* 通知：高于 #loading-screen(1000) */
+    --z-boot: 1000; /* 冷启动遮罩 */
+    --z-toast: 1100; /* 通知：高于冷启动遮罩 */
 
     /* ── 设计令牌（Round2 美化基座；来源：设计Skills清单 + UI动效整合文档）──
      间距 8pt 网格 / 圆角 / 阴影层级 / 字号阶 / 动效节奏 */
@@ -408,7 +414,8 @@
    Keep the title and close affordance fixed while the complete, unabridged
    credit list wraps and scrolls inside a compact panel. */
   .cesium-credit-lightbox-overlay {
-    z-index: 200 !important;
+    /* 高于二级弹窗(200)，但低于模态(230/240)，不再与 toast/健康面板同值竞争。 */
+    z-index: var(--z-attribution, 220) !important;
   }
 
   .cesium-credit-lightbox {

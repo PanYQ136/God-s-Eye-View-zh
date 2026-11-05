@@ -5,8 +5,8 @@
     right: auto;
     bottom: 2vh;
     left: 50%;
-    /* 高于 #lc-stage(150) 的展开卡，避免面板展开时把坞盖住；仍低于 Toast(152/200)。 */
-    z-index: 151;
+    /* 高于展开卡舞台(138)，避免面板展开时把坞盖住；仍低于弹窗与通知。 */
+    z-index: var(--z-dock, 151);
     display: grid;
     grid-template-areas: 'locations voice presets';
     grid-template-columns: minmax(240px, 1fr) minmax(190px, 220px) minmax(
@@ -208,9 +208,11 @@
     margin-bottom: 4px;
   }
 
-  /* Keep required map attribution clear of the full-width command surface. */
+  /* Keep required map attribution clear of BOTH the command surface and the
+     bottom GEV control row (#gev-locate-btn / #gev-lang-toggle sit at ~128px).
+     7rem(=112px) 与它们在同一条 124–130px 带上相交；抬到 9rem(=144px)。 */
   body:not(.ui-clean-view):not(.recording-mode) #cesium-credits {
-    bottom: calc(2vh + 7rem);
+    bottom: calc(2vh + 9rem);
   }
 
   body:not(.ui-clean-view):not(.recording-mode):has(

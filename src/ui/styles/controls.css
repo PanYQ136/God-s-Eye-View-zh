@@ -277,7 +277,7 @@
   #loading-screen {
     position: fixed;
     inset: 0;
-    z-index: 1000;
+    z-index: var(--z-boot, 1000);
     background: var(--bg-dark);
     display: flex;
     align-items: center;
@@ -1027,7 +1027,7 @@
     top: 18px;
     right: 50%;
     transform: translateX(50%);
-    z-index: 300;
+    z-index: var(--z-overlay, 300);
     border-radius: 999px;
     border: 1px solid rgba(255, 255, 255, 0.25);
     background: rgba(8, 10, 14, 0.88);

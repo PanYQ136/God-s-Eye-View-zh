@@ -4,7 +4,8 @@
    choice without blocking manual map interaction or spending API quota. */
   #first-run-launcher {
     position: fixed;
-    z-index: 175;
+    /* 高于版权灯箱(220)，新用户引导不再被灯箱埋住。 */
+    z-index: 230;
     top: 50%;
     left: 50%;
     width: min(34rem, calc(100vw - 2rem));

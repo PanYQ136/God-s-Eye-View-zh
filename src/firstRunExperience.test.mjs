@@ -242,9 +242,12 @@ test('an overlay with NO class to watch still disarms the launcher', () => {
   // keeps its box, so getClientRects() alone called it visible, ESC dismissed a
   // buried launcher and wrote the session flag while the lightbox stayed open.
   const overlay = css.slice(css.indexOf('.cesium-credit-lightbox-overlay {'));
-  assert.match(overlay.slice(0, overlay.indexOf('}')), /z-index: 200 !important/);
+  assert.match(
+    overlay.slice(0, overlay.indexOf('}')),
+    /z-index: var\(--z-attribution, 220\) !important/,
+  );
   const launcher = css.slice(css.indexOf('#first-run-launcher {'));
-  assert.match(launcher.slice(0, launcher.indexOf('}')), /z-index: 175/);
+  assert.match(launcher.slice(0, launcher.indexOf('}')), /z-index: 230/);
 
   // Answered generically — a hit test at the card's own centre, NOT one more
   // class to keep in step with one more overlay.

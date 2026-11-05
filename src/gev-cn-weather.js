@@ -299,7 +299,9 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
 
   /* ── 预警列表 popover ──────────────────────────────────── */
   #gev-cn-alert-list{
-    position:absolute; top:calc(100% + 6px); left:0; z-index:3;
+    /* 层级统一由 band 的 .has-popover(--z-popup) 抬升；这里不再写 z3 造成
+       role=dialog 却只有 z3 的语义误导。 */
+    position:absolute; top:calc(100% + 6px); left:0;
     width:min(360px, calc(100vw - 24px)); max-height:min(280px, 50vh); overflow:auto;
     box-sizing:border-box; padding:6px; border-radius:10px;
     background:var(--glass-bg); border:1px solid var(--glass-border, rgba(255,255,255,.14));
