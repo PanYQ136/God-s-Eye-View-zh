@@ -476,7 +476,7 @@
     "external": []
   },
   "place-search": {
-    "exports": ["./search"],
+    "exports": ["./search", "./search/cn-geocoder"],
     "modules": [
       "src/search/index.js",
       "src/search/placeSearch.js",
@@ -488,6 +488,7 @@
       "src/search/coordinateGeocoder.js",
       "src/search/coordinateParser.js",
       "src/search/presetGeocoder.js",
+      "src/search/cnGeocoder.js",
       "src/search/nominatim.js",
       "src/nominatimGeocode.js",
       "src/data/regionalModel.js",
@@ -2161,6 +2162,7 @@
       "src/scenes/scenePolicy.js",
       "src/scopeMask.js",
       "src/search/defaults.js",
+      "src/search/cnGeocoder.js",
       "src/search/geospatial.js",
       "src/search/google.js",
       "src/search/http.js",
@@ -2821,6 +2823,7 @@
       "src/overlays/worldOverlayTokens.js",
       "src/renderGovernor.js",
       "src/search/defaults.js",
+      "src/search/cnGeocoder.js",
       "src/search/geospatial.js",
       "src/search/google.js",
       "src/search/http.js",
@@ -2981,6 +2984,7 @@
       "src/layers/firms/anchors.js",
       "src/locations.js",
       "src/search/defaults.js",
+      "src/search/cnGeocoder.js",
       "src/search/geospatial.js",
       "src/search/google.js",
       "src/search/http.js",

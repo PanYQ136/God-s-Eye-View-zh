@@ -247,6 +247,7 @@
     "./sources/http-body": "./src/sources/httpBody.js",
     "./sources/overpass": "./src/sources/overpass.js",
     "./search/nominatim": "./src/search/nominatim.js",
+    "./search/cn-geocoder": "./src/search/cnGeocoder.js",
     "./sources/nominatim": "./src/sources/nominatim.js",
     "./server/providers/transit": {
       "node": "./server/providers/transit.js"
