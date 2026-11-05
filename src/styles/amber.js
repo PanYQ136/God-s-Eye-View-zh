@@ -10,6 +10,7 @@ export const amberShader = {
       default: 0.5,
       min: 0,
       max: 1,
+      // i18n-ignore
       label: 'Amber Warmth',
     } /* i18n-ignore */,
     scan: { default: 0.6, min: 0, max: 1, label: 'Scanline' } /* i18n-ignore */,

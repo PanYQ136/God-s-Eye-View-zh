@@ -11,12 +11,14 @@ export const predatorShader = {
       default: 0.35,
       min: 0,
       max: 1,
+      // i18n-ignore
       label: 'Thermal Gain',
     } /* i18n-ignore */,
     tint: {
       default: 0.25,
       min: 0,
       max: 1,
+      // i18n-ignore
       label: 'Color Mix',
     } /* i18n-ignore */,
   },

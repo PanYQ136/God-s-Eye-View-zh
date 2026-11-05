@@ -9,12 +9,14 @@ export const cinemaShader = {
       default: 0.5,
       min: 0,
       max: 1,
+      // i18n-ignore
       label: 'Split Tone',
     } /* i18n-ignore */,
     contrast: {
       default: 0.5,
       min: 0,
       max: 1,
+      // i18n-ignore
       label: 'Contrast',
     } /* i18n-ignore */,
   },
