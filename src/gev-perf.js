@@ -148,7 +148,7 @@ import { mountChip } from './lc/gpu.js';
     css.textContent =
       '@layer components {\n' +
       [
-        '#gev-perf-wrap{position:fixed;left:12px;bottom:52px;z-index:2147482000;display:flex;gap:8px;align-items:center;font:12px/1.2 system-ui,"Segoe UI",sans-serif;}',
+        '#gev-perf-wrap{position:fixed;left:12px;bottom:52px;z-index:var(--z-devtools, 160);display:flex;gap:8px;align-items:center;font:12px/1.2 system-ui,"Segoe UI",sans-serif;}',
         /* 灰圈=0（Phase 1 · §6.6）：徽标不用 border/outline/inset 描边，层级只靠底色与亮度 */
         '#gev-perf-btn{cursor:pointer;border:0;outline:0;box-shadow:none;background:rgba(8,20,30,.72);color:#bfe9ff;padding:6px 11px;border-radius:16px;letter-spacing:.4px;backdrop-filter:blur(3px);}',
         '#gev-perf-btn.on{background:rgba(10,58,42,.86);color:#9dffd6;}',

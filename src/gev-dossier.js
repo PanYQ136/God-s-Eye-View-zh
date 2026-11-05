@@ -47,7 +47,7 @@
 
   const STYLE = `
   #gev-dossier{
-    position:fixed; left:12px; bottom:64px; z-index:2147483000;
+    position:fixed; left:12px; bottom:64px; z-index:var(--z-devtools, 160);
     width:316px; max-width:calc(100vw - 24px); max-height:60vh; overflow:hidden auto;
     /* t_829dd186：与 9 张卡同一套透明液态材质 —— 中心零填充、无 backdrop 磨砂，
        只在边缘留 0.5px 发丝边（原来是 rgba(6,18,24,.94) 深色实底 + blur(6px)）。 */

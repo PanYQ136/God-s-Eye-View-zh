@@ -69,8 +69,9 @@
     }
     el.textContent = msg;
     el.classList.add('show');
-    clearTimeout(el._hideTimer);
-    el._hideTimer = setTimeout(() => el.classList.remove('show'), 4200);
+    /* 与 gev-autolocate 共用同一个 DOM 定时器槽，避免旧定时器掐断新消息。 */
+    clearTimeout(el._gevToastTimer);
+    el._gevToastTimer = setTimeout(() => el.classList.remove('show'), 4200);
   }
 
   function setLabel(text) {

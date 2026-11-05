@@ -50,7 +50,9 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
   const QUAKE_RE = /地震|余震/;
   const PLACE_RE =
     /暴雨|强对流|雷电|冰雹|大风|高温|大雾|霾|寒潮|暴雪|沙尘|道路结冰|山洪|地质灾害/;
-  const PLACE_NAME_RE = /[\u4e00-\u9fa5]{2,8}(?:市|县|区|州|盟|旗|镇|乡)/;
+  /* 省级台预警（如「吉林省气象台发布大风蓝色预警」）没有市/县后缀，
+     补上 省/自治区 才能取到落点，否则联动会退化成「保持当前视野」。 */
+  const PLACE_NAME_RE = /[\u4e00-\u9fa5]{2,8}(?:省|自治区|市|县|区|州|盟|旗|镇|乡)/;
 
   const LAYER_LABEL = { 'cn-typhoon': '台风', 'cn-quakes': '地震' };
   const FLY = {

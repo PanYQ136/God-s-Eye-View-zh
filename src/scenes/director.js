@@ -241,7 +241,7 @@ export class SceneDirector {
       this._loadAbort?.abort();
       this._loadGeneration++;
       this.viewer.camera.cancelFlight();
-      clearTimeout(this._storageToastTimer);
+      clearTimeout(document.getElementById('toast')?._gevToastTimer);
       await Promise.allSettled(this._pendingWork || []);
       this._clock.destroy();
       this._cancelActiveSceneTravel();
@@ -348,8 +348,9 @@ export class SceneDirector {
       if (toast) {
         toast.textContent = message;
         toast.classList.add('visible');
-        clearTimeout(this._storageToastTimer);
-        this._storageToastTimer = setTimeout(() => {
+        /* 与 shellFeedback 共用 DOM 定时器槽，避免两个 owner 互相掐断。 */
+        clearTimeout(toast._gevToastTimer);
+        this._storageToastTimer = toast._gevToastTimer = setTimeout(() => {
           toast.classList.remove('visible');
         }, 2600);
       }

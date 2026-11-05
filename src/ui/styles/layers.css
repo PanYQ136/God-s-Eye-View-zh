@@ -1047,7 +1047,9 @@
   }
   .context-radio-mini {
     position: absolute;
-    z-index: 5;
+    /* 父 #global-context-panel 不建 stacking context，5 会直接输给
+       同栏 #pp-toggles(110)；提到 120 保证折叠电台弹层可见可点。 */
+    z-index: 120;
     top: calc(100% + 20px);
     right: -38px;
     display: none;

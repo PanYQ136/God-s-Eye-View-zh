@@ -230,9 +230,11 @@ option {
 #gev-toast {
   position: fixed;
   left: 50%;
-  bottom: 92px;
+  /* 与 #toast(168px) 错开，且高于底部指令坞顶缘(~148px)；两者同屏不再叠字。 */
+  bottom: 220px;
   transform: translateX(-50%) translateY(10px);
-  z-index: 152;
+  /* 高于 #loading-screen(1000)，冷启动遮罩不再吞掉定位溯源提示。 */
+  z-index: var(--z-toast, 1100);
   padding: 9px 16px;
   font-family: var(--font-sans);
   font-size: 13px;

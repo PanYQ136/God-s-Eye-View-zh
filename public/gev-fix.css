@@ -180,4 +180,10 @@ label.radio-filter-label, #radio-station-meta, .radio-volume-row > span { color:
   body.recording-mode :is(#gev-dossier,#gev-perf-wrap,#gev-gfx-fab,#gev-gfx-panel,#gev-pw-reset,#gev-lang-toggle,#gev-locate-btn,#gev-toast,#toast),
   body.recording-mode .lc-stage,
   body.ui-clean-view :is(#gev-dossier,#gev-perf-wrap,#gev-gfx-fab,#gev-gfx-panel,#gev-pw-reset,#gev-lang-toggle,#gev-locate-btn,#gev-toast,#toast) { display: none; }
+
+  /* 净屏退出药丸(300) 与场景运行条(105) 在顶部中央重叠 12px；净屏下运行条不该出现。 */
+  body.ui-clean-view #scene-runtime { display: none; }
+  /* 场景播放时 #scene-runtime(z105) 盖住顶中行；recording.css 已隐藏 4 个按钮，
+     这里补上漏掉的 share（健康 chip 由 cn-health 模块自行隐藏）。 */
+  body.scene-playback-mode #share-btn { display: none; }
 }
