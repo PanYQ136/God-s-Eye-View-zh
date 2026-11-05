@@ -10,12 +10,14 @@ export const xrayShader = {
       default: 0.6,
       min: 0,
       max: 1,
+      // i18n-ignore
       label: 'Edge Boost',
     } /* i18n-ignore */,
     lift: {
       default: 0.12,
       min: 0,
       max: 1,
+      // i18n-ignore
       label: 'Shadow Lift',
     } /* i18n-ignore */,
   },

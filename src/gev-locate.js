@@ -49,6 +49,7 @@
         outlineColor: '#ffffff',
         outlineWidth: 2,
       },
+      // i18n-ignore
       label: {
         /* i18n-ignore */
         text: '我的位置',

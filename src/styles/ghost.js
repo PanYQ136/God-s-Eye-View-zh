@@ -10,12 +10,14 @@ export const ghostShader = {
       default: 0.55,
       min: 0,
       max: 1,
+      // i18n-ignore
       label: 'Contrast',
     } /* i18n-ignore */,
     noise: {
       default: 0.35,
       min: 0,
       max: 1,
+      // i18n-ignore
       label: 'Sensor Noise',
     } /* i18n-ignore */,
   },
