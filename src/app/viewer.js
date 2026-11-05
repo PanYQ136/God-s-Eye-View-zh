@@ -1,3 +1,8 @@
+<<<<<<< ours
+import * as Cesium from 'cesium';
+import { applyModelAtmosphereWorkaround } from './atmosphereCompat.js';
+import { StarrySky } from '../sky/starrySky.js';
+=======
 import { Cesium } from '../cesium.js';
 import {
   applyModelAtmosphereWorkaround,
@@ -19,6 +24,7 @@ try {
 } catch (_) {
   /* 任何异常都不影响启动 */
 }
+>>>>>>> theirs
 
 const PINCH_ZOOM_MULTIPLIER = 8;
 const MAX_PINCH_PIXEL_DELTA = 120;
@@ -121,6 +127,11 @@ export function installTrackpadPinchZoom(
   };
 }
 
+<<<<<<< ours
+/** Cesium.Viewer options of the standard globe viewer. */
+export function applicationViewerOptions(creditContainer) {
+  return {
+=======
 /** Create the standard globe viewer in caller-owned, visible containers. */
 export function createApplicationViewer({ container, creditContainer }) {
   if (!container || !creditContainer)
@@ -172,6 +183,7 @@ export function createApplicationViewer({ container, creditContainer }) {
         : 'high-performance';
   timeline.mark('viewer:construct:begin', { gpuPref, msaa });
   const viewer = new Cesium.Viewer(container, {
+>>>>>>> theirs
     timeline: false,
     animation: false,
     baseLayerPicker: false,
@@ -184,7 +196,32 @@ export function createApplicationViewer({ container, creditContainer }) {
     selectionIndicator: false,
     infoBox: false,
     baseLayer: false,
+    // Replaces the blocky Tycho-2 default. An option, not `skyBox: false`,
+    // which would also stop CesiumWidget from creating the Sun and Moon.
+    skyBox: new StarrySky(),
     creditContainer,
+<<<<<<< ours
+    msaaSamples: 4,
+    contextOptions: { webgl: { preserveDrawingBuffer: true } },
+  };
+}
+
+/** Create the standard globe viewer in caller-owned, visible containers. */
+export function createApplicationViewer({ container, creditContainer }) {
+  if (!container || !creditContainer)
+    throw new TypeError('Viewer and credit containers are required');
+  const viewer = new Cesium.Viewer(
+    container,
+    applicationViewerOptions(creditContainer),
+  );
+  try {
+    viewer.targetFrameRate = 60;
+    // A phone pinch spans fewer screen pixels than desktop zoom gestures.
+    // Keep Cesium's distance-aware zoom and collision limits, with less travel
+    // required on touch-first screens. Mouse/trackpad sensitivity stays native.
+    if (globalThis.matchMedia?.('(pointer: coarse)').matches)
+      viewer.scene.screenSpaceCameraController.zoomFactor *= 3;
+=======
     // iOS: no MSAA by default — the biggest single memory cost on a phone GPU.
     msaaSamples: msaa,
     // Honour resolutionScale instead of clamping to 1 CSS px — keeps the
@@ -272,6 +309,7 @@ export function createApplicationViewer({ container, creditContainer }) {
         }
       };
     } catch (e) {}
+>>>>>>> theirs
     // Before any tile builds a draw command: Cesium's per-vertex model
     // atmosphere fails to LINK on Apple's Metal backend and kills the
     // render loop. See app/atmosphereCompat.js.

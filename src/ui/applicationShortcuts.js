@@ -5,10 +5,13 @@ const STYLE_KEYS = Object.freeze({
   4: 'thermal',
   5: 'anime',
   6: 'noir',
+<<<<<<< ours
+=======
   7: 'snow',
   8: 'amber',
   9: 'ghost',
   0: 'predator',
+>>>>>>> theirs
 });
 
 /**

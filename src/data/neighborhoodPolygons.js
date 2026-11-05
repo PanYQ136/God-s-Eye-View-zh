@@ -27,10 +27,13 @@ const CITY_FILES = [
       './local_data/neighborhoods/san-francisco.json',
       import.meta.url,
     ),
+<<<<<<< ours
+=======
     importJson: () =>
       import(/* @vite-ignore */ SF_JSON, {
         with: { type: 'json' },
       }),
+>>>>>>> theirs
   },
 ];
 
@@ -61,6 +64,20 @@ const NAME_ALIASES = new Map([
   ['financial district', 'financial district south beach'],
   ['downtown', 'financial district south beach'],
 ]);
+
+const FILLER_WORDS = new Set([
+  'the',
+  'district',
+  'neighborhood',
+  'neighbourhood',
+]);
+
+/** Whether a feature's words are all of the query's, ignoring filler words. */
+function sameWords(featureWords, queryWords) {
+  const f = new Set(featureWords.filter((w) => !FILLER_WORDS.has(w)));
+  const q = [...queryWords].filter((w) => !FILLER_WORDS.has(w));
+  return q.length === f.size && q.every((w) => f.has(w));
+}
 
 /** Ray-casting point-in-ring. ring = [[lon,lat], …]. */
 function pointInRing(lon, lat, ring) {
@@ -117,7 +134,7 @@ function cityLoader(city) {
   let loader = _cityLoaders.get(city.id);
   if (!loader) {
     loader = createRetryableLoader(async () => {
-      const fc = await loadBundledJson(city.url, city.importJson);
+      const fc = await loadBundledJson(city.url);
       return Array.isArray(fc.features) ? fc.features : [];
     });
     _cityLoaders.set(city.id, loader);
@@ -144,10 +161,18 @@ async function loadCity(city) {
  * @param {number} lat
  * @param {number} lon
  * @param {string} matchName - the geocoder's canonical place name (e.g. "Marina District")
+ * @param {{exact?: boolean}} [options] - `exact`: the name must be the whole ask
+ *   (ignoring "the", "district", "neighborhood"), for asks no geocoder has typed
+ *   ("the Mission District" matches Mission; "Mission Dolores Park" does not).
  * @returns {Promise<{ring:[number,number][], name:string}|null>} the outer ring + matched
  *   neighborhood name, or null when the point isn't in a covered city / no match.
  */
-export async function lookupNeighborhoodRing(lat, lon, matchName) {
+export async function lookupNeighborhoodRing(
+  lat,
+  lon,
+  matchName,
+  { exact = false } = {},
+) {
   const city = CITY_FILES.find(
     (c) =>
       lon >= c.bbox[0] &&
@@ -182,6 +207,7 @@ export async function lookupNeighborhoodRing(lat, lon, matchName) {
     if (!fname) continue;
     const fWords = fname.split(' ').filter(Boolean);
     if (!fWords.length || !fWords.every((w) => qWords.has(w))) continue; // require name match
+    if (exact && !sameWords(fWords, qWords)) continue;
     const containRing = containingOuterRing(f, lon, lat);
     const ring = containRing || largestOuterRing(f.geometry);
     if (!ring) continue;

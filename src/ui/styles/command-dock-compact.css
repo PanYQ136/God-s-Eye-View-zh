@@ -337,6 +337,15 @@
     text-align: right;
   }
 
+<<<<<<< ours
+@media (max-width: 900px) {
+  #command-dock #location-bar .location-toolbar-label {
+    overflow: hidden;
+  }
+
+  #command-dock {
+    --dock-popover-mobile-width: calc(100vw - 1.5rem);
+=======
   #command-dock #gev-voice-detail {
     grid-column: 2 / 4;
     grid-row: 3;
@@ -346,6 +355,7 @@
     font-size: 0.39rem;
     letter-spacing: 0.08rem;
     text-align: center;
+>>>>>>> theirs
   }
 
   @keyframes command-dock-reveal {

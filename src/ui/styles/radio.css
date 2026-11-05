@@ -1,3 +1,134 @@
+<<<<<<< ours
+/* ── Radio companion section inside Context ── */
+#radio-panel {
+  position: relative;
+  width: 100%;
+  min-height: 0;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(65, 220, 231, 0.16);
+}
+.radio-panel-inner {
+  position: relative;
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  gap: 9px;
+  padding: 10px;
+  border: 1px solid rgba(65, 220, 231, 0.18);
+  border-radius: 8px;
+  background: rgba(2, 15, 20, 0.42);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+#radio-panel .panel-header {
+  margin-bottom: 0;
+}
+.radio-layer-state {
+  color: var(--text-dim);
+  font: 8px/1 var(--font-mono);
+  letter-spacing: 0.12em;
+}
+.radio-layer-state.active {
+  color: #65f7ff;
+}
+.radio-directory-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px 8px;
+  align-items: end;
+}
+.radio-filter-label {
+  grid-column: 2;
+  color: var(--text-dim);
+  font: 7px/1 var(--font-mono);
+  letter-spacing: 0.12em;
+}
+#radio-enable-btn {
+  grid-row: 1 / span 2;
+  min-height: 36px;
+}
+#radio-filter {
+  /* Radio owns its compact density and arrow space; shared fields paint the
+     palette and disabled state, including this intentional theme exception. */
+  padding-block: 7px;
+  padding-inline: 8px 24px;
+  border-radius: 5px;
+  font: 9px/1.2 var(--font-mono);
+  --gev-field-border-color: rgba(65, 220, 231, 0.28);
+  --gev-field-color: #c5faff;
+  --gev-field-background: rgba(5, 24, 31, 0.88);
+  --gev-field-disabled-opacity: 0.42;
+}
+.radio-station-card {
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+  border: 1px solid rgba(65, 220, 231, 0.18);
+  border-radius: 7px;
+  background: rgba(2, 15, 20, 0.48);
+  overflow-wrap: anywhere;
+}
+.radio-station-card strong {
+  color: #e8feff;
+  font: 11px/1.25 var(--font-mono);
+  letter-spacing: 0.05em;
+}
+.radio-station-card span {
+  color: var(--text-dim);
+  font: 8px/1.35 var(--font-mono);
+}
+#radio-station-tags {
+  color: #72dce6;
+}
+.radio-tuner {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  gap: 5px;
+  padding: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(65, 220, 231, 0.22);
+  border-radius: 7px;
+  background: linear-gradient(
+    180deg,
+    rgba(1, 9, 13, 0.92),
+    rgba(4, 24, 30, 0.72)
+  );
+  box-shadow: inset 0 0 18px rgba(0, 212, 255, 0.045);
+}
+.radio-tuner[hidden] {
+  display: none;
+}
+.radio-tuner-header,
+.radio-tuner-readout {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: #6daeb5;
+  font: 7px/1.2 var(--font-mono);
+  letter-spacing: 0.1em;
+}
+#radio-tuner-value {
+  min-width: 0;
+  color: #a8f7ff;
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.radio-tuner-dial {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  height: 51px;
+  overflow: hidden;
+  contain: paint;
+  border-block: 1px solid rgba(72, 225, 237, 0.3);
+  background:
+    linear-gradient(
+=======
 @layer components {
   /* ── Radio companion section inside Context ── */
   #radio-panel {
@@ -90,10 +221,359 @@
     border: 1px solid rgba(65, 220, 231, 0.22);
     border-radius: 7px;
     background: linear-gradient(
+>>>>>>> theirs
       180deg,
       rgba(1, 9, 13, 0.92),
       rgba(4, 24, 30, 0.72)
     );
+<<<<<<< ours
+}
+.radio-tuner-scale {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  color: #58cbd6;
+  font: 9px/1 var(--font-mono);
+  text-shadow: 0 0 7px rgba(65, 220, 231, 0.5);
+  pointer-events: none;
+}
+.radio-tuner-tick {
+  position: absolute;
+  top: 6px;
+  bottom: 0;
+  min-width: 1px;
+  border-left: 1px solid rgba(85, 224, 235, 0.38);
+  color: #58cbd6;
+  padding-left: 3px;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  transition: left 80ms linear;
+}
+.radio-tuner-tick.is-current {
+  border-left-color: rgba(168, 247, 255, 0.9);
+  color: #a8f7ff;
+}
+.radio-tuner-needle {
+  position: absolute;
+  z-index: 1;
+  top: 2px;
+  bottom: 2px;
+  left: calc(7px + (100% - 14px) * var(--radio-tuner-ratio, 0));
+  width: 3px;
+  border-radius: 1px;
+  background: #ff6f4f;
+  box-shadow:
+    0 0 4px #ff6f4f,
+    0 0 10px rgba(255, 77, 50, 0.65);
+  pointer-events: none;
+  transform: translateX(-50%);
+  transition: left 0.18s ease-out;
+}
+.radio-tuner.is-dragging .radio-tuner-needle,
+.radio-tuner.is-dragging .radio-tuner-tick {
+  transition: none;
+}
+#radio-tuner-slider {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  height: 100%;
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: ew-resize;
+  touch-action: none;
+  background: transparent;
+}
+#radio-tuner-slider::-webkit-slider-runnable-track {
+  height: 100%;
+  background: transparent;
+}
+#radio-tuner-slider::-webkit-slider-thumb {
+  width: 14px;
+  height: 47px;
+  margin-top: 2px;
+  border: 0;
+  border-radius: 1px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  box-shadow: none;
+}
+#radio-tuner-slider::-moz-range-track {
+  height: 100%;
+  background: transparent;
+}
+#radio-tuner-slider::-moz-range-thumb {
+  width: 14px;
+  height: 47px;
+  border: 0;
+  border-radius: 1px;
+  background: transparent;
+  box-shadow: none;
+}
+.radio-tuner.is-static .radio-tuner-dial {
+  box-shadow: inset 0 0 14px rgba(255, 111, 79, 0.1);
+}
+.radio-tuner.is-static #radio-tuner-station {
+  color: #ff9b7e;
+}
+.radio-tuner-readout span:first-child {
+  min-width: 0;
+  color: #7fe6ef;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.radio-tuner-readout span:last-child {
+  flex: 0 0 auto;
+  color: #517f84;
+}
+.radio-transport {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+}
+.radio-transport button {
+  min-height: 30px;
+  padding: 6px 3px;
+  border: 1px solid rgba(65, 220, 231, 0.28);
+  border-radius: 5px;
+  color: #8feaf2;
+  background: rgba(14, 69, 78, 0.14);
+  font: 8px/1 var(--font-mono);
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+/* A longer translated action stays on one line, cut with an ellipsis. */
+html:not([lang='en']) .radio-transport button {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.radio-transport button:hover:not(:disabled),
+.radio-transport button:focus-visible:not(:disabled) {
+  border-color: #65f7ff;
+  color: #fff;
+  outline: none;
+}
+.radio-transport button:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+#radio-filter:disabled {
+  cursor: not-allowed;
+}
+#radio-play-btn.active {
+  color: #fff;
+  border-color: rgba(101, 247, 255, 0.8);
+  background: rgba(65, 220, 231, 0.18);
+  box-shadow: 0 0 12px rgba(65, 220, 231, 0.12);
+}
+.radio-volume-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 32px;
+  gap: 8px;
+  align-items: center;
+  color: var(--text-dim);
+  font: 7px/1 var(--font-mono);
+  letter-spacing: 0.1em;
+}
+.radio-volume-row input {
+  width: 100%;
+}
+.radio-playback-state {
+  min-height: 12px;
+  color: #79d7df;
+  font: 8px/1.35 var(--font-mono);
+}
+.radio-playback-state.error {
+  color: #ff9d8f;
+}
+.radio-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 5px 10px;
+}
+.radio-links a {
+  color: #64cbd5;
+  font: 7px/1.3 var(--font-mono);
+  letter-spacing: 0.06em;
+  text-decoration: none;
+}
+.radio-links a:hover,
+.radio-links a:focus-visible {
+  color: #fff;
+}
+.radio-privacy {
+  margin: 0;
+  color: rgba(190, 230, 230, 0.48);
+  font: 7px/1.4 var(--font-mono);
+}
+#military-awareness-panel {
+  width: 100%;
+  min-height: 0;
+  overflow: auto;
+  box-sizing: border-box;
+  padding: 2px 1px 0;
+  color: #dceeff;
+  background: transparent;
+  border: 0;
+  font:
+    11px/1.35 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+}
+
+#military-awareness-panel[hidden] {
+  display: none;
+}
+.military-awareness-names {
+  margin: 6px 0;
+  color: var(--text-dim);
+}
+.military-awareness-names > div {
+  max-height: 160px;
+  overflow-y: auto;
+  padding: 6px 0;
+}
+.military-awareness-subject {
+  margin: 0 0 7px;
+  color: #fff;
+}
+.military-awareness-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 5px;
+  margin: 0 0 8px;
+}
+.military-awareness-controls button {
+  border: 1px solid rgba(98, 181, 255, 0.34);
+  border-radius: 4px;
+  padding: 4px 3px;
+  color: #a9d9ff;
+  background: rgba(42, 113, 171, 0.12);
+  font:
+    9px/1.2 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  letter-spacing: 0.07em;
+  cursor: pointer;
+}
+.military-awareness-controls button:hover,
+.military-awareness-controls button:focus-visible {
+  color: #fff;
+  border-color: rgba(127, 200, 255, 0.85);
+  background: rgba(66, 148, 211, 0.24);
+  outline: none;
+}
+.military-awareness-controls button:disabled {
+  color: #627181;
+  border-color: rgba(98, 181, 255, 0.12);
+  background: transparent;
+  cursor: default;
+}
+.military-awareness-row {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 7px 0;
+}
+.military-awareness-row > div {
+  display: flex;
+  justify-content: space-between;
+}
+.military-awareness-row b {
+  color: #7fc8ff;
+}
+.military-awareness-row.unknown b {
+  color: #8fcfff;
+}
+.military-awareness-row small,
+.military-awareness-note {
+  color: #a9b7c7;
+}
+.military-awareness-row ul {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.military-awareness-row li {
+  display: block;
+}
+.military-awareness-target {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  border: 0;
+  padding: 1px 0;
+  color: #dceeff;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.military-awareness-target.unavailable {
+  color: var(--text-dim);
+  cursor: default;
+}
+.military-awareness-target:hover,
+.military-awareness-target:focus-visible {
+  color: #fff;
+  outline: none;
+  text-shadow: 0 0 8px rgba(114, 202, 255, 0.85);
+}
+.military-awareness-target:focus-visible {
+  box-shadow: inset 0 -1px 0 #7fc8ff;
+}
+.military-awareness-target span {
+  color: #7fc8ff;
+  white-space: nowrap;
+}
+.military-awareness-note {
+  margin: 8px 0 0;
+  font-size: 10px;
+}
+.military-awareness-standby {
+  display: grid;
+  gap: 7px;
+  padding: 12px 4px 4px;
+  border-top: 1px solid rgba(98, 181, 255, 0.16);
+}
+.military-awareness-standby strong {
+  color: var(--text-primary);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+.military-awareness-standby span {
+  color: rgba(214, 236, 255, 0.72);
+  font-size: 10px;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+.military-awareness-standby button {
+  justify-self: start;
+  padding: 4px 12px;
+  border: 1px solid rgba(98, 181, 255, 0.34);
+  border-radius: 4px;
+  color: #a9d9ff;
+  background: rgba(42, 113, 171, 0.12);
+  font:
+    9px/1.2 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+=======
     box-shadow: inset 0 0 18px rgba(0, 212, 255, 0.045);
   }
   .radio-tuner[hidden] {
@@ -466,6 +946,7 @@
     letter-spacing: 0.08em;
     cursor: pointer;
   }
+>>>>>>> theirs
 
   #military-awareness-direction-overlay {
     position: absolute;
@@ -636,6 +1117,129 @@
     text-align: right;
   }
 
+<<<<<<< ours
+/* Longer translations below; English keeps the layout above. */
+
+/* The name takes the room the status column leaves; a long word wraps inside
+   it instead of pushing the toggle out of line. */
+html:not([lang='en']) .data-toggle-left {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* A fixed icon box, so every name (and the meta line under it, 26px in)
+   starts at the same x whatever the glyph's width. */
+html:not([lang='en']) .data-toggle-left .data-icon {
+  flex: none;
+  width: 18px;
+  text-align: center;
+}
+
+/* Translated layer names are longer: break between words, and hyphenate a
+   word that still does not fit instead of splitting it anywhere. */
+html:not([lang='en']) .data-name {
+  min-width: 0;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  /* No two-letter pieces such as "es-paciales": a word hyphenates only when
+     at least four letters stay on each side. */
+  hyphenate-limit-chars: 8 4 4;
+}
+
+html:not([lang='en']) .data-count {
+  min-width: auto;
+  text-wrap: balance;
+}
+
+/* The status column keeps its width, so a wide chip (WIRD AKTIVIERT) never
+   overlaps the name; the name wraps in the room left beside it. */
+html:not([lang='en']) .data-toggle-right {
+  flex: none;
+}
+
+/* Row text pieces that must not break inside: a hyphenated code (ADS-B) and
+   the space before a " · " separator (see rowTextRuns in layerRowText.js). */
+html:not([lang='en']) .data-keep {
+  white-space: nowrap;
+}
+
+/* A count phrase ("24 nearby · 2 on screen") takes its own line under the
+   name instead of squeezing it beside the toggle. layerPanel.js sets the
+   class only outside English. */
+html:not([lang='en']) .data-toggle-row--count-line .data-toggle-top {
+  flex-wrap: wrap;
+  row-gap: 2px;
+}
+
+html:not([lang='en']) .data-toggle-row--count-line .data-toggle-right {
+  display: contents;
+}
+
+/* A zero basis, so a long name wraps beside the toggle instead of pushing the
+   toggle onto the count's line. */
+html:not([lang='en']) .data-toggle-row--count-line .data-toggle-left {
+  flex-basis: 0;
+}
+
+html:not([lang='en']) .data-toggle-row--count-line .data-count {
+  order: 1;
+  flex: 1 0 100%;
+  padding-left: 26px;
+  font-size: 10px;
+  text-align: left;
+}
+
+/* The "—" placeholder gives way to a wide status chip, so the name keeps the
+   room it needs. */
+html:not([lang='en'])
+  .data-toggle-right:has(
+    .data-toggle-btn:is(
+      .transitioning,
+      .feed-loading,
+      .feed-degraded,
+      .feed-stale,
+      .feed-partial,
+      .feed-fallback,
+      .feed-unavailable
+    )
+  )
+  .data-count-empty {
+  display: none;
+}
+
+.data-toggle-btn {
+  padding: 3px 10px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    color var(--transition-fast),
+    min-width var(--transition-fast),
+    letter-spacing var(--transition-fast);
+  outline: none;
+  min-width: 38px;
+  text-align: center;
+}
+
+html:not([lang='en']) .data-toggle-btn {
+  flex: none;
+  white-space: nowrap;
+}
+
+/* An inset ring stays visible inside the scrolling layer list. */
+.data-toggle-btn:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: -3px;
+}
+=======
   .data-toggle-btn {
     padding: 3px 10px;
     font-family: var(--font-mono);
@@ -663,6 +1267,7 @@
     outline: 2px solid var(--text-primary);
     outline-offset: -3px;
   }
+>>>>>>> theirs
 
   .data-toggle-btn.feed-loading,
   .data-toggle-btn.feed-degraded,
@@ -674,10 +1279,31 @@
     letter-spacing: 0.8px;
   }
 
+<<<<<<< ours
+/* Status chips up to eight characters share one width; a longer word grows
+   its own chip rather than widening every chip and squeezing every name. */
+html:not([lang='en'])
+  .data-toggle-btn:is(
+    .feed-loading,
+    .feed-degraded,
+    .feed-stale,
+    .feed-partial,
+    .feed-fallback,
+    .feed-unavailable
+  ) {
+  min-width: 72px;
+}
+
+.data-toggle-btn:hover {
+  border-color: var(--glass-border-hover);
+  background: rgba(255, 255, 255, 0.06);
+}
+=======
   .data-toggle-btn:hover {
     border-color: var(--glass-border-hover);
     background: rgba(255, 255, 255, 0.06);
   }
+>>>>>>> theirs
 
   .data-toggle-btn.active {
     color: var(--accent);
@@ -885,6 +1511,279 @@
     white-space: nowrap;
   }
 
+<<<<<<< ours
+/* A translated instruction wraps under itself rather than losing its tail:
+   "Gira a la derecha hacia …" says nothing. */
+html:not([lang='en']) .data-row-list-lead {
+  white-space: nowrap;
+}
+
+html:not([lang='en']) .data-row-list-text {
+  min-width: 0;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* A list line that states a limit rather than offering an action. */
+.data-row-list-item.note {
+  cursor: default;
+  opacity: 0.75;
+  font-style: italic;
+}
+
+.data-toggle-controls-info {
+  flex-basis: 100%;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-secondary);
+  padding-top: 3px;
+  overflow-wrap: anywhere;
+}
+
+/* Optional per-layer one-of-many switch (Active Fires confidence). The shared
+   .gev-segmented surface, sized to the chip row. */
+.data-toggle-controls .data-toggle-segmented {
+  flex-basis: 100%;
+  max-width: 220px;
+}
+
+.data-toggle-segmented-label {
+  flex-basis: 100%;
+  padding-top: 2px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 1.2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.data-toggle-controls .data-toggle-segment {
+  min-height: 20px;
+  padding: 3px 6px;
+  font-size: 8px;
+  letter-spacing: 0.8px;
+}
+
+/* Optional per-layer quantitative slider (Active Fires minimum FRP). The
+   track is painted by the layer (`--slider-track`, a stepped color ramp), so
+   the slider doubles as the marker legend; ticks sit under their thresholds. */
+.data-toggle-slider {
+  flex-basis: 100%;
+  display: grid;
+  gap: 2px;
+  padding-top: 2px;
+}
+
+.data-toggle-slider-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 1.2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.data-toggle-slider-value {
+  min-width: 0;
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  text-transform: none;
+}
+
+.data-toggle-slider-input {
+  height: 14px;
+}
+
+.data-toggle-slider-input::-webkit-slider-runnable-track {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--slider-track, rgba(255, 255, 255, 0.08));
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+
+.data-toggle-slider-input::-moz-range-track,
+.data-toggle-slider-input::-moz-range-progress {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--slider-track, rgba(255, 255, 255, 0.08));
+}
+
+.data-toggle-slider-input::-webkit-slider-thumb {
+  width: 11px;
+  height: 11px;
+  margin-top: -3px;
+  background: var(--text-primary);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.6),
+    0 0 6px rgba(255, 255, 255, 0.35);
+}
+
+.data-toggle-slider-input::-moz-range-thumb {
+  width: 11px;
+  height: 11px;
+  background: var(--text-primary);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.6),
+    0 0 6px rgba(255, 255, 255, 0.35);
+}
+
+.data-toggle-slider-ticks {
+  position: relative;
+  height: 10px;
+  margin: 0 5px;
+  font-family: var(--font-mono);
+  font-size: 7px;
+  letter-spacing: 0.4px;
+  color: var(--text-dim);
+}
+
+.data-toggle-slider-tick {
+  position: absolute;
+  top: 0;
+  left: var(--at);
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.data-toggle-slider-tick:first-child {
+  transform: none;
+}
+/* ── Local RTL-SDR card (FM + Local ADS-B receiver) ── */
+.sdr-radio-card {
+  display: grid;
+  gap: 7px;
+  margin-top: 3px;
+  padding: 9px;
+  border: 1px solid rgba(255, 170, 60, 0.28);
+  border-radius: 7px;
+  background: linear-gradient(
+    180deg,
+    rgba(31, 18, 4, 0.58),
+    rgba(4, 20, 24, 0.72)
+  );
+}
+.sdr-radio-heading,
+.sdr-radio-actions,
+.sdr-mode-row,
+.sdr-gain-row,
+.sdr-frequency-row,
+.sdr-seek-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sdr-radio-heading {
+  justify-content: space-between;
+}
+.sdr-radio-heading strong {
+  color: #ffd38a;
+  font: 9px/1 var(--font-mono);
+  letter-spacing: 0.1em;
+}
+#sdr-connection-state {
+  color: #9e865f;
+  font: 7px/1 var(--font-mono);
+  letter-spacing: 0.1em;
+}
+#sdr-connection-state.active {
+  color: #74f7c4;
+}
+.sdr-radio-card > p {
+  margin: 0;
+  color: rgba(213, 230, 225, 0.58);
+  font: 7px/1.4 var(--font-mono);
+}
+.sdr-radio-card button,
+.sdr-radio-card select,
+.sdr-radio-card input[type='number'] {
+  min-height: 28px;
+  border-radius: 5px;
+  font: 8px/1 var(--font-mono);
+  /* The shared field paints the surface (and the select's chevron). */
+  --gev-field-border-color: rgba(255, 183, 82, 0.28);
+  --gev-field-color: #ffd79a;
+  --gev-field-background: rgba(38, 25, 8, 0.52);
+}
+.sdr-radio-card button {
+  padding: 6px 8px;
+  cursor: pointer;
+}
+.sdr-radio-card button:hover:not(:disabled),
+.sdr-radio-card button:focus-visible:not(:disabled),
+.sdr-radio-card button.active {
+  border-color: #ffd38a;
+  color: #fff;
+  outline: none;
+  background: rgba(130, 83, 18, 0.28);
+}
+.sdr-radio-card button:disabled,
+.sdr-radio-card select:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.sdr-radio-actions > *,
+.sdr-mode-row > *,
+.sdr-seek-row > * {
+  flex: 1;
+}
+.sdr-gain-row label,
+.sdr-frequency-row label {
+  color: #9e865f;
+  font: 7px/1 var(--font-mono);
+  letter-spacing: 0.08em;
+}
+.sdr-gain-row select {
+  flex: 1;
+  min-width: 0;
+  padding-block: 5px;
+  padding-inline: 7px 22px;
+}
+.sdr-adsb-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 8px;
+  color: #9e865f;
+  font: 7px/1.3 var(--font-mono);
+  letter-spacing: 0.08em;
+}
+.sdr-adsb-stats[hidden] {
+  display: none;
+}
+.sdr-adsb-stats output {
+  color: #ffd79a;
+  font: 9px/1 var(--font-mono);
+}
+.sdr-frequency-row input[type='number'] {
+  width: 78px;
+  min-width: 0;
+  padding: 5px 7px;
+}
+.sdr-frequency-row button {
+  margin-left: auto;
+}
+.sdr-radio-card .radio-volume-row {
+  color: #9e865f;
+}
+.sdr-radio-card .radio-playback-state {
+  color: #ddbe86;
+}
+.sdr-radio-card .radio-playback-state.error {
+  color: #ff9d8f;
+}
+.sdr-feed-status {
+  color: #9e865f;
+  font: 8px/1.3 var(--font-mono);
+  letter-spacing: 0.08em;
+  overflow-wrap: anywhere;
+}
+.sdr-feed-status[hidden] {
+  display: none;
+=======
   /* A list line that states a limit rather than offering an action. */
   .data-row-list-item.note {
     cursor: default;
@@ -1029,4 +1928,5 @@
   .sdr-feed-status[hidden] {
     display: none;
   }
+>>>>>>> theirs
 }

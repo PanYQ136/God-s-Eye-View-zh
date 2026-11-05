@@ -31,6 +31,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0&icon_names=adjust,arrow_drop_down,arrow_forward,arrow_left,arrow_right,bolt,chevron_left,chevron_right,close,close_fullscreen,dark_mode,draw,east,flare,flight,layers_clear,light_mode,local_fire_department,my_location,navigation,normal,on,open_in_full,public,radar,radio,right_panel_close,right_panel_open,rocket_launch,skip_next,skip_previous,view_in_ar') layer(vendor);
 
 @import './src/ui/styles/foundation.css';
+@import './src/ui/styles/action-button.css';
+@import './src/ui/styles/form-field.css';
+@import './src/ui/styles/status-badge.css';
+@import './src/ui/styles/slider.css';
 @import './src/ui/styles/controls.css';
 @import './src/ui/styles/location.css';
 @import './src/ui/styles/status.css';
@@ -39,20 +43,31 @@
 @import './src/ui/styles/layers.css';
 @import './src/ui/styles/radio.css';
 @import './src/ui/styles/cctv.css';
+@import './src/ui/styles/street-level.css';
 @import './src/ui/styles/scenes.css';
 @import './src/ui/styles/bhote-koshi.css';
 @import './src/ui/styles/recent-imagery.css';
 @import './src/ui/styles/recording.css';
+@import './src/ui/styles/embed.css';
 @import './src/ui/styles/responsive.css';
 @import './src/ui/styles/command-dock.css';
 @import './src/ui/styles/command-dock-compact.css';
 @import './src/ui/styles/command-dock-trays.css';
 @import './src/ui/styles/command-dock-sliding.css';
 @import './src/ui/styles/voice-cost.css';
+@import './src/ui/styles/voice-card.css';
 @import './src/ui/styles/first-run.css';
 @import './src/ui/styles/provider-settings.css';
-
+@import './src/ui/styles/locale-picker.css';
 @import './src/ui/styles/weather.css';
+@import './src/ui/styles/panel-surfaces.css';
+@import './src/ui/styles/segmented-control.css';
+@import './src/ui/styles/kit.css';
+@import './src/ui/styles/cjk.css';
+@import './src/ui/styles/rtl.css';
+@import './src/ui/styles/mobile-shell.css';
+@import './src/ui/styles/annotations.css';
+@import './src/ui/styles/ai-chat.css';
 @import './src/ui/styles/cyber.css';
 /* 手机竖屏适配 mobile-portrait.css 已移至 index.html 独立 <link>：
    避免其 @media 覆盖层被 creditAttribution 桌面布局模型当作 base 样式扫描而误判。 */

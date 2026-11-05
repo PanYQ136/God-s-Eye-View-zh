@@ -3,6 +3,11 @@ import { fetchIfsWind } from './wind/ifs.js';
 import { decodeWindGribMessage } from './wind/decode.js';
 import { weatherScalarMetadata, weatherScalarError } from './wind/grid.js';
 
+<<<<<<< ours
+// Data, not UI copy: the client (src/layers/wind/index.js) marks this exact
+// English with msg() and translates it when shown, so keep the two in sync.
+const UPSTREAM_UNAVAILABLE = 'Wind upstream unavailable';
+=======
 // 有界抽样校验：对 1e6 网格做全量 every(Number.isFinite) 会阻塞事件循环数十毫秒；
 // 长度已严格校验，NaN/Inf 只可能来自解码 bug —— 抽样（≤~4096 点）+ 末点即可捕获，代价 O(1)。
 function hasNonFinite(values) {
@@ -13,6 +18,7 @@ function hasNonFinite(values) {
   if (n > 0 && !Number.isFinite(values[n - 1])) return true;
   return false;
 }
+>>>>>>> theirs
 
 /** Serve bounded, single-flight, per-model/overlay forecast snapshots from fixed providers. */
 export function windProxy({
@@ -36,7 +42,7 @@ export function windProxy({
       ...(overlay === 'none' ? {} : { overlay }),
       unavailable: true,
       stale: true,
-      reason: 'Wind upstream unavailable',
+      reason: UPSTREAM_UNAVAILABLE,
     },
   });
   const sendJson = (res, value, status = 200) => {
@@ -150,7 +156,7 @@ export function windProxy({
           old.manifest = {
             ...old.manifest,
             stale: true,
-            reason: 'Wind upstream unavailable',
+            reason: UPSTREAM_UNAVAILABLE,
           };
           return old;
         }

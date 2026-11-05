@@ -21,6 +21,7 @@ import {
   placementVariants,
 } from './worldOverlayDraw.js';
 import { WORLD_OVERLAY_STYLE } from './worldOverlayTokens.js';
+import { t } from '../i18n/index.js';
 
 import {
   ROOT_ID,
@@ -67,6 +68,102 @@ export {
  * generation; this host owns projection, final placement, paint, and hits.
  */
 
+<<<<<<< ours
+const ROOT_ID = 'world-overlay-root';
+const CANVAS_ID = 'world-overlay-canvas';
+const DETECTION_SURFACE_ID = 'world-overlay-detection-surface';
+const PAINT_TARGET_SHARED = 'shared';
+const PAINT_TARGET_DETECTION = 'detection';
+const OCCLUDER_PADDING_PX = 6;
+const OCCLUDER_REFRESH_MS = 100;
+const DEFAULT_COHORT_LIMIT = 256;
+const MAX_SOURCE_COHORT_LIMIT = 900;
+const DEFAULT_COLLISION_CAPACITY = 96;
+// Phase 4 adds CCTV's shipped 40-card ambient tier to Phase 3's two 96-card
+// infrastructure budgets, FIRMS' 18, and the vessel selector's configured
+// 900-row absolute ceiling. Runtime vessel demand is the much smaller 118px
+// viewport grid (112 at 1600x900, 170 at full HD). This aggregate
+// work-conserving ceiling preserves every source's shipped cap; pinned and
+// active/protected entries bypass it.
+export const AMBIENT_CARD_COLLISION_CAPACITY = 1150;
+const DEFAULT_MOVING_SOLVE_MS = 125;
+const VALID_VARIANTS = new Set([
+  'label',
+  'track',
+  'card',
+  'thumbnail',
+  'selected',
+  'tracked',
+]);
+
+/** Stable logical bottom-to-top paint order across the host-owned surfaces. */
+export const WORLD_OVERLAY_PAINT_LANES = Object.freeze([
+  'detection',
+  'ambient-label',
+  'ambient-track',
+  'ambient-card',
+  'thumbnail',
+  'selected',
+  'tracked',
+]);
+
+const PAINT_LANE_INDEX = new Map(
+  WORLD_OVERLAY_PAINT_LANES.map((lane, index) => [lane, index]),
+);
+
+/**
+ * Unified UI exclusion inventory. Selectors may match multiple elements; the
+ * service caches their rectangles and observes layout/visibility changes.
+ *
+ * These rectangles are a PLACEMENT policy, never a paint mask. Every element
+ * listed here composites ABOVE the overlay host — map chrome sits at z90–z1000
+ * and the cockpit HUD at z145, against this host's z5/z6 — so the browser
+ * already keeps overlay pixels off it and no canvas needs clipping. What the
+ * inventory buys is readability: a card placed under solid chrome is simply
+ * lost, so the solver PREFERS placements clear of it. When nothing is clear the
+ * entry still renders and the chrome covers it, exactly as it did before the
+ * host existed.
+ *
+ * The list therefore holds only chrome dense enough to swallow a card. The
+ * cockpit's thin translucent line art — rims, arcs, rails, tapes, toplines,
+ * readouts — is deliberately ABSENT under the owner's AR-HUD ruling:
+ * world-space overlay content renders beneath the cockpit's screen-space HUD,
+ * which paints over it by z-order. Those elements are also enormous (the
+ * altitude rim is keyhole-tall, the topline viewport-wide), and excluding them
+ * suppressed essentially the entire cockpit view. Only the two solid,
+ * backdrop-filled cockpit windows survive as exclusions.
+ */
+export const WORLD_OVERLAY_OCCLUDER_SELECTORS = Object.freeze([
+  '#title-bar',
+  '#style-indicator',
+  '#top-center-actions',
+  '#traffic-sync-chip',
+  '#cctv-sync-chip',
+  '#left-panel-stack',
+  '#right-context-rail',
+  '.weather-summary',
+  '#pp-toggles',
+  '#command-dock',
+  '#gev-voice-control',
+  '#cesium-credits',
+  '.hud-top-left',
+  '.hud-top-right',
+  '.hud-bottom-left',
+  '.hud-bottom-right',
+  '.hud-bottom-bar',
+  '#space-mission-panel',
+  '#space-mission-panel-host',
+  '#military-awareness-panel',
+  '#bhote-koshi-event-panel',
+  // Cockpit: solid backdrop-filled windows only (both bounded to
+  // `min(340px, 28vw)` wide and `min(42vh, 410px)` tall, both `hidden` until
+  // toggled). Every other cockpit selector was removed — see the block comment.
+  '#cockpit-context',
+  '#cockpit-signal-stream',
+]);
+
+=======
+>>>>>>> theirs
 /** @typedef {{x:number,y:number,w:number,h:number}} OverlayRect */
 /**
  * @typedef {object} WorldOverlayEntry
@@ -84,6 +181,7 @@ export {
  * @property {number} [alpha=1]
  * @property {number} [cohortLimit=256] Ambient surplus retained per domain.
  * @property {number} [collisionCapacity=96] Shared domain paint budget.
+ * @property {number} [maxVisible=Infinity] Source ceiling within a shared domain.
  * @property {boolean} [moving=false] Enables bounded interval re-solves.
  * @property {number} [solveIntervalMs=125]
  */
@@ -96,12 +194,16 @@ let _root = null;
 let _canvas = null;
 /** @type {CanvasRenderingContext2D|null} */
 let _ctx = null;
-/** @type {HTMLElement|null} Focusable mirror of painted actionable cards. */
-let _accessibilityRoot = null;
-/** @type {HTMLElement|null} */
-let _accessibilityList = null;
-/** @type {HTMLElement|null} */
-let _accessibilityStatus = null;
+/**
+ * The focusable mirror of painted actionable cards, as its view renders it:
+ * `{owner, items, status, announced}`, or null without a host. `announced`
+ * counts accepted focuses, so a repeated announcement is spoken again. Subscribers (the
+ * application shell, which publishes it to a store) receive every change;
+ * the module itself needs no Vue, for the portable transit entry.
+ * @type {?{owner: object, items: object[], status: string, announced: number}}
+ */
+let _actions = null;
+const _actionsListeners = new Set();
 let _accessibilitySignature = '';
 const _accessibleActivatorByKey = new Map();
 /** @type {HTMLCanvasElement|null} Host-owned detection blend-isolation surface. */
@@ -585,6 +687,10 @@ function normalizeSourceOptions(options = {}, previous = {}) {
     collisionCapacity: Number.isFinite(requestedCapacity)
       ? Math.max(0, Math.floor(requestedCapacity))
       : DEFAULT_COLLISION_CAPACITY,
+    maxVisible: Math.max(
+      0,
+      options.maxVisible ?? previous.maxVisible ?? Infinity,
+    ),
     moving:
       options.moving !== undefined
         ? options.moving === true
@@ -675,6 +781,7 @@ function getOrCreateDomain(domainId) {
       sepCount: 0,
       renderEntries: [],
       demandBySource: new Map(),
+      limitsBySource: new Map(),
       capacity: DEFAULT_COLLISION_CAPACITY,
       lastSolveAt: Number.NEGATIVE_INFINITY,
       moving: false,
@@ -840,6 +947,9 @@ export function setOverlayEntries(sourceId, entries, options = {}) {
   for (const entry of normalized) next.set(entry.id, entry);
   for (const entry of source.entries.values()) {
     if (!next.has(entry.id)) _records.delete(entry._overlayKey);
+    const replacement = next.get(entry.id);
+    if (replacement && isProtected(entry) !== isProtected(replacement))
+      getOrCreateDomain(entry.collisionGroup).arbiter.remove(entry._overlayKey);
   }
   source.entries = next;
   rebuildSourceCohorts(source);
@@ -1034,11 +1144,7 @@ export function isOverlayPointVisible(
  * Return true when a rectangle intersects any cached UI exclusion box.
  * `count` lets pooled buffers expose a live prefix without truncating.
  */
-export function overlayRectIntersectsAny(
-  rect,
-  exclusions,
-  count = exclusions.length,
-) {
+function overlayRectIntersectsAny(rect, exclusions, count = exclusions.length) {
   for (let i = 0; i < count; i++) {
     const other = exclusions[i];
     if (
@@ -1056,7 +1162,7 @@ export function overlayRectIntersectsAny(
  * Like `overlayRectIntersectsAny`, but only against exclusions that composite
  * BELOW the host — the ones a placement may never overlap at any cost.
  */
-export function overlayRectIntersectsAnyHard(
+function overlayRectIntersectsAnyHard(
   rect,
   exclusions,
   count = exclusions.length,
@@ -1143,30 +1249,10 @@ function ensureOverlayDom() {
   _root.setAttribute('aria-hidden', 'true');
   _canvas.setAttribute('aria-hidden', 'true');
   _detectionSurface.setAttribute('aria-hidden', 'true');
-  _accessibilityRoot = document.getElementById(ACCESSIBILITY_ROOT_ID);
-  if (!_accessibilityRoot) {
-    _accessibilityRoot = document.createElement('div');
-    _accessibilityRoot.id = ACCESSIBILITY_ROOT_ID;
-    _accessibilityRoot.className = 'world-overlay-accessibility';
-    _accessibilityRoot.setAttribute('role', 'region');
-    _accessibilityRoot.setAttribute('aria-label', 'Visible map targets');
-    document.body.appendChild(_accessibilityRoot);
-  }
-  _accessibilityList = document.getElementById(ACCESSIBILITY_LIST_ID);
-  if (!_accessibilityList) {
-    _accessibilityList = document.createElement('div');
-    _accessibilityList.id = ACCESSIBILITY_LIST_ID;
-    _accessibilityRoot.appendChild(_accessibilityList);
-  }
-  _accessibilityStatus = document.getElementById(ACCESSIBILITY_STATUS_ID);
-  if (!_accessibilityStatus) {
-    _accessibilityStatus = document.createElement('div');
-    _accessibilityStatus.id = ACCESSIBILITY_STATUS_ID;
-    _accessibilityStatus.setAttribute('role', 'status');
-    _accessibilityStatus.setAttribute('aria-live', 'polite');
-    _accessibilityStatus.setAttribute('aria-atomic', 'true');
-    _accessibilityRoot.appendChild(_accessibilityStatus);
-  }
+  // Each host owns its action list; a click from an earlier host's list is
+  // ignored.
+  if (!_actions)
+    presentActions({ owner: {}, items: [], status: '', announced: 0 });
   _ctx = _canvas.getContext('2d', { alpha: true, desynchronized: true });
   _detectionCtx = _detectionSurface.getContext('2d', {
     alpha: true,
@@ -2011,6 +2097,7 @@ function collectFrameCandidates(keyhole, viewProjection) {
         source.id,
         source.demandByDomain.get(domainId) || 0,
       );
+      domain.limitsBySource.set(source.id, source.options.maxVisible);
       candidateCount += cohort.length;
       for (let i = 0; i < cohort.length; i++) {
         const entry = cohort[i];
@@ -2178,6 +2265,7 @@ function solveDomains(timestamp) {
       domain.arbiter.solve(domain.candidates, {
         capacity: Math.min(domain.capacity, domain.candidates.length),
         demandByLayer: domain.demandBySource,
+        limitsByLayer: domain.limitsBySource,
         now: timestamp,
         // The host publishes its own pooled counters below, so duplicating a
         // per-layer diagnostic object in the arbiter adds no observable data.
@@ -2200,6 +2288,7 @@ function solveDomains(timestamp) {
       domain.candidateMap,
       timestamp,
       domain.renderEntries,
+      domain.limitsBySource,
     );
     for (let r = 0; r < rendered.length; r++) {
       const renderedEntry = rendered[r];
@@ -2252,9 +2341,46 @@ function publishPaintRect(item) {
   if (record.entry.interactive) _hitRects[_hitRectCount++] = rect;
 }
 
+/** Publish the action list to every subscriber. */
+function presentActions(next) {
+  _actions = next && Object.freeze(next);
+  for (const listener of _actionsListeners) listener(_actions);
+}
+
+/**
+ * Receive the visible map target list now and after every change.
+ * @param {(view: ?object) => void} listener
+ * @returns {() => void} Unsubscribe.
+ */
+export function subscribeWorldOverlayActions(listener) {
+  _actionsListeners.add(listener);
+  listener(_actions);
+  return () => _actionsListeners.delete(listener);
+}
+
+/**
+ * Focus a listed target, as its button does, announcing an accepted focus.
+ * @param {object} owner The `owner` of the list the button belongs to.
+ * @param {string} key The item's key.
+ */
+export function activateWorldOverlayAction(owner, key) {
+  if (!_actions || owner !== _actions.owner) return;
+  const item = _actions.items.find((candidate) => candidate.key === key);
+  const activate = _accessibleActivatorByKey.get(key);
+  if (!item || !activate) return;
+  const accepted = activate();
+  if (accepted !== false && _actions?.owner === owner) {
+    presentActions({
+      ..._actions,
+      status: t('Focusing {label}', { label: item.label }),
+      announced: _actions.announced + 1,
+    });
+  }
+}
+
 /** Keep a stable, bounded accessible mirror of currently painted actions. */
 function syncAccessibleActions() {
-  if (!_accessibilityList) return;
+  if (!_actions) return;
   _accessibleActivatorByKey.clear();
   const items = [];
   for (let i = _hitRectCount - 1; i >= 0; i--) {
@@ -2278,29 +2404,7 @@ function syncAccessibleActions() {
     .join('\u0001');
   if (signature === _accessibilitySignature) return;
   _accessibilitySignature = signature;
-  if (typeof _accessibilityList.replaceChildren === 'function') {
-    _accessibilityList.replaceChildren();
-  } else {
-    while (_accessibilityList.firstChild)
-      _accessibilityList.removeChild(_accessibilityList.firstChild);
-  }
-  for (const item of items) {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.textContent = item.label;
-    button.setAttribute('aria-label', item.label);
-    button.setAttribute('aria-pressed', String(item.selected));
-    button.dataset.overlayActionKey = item.key;
-    button.addEventListener?.('click', () => {
-      const activate = _accessibleActivatorByKey.get(item.key);
-      if (!activate) return;
-      const accepted = activate();
-      if (accepted !== false && _accessibilityStatus) {
-        _accessibilityStatus.textContent = `Focusing ${item.label}`;
-      }
-    });
-    _accessibilityList.appendChild(button);
-  }
+  presentActions({ ..._actions, items });
 }
 
 let _detectionSurfacePrepared = false;
@@ -2686,7 +2790,6 @@ export function destroyWorldOverlay() {
   if (_occluderRefreshTimer != null) clearTimeout(_occluderRefreshTimer);
   _occluderRefreshTimer = null;
   _root?.remove?.();
-  _accessibilityRoot?.remove?.();
   // The detection surface is not a child of `_root` (it lives in the Cesium
   // container so its `screen` blend reaches the scene), so it has to be torn
   // down explicitly rather than by the root's removal.
@@ -2734,9 +2837,7 @@ export function destroyWorldOverlay() {
   _root = null;
   _canvas = null;
   _ctx = null;
-  _accessibilityRoot = null;
-  _accessibilityList = null;
-  _accessibilityStatus = null;
+  if (_actions) presentActions(null);
   _detectionSurface = null;
   _detectionCtx = null;
   _occluder = null;

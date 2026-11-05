@@ -1,8 +1,21 @@
+<<<<<<< ours
+import { normalizeRoadMode } from './roadModes.js';
+import * as Cesium from 'cesium';
+=======
 import { Cesium } from '../../cesium.js';
+>>>>>>> theirs
 import { FLOW_BUCKET_COLORS } from './policy.js';
 
 export function createState({ services }) {
   const layerState = {};
+  layerState._roadMode =
+    typeof location === 'undefined'
+      ? null
+      : normalizeRoadMode(
+          new URLSearchParams(location.search).get('trafficRoads'),
+        );
+  // The query override is consumed at construction and shields passive restoration.
+  layerState._roadModeUrlOverride = layerState._roadMode;
 
   // ─── Module State ──────────────────────────────────────────
   /** @type {Cesium.Viewer|null} */
@@ -16,6 +29,14 @@ export function createState({ services }) {
   /** @type {Array<{point:Cesium.PointPrimitive, waypoints:Cesium.Cartesian3[], segmentDist:number[], numSegments:number, segIdx:number, t:number, mps:number, direction:number, stoppedUntil:number}>} Active animated dots */
 
   layerState._dots = [];
+  layerState._nextDotId = 1;
+  layerState._motion = {
+    publishes: 0,
+    rebuilds: 0,
+    added: 0,
+    removed: 0,
+    recycled: 0,
+  };
 
   /** @type {Array<{coords:number[][], type:string, waypoints:Cesium.Cartesian3[], segmentDist:number[]}>} Parsed roads with pre-computed Cartesian3 waypoints */
 
@@ -42,7 +63,7 @@ export function createState({ services }) {
 
   layerState._lastBounds = null;
 
-  /** @type {boolean} True while an Overpass fetch is in flight */
+  /** @type {boolean} True while a road fetch is in flight */
 
   layerState._fetching = false;
 
@@ -104,6 +125,16 @@ export function createState({ services }) {
   layerState._flowError = null;
 
   /**
+   * True while the drawn flow came from cached proxy tiles (TomTom budget
+   * spent or upstream failing); `_flowOldestTileAt` is the oldest tile's
+   * fetch time in ms, or null.
+   * @type {boolean}
+   */
+
+  layerState._flowStale = false;
+  layerState._flowOldestTileAt = null;
+
+  /**
    * True when `/api/tomtom/status` itself could not be reached, so the layer is
    * simulating because it could not ask — not because the server said "no key".
    * @type {boolean}
@@ -154,9 +185,7 @@ export function createState({ services }) {
 
   /**
    * Congestion heat-lines are GroundPolylinePrimitive batches draped onto the
-   * rendered 3D tiles (ClassificationType.CESIUM_3D_TILE) — polylines at the
-   * dots' single-sample heights depth-fail under the mesh across an oblique
-   * city view (first A/B capture: 198 lines rendered, zero visible). One
+   * rendered 3D tiles (ClassificationType.CESIUM_3D_TILE). One
    * primitive per bucket so the jam batch can pulse via a single shared
    * material uniform.
    * @type {Cesium.GroundPolylinePrimitive|null}
@@ -224,6 +253,7 @@ export function createState({ services }) {
   /** @type {Promise<void>|null} Session-cached status check (one fetch per session) */
 
   layerState._flowStatusPromise = null;
+  layerState._flowStatusSignal = null;
 
   /** @type {ReturnType<typeof setInterval>|null} Enable-time retry until the first load commits. */
 
@@ -233,10 +263,13 @@ export function createState({ services }) {
   layerState._retryDelayMs = 1500;
   layerState._retryBoundsKey = null;
   layerState._roadError = null;
+  layerState._roadSource = 'OpenStreetMap';
+  layerState._roadPartial = false;
+  layerState._roadRetryStopped = false;
+  layerState._retryAttempts = 0;
 
-  /** @type {number} 0–100 int — matched roads / roads with any flow candidates */
-
-  layerState._flowCoveragePct = 0;
+  /** Parsed road set whose current flow request owns the feed status. */
+  layerState._flowRoads = null;
 
   /** @type {Function|null} Development-only camera moveEnd timing disposer. */
 

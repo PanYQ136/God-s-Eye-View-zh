@@ -1,3 +1,45 @@
+<<<<<<< ours
+import { resolveCatalogSources } from './sourceComposition.js';
+import { createWeatherClock } from '../layers/weather/clock.js';
+import { createWeatherLayer } from '../layers/weather/index.js';
+import { createCyclonesLayer } from '../layers/cyclones/index.js';
+import { createWindLayer } from '../layers/wind/index.js';
+import { createLayerCatalog } from './catalog.js';
+import { LAYER_STATE_REGISTRY } from '../data/layerState.js';
+import { createMilitaryRegistry } from '../layers/aircraft/classification.js';
+import { createApplicationFlights } from './layers/flights.js';
+import { createApplicationMilitary } from './layers/militaryFlights.js';
+import { createApplicationVessels } from './layers/aisLiveVessels.js';
+import { createApplicationCctv } from './layers/cctv.js';
+import { createApplicationRadio } from './layers/radio.js';
+import { createApplicationTraffic } from './layers/traffic.js';
+import { createApplicationBikeshare } from './layers/bikeshare.js';
+import { createApplicationDirections } from './layers/directions.js';
+import { createApplicationRecentImagery } from './layers/recentImagery.js';
+import { createApplicationOsmPlaces } from './layers/osmPlaces.js';
+import { createApplicationTransit } from './layers/transit.js';
+import { createApplicationInstallations } from './layers/militaryInstallations.js';
+import { createApplicationSatellites } from './layers/satellites.js';
+import { createApplicationLaunches } from './layers/rocketLaunches.js';
+import { createApplicationAlpr } from './layers/alprCameras.js';
+import { createApplicationLocalAdsb } from './layers/localAdsb.js';
+import { createApplicationAwareness } from './layers/militaryAwareness.js';
+import { createApplicationFirms } from './layers/firms.js';
+import { createApplicationEarthquakes } from './layers/earthquakes.js';
+import { createApplicationAirQuality } from './layers/airQuality.js';
+import { createApplicationFirePerimeters } from './layers/perimeters.js';
+import { createApplicationGnssIntegrity } from './layers/gnss.js';
+import { createApplicationGhostMaps } from './layers/ghostMaps.js';
+import { createApplicationDroneAirspace } from './layers/droneAirspace.js';
+import { createApplicationCables } from './layers/submarineCables.js';
+import { createOsmOverlayLayers } from '../data/osmOverlays.js';
+import { createApplicationStreetLevel } from './layers/streetLevel.js';
+import { createInfrastructureLayers } from '../data/infrastructure.js';
+import { localGeoJsonServices } from './localGeojsonServices.js';
+import { createBhoteKoshiEventLayer } from '../data/bhoteKoshiEvent.js';
+import { createBhoteKoshiLocatorLayer } from '../data/bhoteKoshiLocator.js';
+
+=======
 import { createDeferredLayerCatalog, createLayerCatalog } from './catalog.js';
 import { LAYER_STATE_REGISTRY } from '../data/layerState.js';
 
@@ -32,12 +74,15 @@ const SOURCE_METHODS = Object.freeze({
   'cn-typhoon': ['getSnapshot'],
 });
 
+>>>>>>> theirs
 /**
  * Hardware-local layers are registered like any other but never enter share
  * links or stored layer state: another browser cannot have this receiver.
  */
 export const LOCAL_ONLY_LAYER_METADATA = Object.freeze([
   Object.freeze({ id: 'local-adsb', disposition: 'local-only' }),
+  // Voice search results belong to this session, like a receiver to this machine.
+  Object.freeze({ id: 'osm-places', disposition: 'local-only' }),
 ]);
 
 /** Serialization metadata for every layer the application catalog constructs. */
@@ -89,7 +134,11 @@ export async function createApplicationCatalog({
   vesselOptions,
   resolveAsset,
   nepalBoundaryResolver,
+<<<<<<< ours
+  streetLevelProviders,
+=======
   deferRest = false,
+>>>>>>> theirs
 }) {
   if (!signal?.addEventListener)
     throw new TypeError('An application lifetime signal is required');
@@ -97,6 +146,10 @@ export async function createApplicationCatalog({
   if (!surface?.groundFloor || !surface?.terrain)
     throw new TypeError('Application surface services are required');
 
+<<<<<<< ours
+  const sourceComposition = resolveCatalogSources(sources);
+  sources = sourceComposition.sources;
+=======
   for (const [name, methods] of Object.entries(SOURCE_METHODS)) {
     if (
       methods.some((method) => typeof sources?.[name]?.[method] !== 'function')
@@ -113,6 +166,7 @@ export async function createApplicationCatalog({
     createBhoteKoshiEventLayer,
     createBhoteKoshiLocatorLayer,
   } = await import('./catalogFactoriesCore.js');
+>>>>>>> theirs
   const militaryRegistry = createMilitaryRegistry();
   const weatherClock = createWeatherClock();
   const dispose = () => {
@@ -122,7 +176,8 @@ export async function createApplicationCatalog({
   };
   signal.addEventListener('abort', dispose, { once: true });
   try {
-    militaryRegistry.configureSource(sources.military, { signal });
+    if (sourceComposition.isConfigured('military'))
+      militaryRegistry.configureSource(sources.military, { signal });
     const flights = createApplicationFlights({
       surface,
       source: sources.flights,
@@ -195,19 +250,34 @@ export async function createApplicationCatalog({
       });
       return [
         createApplicationEarthquakes({ source: sources.earthquakes }),
+        createApplicationAirQuality({ source: sources['air-quality'] }),
         createApplicationFirePerimeters({
           source: sources['fire-perimeters'],
         }),
+        createApplicationGnssIntegrity({
+          source: sources['gnss-integrity'],
+          windowMs: sources['gnss-integrity'].windowMs,
+        }),
+        createApplicationGhostMaps({ source: sources['s2-ghostmaps'] }),
+        createApplicationDroneAirspace({
+          source: sources['drone-airspace'],
+        }),
         createApplicationAlpr({ surface, source: sources.alpr }),
+        createApplicationStreetLevel({
+          surface,
+          sources: { mapillary: sources.mapillary },
+          providers: streetLevelProviders,
+        }),
         satellites,
         createApplicationLaunches({ source: sources.launches, satellites }),
-        createApplicationTraffic({ source: sources.traffic }),
+        createApplicationTraffic({ source: sources.traffic, surface }),
         createApplicationCctv({ surface, source: sources.cctv }),
         createApplicationRadio({ surface, source: sources.radio }),
         createApplicationTransit({ surface, source: sources.transit }),
         createApplicationBikeshare({ source: sources.bikeshare }),
-        createApplicationDirections(),
-        createApplicationRecentImagery(),
+        createApplicationDirections({ source: sources.directions }),
+        createApplicationRecentImagery({ source: sources['recent-imagery'] }),
+        createApplicationOsmPlaces(),
         vessels,
         installations,
         createApplicationAwareness({
@@ -233,6 +303,7 @@ export async function createApplicationCatalog({
           clock: weatherClock,
         }),
         createCyclonesLayer({ feed: sources.cyclones }),
+        ...createOsmOverlayLayers(),
         ...createInfrastructureLayers(localGeoJsonServices),
         createApplicationCables({ source: sources.cables }),
         createApplicationFirms({
@@ -243,6 +314,19 @@ export async function createApplicationCatalog({
           source: 'NASA FIRMS · LIVE',
           feed: sources.firms,
         }),
+<<<<<<< ours
+      ],
+      metadata,
+    );
+    return Object.freeze({
+      ...catalog,
+      getSourceAvailability: sourceComposition.createAvailabilityLookup(
+        catalog.layers,
+      ),
+      militaryRegistry,
+      surface,
+      weatherClock,
+=======
         createApplicationCnTraffic({ source: sources['cn-traffic'] }),
         createApplicationCnAdmin({ source: sources['cn-admin'] }),
         createApplicationCnQuakes({ source: sources['cn-quakes'] }),
@@ -260,6 +344,7 @@ export async function createApplicationCatalog({
     // 后置注册：注册表必须覆盖全部图层（add() 会拒绝注册表外的 id）。
     const catalog = createDeferredLayerCatalog(coreLayers, metadata, {
       hydrate: buildRestLayers,
+>>>>>>> theirs
     });
     return attachCatalogServices(catalog, services);
   } catch (error) {

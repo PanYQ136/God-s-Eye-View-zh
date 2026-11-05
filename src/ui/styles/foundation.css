@@ -4,6 +4,47 @@
    Apple meets Blade Runner
    ═══════════════════════════════════════════════ */
 
+<<<<<<< ours
+:root {
+  --bg-dark: #0a0a0f;
+  --glass-bg: rgba(12, 12, 20, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-hover: rgba(255, 255, 255, 0.15);
+  --accent: #00d4ff;
+  /* Every scrolling surface's scrollbar (the kit's .ui-scroll). */
+  --scroll-thumb: rgba(0, 212, 255, 0.46);
+  --scroll-track: rgba(255, 255, 255, 0.06);
+  --accent-dim: rgba(0, 212, 255, 0.15);
+  --accent-glow: rgba(0, 212, 255, 0.4);
+  --text-primary: #e8eaed;
+  --text-secondary: rgba(232, 234, 237, 0.5);
+  --text-dim: rgba(232, 234, 237, 0.3);
+  /* Opaque surface for browser-painted menus, which cannot use --glass-bg. */
+  --menu-bg: #12121c;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --panel-radius: 16px;
+  --btn-radius: 10px;
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  /* Label type shared by the command dock and the side panel titles. */
+  --dock-label-color: rgba(206, 232, 239, 0.72);
+  --dock-label-font-size: 0.58rem;
+  --dock-label-font-weight: 500;
+  --dock-label-letter-spacing: 0.13rem;
+  --transition-smooth: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  /* The side stacks clear the 52px edge gutter that holds the vertical HUD
+     readout, plus the floating panel rail (42px) and its 6px gap. */
+  --panel-rail-clearance: 48px;
+  --left-stack-x: calc(52px + var(--panel-rail-clearance));
+  --right-rail-x: calc(52px + var(--panel-rail-clearance));
+  --left-stack-top: 26vh;
+  --left-stack-gap: 72px;
+  --left-collapsed-width: 176px;
+  --display-panel-expanded-width: 272px;
+  --cockpit-radio-collapsed-width: 148px;
+  --cockpit-radio-expanded-width: 232px;
+}
+=======
   :root {
     --bg-dark: #0a0a0f;
     --glass-bg: rgba(12, 12, 20, 0.72);
@@ -78,6 +119,7 @@
     --dur-2: 220ms;
     --dur-3: 300ms;
   }
+>>>>>>> theirs
 
   * {
     margin: 0;
@@ -385,6 +427,9 @@
     color: rgba(232, 234, 237, 0.7) !important;
   }
 
+<<<<<<< ours
+/* Cesium's stock attribution lightbox grows with every registered data source.
+=======
   /* Keep the ALPR source overflow reachable even after its brief on-map credit
    collapses. Wrap whole entries only while the optional layer is on. */
   body:has(
@@ -411,6 +456,7 @@
   }
 
   /* Cesium's stock attribution lightbox grows with every registered data source.
+>>>>>>> theirs
    Keep the title and close affordance fixed while the complete, unabridged
    credit list wraps and scrolls inside a compact panel. */
   .cesium-credit-lightbox-overlay {
@@ -467,6 +513,33 @@
    frame, so the on-screen credit content is owned by Cesium's update loop, not
    CSS overrides — we deliberately don't fight it here.) */
 
+<<<<<<< ours
+#gev-voice-control {
+  position: fixed;
+  right: 36px;
+  bottom: 36px;
+  /* Z ladder: panels ~100, voice pill 150, toast 200, clean-view-exit 300 */
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 214px;
+  padding: 9px 14px;
+  color: var(--text-primary);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset,
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 0 20px rgba(0, 212, 255, 0.08);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  font-family: var(--font-mono);
+  pointer-events: auto;
+}
+=======
   #gev-voice-control {
     position: fixed;
     right: 36px;
@@ -492,6 +565,7 @@
     font-family: var(--font-mono);
     pointer-events: auto;
   }
+>>>>>>> theirs
 
   #gev-voice-button {
     width: 72px;
@@ -578,6 +652,28 @@
     user-select: text;
   }
 
+<<<<<<< ours
+/* ── Title Bar ────────────────────────────────── */
+#title-bar {
+  position: fixed;
+  top: 32px;
+  inset-inline-start: 36px;
+  z-index: 100;
+  pointer-events: none;
+  user-select: none;
+}
+
+#title-bar .title-glow {
+  position: absolute;
+  top: -20px;
+  inset-inline-start: -20px;
+  width: 200px;
+  height: 80px;
+  background: radial-gradient(ellipse, var(--accent-dim) 0%, transparent 70%);
+  filter: blur(20px);
+  opacity: 0.6;
+}
+=======
   /* ── Title Bar ────────────────────────────────── */
   #title-bar {
     position: fixed;
@@ -598,6 +694,7 @@
     filter: blur(20px);
     opacity: 0.6;
   }
+>>>>>>> theirs
 
   #title-bar h1 {
     display: flex;
@@ -723,6 +820,18 @@
     text-align: right;
   }
 
+<<<<<<< ours
+/* ── Style Indicator ──────────────────────────── */
+#style-indicator {
+  position: fixed;
+  top: 32px;
+  inset-inline-end: 36px;
+  z-index: 100;
+  pointer-events: none;
+  user-select: none;
+  text-align: end;
+}
+=======
   #style-indicator .indicator-label {
     display: block;
     font-family: var(--font-mono);
@@ -731,6 +840,7 @@
     color: var(--text-dim);
     text-transform: uppercase;
   }
+>>>>>>> theirs
 
   #style-indicator .indicator-value {
     display: block;

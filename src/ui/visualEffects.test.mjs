@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { VisualEffects } from './visualEffects.js';
+import { MILKY_WAY_INTENSITY, StarrySky } from '../sky/starrySky.js';
 import {
   GLOBAL_POST_DEFAULTS,
   STYLE_PRESET_DEFAULTS,
@@ -44,7 +45,9 @@ function fixture() {
     },
   };
   const effects = new VisualEffects({
-    viewer: { scene: { postProcessStages: pipeline } },
+    viewer: {
+      scene: { postProcessStages: pipeline, skyBox: { milkyWayVisibility: 1 } },
+    },
     requestRender: (reason) => requests.push(reason),
     holdRender: (reason) => holds.add(reason),
     releaseRender: (reason) => holds.delete(reason),
@@ -82,7 +85,11 @@ test('construction is inert and initialization creates one owned pipeline', () =
   assert.equal(f.frames.size, 0);
   f.effects.initStyles();
   f.effects.initPostProcess();
+<<<<<<< ours
+  assert.equal(f.stages.size, 6);
+=======
   assert.equal(f.stages.size, PIPELINE_STAGE_COUNT);
+>>>>>>> theirs
   assert.ok(
     Object.values(f.effects.stages).every(
       (stage) => !stage.enabled && stage.uniforms.intensity === 0,
@@ -90,7 +97,11 @@ test('construction is inert and initialization creates one owned pipeline', () =
   );
   f.effects.initStyles();
   f.effects.initPostProcess();
+<<<<<<< ours
+  assert.equal(f.stages.size, 6);
+=======
   assert.equal(f.stages.size, PIPELINE_STAGE_COUNT);
+>>>>>>> theirs
   f.effects.destroy();
 });
 
@@ -166,6 +177,38 @@ test('direct Cockpit intensity writes are reconciled before rendering', () => {
   f.effects.destroy();
 });
 
+test('the anime stage fades the Milky Way out with its own intensity', () => {
+  const f = fixture();
+  const sky = new StarrySky({ requestRender: () => {} });
+  const glow = () => sky._milkyWayUniforms.u_intensity();
+  f.effects.viewer.scene.skyBox = sky;
+  f.effects.initStyles();
+  f.effects.setStageIntensity(f.effects.stages.thermal, 1);
+  assert.equal(glow(), MILKY_WAY_INTENSITY, 'other styles keep the glow');
+  f.effects.setStageIntensity(f.effects.stages.anime, 0.25);
+  assert.equal(glow(), MILKY_WAY_INTENSITY * 0.75);
+  f.effects.setStageIntensity(f.effects.stages.anime, 1);
+  assert.equal(glow(), 0);
+  f.effects.setStageIntensity(f.effects.stages.anime, 0);
+  assert.equal(glow(), MILKY_WAY_INTENSITY);
+  sky.destroy();
+  f.effects.destroy();
+});
+
+for (const skyBox of [undefined, null, {}]) {
+  test(`anime works without StarrySky (${JSON.stringify(skyBox)})`, () => {
+    const f = fixture();
+    f.effects.viewer.scene.skyBox = skyBox;
+    f.effects.initStyles();
+    f.effects.setStageIntensity(f.effects.stages.anime, 1);
+    assert.equal(f.effects.stages.anime.enabled, true);
+    f.effects.setStageIntensity(f.effects.stages.anime, 0);
+    assert.equal(f.effects.stages.anime.enabled, false);
+    if (skyBox) assert.equal('milkyWayVisibility' in skyBox, false);
+    f.effects.destroy();
+  });
+}
+
 test('bloom retains its dead zone, normalized intensity and independent toggle', () => {
   const f = fixture();
   f.effects.initPostProcess();
@@ -197,6 +240,24 @@ test('sharpen uses the existing uniform scale and keeps values while disabled', 
   f.effects.destroy();
 });
 
+test('sharpen at 0 runs no pass, and comes back with the slider', () => {
+  const f = fixture();
+  f.effects.initPostProcess(0.49);
+  f.effects.setSharpenEnabled(true);
+  assert.equal(f.effects.sharpenStage.enabled, true);
+  f.effects.applySharpenIntensity(0);
+  assert.equal(
+    f.effects.sharpenStage.enabled,
+    false,
+    'no residual sharpen at 0',
+  );
+  f.effects.setSharpenEnabled(true);
+  assert.equal(f.effects.sharpenStage.enabled, false, 'on at 0 is still off');
+  f.effects.applySharpenIntensity(0.2);
+  assert.equal(f.effects.sharpenStage.enabled, true);
+  f.effects.destroy();
+});
+
 test('stop revokes pending work immediately but retains stages until final destruction', () => {
   const f = fixture();
   f.effects.initStyles();
@@ -207,7 +268,11 @@ test('stop revokes pending work immediately but retains stages until final destr
   assert.equal(f.frames.size, 0);
   assert.equal(
     f.stages.size,
+<<<<<<< ours
+    6,
+=======
     PIPELINE_STAGE_COUNT,
+>>>>>>> theirs
     'Context and Cockpit may still be releasing these stages',
   );
   const intensity = f.effects.stages.retro.uniforms.intensity;
@@ -236,7 +301,11 @@ test('destroying one instance does not remove another pipeline or clock', () => 
   a.effects.destroy();
   b.tick(250);
   assert.equal(a.stages.size, 0);
+<<<<<<< ours
+  assert.equal(b.stages.size, 5);
+=======
   assert.equal(b.stages.size, STYLE_STAGE_COUNT);
+>>>>>>> theirs
   assert.equal(b.effects.stages.retro.uniforms.intensity, 0.5);
   b.effects.destroy();
 });
