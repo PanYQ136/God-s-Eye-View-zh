@@ -1,10 +1,12 @@
 @layer components {
   /* ── Compact accordion command dock ──────────── */
   #command-dock {
-    --dock-side-compact: clamp(9.5rem, 12vw, 10.5rem);
-    --dock-location-open: clamp(28rem, 40vw, 33rem);
-    --dock-presets-open: clamp(25rem, 36vw, 29rem);
-    --dock-voice-width: clamp(13.5rem, 17vw, 15rem);
+    /* 适当缩小：收起态由 476px → 约 384px，展开态由 ~852px → ~660px，
+       在 1440 宽下可完全落在左右栏（52–382 / 1058–1388）之间的中央安全带。 */
+    --dock-side-compact: clamp(7.5rem, 9vw, 8.5rem);
+    --dock-location-open: clamp(24rem, 32vw, 26rem);
+    --dock-presets-open: clamp(22rem, 30vw, 24rem);
+    --dock-voice-width: clamp(10rem, 13vw, 11.5rem);
     display: flex;
     grid-template-areas: none;
     grid-template-columns: none;

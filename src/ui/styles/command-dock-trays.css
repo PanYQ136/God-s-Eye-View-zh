@@ -1,7 +1,8 @@
 @layer components {
   /* ── Command dock refinement: stacked trays + voice states ── */
   #command-dock {
-    --dock-voice-width: 8.75rem;
+    /* 与 compact 的缩小保持一致（本文件在 style.css 中后导入，会覆盖上面的变量）。 */
+    --dock-voice-width: 7rem;
     --dock-location-pinned-height: 0px;
     --dock-presets-pinned-height: 0px;
     --dock-pinned-stack-height: 0px;
@@ -9,8 +10,8 @@
     --dock-unified-width: calc(
       var(--dock-side-compact) * 2 + var(--dock-voice-width)
     );
-    --dock-location-open: max(34rem, calc(var(--dock-unified-width) + 0.75rem));
-    --dock-presets-open: max(34rem, calc(var(--dock-unified-width) + 0.75rem));
+    --dock-location-open: max(26rem, calc(var(--dock-unified-width) + 0.75rem));
+    --dock-presets-open: max(26rem, calc(var(--dock-unified-width) + 0.75rem));
   }
 
   #command-dock .panel-title,

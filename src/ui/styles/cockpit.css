@@ -1983,6 +1983,25 @@
     display: none !important;
   }
 
+  /* 展开卡会被 app-adapter.stageCard() 脱层到 #lc-stage；父容器（左栈/右栏）的
+     display:none 管不到它们。进座舱时由 panelChrome.enterCockpit() 收起这些面板，
+     这里补一层 CSS 兜底，确保任何脱层残留都不会浮在座舱 HUD 之上。 */
+  body.cockpit-mode #lc-stage
+    > :is(
+      #data-panel,
+      #scene-panel,
+      #pp-toggles,
+      #cctv-panel,
+      #global-context-panel,
+      #weather-panel,
+      #recent-imagery-panel,
+      #radio-panel,
+      #location-bar,
+      #control-panel
+    ) {
+    display: none !important;
+  }
+
   /* Keep the user's intelligence HUD text available in first person. It stays
    subordinate to the visor instruments and occupies the four peripheral
    corridors, leaving the optical center, context rails, and heading tape free. */
