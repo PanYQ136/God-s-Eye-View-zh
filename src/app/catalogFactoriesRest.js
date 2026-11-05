@@ -31,3 +31,7 @@ export { createApplicationFirePerimeters } from './layers/perimeters.js';
 export { createApplicationCables } from './layers/submarineCables.js';
 export { createInfrastructureLayers } from '../data/infrastructure.js';
 export { localGeoJsonServices } from './localGeojsonServices.js';
+export { createApplicationCnTraffic } from './layers/cnTraffic.js';
+export { createApplicationCnAdmin } from './layers/cnAdmin.js';
+export { createApplicationCnQuakes } from './layers/cnQuakes.js';
+export { createApplicationCnTyphoon } from './layers/cnTyphoon.js';

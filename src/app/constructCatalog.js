@@ -26,6 +26,10 @@ const SOURCE_METHODS = Object.freeze({
   earthquakes: ['getSnapshot'],
   'fire-perimeters': ['getSnapshot'],
   cables: ['fetch'],
+  'cn-traffic': ['getSnapshot'],
+  'cn-admin': ['getSnapshot'],
+  'cn-quakes': ['getSnapshot'],
+  'cn-typhoon': ['getSnapshot'],
 });
 
 /**
@@ -75,7 +79,7 @@ function attachCatalogServices(catalog, services) {
  * 一个 append-only catalog（波次 1 的 5 个默认图层 + 完整元数据），把波次 2 的
  * `import()`/构造交给调用方在首帧之后调用 `catalog.hydrate()` 触发。
  * 默认值 false：单测与 standalone 兼容入口拿到的是与 Phase8E 完全一致的一次性
- * 构造结果（29 层，顺序与 clock 隔离不变）。
+ * 构造结果（33 层，顺序与 clock 隔离不变）。
  */
 export async function createApplicationCatalog({
   surface,
@@ -172,6 +176,10 @@ export async function createApplicationCatalog({
         createWindLayer,
         createWeatherLayer,
         createCyclonesLayer,
+        createApplicationCnTraffic,
+        createApplicationCnAdmin,
+        createApplicationCnQuakes,
+        createApplicationCnTyphoon,
       } = await import('./catalogFactoriesRest.js');
       signal.throwIfAborted();
       const vessels = createApplicationVessels({
@@ -235,6 +243,10 @@ export async function createApplicationCatalog({
           source: 'NASA FIRMS · LIVE',
           feed: sources.firms,
         }),
+        createApplicationCnTraffic({ source: sources['cn-traffic'] }),
+        createApplicationCnAdmin({ source: sources['cn-admin'] }),
+        createApplicationCnQuakes({ source: sources['cn-quakes'] }),
+        createApplicationCnTyphoon({ source: sources['cn-typhoon'] }),
       ];
     };
     const services = { militaryRegistry, surface, weatherClock };

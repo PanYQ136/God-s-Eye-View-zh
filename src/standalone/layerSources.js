@@ -18,6 +18,10 @@ import { createWindSource } from '../layers/wind/source.js';
 import { createFirmsSource } from '../layers/firms/source.js';
 import { createReferenceSources } from '../sources/reference.js';
 export { createReferenceSources as createStandaloneReferenceSources } from '../sources/reference.js';
+import { createCnTrafficSource } from '../layers/cnTraffic/source.js';
+import { createCnAdminSource } from '../layers/cnAdmin/source.js';
+import { createCnQuakesSource } from '../layers/cnQuakes/source.js';
+import { createCnTyphoonSource } from '../layers/cnTyphoon/source.js';
 
 /** Select standalone providers without starting their acquisition. */
 export function createStandaloneLayerSources() {
@@ -41,5 +45,9 @@ export function createStandaloneLayerSources() {
     wind: createWindSource(),
     weather: createWeatherSource(),
     cyclones: createCycloneSource(),
+    'cn-traffic': createCnTrafficSource(),
+    'cn-admin': createCnAdminSource(),
+    'cn-quakes': createCnQuakesSource(),
+    'cn-typhoon': createCnTyphoonSource(),
   };
 }

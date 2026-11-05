@@ -39,7 +39,7 @@ test('catalogs construct distinct layers and classification from their supplied 
     signal: b.signal,
     surface: fixtureSurface(b.signal),
   });
-  assert.equal(first.layers.length, 29);
+  assert.equal(first.layers.length, 33);
   assert.ok(first.get('local-adsb'), 'Local ADS-B is registered');
   assert.deepEqual(
     first.metadata.find(({ id }) => id === 'local-adsb'),
@@ -172,6 +172,10 @@ const CATALOG_LAYER_ORDER = Object.freeze([
   'local-dams',
   'telegeography-submarine-cables',
   'local-firms',
+  'cn-traffic',
+  'cn-admin',
+  'cn-quakes',
+  'cn-typhoon',
 ]);
 const CORE_LAYER_ORDER = CATALOG_LAYER_ORDER.slice(0, 5);
 
@@ -189,7 +193,7 @@ test('deferred construction keeps the registry, order and clock isolation intact
     catalog.layers.map(({ id }) => id),
     CORE_LAYER_ORDER,
   );
-  assert.equal(catalog.metadata.length, 29, 'the registry is complete');
+  assert.equal(catalog.metadata.length, 33, 'the registry is complete');
   assert.equal(
     CATALOG_LAYER_ORDER.length - CORE_LAYER_ORDER.length,
     catalog.pendingLayerIds.length,
