@@ -62,45 +62,15 @@
   };
 
   const STYLE = `
-  #gev-cn-health{
-    position:fixed; z-index:var(--z-hud,100); top:126px; right:var(--right-rail-x,52px);
-    pointer-events:none; font-family:var(--font-sans); box-sizing:border-box;
-  }
-  #gev-cn-health > *{ pointer-events:auto; }
-  #gev-cn-health.is-open #gev-cn-health-chip{ visibility:hidden; }
-
-  @media (min-height:561px) and (min-width:761px){
-    #gev-cn-health{ top:126px; right:52px; }
-  }
-  @media (orientation:landscape) and (max-height:560px) and (min-width:1024px){
-    #gev-cn-health{ top:126px; right:calc(min(250px,38vw) + 24px); }
-  }
+  /* chip 由 JS 追加进 #top-center-actions，直接继承既有顶行按钮的 36×36 玻璃与动效；
+     这里只保留状态点的语义色与窄横屏隐藏。 */
+  #top-center-actions #gev-cn-health-chip{ display:inline-flex; align-items:center; justify-content:center; }
   @media (orientation:landscape) and (max-height:560px) and (max-width:1023px){
-    #gev-cn-health{ display:none; }
+    #top-center-actions #gev-cn-health-chip{ display:none; }
   }
-  @media (max-width:760px) and (orientation:portrait){
-    #gev-cn-health{
-      top:calc(env(safe-area-inset-top,0px) + 132px); right:12px;
-    }
-  }
-  body.ui-clean-view #gev-cn-health{ display:none; }
+  body.ui-clean-view #gev-cn-health-chip{ display:none; }
 
-  /* ── 胶囊 ─────────────────────────────────────────────── */
-  #gev-cn-health-chip{
-    display:inline-flex; align-items:center; gap:6px;
-    height:34px; min-height:34px; padding:0 11px; border-radius:999px;
-    background:var(--glass-bg); border:1px solid var(--glass-border, rgba(255,255,255,.14));
-    color:#C9D6E2; font-family:var(--font-sans); font-size:11.5px; line-height:1;
-    cursor:pointer; -webkit-appearance:none; appearance:none; white-space:nowrap;
-    text-shadow:0 1px 2px rgba(0,0,0,.55); box-sizing:border-box;
-    transition:background .18s ease, border-color .18s ease;
-  }
-  #gev-cn-health-chip:hover{ background:rgba(20,26,36,.82); }
-  #gev-cn-health-chip:focus-visible{ outline:2px solid rgba(74,158,255,.85); outline-offset:2px; }
-  #gev-cn-health-chip[data-state='down']{ border-color:rgba(255,90,82,.55); }
-  #gev-cn-health-chip[data-state='switched']{ border-color:rgba(255,180,77,.5); }
-  #gev-cn-health-chip[data-state='error']{ color:var(--gev-unknown, #9AA3AD); background:rgba(8,14,20,.86); }
-  .gev-hh-dot{ width:7px; height:7px; border-radius:50%; flex:0 0 auto;
+  .gev-hh-dot{ width:9px; height:9px; border-radius:50%; flex:0 0 auto;
     background:var(--gev-ok, #5EF1A6); box-shadow:0 0 6px currentColor; }
   #gev-cn-health-chip[data-state='idle'] .gev-hh-dot{ background:var(--gev-unknown, #9AA3AD); }
   #gev-cn-health-chip[data-state='loading'] .gev-hh-dot,
@@ -111,14 +81,15 @@
   #gev-cn-health-chip[data-state='switched'] .gev-hh-dot{ background:var(--gev-warn, #FFB44D); }
   #gev-cn-health-chip[data-state='error'] .gev-hh-dot{ background:var(--gev-unknown, #9AA3AD); }
   @keyframes gev-hh-pulse{ 0%,100%{ opacity:1; } 50%{ opacity:.3; } }
-  .gev-hh-count{ color:#9AA3AD; font-variant-numeric:tabular-nums; }
 
   /* ── 面板 ─────────────────────────────────────────────── */
   #gev-cn-health-panel{
-    position:fixed; top:126px; right:var(--right-rail-x,52px); width:330px;
-    max-height:calc(100vh - 126px - 132px); z-index:var(--z-popup,200);
+    position:fixed; top:88px; right:calc(var(--right-rail-x,52px) + 338px); width:330px;
+    max-height:calc(100vh - 88px - 132px); z-index:var(--z-popup,200);
     display:flex; flex-direction:column; box-sizing:border-box;
-    background:rgba(8,14,20,.94); border:1px solid var(--glass-border, rgba(255,255,255,.14));
+    background:var(--glass-bg); border:1px solid var(--glass-border, rgba(255,255,255,.14));
+    backdrop-filter:blur(18px) saturate(1.4);
+    -webkit-backdrop-filter:blur(18px) saturate(1.4);
     border-radius:10px; box-shadow:0 16px 48px rgba(0,0,0,.48);
     color:#C9D6E2; font-family:var(--font-sans); font-size:12px; line-height:1.4;
   }
@@ -127,7 +98,8 @@
   @media (max-width:760px) and (orientation:portrait){
     #gev-cn-health-panel{
       top:auto; left:12px; right:12px;
-      bottom:calc(env(safe-area-inset-bottom,0px) + 76px); max-height:68vh;
+      bottom:calc(env(safe-area-inset-bottom,0px) + 104px);
+      max-height:min(68vh, calc(100vh - 300px));
     }
   }
   .gev-hp-head{
@@ -254,8 +226,6 @@
     root: null,
     chip: null,
     chipDot: null,
-    chipLabel: null,
-    chipCount: null,
     panel: null,
     title: null,
     close: null,
@@ -291,9 +261,6 @@
   function buildDom() {
     ensureStyle();
 
-    const root = document.createElement('div');
-    root.id = 'gev-cn-health';
-
     const chip = document.createElement('button');
     chip.id = 'gev-cn-health-chip';
     chip.type = 'button';
@@ -303,10 +270,7 @@
     chip.setAttribute('aria-expanded', 'false');
     chip.setAttribute('aria-controls', 'gev-cn-health-panel');
     chip.setAttribute('aria-label', '数据源健康，点按查看');
-    chip.innerHTML =
-      '<span class="gev-hh-dot" aria-hidden="true"></span>' +
-      '<span class="gev-hh-label">数据源</span>' +
-      '<span class="gev-hh-count"></span>';
+    chip.innerHTML = '<span class="gev-hh-dot" aria-hidden="true"></span>';
 
     const panel = document.createElement('div');
     panel.id = 'gev-cn-health-panel';
@@ -328,13 +292,11 @@
       '<span>数据仅供参考，不用于航行或应急决策</span>' +
       '</div>';
 
-    root.append(chip, panel);
-    document.body.appendChild(root);
-    el.root = root;
+    // 面板挂 body（fixed 弹层），chip 由 mount() 追加进 #top-center-actions，
+    // 直接继承既有顶行按钮的玻璃与动效。
+    document.body.appendChild(panel);
     el.chip = chip;
     el.chipDot = chip.querySelector('.gev-hh-dot');
-    el.chipLabel = chip.querySelector('.gev-hh-label');
-    el.chipCount = chip.querySelector('.gev-hh-count');
     el.panel = panel;
     el.title = panel.querySelector('#gev-cn-health-title');
     el.close = panel.querySelector('.gev-hp-close');
@@ -440,11 +402,11 @@
     }
 
     el.chip.setAttribute('data-state', st);
-    el.chipLabel.textContent = label;
-    el.chipCount.textContent = count;
     el.chip.setAttribute(
       'aria-label',
-      count ? '数据源健康：' + label + ' ' + count + '，点按查看' : '数据源健康，点按查看',
+      count
+        ? '数据源健康：' + label + ' ' + count + '，点按查看'
+        : '数据源健康，点按查看',
     );
   }
 
@@ -677,9 +639,7 @@
     if (state.open) return;
     state.open = true;
     el.panel.hidden = false;
-    el.root.classList.add('is-open');
     el.chip.setAttribute('aria-expanded', 'true');
-    syncCockpitPosition();
     render();
 
     const fresh = state.data && Date.now() - state.fetchedAt < CACHE_MS;
@@ -701,7 +661,6 @@
     if (!state.open) return;
     state.open = false;
     el.panel.hidden = true;
-    el.root.classList.remove('is-open');
     el.chip.setAttribute('aria-expanded', 'false');
     stopPolling();
     abortCurrent();
@@ -719,78 +678,6 @@
     state.data = null;
     state.fetchedAt = 0;
     load();
-  }
-
-  // ── 驾驶舱 / 视口 ─────────────────────────────────────────────
-  /**
-   * 布带第二行的落点不是常量：
-   *  · 右栏（#right-context-rail，z 110）在 top≈94 处就占住了 right:52 的列，
-   *    固定 top:126 会被它盖住且点不到 → 取右栏底缘 + 8；
-   *  · 竖屏时布带自身就在 safe+132 起、可能折成两排 → 取布带底缘 + 8；
-   *  · 驾驶舱模式下布带被抬到 top-line 之下 → 跟随其底缘。
-   * 都没有可测障碍时清掉内联 top，回落到断点 CSS 的兜底值。
-   */
-  function syncCockpitPosition() {
-    if (!el.root) return;
-    const cockpit = document.body.classList.contains('cockpit-mode');
-    const portrait =
-      window.innerWidth <= 760 && window.innerHeight > window.innerWidth;
-
-    let top = null;
-
-    const band = document.getElementById('gev-cn-band');
-    if (band) {
-      const r = band.getBoundingClientRect();
-      if (r.height > 0) top = r.bottom + 8;
-    }
-
-    if (!portrait) {
-      const base = cockpit ? 0 : 126;
-      top = top == null ? base : Math.max(top, base);
-      if (!cockpit) {
-        const rail = document.getElementById('right-context-rail');
-        if (rail) {
-          const rr = rail.getBoundingClientRect();
-          const rightGap = window.innerWidth - rr.right;
-          // 只认真正落在右侧列里的右栏；抽屉/离屏状态不参与
-          if (rr.height > 0 && rr.width > 0 && rightGap >= 0 && rightGap <= 120) {
-            top = Math.max(top, rr.bottom + 8);
-          }
-        }
-      }
-    }
-
-    if (top == null || !Number.isFinite(top) || top <= 0) {
-      el.root.style.removeProperty('top');
-    } else {
-      const maxTop = Math.max(96, window.innerHeight - 140);
-      el.root.style.top = Math.round(Math.min(top, maxTop)) + 'px';
-    }
-
-    syncPanelEdge(portrait);
-  }
-
-  /**
-   * 竖屏时面板是底部抽屉：CSS 的 `bottom: safe+76` 在手机 dock 抬高时会压住指令坞，
-   * 这里按 dock 实际顶边把面板底缘再抬 8px；非竖屏清掉内联值走断点 CSS。
-   */
-  function syncPanelEdge(portrait) {
-    if (!el.panel) return;
-    if (!portrait) {
-      el.panel.style.removeProperty('bottom');
-      return;
-    }
-    const dock = document.getElementById('command-dock');
-    if (!dock) {
-      el.panel.style.removeProperty('bottom');
-      return;
-    }
-    const r = dock.getBoundingClientRect();
-    if (r.height <= 0) {
-      el.panel.style.removeProperty('bottom');
-      return;
-    }
-    el.panel.style.bottom = Math.round(window.innerHeight - r.top + 8) + 'px';
   }
 
   // ── 事件 ──────────────────────────────────────────────────────
@@ -832,17 +719,12 @@
         if (!state.open) return;
         const t = e.target;
         if (!(t instanceof Node)) return;
-        if (el.root && el.root.contains(t)) return;
+        if (el.chip && el.chip.contains(t)) return;
+        if (el.panel && el.panel.contains(t)) return;
         closePanel(false);
       },
       true,
     );
-
-    window.addEventListener('gev:cockpit-mode-changed', syncCockpitPosition);
-    window.addEventListener('resize', () => {
-      clearTimeout(state.resizeTimer);
-      state.resizeTimer = setTimeout(syncCockpitPosition, 120);
-    });
 
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) return;
@@ -850,20 +732,29 @@
     });
   }
 
-  /** 右栏 / 布带的尺寸变化都要重新落位（面板展开、预警出现都会改变底缘）。 */
-  function observeLayout() {
-    if (typeof ResizeObserver !== 'function' || state.ro) return;
-    state.ro = new ResizeObserver(() => syncCockpitPosition());
-    const rail = document.getElementById('right-context-rail');
-    if (rail) state.ro.observe(rail);
-    const dock = document.getElementById('command-dock');
-    if (dock) state.ro.observe(dock);
-    const attachBand = () => {
-      const band = document.getElementById('gev-cn-band');
-      if (band && state.ro) state.ro.observe(band);
-    };
-    attachBand();
-    setTimeout(attachBand, 1500);
+  /** 等 #top-center-actions 出现（DEFERRED 与主链并行，顶中行可能还没建好）。 */
+  function waitForHost() {
+    return new Promise((resolve) => {
+      const found = document.getElementById('top-center-actions');
+      if (found) {
+        resolve(found);
+        return;
+      }
+      let tries = 0;
+      const timer = setInterval(() => {
+        tries += 1;
+        const host = document.getElementById('top-center-actions');
+        if (host) {
+          clearInterval(timer);
+          resolve(host);
+          return;
+        }
+        if (tries > 300) {
+          clearInterval(timer);
+          resolve(null);
+        }
+      }, 500);
+    });
   }
 
   function mount() {
@@ -871,11 +762,13 @@
     if (!document.body) return;
     buildDom();
     bind();
-    syncCockpitPosition();
-    observeLayout();
-    setTimeout(syncCockpitPosition, 600);
-    setTimeout(syncCockpitPosition, 2500);
     render();
+    waitForHost().then((host) => {
+      if (!host || !el.chip) return;
+      // chip 直接进入顶中按钮行，继承既有 36×36 玻璃按钮的样式与动效。
+      if (el.chip.parentElement !== host) host.appendChild(el.chip);
+      state.host = host;
+    });
   }
 
   if (document.body) mount();

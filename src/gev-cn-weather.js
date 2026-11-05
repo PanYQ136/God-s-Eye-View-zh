@@ -86,22 +86,22 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
     --gev-alert-orange:#FF8A2B; --gev-alert-red:#FF5A52;
   }
 
-  #gev-cn-band{ position:fixed; z-index:var(--z-hud,100); display:flex; align-items:flex-start;
-    justify-content:space-between; gap:var(--space-3,8px); pointer-events:none;
-    font-family:var(--font-sans); box-sizing:border-box; }
+  /* 左上锚定簇：天气胶囊 + 预警横幅并排，不再跨全宽，避免与右栏 / 顶中按钮行相撞 */
+  #gev-cn-band{ position:fixed; top:64px; left:var(--left-stack-x,52px); right:auto;
+    width:max-content; max-width:calc(100vw - 104px);
+    display:flex; align-items:flex-start; gap:8px; z-index:var(--z-hud,100);
+    pointer-events:none; font-family:var(--font-sans); box-sizing:border-box; }
   #gev-cn-band>*{ pointer-events:auto; }
   /* 列表打开时抬到弹窗层，避免被侧栏（--z-panel:110）盖住 */
   #gev-cn-band.has-popover{ z-index:var(--z-popup,200); }
 
-  @media (min-height:561px) and (min-width:761px){
-    #gev-cn-band{ top:88px; left:var(--left-stack-x,52px); right:var(--right-rail-x,52px); }
-  }
+  .gev-wx-alerts{ max-width:560px; }
   @media (min-height:561px) and (min-width:761px) and (max-width:1123px){
     .gev-wx-alerts{ max-width:420px; }
   }
+  /* 横屏矮屏但宽度 ≥1024：左右两条窄侧栏仍在，簇整体让到左栏右侧 */
   @media (orientation:landscape) and (max-height:560px) and (min-width:1024px){
-    #gev-cn-band{ top:88px; left:calc(min(250px,38vw) + 24px);
-      right:calc(min(250px,38vw) + 24px); justify-content:space-between; }
+    #gev-cn-band{ top:88px; left:calc(min(250px,38vw) + 24px); right:auto; }
     .gev-wx-alerts{ max-width:560px; }
   }
   @media (orientation:landscape) and (max-height:560px) and (max-width:1023px){
@@ -129,14 +129,15 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
     #gev-cn-alert{ flex:1 1 100%; }
   }
   body.cockpit-mode #gev-cn-band{
-    top: var(--gev-band-top, calc(env(safe-area-inset-top,0px) + 64px));
+    top:max(var(--gev-band-top, calc(env(safe-area-inset-top,0px) + 64px)),
+      calc(env(safe-area-inset-top,0px) + 64px));
   }
   body.ui-clean-view #gev-cn-band{ display:none; }
   body:has(#traffic-sync-chip.visible) #traffic-sync-chip{ top:124px; }
   body:has(#cctv-sync-chip.visible) #cctv-sync-chip{ top:158px; }
   @media (prefers-reduced-motion: reduce){
-    #gev-cn-band *, #traffic-sync-chip, #cctv-sync-chip{
-      animation:none; transition:none;
+    #gev-cn-band *, #traffic-sync-chip, #cctv-sync-chip, #top-center-actions #gev-cn-health-chip{
+      animation:none; transition:none; transform:none;
     }
   }
 
@@ -146,12 +147,23 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
     display:inline-flex; align-items:center; gap:7px;
     height:30px; min-width:118px; padding:0 10px; border-radius:999px;
     background:var(--glass-bg); border:1px solid var(--glass-border, rgba(255,255,255,.14));
+    backdrop-filter:blur(16px) saturate(1.4);
+    -webkit-backdrop-filter:blur(16px) saturate(1.4);
     color:#C9D6E2; font-family:var(--font-sans); font-size:12px; line-height:1;
     cursor:pointer; -webkit-appearance:none; appearance:none;
-    text-shadow:0 1px 2px rgba(0,0,0,.55); box-sizing:border-box; white-space:nowrap;
-    transition:background .18s ease, border-color .18s ease;
+    box-sizing:border-box; white-space:nowrap;
+    transition:
+      background-color var(--transition-fast),
+      border-color var(--transition-fast),
+      color var(--transition-fast),
+      transform var(--transition-fast);
   }
-  #gev-cn-band .gev-wx-summary:hover{ background:rgba(20,26,36,.82); }
+  #gev-cn-band .gev-wx-summary:hover{
+    background:rgba(255,255,255,.06);
+    border-color:var(--glass-border-hover, rgba(255,255,255,.28));
+    transform:scale(1.1);
+  }
+  #gev-cn-band .gev-wx-summary:active{ transform:scale(.95); }
   #gev-cn-band .gev-wx-summary:focus-visible{ outline:2px solid rgba(74,158,255,.85); outline-offset:2px; }
   #gev-cn-band .gev-wx-summary[aria-disabled='true']{ cursor:default; }
   #gev-cn-band .gev-wx-summary[data-state='stale']{ border-bottom:1px dashed rgba(255,180,77,.85); }
@@ -178,7 +190,9 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
     position:absolute; left:0; top:36px; z-index:2;
     display:grid; gap:6px; width:238px; box-sizing:border-box;
     padding:9px 10px; border-radius:10px;
-    background:rgba(8,14,20,.92); border:1px solid var(--glass-border, rgba(255,255,255,.14));
+    background:var(--glass-bg); border:1px solid var(--glass-border, rgba(255,255,255,.14));
+    backdrop-filter:blur(18px) saturate(1.4);
+    -webkit-backdrop-filter:blur(18px) saturate(1.4);
     color:#C9D6E2; font-family:var(--font-sans); font-size:11px; line-height:1.35;
     box-shadow:0 10px 28px rgba(0,0,0,.42);
   }
@@ -199,20 +213,28 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
     display:inline-flex; align-items:center; gap:8px; height:30px; min-width:0;
     padding:0 10px 0 13px; box-sizing:border-box; position:relative; overflow:hidden;
     border:0; border-radius:8px;
-    background:color-mix(in srgb, var(--gev-alert,var(--gev-unknown)) 12%, rgba(8,14,20,.92));
+    background:color-mix(in srgb, var(--gev-alert,var(--gev-unknown)) 12%, rgba(8,14,20,.72));
+    backdrop-filter:blur(16px) saturate(1.4);
+    -webkit-backdrop-filter:blur(16px) saturate(1.4);
     color:#C9D6E2; font-family:var(--font-sans); font-size:12px; line-height:1;
-    cursor:pointer; text-align:left; transition:background-color .2s ease;
+    cursor:pointer; text-align:left;
+    transition:
+      background-color var(--transition-fast),
+      border-color var(--transition-fast),
+      transform var(--transition-fast);
   }
   #gev-cn-band .gev-wx-alert-main::before{
     content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
     background:var(--gev-alert,var(--gev-unknown)); border-radius:8px 0 0 8px;
   }
   #gev-cn-band .gev-wx-alert-main:hover{
-    background:color-mix(in srgb, var(--gev-alert,var(--gev-unknown)) 20%, rgba(8,14,20,.92));
+    background:color-mix(in srgb, var(--gev-alert,var(--gev-unknown)) 20%, rgba(8,14,20,.72));
+    transform:scale(1.04);
   }
+  #gev-cn-band .gev-wx-alert-main:active{ transform:scale(.97); }
   #gev-cn-band .gev-wx-alert-main:focus-visible{ outline:2px solid rgba(74,158,255,.85); outline-offset:2px; }
   #gev-cn-band .gev-wx-alert-main.is-jumping{
-    background:color-mix(in srgb, var(--gev-alert,var(--gev-unknown)) 30%, rgba(8,14,20,.92));
+    background:color-mix(in srgb, var(--gev-alert,var(--gev-unknown)) 30%, rgba(8,14,20,.72));
   }
   #gev-cn-alert[data-level='blue']{ --gev-alert:var(--gev-alert-blue); }
   #gev-cn-alert[data-level='yellow']{ --gev-alert:var(--gev-alert-yellow); }
@@ -250,7 +272,7 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
 
   /* 失败态：中性灰 */
   #gev-cn-alert[data-level='none'] .gev-wx-alert-main{
-    background:rgba(8,14,20,.92); border:1px solid rgba(255,255,255,.1);
+    background:rgba(8,14,20,.62); border:1px solid rgba(255,255,255,.1);
   }
   #gev-cn-alert[data-level='none'] .gev-wx-alert-title{ color:var(--gev-unknown); font-weight:400; }
 
@@ -271,7 +293,9 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
     position:absolute; top:calc(100% + 6px); left:0; z-index:3;
     width:min(360px, calc(100vw - 24px)); max-height:min(280px, 50vh); overflow:auto;
     box-sizing:border-box; padding:6px; border-radius:10px;
-    background:rgba(8,14,20,.94); border:1px solid var(--glass-border, rgba(255,255,255,.14));
+    background:var(--glass-bg); border:1px solid var(--glass-border, rgba(255,255,255,.14));
+    backdrop-filter:blur(18px) saturate(1.4);
+    -webkit-backdrop-filter:blur(18px) saturate(1.4);
     box-shadow:0 16px 48px rgba(0,0,0,.48);
     color:#C9D6E2; font-family:var(--font-sans); font-size:12px; line-height:1.4;
   }
@@ -780,6 +804,8 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
   function renderAlerts() {
     const box = state.alertBox;
     if (!box) return;
+    // 横幅出现/消失会改变簇宽度 → 下一帧重新计算让位
+    setTimeout(syncBandTop, 0);
 
     const badge = state.alertMain.querySelector('.gev-wx-alert-badge');
     const title = state.alertMain.querySelector('.gev-wx-alert-title');
@@ -1388,6 +1414,67 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
     band.style.setProperty('--gev-band-top', Math.round(top) + 'px');
   }
 
+  /**
+   * 左上锚定簇的落点：固定 `top:64; left:52` 在 1440×900 会压住标题栏（32–90）
+   * 与左栏栈（94–724）。实测后按障碍物让位：
+   *  · 先水平让开标题栏（簇移到标题右侧 +12），保持 top 64 在左栏顶边之上；
+   *  · 若仍与左栏栈相交，则下压到其底缘 +12。
+   * 横屏矮屏 / 竖屏各有专属断点，不参与本规则。
+   */
+  function syncBandTop() {
+    const band = state.band;
+    if (!band) return;
+    const clear = () => {
+      band.style.removeProperty('top');
+      band.style.removeProperty('left');
+    };
+    if (document.body.classList.contains('cockpit-mode')) {
+      clear();
+      return;
+    }
+    const desktop = window.matchMedia(
+      '(min-height:561px) and (min-width:761px)',
+    ).matches;
+    const portrait = window.matchMedia(
+      '(max-width:760px) and (orientation:portrait)',
+    ).matches;
+    if (!desktop || portrait) {
+      clear();
+      return;
+    }
+
+    const baseLeft = 52;
+    const baseTop = 64;
+    const height = Math.max(30, Math.round(band.getBoundingClientRect().height) || 30);
+    let left = baseLeft;
+    let top = baseTop;
+
+    const overlaps = (r) =>
+      r &&
+      r.height > 0 &&
+      r.width > 0 &&
+      left < r.right &&
+      left + band.offsetWidth > r.left &&
+      top < r.bottom &&
+      top + height > r.top;
+
+    const title = document.getElementById('title-bar');
+    if (title) {
+      const r = title.getBoundingClientRect();
+      if (overlaps(r)) left = Math.round(r.right + 12);
+    }
+    const stack = document.getElementById('left-panel-stack');
+    if (stack) {
+      const r = stack.getBoundingClientRect();
+      if (overlaps(r)) top = Math.round(r.bottom + 12);
+    }
+
+    if (left === baseLeft) band.style.removeProperty('left');
+    else band.style.left = left + 'px';
+    if (top === baseTop) band.style.removeProperty('top');
+    else band.style.top = top + 'px';
+  }
+
   // ── 事件绑定 ─────────────────────────────────────────────────
   function bind() {
     state.wxBtn.addEventListener('click', () => {
@@ -1476,10 +1563,14 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
     });
 
     // 驾驶舱模式 / 视口变化 → 重新定位 band
-    window.addEventListener('gev:cockpit-mode-changed', syncCockpitBand);
+    const syncBoth = () => {
+      syncCockpitBand();
+      syncBandTop();
+    };
+    window.addEventListener('gev:cockpit-mode-changed', syncBoth);
     window.addEventListener('resize', () => {
       clearTimeout(state.resizeTimer);
-      state.resizeTimer = setTimeout(syncCockpitBand, 120);
+      state.resizeTimer = setTimeout(syncBoth, 120);
     });
   }
 
@@ -1493,6 +1584,8 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
     renderAlerts();
     bind();
     syncCockpitBand();
+    syncBandTop();
+    setTimeout(syncBandTop, 800);
     // 首帧之后再取，避免和首屏抢带宽
     setTimeout(() => refresh('init'), 400);
   }
