@@ -110,6 +110,12 @@
   #global-loading-status[hidden] {
     display: none;
   }
+
+  /* 座舱 HUD(z145) 会盖住加载条；cyber 主题此前只打了主题内补丁，这里提到通用规则 */
+  body.cockpit-mode #global-loading-status {
+    top: 60px;
+    z-index: 146;
+  }
   #global-loading-label {
     color: rgba(184, 244, 255, 0.92);
   }

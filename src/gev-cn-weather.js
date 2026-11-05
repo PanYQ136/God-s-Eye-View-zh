@@ -128,14 +128,18 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
     /* 预警独占第二排 */
     #gev-cn-alert{ flex:1 1 100%; }
   }
-  body.cockpit-mode #gev-cn-band{
+  body.cockpit-mode #gev-cn-band:not(.has-popover){
     top:max(var(--gev-band-top, calc(env(safe-area-inset-top,0px) + 64px)),
       calc(env(safe-area-inset-top,0px) + 64px));
-    /* 座舱 HUD 是 z145：不抬高层级会被整块盖住 */
+    /* 座舱 HUD 是 z145：不抬高层级会被整块盖住；打开弹层时交给下面的 popup 规则 */
     z-index:148;
   }
-  /* 148 的特异性高于 .has-popover，座舱里打开详情/列表时要再抬回弹窗层 */
-  body.cockpit-mode #gev-cn-band.has-popover{ z-index:var(--z-popup,200); }
+  /* 座舱里打开详情/列表：148 的特异性会压过 .has-popover，这里显式抬回弹窗层 */
+  body.cockpit-mode #gev-cn-band.has-popover{
+    top:max(var(--gev-band-top, calc(env(safe-area-inset-top,0px) + 64px)),
+      calc(env(safe-area-inset-top,0px) + 64px));
+    z-index:var(--z-popup,200);
+  }
   body.ui-clean-view #gev-cn-band,
   body.recording-mode #gev-cn-band{ display:none; }
   @media (prefers-reduced-motion: reduce){
@@ -1600,7 +1604,11 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
           clearTimeout(state.statusSyncTimer);
           state.statusSyncTimer = setTimeout(syncBandTop, 80);
         });
-        mo.observe(st, { attributes: true, attributeFilter: ['class', 'style'] });
+        // 显隐是改 hidden 属性（shellFeedback.js），class/style 不会变，必须一并观察
+        mo.observe(st, {
+          attributes: true,
+          attributeFilter: ['class', 'style', 'hidden', 'data-state'],
+        });
         state.statusObserver = mo;
         return true;
       };
