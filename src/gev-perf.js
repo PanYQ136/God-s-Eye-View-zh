@@ -146,7 +146,7 @@ import { mountChip } from './lc/gpu.js';
     const css = document.createElement('style');
     /* Phase8D #13：运行时注入的样式表也要进层 */
     css.textContent =
-      '@layer components {\n' + /* i18n-ignore */
+      '@layer components {\n' /* i18n-ignore */ +
       [
         '#gev-perf-wrap{position:fixed;left:12px;bottom:52px;z-index:var(--z-devtools, 160);display:flex;gap:8px;align-items:center;font:12px/1.2 system-ui,"Segoe UI",sans-serif;}',
         /* 灰圈=0（Phase 1 · §6.6）：徽标不用 border/outline/inset 描边，层级只靠底色与亮度 */

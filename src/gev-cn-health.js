@@ -292,7 +292,7 @@
     panel.setAttribute('aria-labelledby', 'gev-cn-health-title');
     panel.hidden = true;
     panel.innerHTML =
-      '<div class="gev-hp-head">' + /* i18n-ignore */
+      '<div class="gev-hp-head">' /* i18n-ignore */ +
       '<h2 id="gev-cn-health-title" tabindex="-1">数据源健康</h2>' +
       '<button class="gev-hp-close" type="button">关闭</button>' +
       '</div>' +

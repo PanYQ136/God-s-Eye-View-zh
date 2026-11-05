@@ -25,7 +25,7 @@
     { id: 'transit', label: '公共交通', unit: '辆' },
     { id: 'traffic', label: '车流', unit: '辆' },
     { id: 'bikeshare', label: '共享单车', unit: '站' },
-    { id: 'local-adsb', label: '本地ADS-B', unit: '架' }, /* i18n-ignore */
+    { id: 'local-adsb', label: '本地ADS-B', unit: '架' } /* i18n-ignore */,
   ];
   const STORE_KEY = 'gev.layerLimit.'; // + layerId
   const MIN = 0;

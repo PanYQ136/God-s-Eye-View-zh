@@ -656,57 +656,65 @@ test('cache lifetimes: 90 days for outlines, 30 for places, 24 hours for no resu
 
 // Windows/NTFS 不呈现 POSIX 目录权限位（mkdtemp 0o700 在 stat 里报告 0o666），
 // 该断言仅对 POSIX 文件系统有意义（上游 CI 为 Linux/macOS）。
-test('the disk cache survives a restart and stays within its bounds', { skip: process.platform === 'win32' }, async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gev-nominatim-cache-'));
-  const time = clock();
-  const first = createNominatimCache({
-    dir,
-    now: time.now,
-    maxDiskEntries: 3,
-    sweepEvery: 1000,
-  });
-  for (let i = 0; i < 5; i++) {
-    time.advance(1000);
-    await first.set(
-      `k${i}`,
-      { i },
-      i === 0 ? 10 : NOMINATIM_CACHE_TTL_MS.outline,
-    );
-  }
-  const second = createNominatimCache({
-    dir,
-    now: time.now,
-    maxDiskEntries: 3,
-  });
-  assert.deepEqual((await second.get('k4')).payload, { i: 4 });
-  await second.sweep();
-  const files = fs.readdirSync(dir).filter((name) => name.endsWith('.json'));
-  assert.equal(files.length, 3, 'expired entry removed, then oldest trimmed');
-  assert.equal(
-    await createNominatimCache({ dir, now: time.now }).get('k0'),
-    null,
-  );
-  assert.equal(
-    fs.statSync(dir).mode & 0o777,
-    0o700,
-    'the query cache directory is private',
-  );
-  const text = fs
-    .readdirSync(dir)
-    .filter((name) => name.endsWith('.json'))
-    .map((name) => fs.readFileSync(path.join(dir, name), 'utf8'))
-    .join('\n');
-  assert.equal(text.includes('k4'), false, 'disk entries never store raw keys');
-  for (const name of fs
-    .readdirSync(dir)
-    .filter((entry) => entry.endsWith('.json')))
+test(
+  'the disk cache survives a restart and stays within its bounds',
+  { skip: process.platform === 'win32' },
+  async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gev-nominatim-cache-'));
+    const time = clock();
+    const first = createNominatimCache({
+      dir,
+      now: time.now,
+      maxDiskEntries: 3,
+      sweepEvery: 1000,
+    });
+    for (let i = 0; i < 5; i++) {
+      time.advance(1000);
+      await first.set(
+        `k${i}`,
+        { i },
+        i === 0 ? 10 : NOMINATIM_CACHE_TTL_MS.outline,
+      );
+    }
+    const second = createNominatimCache({
+      dir,
+      now: time.now,
+      maxDiskEntries: 3,
+    });
+    assert.deepEqual((await second.get('k4')).payload, { i: 4 });
+    await second.sweep();
+    const files = fs.readdirSync(dir).filter((name) => name.endsWith('.json'));
+    assert.equal(files.length, 3, 'expired entry removed, then oldest trimmed');
     assert.equal(
-      fs.statSync(path.join(dir, name)).mode & 0o777,
-      0o600,
-      `${name} is private`,
+      await createNominatimCache({ dir, now: time.now }).get('k0'),
+      null,
     );
-  fs.rmSync(dir, { recursive: true, force: true });
-});
+    assert.equal(
+      fs.statSync(dir).mode & 0o777,
+      0o700,
+      'the query cache directory is private',
+    );
+    const text = fs
+      .readdirSync(dir)
+      .filter((name) => name.endsWith('.json'))
+      .map((name) => fs.readFileSync(path.join(dir, name), 'utf8'))
+      .join('\n');
+    assert.equal(
+      text.includes('k4'),
+      false,
+      'disk entries never store raw keys',
+    );
+    for (const name of fs
+      .readdirSync(dir)
+      .filter((entry) => entry.endsWith('.json')))
+      assert.equal(
+        fs.statSync(path.join(dir, name)).mode & 0o777,
+        0o600,
+        `${name} is private`,
+      );
+    fs.rmSync(dir, { recursive: true, force: true });
+  },
+);
 
 test('names are normalized Unicode-aware so small differences share an entry', () => {
   assert.equal(

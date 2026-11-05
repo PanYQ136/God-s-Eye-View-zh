@@ -191,7 +191,7 @@ function ensureCss() {
   /* 灰圈=0（§6.6）：chip / notice 都不用 border / outline / inset 描边，只用底色+字色 */
   /* Phase8D #13：运行时注入的样式表也要进层 */
   st.textContent =
-    '@layer components {\n' + /* i18n-ignore */
+    '@layer components {\n' /* i18n-ignore */ +
     [
       `#${CHIP_ID}{border:0;outline:0;box-shadow:none;background:rgba(8,20,30,.72);color:#8fe3ff;padding:6px 10px;border-radius:16px;font:12px/1.2 system-ui,"Segoe UI",sans-serif;max-width:360px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-variant-numeric:tabular-nums;}`,
       `#${CHIP_ID}[data-gpu-tier="software"],#${CHIP_ID}[data-gpu-tier="none"]{background:rgba(58,20,10,.78);color:#ffc9a8;}`,
@@ -219,7 +219,7 @@ function paintChip() {
   chip.dataset.gpuTier = _state.tier;
   chip.textContent = chipText(_state);
   chip.title =
-    'renderer: ' + /* i18n-ignore */
+    'renderer: ' /* i18n-ignore */ +
     (_state.renderer || '—') +
     '\nrequested: ' +
     _state.requested +

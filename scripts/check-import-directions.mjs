@@ -9,8 +9,12 @@ const builtins = new Set(
   builtinModules.flatMap((name) => [name, `node:${name}`]),
 );
 const code = /\.[mc]?js$/;
+/* fork：src/bootstrap.js 是本 fork 的装配入口（上游无此文件），
+   与 src/main.js 同类 —— 允许它组装 standalone。 */
 const entry = (file) =>
-  file === 'src/main.js' || file.startsWith('src/standalone/');
+  file === 'src/main.js' ||
+  file === 'src/bootstrap.js' ||
+  file.startsWith('src/standalone/');
 const tests = (file) =>
   file.endsWith('.test.mjs') ||
   file.startsWith('src/testSupport/') ||
