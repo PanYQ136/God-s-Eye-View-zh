@@ -282,6 +282,13 @@ export const DATA_CREDITS = [
       'National Meteorological Center / 中央气象台, ' +
       '<a href="https://www.nmc.cn" target="_blank" rel="noopener">nmc.cn</a>',
   },
+  {
+    key: 'qweather',
+    html:
+      'China current conditions, 7-day forecast &amp; weather alerts: ' +
+      '和风天气 <a href="https://www.qweather.com" target="_blank" rel="noopener">QWeather</a> — ' +
+      '数据仅供参考，不用于航行或应急决策 (not for navigation or emergency decisions)',
+  },
   // ── Bundled snapshots ───────────────────────────────────────────
   {
     key: 'datacenters',
