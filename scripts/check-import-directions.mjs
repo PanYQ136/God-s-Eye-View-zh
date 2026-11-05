@@ -9,6 +9,16 @@ const builtins = new Set(
   builtinModules.flatMap((name) => [name, `node:${name}`]),
 );
 const code = /\.[mc]?js$/;
+/* 2026-11-05 · data/bundledJson.js 契约：这两个文件的 Node 测试专用 JSON
+   装载器必须用运行时计算的说明符，否则 Rollup 会把字面量属性化动态导入
+   打成 ~2.9MB 浏览器永不可达的 JSON-module 死块（regions/marine/
+   san-francisco 三组 Natural Earth / 街区数据在 dist 各双份）。
+   计算导入对方向图不可见 —— 豁免面收敛到这两个文件，且目标均为
+   无 import 的纯数据文件；其余文件的计算导入依旧被拒绝。 */
+const COMPUTED_IMPORT_ALLOWLIST = new Set([
+  'src/data/naturalEarthRegions.js',
+  'src/data/neighborhoodPolygons.js',
+]);
 /* 应用装配入口：把「旧 main.js 的其余部分」搬进一个模块后（Phase7A3），它也是入口，
    与 src/main.js 同类 —— 允许它组装 standalone/rendering。 */
 const entry = (file) =>
@@ -95,7 +105,9 @@ export function checkImportDirections(
     }
     let analysis;
     try {
-      analysis = analyzeModule(readFileSync(resolved, 'utf8'));
+      analysis = analyzeModule(readFileSync(resolved, 'utf8'), {
+        allowComputedImports: COMPUTED_IMPORT_ALLOWLIST.has(file),
+      });
     } catch (error) {
       report(file, error.message);
       return null;
