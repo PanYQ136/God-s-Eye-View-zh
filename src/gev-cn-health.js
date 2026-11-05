@@ -68,7 +68,10 @@
   @media (orientation:landscape) and (max-height:560px) and (max-width:1023px){
     #top-center-actions #gev-cn-health-chip{ display:none; }
   }
-  body.ui-clean-view #gev-cn-health-chip{ display:none; }
+  body.ui-clean-view #gev-cn-health-chip,
+  body.recording-mode #gev-cn-health-chip{ display:none; }
+  body.ui-clean-view #gev-cn-health-panel,
+  body.recording-mode #gev-cn-health-panel{ display:none; }
 
   .gev-hh-dot{ width:9px; height:9px; border-radius:50%; flex:0 0 auto;
     background:var(--gev-ok, #5EF1A6); box-shadow:0 0 6px currentColor; }

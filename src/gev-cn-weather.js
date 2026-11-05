@@ -131,8 +131,11 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
   body.cockpit-mode #gev-cn-band{
     top:max(var(--gev-band-top, calc(env(safe-area-inset-top,0px) + 64px)),
       calc(env(safe-area-inset-top,0px) + 64px));
+    /* 座舱 HUD 是 z145：不抬高层级会被整块盖住 */
+    z-index:148;
   }
-  body.ui-clean-view #gev-cn-band{ display:none; }
+  body.ui-clean-view #gev-cn-band,
+  body.recording-mode #gev-cn-band{ display:none; }
   body:has(#traffic-sync-chip.visible) #traffic-sync-chip{ top:124px; }
   body:has(#cctv-sync-chip.visible) #cctv-sync-chip{ top:158px; }
   @media (prefers-reduced-motion: reduce){
@@ -923,8 +926,8 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
     if (state.alertsStatus !== 'ok' || !state.alerts.length) return;
     buildAlertList();
     state.alertList.hidden = false;
-    state.band.classList.add('has-popover');
     state.listOpen = true;
+    syncPopoverLayer();
     const first = state.alertList.querySelector('.gev-wx-alert-item');
     if (first) {
       try {
@@ -938,8 +941,8 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
   function closeList(returnFocus) {
     if (!state.listOpen) return;
     state.alertList.hidden = true;
-    state.band.classList.remove('has-popover');
     state.listOpen = false;
+    syncPopoverLayer();
     if (returnFocus) {
       const back = state.alertMore.hidden ? state.alertMain : state.alertMore;
       try {
@@ -981,6 +984,16 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
     state.wxDetail.hidden = !open;
     state.expanded = open;
     state.wxBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    // 详情气泡与预警列表都在 band 的 100 层里，打开时抬到弹窗层
+    syncPopoverLayer();
+  }
+
+  function syncPopoverLayer() {
+    if (!state.band) return;
+    state.band.classList.toggle(
+      'has-popover',
+      Boolean(state.expanded || state.listOpen),
+    );
   }
 
   // ── 数据：天气 + 预警 ─────────────────────────────────────────
@@ -1415,11 +1428,14 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
   }
 
   /**
-   * 左上锚定簇的落点：固定 `top:64; left:52` 在 1440×900 会压住标题栏（32–90）
-   * 与左栏栈（94–724）。实测后按障碍物让位：
-   *  · 先水平让开标题栏（簇移到标题右侧 +12），保持 top 64 在左栏顶边之上；
-   *  · 若仍与左栏栈相交，则下压到其底缘 +12。
-   * 横屏矮屏 / 竖屏各有专属断点，不参与本规则。
+   * 左上锚定簇的落点。固定 `top:64; left:52` 在 1440×900 会压住标题栏（32–90）
+   * 与左栏栈（94–724），1024–1200 宽时还会撞居中的 #top-center-actions。
+   * 按实测矩形依次让位：
+   *  · 水平让开标题栏（left = 标题右缘 +12）；
+   *  · 再与顶中按钮行相交则下压到其底缘 +8（此后仍在标题右侧，不会回撞）；
+   *  · 与 #global-loading-status（z102 > 本带 z100）相交则再下压；
+   *  · 仍与左栏栈相交则继续右移到栏右缘 +12。
+   * 同时把 max-width 收进视口，避免右移后溢出。横屏矮屏/竖屏走各自断点。
    */
   function syncBandTop() {
     const band = state.band;
@@ -1427,6 +1443,7 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
     const clear = () => {
       band.style.removeProperty('top');
       band.style.removeProperty('left');
+      band.style.removeProperty('max-width');
     };
     if (document.body.classList.contains('cockpit-mode')) {
       clear();
@@ -1445,34 +1462,59 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
 
     const baseLeft = 52;
     const baseTop = 64;
-    const height = Math.max(30, Math.round(band.getBoundingClientRect().height) || 30);
+    const height = Math.max(
+      30,
+      Math.round(band.getBoundingClientRect().height) || 30,
+    );
     let left = baseLeft;
     let top = baseTop;
+    let width = band.offsetWidth || 200;
 
     const overlaps = (r) =>
       r &&
       r.height > 0 &&
       r.width > 0 &&
       left < r.right &&
-      left + band.offsetWidth > r.left &&
+      left + width > r.left &&
       top < r.bottom &&
       top + height > r.top;
 
-    const title = document.getElementById('title-bar');
-    if (title) {
-      const r = title.getBoundingClientRect();
-      if (overlaps(r)) left = Math.round(r.right + 12);
+    const rectOf = (sel) => {
+      const el = document.querySelector(sel);
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      return r;
+    };
+
+    const title = rectOf('#title-bar');
+    if (title && overlaps(title)) {
+      left = Math.round(title.right + 12);
+      width = Math.min(width, window.innerWidth - left - 52);
     }
-    const stack = document.getElementById('left-panel-stack');
-    if (stack) {
-      const r = stack.getBoundingClientRect();
-      if (overlaps(r)) top = Math.round(r.bottom + 12);
+
+    const actions = rectOf('#top-center-actions');
+    if (actions && overlaps(actions)) top = Math.round(actions.bottom + 8);
+
+    const status = rectOf('#global-loading-status');
+    if (status && overlaps(status)) top = Math.round(status.bottom + 8);
+
+    const stack = rectOf('#left-panel-stack');
+    if (stack && overlaps(stack)) {
+      const rightShift = Math.round(stack.right + 12);
+      if (rightShift + 160 < window.innerWidth) {
+        left = rightShift;
+        width = Math.min(width, window.innerWidth - left - 52);
+      } else {
+        top = Math.round(stack.bottom + 12);
+      }
     }
 
     if (left === baseLeft) band.style.removeProperty('left');
     else band.style.left = left + 'px';
     if (top === baseTop) band.style.removeProperty('top');
     else band.style.top = top + 'px';
+    if (left === baseLeft) band.style.removeProperty('max-width');
+    else band.style.maxWidth = Math.max(160, window.innerWidth - left - 52) + 'px';
   }
 
   // ── 事件绑定 ─────────────────────────────────────────────────
@@ -1532,6 +1574,24 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
       },
       true,
     );
+
+    // 加载状态条（z102）出现/消失会改变可用的左上空间 → 重新让位
+    try {
+      const attachStatusObserver = () => {
+        const st = document.getElementById('global-loading-status');
+        if (!st) return false;
+        const mo = new MutationObserver(() => {
+          clearTimeout(state.statusSyncTimer);
+          state.statusSyncTimer = setTimeout(syncBandTop, 80);
+        });
+        mo.observe(st, { attributes: true, attributeFilter: ['class', 'style'] });
+        state.statusObserver = mo;
+        return true;
+      };
+      if (!attachStatusObserver()) setTimeout(attachStatusObserver, 2000);
+    } catch {
+      /* ignore */
+    }
 
     // 相机停稳去抖 → 移动 >0.5° 才重取
     try {
