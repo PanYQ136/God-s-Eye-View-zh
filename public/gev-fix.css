@@ -186,4 +186,18 @@ label.radio-filter-label, #radio-station-meta, .radio-volume-row > span { color:
   /* 场景播放时 #scene-runtime(z105) 盖住顶中行；recording.css 已隐藏 4 个按钮，
      这里补上漏掉的 share（健康 chip 由 cn-health 模块自行隐藏）。 */
   body.scene-playback-mode #share-btn { display: none; }
+
+  /* 桌面 GEV 控件行：原 right:977px 在 1280×800 会落进左栏列(x52–412)。
+     水平移到左栏右侧(right:800px)并抬到 perf(bottom:124) 之上(bottom:176)，
+     这样与左栏 / 性能条 / 语言按钮 / 指令坞 / 顶中行均不相交。 */
+  @media (min-width: 1124px) and (min-height: 561px) {
+    html body #gev-locate-btn { right: 800px; bottom: 176px; }
+  }
+
+  /* 窄屏的响应式规则会把两条 toast 压到同一条 ~150px 带上导致叠字；
+     在 overrides 层用更高特异性重新错开 56px。 */
+  @media (max-width: 760px) {
+    html body #toast { bottom: 168px; }
+    html body #gev-toast { bottom: 224px; }
+  }
 }

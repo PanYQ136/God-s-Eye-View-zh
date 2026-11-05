@@ -61,7 +61,8 @@
 
   #key-setup {
     position: fixed;
-    z-index: 210; /* above the first-run launcher (175) and above the credit lightbox (200) */
+    /* 高于版权灯箱(220) 与首启卡(230)；模态层统一由 --z-modal 表达。 */
+    z-index: var(--z-modal, 240);
     top: 50%;
     left: 50%;
     width: min(36rem, calc(100vw - 2rem));
