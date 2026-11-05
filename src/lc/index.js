@@ -6,7 +6,7 @@
      pointerup → controller.dispatch(ACTIVATE) → 一次 rAF: measure → layout → render
      → WAAPI 从 presentation 值起 → onfinish 校验 gen → phase='open'
    ========================================================================== */
-import { CARDS, CARD_IDS, GROUPS, STORE_KEY } from './cards.js';
+import { CARDS, CARD_IDS, STORE_KEY } from './cards.js';
 import { ACT, EFF, PHASE, createController, isLive } from './controller.js';
 import { createAdapter } from './app-adapter.js';
 import { createCollapsePort } from './collapse-port.js';
