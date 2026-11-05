@@ -68,10 +68,14 @@
   @media (orientation:landscape) and (max-height:560px) and (max-width:1023px){
     #top-center-actions #gev-cn-health-chip{ display:none; }
   }
-  body.ui-clean-view #gev-cn-health-chip,
-  body.recording-mode #gev-cn-health-chip{ display:none; }
+  /* 注意：#top-center-actions #gev-cn-health-chip 是两个 id（2,0,0），
+     隐藏规则必须同样带上 #top-center-actions，否则被它反压 */
+  body.ui-clean-view #top-center-actions #gev-cn-health-chip,
+  body.recording-mode #top-center-actions #gev-cn-health-chip,
+  body.cockpit-mode #top-center-actions #gev-cn-health-chip{ display:none; }
   body.ui-clean-view #gev-cn-health-panel,
-  body.recording-mode #gev-cn-health-panel{ display:none; }
+  body.recording-mode #gev-cn-health-panel,
+  body.cockpit-mode #gev-cn-health-panel{ display:none; }
 
   .gev-hh-dot{ width:9px; height:9px; border-radius:50%; flex:0 0 auto;
     background:var(--gev-ok, #5EF1A6); box-shadow:0 0 6px currentColor; }

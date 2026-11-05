@@ -134,10 +134,10 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
     /* 座舱 HUD 是 z145：不抬高层级会被整块盖住 */
     z-index:148;
   }
+  /* 148 的特异性高于 .has-popover，座舱里打开详情/列表时要再抬回弹窗层 */
+  body.cockpit-mode #gev-cn-band.has-popover{ z-index:var(--z-popup,200); }
   body.ui-clean-view #gev-cn-band,
   body.recording-mode #gev-cn-band{ display:none; }
-  body:has(#traffic-sync-chip.visible) #traffic-sync-chip{ top:124px; }
-  body:has(#cctv-sync-chip.visible) #cctv-sync-chip{ top:158px; }
   @media (prefers-reduced-motion: reduce){
     #gev-cn-band *, #traffic-sync-chip, #cctv-sync-chip, #top-center-actions #gev-cn-health-chip{
       animation:none; transition:none; transform:none;
@@ -1432,10 +1432,11 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
    * 与左栏栈（94–724），1024–1200 宽时还会撞居中的 #top-center-actions。
    * 按实测矩形依次让位：
    *  · 水平让开标题栏（left = 标题右缘 +12）；
-   *  · 再与顶中按钮行相交则下压到其底缘 +8（此后仍在标题右侧，不会回撞）；
-   *  · 与 #global-loading-status（z102 > 本带 z100）相交则再下压；
-   *  · 仍与左栏栈相交则继续右移到栏右缘 +12。
-   * 同时把 max-width 收进视口，避免右移后溢出。横屏矮屏/竖屏走各自断点。
+   *  · 与顶中按钮行相交则下压到其底缘 +8；
+   *  · 与 #global-loading-status（z102 > 本带 z100）相交再下压；
+   *  · 仍与左栏栈相交则右移到栏右缘 +12（放不下才下压）。
+   * 让位会改 max-width，进而改变簇宽度 —— 所以用「预测宽度算一遍 → 落盘 →
+   * 读回真实 offsetWidth 再算一遍」，避免同一趟里用旧宽度多判一次相交而抖动。
    */
   function syncBandTop() {
     const band = state.band;
@@ -1466,55 +1467,70 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
       30,
       Math.round(band.getBoundingClientRect().height) || 30,
     );
-    let left = baseLeft;
-    let top = baseTop;
-    let width = band.offsetWidth || 200;
 
-    const overlaps = (r) =>
-      r &&
-      r.height > 0 &&
-      r.width > 0 &&
-      left < r.right &&
-      left + width > r.left &&
-      top < r.bottom &&
-      top + height > r.top;
+    const compute = (startWidth) => {
+      let left = baseLeft;
+      let top = baseTop;
+      let width = Math.max(160, startWidth || 200);
 
-    const rectOf = (sel) => {
-      const el = document.querySelector(sel);
-      if (!el) return null;
-      const r = el.getBoundingClientRect();
-      return r;
+      const overlaps = (r) =>
+        r &&
+        r.height > 0 &&
+        r.width > 0 &&
+        left < r.right &&
+        left + width > r.left &&
+        top < r.bottom &&
+        top + height > r.top;
+
+      const rectOf = (sel) => {
+        const el = document.querySelector(sel);
+        return el ? el.getBoundingClientRect() : null;
+      };
+
+      const title = rectOf('#title-bar');
+      if (title && overlaps(title)) {
+        left = Math.round(title.right + 12);
+        width = Math.min(width, window.innerWidth - left - 52);
+      }
+
+      const actions = rectOf('#top-center-actions');
+      if (actions && overlaps(actions)) top = Math.round(actions.bottom + 8);
+
+      const status = rectOf('#global-loading-status');
+      if (status && overlaps(status)) top = Math.round(status.bottom + 8);
+
+      const stack = rectOf('#left-panel-stack');
+      if (stack && overlaps(stack)) {
+        const rightShift = Math.round(stack.right + 12);
+        if (rightShift + 160 < window.innerWidth) {
+          left = rightShift;
+          width = Math.min(width, window.innerWidth - left - 52);
+        } else {
+          top = Math.round(stack.bottom + 12);
+        }
+      }
+      return { left, top, width: Math.max(160, width) };
     };
 
-    const title = rectOf('#title-bar');
-    if (title && overlaps(title)) {
-      left = Math.round(title.right + 12);
-      width = Math.min(width, window.innerWidth - left - 52);
+    const write = (res) => {
+      if (res.left === baseLeft) band.style.removeProperty('left');
+      else band.style.left = res.left + 'px';
+      if (res.top === baseTop) band.style.removeProperty('top');
+      else band.style.top = res.top + 'px';
+      if (res.left === baseLeft) band.style.removeProperty('max-width');
+      else
+        band.style.maxWidth =
+          Math.max(160, window.innerWidth - res.left - 52) + 'px';
+    };
+
+    const first = compute(band.offsetWidth);
+    write(first);
+    // 落盘后宽度可能被 max-width 收窄 → 用真实宽度再收敛一次
+    const settled = band.offsetWidth;
+    if (settled > 0 && settled !== first.width) {
+      const second = compute(settled);
+      if (second.left !== first.left || second.top !== first.top) write(second);
     }
-
-    const actions = rectOf('#top-center-actions');
-    if (actions && overlaps(actions)) top = Math.round(actions.bottom + 8);
-
-    const status = rectOf('#global-loading-status');
-    if (status && overlaps(status)) top = Math.round(status.bottom + 8);
-
-    const stack = rectOf('#left-panel-stack');
-    if (stack && overlaps(stack)) {
-      const rightShift = Math.round(stack.right + 12);
-      if (rightShift + 160 < window.innerWidth) {
-        left = rightShift;
-        width = Math.min(width, window.innerWidth - left - 52);
-      } else {
-        top = Math.round(stack.bottom + 12);
-      }
-    }
-
-    if (left === baseLeft) band.style.removeProperty('left');
-    else band.style.left = left + 'px';
-    if (top === baseTop) band.style.removeProperty('top');
-    else band.style.top = top + 'px';
-    if (left === baseLeft) band.style.removeProperty('max-width');
-    else band.style.maxWidth = Math.max(160, window.innerWidth - left - 52) + 'px';
   }
 
   // ── 事件绑定 ─────────────────────────────────────────────────
