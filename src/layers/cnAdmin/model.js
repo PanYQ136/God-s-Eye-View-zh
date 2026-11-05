@@ -20,13 +20,11 @@ function transformLat(x, y) {
     0.1 * x * y +
     0.2 * Math.sqrt(Math.abs(x));
   ret +=
-    ((20.0 * Math.sin(6.0 * x * Math.PI) +
-      20.0 * Math.sin(2.0 * x * Math.PI)) *
+    ((20.0 * Math.sin(6.0 * x * Math.PI) + 20.0 * Math.sin(2.0 * x * Math.PI)) *
       2.0) /
     3.0;
   ret +=
-    ((20.0 * Math.sin(y * Math.PI) +
-      40.0 * Math.sin((y / 3.0) * Math.PI)) *
+    ((20.0 * Math.sin(y * Math.PI) + 40.0 * Math.sin((y / 3.0) * Math.PI)) *
       2.0) /
     3.0;
   ret +=
@@ -46,13 +44,11 @@ function transformLng(x, y) {
     0.1 * x * y +
     0.1 * Math.sqrt(Math.abs(x));
   ret +=
-    ((20.0 * Math.sin(6.0 * x * Math.PI) +
-      20.0 * Math.sin(2.0 * x * Math.PI)) *
+    ((20.0 * Math.sin(6.0 * x * Math.PI) + 20.0 * Math.sin(2.0 * x * Math.PI)) *
       2.0) /
     3.0;
   ret +=
-    ((20.0 * Math.sin(x * Math.PI) +
-      40.0 * Math.sin((x / 3.0) * Math.PI)) *
+    ((20.0 * Math.sin(x * Math.PI) + 40.0 * Math.sin((x / 3.0) * Math.PI)) *
       2.0) /
     3.0;
   ret +=
@@ -76,9 +72,7 @@ export function gcj02ToWgs84(lng, lat) {
   dLat =
     (dLat * 180.0) /
     (((GCJ02_A * (1 - GCJ02_EE)) / (magic * sqrtMagic)) * Math.PI);
-  dLng =
-    (dLng * 180.0) /
-    ((GCJ02_A / sqrtMagic) * Math.cos(radLat) * Math.PI);
+  dLng = (dLng * 180.0) / ((GCJ02_A / sqrtMagic) * Math.cos(radLat) * Math.PI);
   return [lng - dLng, lat - dLat];
 }
 

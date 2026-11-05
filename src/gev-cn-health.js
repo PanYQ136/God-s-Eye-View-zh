@@ -265,7 +265,9 @@
   function layerName(id) {
     if (LAYER_NAMES[id]) return LAYER_NAMES[id];
     const s = String(id || '');
-    return s ? s.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase()) : '—';
+    return s
+      ? s.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase())
+      : '—';
   }
 
   // ── DOM ───────────────────────────────────────────────────────
@@ -354,7 +356,14 @@
         channels: chans,
       });
     }
-    const rank = { down: 0, switched: 1, unknown: 2, slow: 3, timeout: 4, ok: 5 };
+    const rank = {
+      down: 0,
+      switched: 1,
+      unknown: 2,
+      slow: 3,
+      timeout: 4,
+      ok: 5,
+    };
     rows.sort((a, b) => (rank[a.kind] ?? 9) - (rank[b.kind] ?? 9));
     return rows;
   }
@@ -375,7 +384,9 @@
     if (row.kind === 'unknown') return '未探测';
     if (row.kind === 'down') {
       const first = row.channels.find((c) => c && c.error);
-      return '全部不通' + (first && first.error ? ' · ' + String(first.error) : '');
+      return (
+        '全部不通' + (first && first.error ? ' · ' + String(first.error) : '')
+      );
     }
     if (row.kind === 'switched') {
       return '已切备用' + (row.primaryLabel ? ' · ' + row.primaryLabel : '');
@@ -444,12 +455,16 @@
 
   function noteMarkup() {
     if (state.phase === 'error') {
-      return '<span>数据源探测失败</span>' +
-        '<button class="gev-hp-inline-btn" type="button" data-act="retry">重试</button>';
+      return (
+        '<span>数据源探测失败</span>' +
+        '<button class="gev-hp-inline-btn" type="button" data-act="retry">重试</button>'
+      );
     }
     if (state.phase === 'timeout') {
-      return '<span>探测超时</span>' +
-        '<button class="gev-hp-inline-btn" type="button" data-act="retry">重试</button>';
+      return (
+        '<span>探测超时</span>' +
+        '<button class="gev-hp-inline-btn" type="button" data-act="retry">重试</button>'
+      );
     }
     if (state.building) {
       const elapsed = state.pollStart ? Date.now() - state.pollStart : 0;
@@ -484,7 +499,11 @@
                 ? 'is-slow'
                 : '';
     const metaCls =
-      row.kind === 'down' ? ' is-bad' : row.kind === 'switched' || row.kind === 'slow' ? ' is-warn' : '';
+      row.kind === 'down'
+        ? ' is-bad'
+        : row.kind === 'switched' || row.kind === 'slow'
+          ? ' is-warn'
+          : '';
     const msText = row.ms > 0 ? Math.round(row.ms) + 'ms' : '—';
     return (
       '<div class="gev-hp-row">' +
@@ -521,7 +540,9 @@
         '<span class="gev-hp-name"><b>' +
         (state.phase === 'loading' ? '探测中…' : '暂无数据') +
         '</b><span class="gev-hp-sub">' +
-        (state.phase === 'loading' ? '正在读取 /api/sources/health' : '点按「重试」再取一次') +
+        (state.phase === 'loading'
+          ? '正在读取 /api/sources/health'
+          : '点按「重试」再取一次') +
         '</span></span><span class="gev-hp-meta">—</span></div>';
 
     el.more.hidden = rows.length <= DEFAULT_ROWS;
@@ -706,7 +727,8 @@
     });
 
     el.note.addEventListener('click', (e) => {
-      const btn = e.target && e.target.closest && e.target.closest('[data-act]');
+      const btn =
+        e.target && e.target.closest && e.target.closest('[data-act]');
       if (!btn) return;
       const act = btn.getAttribute('data-act');
       if (act === 'retry') retry();
