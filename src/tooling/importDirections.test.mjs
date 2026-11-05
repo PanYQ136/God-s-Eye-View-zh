@@ -46,6 +46,16 @@ test('module analysis parses dependencies and platform references without readin
   assert.throws(() => analyzeModule("require('node:fs')"), /ES imports/);
 });
 
+test('computed-import allowance is opt-in per module and records no edge', () => {
+  // data/bundledJson.js 的 Node 测试专用装载器（见门禁脚本白名单注释）：
+  // 豁免后不再抛错，但计算导入也不进方向图。
+  const source =
+    "import x from './known.js'; const spec = './x.json'; import(spec);";
+  assert.throws(() => analyzeModule(source), /Computed/);
+  const allowed = analyzeModule(source, { allowComputedImports: true });
+  assert.deepEqual(allowed.imports, ['./known.js']);
+});
+
 test('portable sources can share records, and standalone can assemble rendering', (t) => {
   const { root, write } = fixture(t, {
     './layers/demo/source': './src/layers/demo/source.js',
