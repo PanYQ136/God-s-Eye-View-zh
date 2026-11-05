@@ -63,7 +63,7 @@ export function createLayerCatalog(layers, metadata) {
 /**
  * Append-only catalog for layer factories that arrive after first paint.
  *
- * Phase8E2（t_1ad4e981）：`metadata` 是静态的序列化注册表（29 条），所以
+ * Phase8E2（t_1ad4e981）：`metadata` 是静态的序列化注册表（33 条），所以
  * 「图层集合」在实例存在之前就已确定——后置注册只补实例，不动集合语义：
  *
  *   · `layers` / `metadata` / `get` 与 `createLayerCatalog` 同义；`layers`

@@ -49,6 +49,10 @@ const PANEL_GROUPS = [
     ids: ['rocket-launches', 'earthquakes', 'local-firms', 'fire-perimeters'],
   },
   {
+    label: 'China',
+    ids: ['cn-traffic', 'cn-admin', 'cn-quakes', 'cn-typhoon'],
+  },
+  {
     label: 'Weather',
     ids: [
       'wind',
