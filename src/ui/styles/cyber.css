@@ -809,8 +809,9 @@
 }
 
 :root[data-ui-theme='cyber'] #command-dock {
-  --dock-side-compact: clamp(9rem, 11vw, 9.75rem);
-  --dock-voice-width: 8rem;
+  /* 与默认主题的 Dock 缩小保持一致，避免主题切换后宽度回弹压到面板。 */
+  --dock-side-compact: clamp(7.25rem, 8.5vw, 8rem);
+  --dock-voice-width: 7rem;
   padding: 0.3rem 0.48rem 0.34rem;
   gap: 0.12rem;
   overflow: visible;

@@ -70,12 +70,16 @@
   }
   /* 注意：#top-center-actions #gev-cn-health-chip 是两个 id（2,0,0），
      隐藏规则必须同样带上 #top-center-actions，否则被它反压 */
+  /* 净屏 / 录制 / 座舱 / 场景播放：顶中行会被 #scene-runtime(z105) 或座舱 HUD 盖住，
+     chip 与面板一并隐藏（隐藏选择器必须带 #top-center-actions，否则被 base 的 2,0,0 反压） */
   body.ui-clean-view #top-center-actions #gev-cn-health-chip,
   body.recording-mode #top-center-actions #gev-cn-health-chip,
-  body.cockpit-mode #top-center-actions #gev-cn-health-chip{ display:none; }
+  body.cockpit-mode #top-center-actions #gev-cn-health-chip,
+  body.scene-playback-mode #top-center-actions #gev-cn-health-chip{ display:none; }
   body.ui-clean-view #gev-cn-health-panel,
   body.recording-mode #gev-cn-health-panel,
-  body.cockpit-mode #gev-cn-health-panel{ display:none; }
+  body.cockpit-mode #gev-cn-health-panel,
+  body.scene-playback-mode #gev-cn-health-panel{ display:none; }
 
   .gev-hh-dot{ width:9px; height:9px; border-radius:50%; flex:0 0 auto;
     background:var(--gev-ok, #5EF1A6); box-shadow:0 0 6px currentColor; }

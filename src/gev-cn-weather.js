@@ -1467,15 +1467,16 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
 
     const baseLeft = 52;
     const baseTop = 64;
-    const height = Math.max(
-      30,
-      Math.round(band.getBoundingClientRect().height) || 30,
-    );
 
     const compute = (startWidth) => {
       let left = baseLeft;
       let top = baseTop;
       let width = Math.max(160, startWidth || 200);
+      // 高度随宽度变化（窄到折两排时 30 → ~66），每趟都要重读，不能用旧快照
+      const height = Math.max(
+        30,
+        Math.round(band.getBoundingClientRect().height) || 30,
+      );
 
       const overlaps = (r) =>
         r &&

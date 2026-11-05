@@ -205,7 +205,8 @@
     pointer-events: none;
     transition:
       opacity 0.22s ease,
-      transform 0.22s ease;
+      transform 0.22s ease,
+      top 0.22s ease;
     box-shadow:
       0 8px 24px rgba(0, 0, 0, 0.34),
       0 0 14px rgba(0, 212, 255, 0.08);
@@ -214,6 +215,17 @@
   /* Stacked below the traffic chip so both can show at once */
   #cctv-sync-chip {
     top: 146px;
+  }
+
+  /* 竖屏：band 在 safe+132 起且折两排（底约 198），同步 chip 必须整体落到其下。
+     traffic 在 206，cctv 再低一格，两条同时可见时不互相压。 */
+  @media (max-width: 760px) and (orientation: portrait) {
+    #traffic-sync-chip {
+      top: calc(env(safe-area-inset-top, 0px) + 206px);
+    }
+    #cctv-sync-chip {
+      top: calc(env(safe-area-inset-top, 0px) + 242px);
+    }
   }
 
   #traffic-sync-chip.visible,

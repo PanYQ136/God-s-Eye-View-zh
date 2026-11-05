@@ -5,20 +5,22 @@
     right: auto;
     bottom: 2vh;
     left: 50%;
-    z-index: 145;
+    /* 高于 #lc-stage(150) 的展开卡，避免面板展开时把坞盖住；仍低于 Toast(152/200)。 */
+    z-index: 151;
     display: grid;
     grid-template-areas: 'locations voice presets';
-    grid-template-columns: minmax(300px, 1fr) minmax(230px, 270px) minmax(
-        390px,
+    grid-template-columns: minmax(240px, 1fr) minmax(190px, 220px) minmax(
+        300px,
         1.15fr
       );
     align-items: stretch;
-    width: min(94vw, 1240px);
-    padding: 6px;
+    /* 适当收窄：减少与左右面板列/展开卡的矩形相交（实际宽度由 compact 变量决定，这里是兜底）。 */
+    width: min(80vw, 1040px);
+    padding: 5px;
     overflow: visible;
     background: rgba(9, 18, 27, 0.84);
     border: 1px solid rgba(123, 189, 211, 0.28);
-    border-radius: 12px;
+    border-radius: 10px;
     box-shadow:
       0 12px 36px rgba(0, 0, 0, 0.58),
       0 0 0 1px rgba(255, 255, 255, 0.03) inset,
@@ -249,7 +251,7 @@
         'locations voice'
         'presets presets';
       grid-template-columns: minmax(0, 1fr) minmax(170px, 210px);
-      width: calc(100vw - 24px);
+      width: calc(100vw - 40px);
     }
 
     #command-dock > #location-bar {
