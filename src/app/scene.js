@@ -143,7 +143,11 @@ export async function createApplicationScene({
     viewer.scene.globe.show = true;
   }
 
-  loaderStatus.textContent = t('Initializing systems...');
+  // 数据源名称提示必须保持到初始化/瓦片就绪（CN 分支在高德瓦片加载前
+  // 不能被 'Initializing systems' 同步覆盖，否则用户看不到数据源名称）。
+  loaderStatus.textContent = useCnBase
+    ? /* i18n-ignore */ '正在加载高德卫星影像…'
+    : t('Initializing systems...');
 
   const mapStackController = new MapController(viewer, {
     requestRender: governorRequestRender,
