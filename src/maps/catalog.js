@@ -31,6 +31,13 @@ export const MAP_STACKS = [
     requiresIon: false,
   },
   {
+    id: 'amap-satellite',
+    label: 'AMap Satellite', // i18n-ignore: imagery product name
+    shortLabel: '高德',
+    kind: 'amap-satellite',
+    requiresIon: false,
+  },
+  {
     id: 'osm',
     label: 'OSM', // i18n-ignore: imagery product name
     shortLabel: 'OSM',

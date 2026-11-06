@@ -64,3 +64,25 @@ async function createBingIonImagery(style, accessToken) {
   ];
   return provider;
 }
+
+// ── CN 反向移植：高德卫星影像（GCJ-02 瓦片，中国大陆默认底图）────────────
+
+export const AMAP_ATTRIBUTION_HTML =
+  'China satellite imagery: © AutoNavi (AMap) / 高德地图 (GCJ-02)';
+
+/**
+ * 高德卫星影像（style=6 瓦片，GCJ-02）。
+ *
+ * 中国大陆网络环境下 Google 3D Tiles 不可达，用高德卫星瓦片作为默认底图。
+ * 注意：瓦片为 GCJ-02 datum，WGS-84 矢量叠加层在高倍下会有固有偏移
+ * （所有中国大陆底图皆如此）；DATA_SOURCES.md 的 AMap 行已声明该取舍。
+ */
+export function createAmapSatelliteImagery() {
+  return new Cesium.UrlTemplateImageryProvider({
+    url: 'https://webst0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}',
+    subdomains: ['1', '2', '3', '4'],
+    maximumLevel: 18,
+    credit: AMAP_ATTRIBUTION_HTML,
+    enablePickFeatures: false,
+  });
+}

@@ -5,8 +5,10 @@ import { t } from '../i18n/index.js';
 import {
   createOsmImagery,
   createEsriImagery,
+  createAmapSatelliteImagery,
   createIonImagery,
   ESRI_ATTRIBUTION_HTML,
+  AMAP_ATTRIBUTION_HTML,
 } from './imagery.js';
 import { createWorldTerrain, createKeylessTerrain } from './terrain.js';
 
@@ -15,6 +17,7 @@ export function createDefaultMapSources({
   googleTileset = null,
   cesiumToken = '',
   googleApiKey = '',
+  basePreference = null,
 } = {}) {
   const ionToken = String(cesiumToken || '').trim();
   const hasIon = Boolean(ionToken);
@@ -26,7 +29,11 @@ export function createDefaultMapSources({
       : createKeylessTerrain,
   };
   return {
-    defaultId: googleTileset ? 'photoreal' : 'esri-imagery',
+    defaultId: googleTileset
+      ? 'photoreal'
+      : basePreference && MAP_STACKS.some((s) => s.id === basePreference)
+        ? basePreference
+        : 'esri-imagery',
     unknownId: 'photoreal',
     recoveryId: googleTileset ? 'photoreal' : null,
     state: { hasCesiumIonToken: hasIon },
@@ -55,7 +62,9 @@ export function createDefaultMapSources({
           ? () => createIonImagery(descriptor.style, ionToken)
           : descriptor.id === 'osm'
             ? createOsmImagery
-            : createEsriImagery;
+            : descriptor.id === 'amap-satellite'
+              ? createAmapSatelliteImagery
+              : createEsriImagery;
       return {
         ...common,
         imagery,
@@ -73,7 +82,9 @@ export function createDefaultMapSources({
                 message: 'Esri Satellite tile requests failed; using OSM',
               },
             }
-          : {}),
+          : descriptor.id === 'amap-satellite'
+            ? { credit: AMAP_ATTRIBUTION_HTML }
+            : {}),
       };
     }),
   };
