@@ -72,7 +72,7 @@ test('catalogs construct distinct layers and classification from their supplied 
   const order = first.layers.map(({ id }) => id);
   assert.deepEqual(
     order.slice(order.indexOf('traffic'), order.indexOf('directions') + 1),
-    ['traffic', 'cctv', 'radio', 'transit', 'bikeshare', 'directions'],
+    ['traffic', 'cn-traffic', 'cn-admin', 'cn-quakes', 'cn-typhoon', 'cctv', 'radio', 'transit', 'bikeshare', 'directions'],
   );
   assert.ok(first.get('bhote-koshi-2026'));
   assert.ok(first.get('bhote-koshi-locator'));
