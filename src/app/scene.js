@@ -65,10 +65,33 @@ export async function createApplicationScene({
     googleApiKey || googleTokens || cesiumToken
       ? t('Loading Google 3D Tiles...')
       : t('Loading the keyless globe...');
-  const photoreal = await loadPhotorealisticTileset(Cesium, {
+  // fork（CN 网络）：Google 3D Tiles 在不可达网络下会无限挂起，遮罩永不清除。
+  // 与旧 boot-gate 的 26s 兜底同语义：超时先走 keyless 地球；迟到的 tileset
+  // 若最终就绪则安全销毁（不加入场景，避免泄漏）。
+  let photorealSettled = false;
+  const photorealPromise = loadPhotorealisticTileset(Cesium, {
     googleApiKey,
     googleTokens,
     cesiumToken,
+  }).then((result) => {
+    photorealSettled = true;
+    return result;
+  });
+  const photorealDeadline = new Promise((resolve) => {
+    const deadlineTimer = setTimeout(() => {
+      if (!photorealSettled)
+        resolve({
+          tileset: null,
+          route: 'deadline',
+          errors: [new Error('photoreal load deadline (26s) — keyless fallback')],
+        });
+    }, 26000);
+    void photorealPromise.finally(() => clearTimeout(deadlineTimer));
+  });
+  const photoreal = await Promise.race([photorealPromise, photorealDeadline]);
+  void photorealPromise.then((result) => {
+    // 迟到者：deadline 已兜底接管，迟到的 tileset 不进场景，销毁防泄漏。
+    if (!photorealSettled && result?.tileset) result.tileset.destroy?.();
   });
   const tileset = photoreal.tileset;
   // A provider can finish after cancellation; retain ownership of its result.
