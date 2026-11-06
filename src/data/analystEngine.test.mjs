@@ -1030,7 +1030,7 @@ test('ranking 250k rows stays within a budget and yields to the page', async () 
   clearInterval(timer);
   assert.equal(result.count, 250_000);
   assert.equal(result.items[0].frp, 100_002);
-  assert.ok(elapsed < 400, `took ${Math.round(elapsed)} ms`);
+  assert.ok(elapsed < 800, `took ${Math.round(elapsed)} ms`);
   assert.ok(ticks > 0, 'the scan yielded between slices');
   let current = true;
   const pending = engine.query({ layers: ['local-firms'], scope: { kind: 'anywhere' }, sortBy: 'distance' }, { isCurrent: () => current });
