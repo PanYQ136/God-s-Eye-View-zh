@@ -13,12 +13,24 @@
 
 const PROBE_TIMEOUT = 30000; // 慢源（CelesTrak 22s / Radio Browser 24s）9s 会被误判 down
 const PROBE_TIMEOUT_HEAVY = 25000; // 本机聚合端点（cctv/影像/静态包）本身要十几秒
-// 云托管里没有 4173（那是本机 dev server），必须跟着 PORT 走，
-// 否则所有 local:true 的通道都探到 ECONNREFUSED → 健康面板一片「down」。
+// 云托管里没有 4173（那是本机 dev server），必须跟着 PORT 走。
+// 主机名用 localhost 而不是 127.0.0.1：Vite 默认只监听 IPv6 的 ::1，写死
+// IPv4 会让所有 local:true 的通道 ECONNREFUSED，健康面板整片假「down」
+// （2026-11-04 实测：127.0.0.1 拒绝、localhost 200）。若把 Vite 显式绑到
+// IPv4（HOST=127.0.0.1），用 GEV_LOCAL_BASE 覆盖这个默认值。
 const LOCAL =
   String(process.env.GEV_LOCAL_BASE || '').replace(/\/$/, '') ||
-  `http://127.0.0.1:${process.env.PORT || 4173}`;
+  `http://localhost:${process.env.PORT || 4173}`;
 const CACHE_TTL = 60 * 1000;
+// 整批探测的总闸：本机聚合端点（cctv / 影像 / 静态包）会串行打上游，
+// 任一路挂住都不该让 /api/sources/health 永远停在 building:true。
+const BUILD_TIMEOUT = 90 * 1000;
+// 超时/慢失败不再做第二次探测：30s + 1.2s + 30s 会吃光整批的总闸预算，
+// 把本可完成的层一起拖成 unknown。瞬时抖动（<12s）仍保留重试。
+const SLOW_PROBE_MS = 12 * 1000;
+// 37 路全并发会互相争抢本机聚合端点与上游：实测把 1–6s 的通道拖到 30s
+// 超时并误判 down。按层限流后慢源不再拖垮快源。
+const PROBE_CONCURRENCY = 6;
 
 const UA = 'gods-eye-mini/1.0 (+local proxy)';
 
@@ -187,18 +199,21 @@ const CHANNELS = {
   ],
   launches: [
     {
-      id: 'll2',
-      label: 'Launch Library 2',
-      url: 'https://ll.thespacedevs.com/2.2.0/launch/upcoming/?limit=1',
-      kind: 'json',
-      note: '主通道：发射计划 + 轨道/箭体',
-    },
-    {
+      // 2026-11-04 实测：ll2 持续 ECONNRESET（543ms），rocketlaunch 200/0.8s。
+      // 调换顺序让 primary 指向真正可用的源；ll2 保留在通道列表里，
+      // 健康面板仍会如实显示它挂了，不掩盖上游故障。
       id: 'rocketlaunch',
       label: 'RocketLaunch.Live',
       url: 'https://fdo.rocketlaunch.live/json/launches/next/1',
       kind: 'json',
-      note: '备用：只含时间/地点/任务名',
+      note: '主通道：实测 200/0.8s，只含时间/地点/任务名',
+    },
+    {
+      id: 'll2',
+      label: 'Launch Library 2',
+      url: 'https://ll.thespacedevs.com/2.2.0/launch/upcoming/?limit=1',
+      kind: 'json',
+      note: '备用：含轨道/箭体，实测持续连接重置（保留以监控恢复）',
     },
   ],
   cyclones: [
@@ -303,23 +318,10 @@ const CHANNELS = {
       url: 'https://overpass.osm.ch/api/interpreter',
       kind: 'json',
       body: '[out:json][timeout:15];node(1);out 1;',
-      note: '主通道：瑞士镜像，实测 1.2s（本机走/不走代理都通）',
-    },
-    {
-      id: 'overpass-fr',
-      label: 'Overpass FR',
-      url: 'https://overpass.openstreetmap.fr/api/interpreter',
-      kind: 'json',
-      body: '[out:json][timeout:15];node(1);out 1;',
-      note: '备用 1：法国镜像，实测 ~1.3-2.4s',
-    },
-    {
-      id: 'overpass-de',
-      label: 'Overpass DE',
-      url: 'https://overpass-api.de/api/interpreter',
-      kind: 'json',
-      body: '[out:json][timeout:15];node(1);out 1;',
-      note: '备用 2：全球主镜像，限流严重（经常 429）',
+      // 2026-11-04 实测：FR 403、DE 406/超时，四个候选备用镜像均超时。
+      // 这两个备用留在探测清单里只会每轮多报两次失败；真实抓取链的
+      // overpass/constants.js 仍保留完整 fallback 顺序，这里只管健康探测。
+      note: '唯一可用主通道：瑞士镜像（FR / DE 备用实测已失效，已移出探测清单）',
     },
   ],
   installations: [
@@ -329,23 +331,8 @@ const CHANNELS = {
       url: 'https://overpass.osm.ch/api/interpreter',
       kind: 'json',
       body: '[out:json][timeout:15];node(1);out 1;',
-      note: '主通道：军事设施 query',
-    },
-    {
-      id: 'overpass-fr-inst',
-      label: 'Overpass FR',
-      url: 'https://overpass.openstreetmap.fr/api/interpreter',
-      kind: 'json',
-      body: '[out:json][timeout:15];node(1);out 1;',
-      note: '备用 1',
-    },
-    {
-      id: 'overpass-de-inst',
-      label: 'Overpass DE',
-      url: 'https://overpass-api.de/api/interpreter',
-      kind: 'json',
-      body: '[out:json][timeout:15];node(1);out 1;',
-      note: '备用 2（限流严重）',
+      // 与 alpr 同批实测：FR 403、DE 406/超时，备用已失效。
+      note: '唯一可用主通道：军事设施 query（FR / DE 备用已移出探测清单）',
     },
   ],
   transit: [
@@ -417,6 +404,8 @@ async function probe(ch) {
   // 探两次都失败才算挂。
   const first = await probeOnce(ch);
   if (first.ok) return first;
+  // 但超时不重试：重试只会把整批探测拖过总闸，让更多层变成 unknown。
+  if (first.ms >= SLOW_PROBE_MS) return first;
   await new Promise((r) => setTimeout(r, 1200));
   const second = await probeOnce(ch);
   return second.ok ? second : first;
@@ -486,24 +475,75 @@ async function buildHealth() {
       .get(key)
       .then((r) => ({ ...r, id: ch.id, label: ch.label, note: ch.note }));
   };
-  await Promise.all(
-    ids.map(async (layer) => {
-      const list = await Promise.all(CHANNELS[layer].map(probeOnce));
-      const primary = list.find((c) => c.ok) || list[0];
-      out[layer] = {
-        channels: list,
-        primary: primary ? primary.id : null,
-        primaryLabel: primary ? primary.label : '',
-        okCount: list.filter((c) => c.ok).length,
-        total: list.length,
-        // switched=true 表示主通道挂了、已经自动降到备用通道
-        switched: !(list[0] && list[0].ok) && !!primary && primary.ok,
-        // down=true 表示这层现在一条通道都不通，前端要明确提示「该层暂无数据」
-        down: list.every((c) => !c.ok),
-      };
-    }),
+  const summarise = (list) => {
+    const primary = list.find((c) => c.ok) || list[0];
+    return {
+      channels: list,
+      primary: primary ? primary.id : null,
+      primaryLabel: primary ? primary.label : '',
+      okCount: list.filter((c) => c.ok).length,
+      total: list.length,
+      // switched=true 表示主通道挂了、已经自动降到备用通道
+      switched: !(list[0] && list[0].ok) && !!primary && primary.ok,
+      // down=true 表示这层现在一条通道都不通，前端要明确提示「该层暂无数据」
+      down: list.every((c) => !c.ok),
+    };
+  };
+  const runLayer = async (layer) => {
+    const list = await Promise.all(CHANNELS[layer].map(probeOnce));
+    out[layer] = summarise(list);
+  };
+  // 按层限流的 worker 池：cursor 自增在 JS 单线程里是安全的。
+  let cursor = 0;
+  const work = Promise.all(
+    Array.from(
+      { length: Math.min(PROBE_CONCURRENCY, ids.length) },
+      async () => {
+        while (cursor < ids.length) {
+          const layer = ids[cursor++];
+          await runLayer(layer);
+        }
+      },
+    ),
   );
-  return out;
+
+  // 总闸：慢源或挂住的本机聚合端点不应该让整批探测永远不返回。
+  let timer;
+  const guard = new Promise((resolve) => {
+    timer = setTimeout(() => resolve('timeout'), BUILD_TIMEOUT);
+    timer.unref?.();
+  });
+  const outcome = await Promise.race([
+    work.then(
+      () => 'done',
+      () => 'failed',
+    ),
+    guard,
+  ]);
+  clearTimeout(timer);
+
+  if (outcome !== 'done') {
+    // 没探完 ≠ 确认挂了：标 unknown，别把「无结果」算成 down。
+    for (const layer of ids) {
+      if (out[layer]) continue;
+      const channels = CHANNELS[layer].map((ch) => ({
+        id: ch.id,
+        label: ch.label,
+        ok: false,
+        status: 0,
+        ms: BUILD_TIMEOUT,
+        note: ch.note,
+        error: outcome === 'timeout' ? 'health_timeout' : 'health_failed',
+      }));
+      out[layer] = {
+        ...summarise(channels),
+        down: false,
+        unknown: true,
+      };
+    }
+  }
+  // 返回快照：超时的 work 仍在后台跑，别让它继续改写已缓存的对象。
+  return { ...out };
 }
 
 /** USGS → EMSC 容灾：GET /api/mini/earthquakes?feed=all_day&limit=300 */

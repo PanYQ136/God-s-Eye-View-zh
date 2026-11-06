@@ -52,6 +52,11 @@ export const CATALOG_SOURCE_CONTRACTS = Object.freeze({
   'drone-airspace': contract(['drone-airspace'], ['getSnapshot']),
   cables: contract(['telegeography-submarine-cables'], ['fetch']),
   transit: contract(['transit'], ['requestSnapshot', 'getHistory']),
+  // CN 反向移植图层（A1-A4）：各自独立的快照源。
+  'cn-traffic': contract(['cn-traffic'], ['getSnapshot']),
+  'cn-admin': contract(['cn-admin'], ['getSnapshot']),
+  'cn-quakes': contract(['cn-quakes'], ['getSnapshot']),
+  'cn-typhoon': contract(['cn-typhoon'], ['getSnapshot']),
 });
 
 /** An omitted provider is unavailable, never an authoritative empty dataset. */

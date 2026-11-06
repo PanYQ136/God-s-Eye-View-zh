@@ -12,6 +12,10 @@ import { createApplicationVessels } from './layers/aisLiveVessels.js';
 import { createApplicationCctv } from './layers/cctv.js';
 import { createApplicationRadio } from './layers/radio.js';
 import { createApplicationTraffic } from './layers/traffic.js';
+import { createApplicationCnTraffic } from './layers/cnTraffic.js';
+import { createApplicationCnAdmin } from './layers/cnAdmin.js';
+import { createApplicationCnQuakes } from './layers/cnQuakes.js';
+import { createApplicationCnTyphoon } from './layers/cnTyphoon.js';
 import { createApplicationBikeshare } from './layers/bikeshare.js';
 import { createApplicationDirections } from './layers/directions.js';
 import { createApplicationRecentImagery } from './layers/recentImagery.js';
@@ -146,6 +150,11 @@ export function createApplicationCatalog({
         satellites,
         createApplicationLaunches({ source: sources.launches, satellites }),
         createApplicationTraffic({ source: sources.traffic, surface }),
+        // CN 反向移植图层（A1-A4）：中国实时交通/行政区划/地震/台风。
+        createApplicationCnTraffic({ source: sources['cn-traffic'] }),
+        createApplicationCnAdmin({ source: sources['cn-admin'] }),
+        createApplicationCnQuakes({ source: sources['cn-quakes'] }),
+        createApplicationCnTyphoon({ source: sources['cn-typhoon'] }),
         createApplicationCctv({ surface, source: sources.cctv }),
         createApplicationRadio({ surface, source: sources.radio }),
         createApplicationTransit({ surface, source: sources.transit }),
