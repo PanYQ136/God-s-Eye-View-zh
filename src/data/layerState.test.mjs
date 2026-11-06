@@ -307,8 +307,8 @@ test('production registry is exact, canonical, and rejects incomplete contracts'
   assert.equal(
     validateLayerStateAllocations(LAYER_STATE_TOKEN_RESERVATIONS, {
       ...LAYER_STATE_TOKEN_RESERVATIONS,
-      future: '9',
-      next: '00',
+      future: '03',
+      next: '04',
     }),
     true,
   );
@@ -316,35 +316,35 @@ test('production registry is exact, canonical, and rejects incomplete contracts'
     () =>
       validateLayerStateAllocations(LAYER_STATE_TOKEN_RESERVATIONS, {
         ...LAYER_STATE_TOKEN_RESERVATIONS,
-        future: '00',
+        future: '9',
       }),
-    /next free token 9/,
+    /next free token 03/,
   );
-  const beforeLastDigit = { ...digitsExhausted };
-  delete beforeLastDigit['prior-9'];
+  // digitsExhausted：数字 0-8 与 9/00/01/02 全部占用（CN 图层持有 9/00/01/02）。
+  const digitsExhausted = {
+    ...LAYER_STATE_TOKEN_RESERVATIONS,
+    ...Object.fromEntries([...'9'].map((digit) => [`prior-${digit}`, digit])),
+  };
+  assert.equal(nextLayerStateToken(digitsExhausted), '03');
   assert.equal(
-    validateLayerStateAllocations(beforeLastDigit, {
-      ...beforeLastDigit,
-      futurePair: '00',
-      futureDigit: '9',
-    }),
-    true,
+    nextLayerStateToken({ ...digitsExhausted, retired: '03', used: '04' }),
+    '05',
   );
   assert.equal(
     validateLayerStateAllocations(digitsExhausted, {
       ...digitsExhausted,
-      pairB: '01',
-      pairA: '00',
+      pairB: '04',
+      pairA: '03',
     }),
     true,
   );
   assert.throws(
     () =>
       validateLayerStateAllocations(
-        { ...LAYER_STATE_TOKEN_RESERVATIONS, merged: '9' },
-        { ...LAYER_STATE_TOKEN_RESERVATIONS, merged: '9', competing: '9' },
+        { ...LAYER_STATE_TOKEN_RESERVATIONS, merged: '03' },
+        { ...LAYER_STATE_TOKEN_RESERVATIONS, merged: '03', competing: '03' },
       ),
-    /next free token 00/,
+    /next free token 05/,
   );
   assert.throws(
     () => validateLayerStateAllocations({ future: '00' }, { future: '01' }),
