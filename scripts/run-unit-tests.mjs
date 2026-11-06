@@ -75,6 +75,9 @@ export function allocationTestArgs(file) {
 export const UNIT_TEST_NODE_FLAGS = Object.freeze([
   // Single-file components compile on import.
   '--import=./build/registerVue.js',
+  // fork：桌面机（dev server + 后台负载并存）上默认并发会让真实定时器测试
+  // 随机抖动/挂起——降并发换取时序稳定（10583 用例约 10-15 分钟）。
+  '--test-concurrency=4',
 ]);
 
 function runTests(args) {
