@@ -321,18 +321,18 @@ test('production registry is exact, canonical, and rejects incomplete contracts'
     /next free token 03/,
   );
   // digitsExhausted：数字 0-8 与 9/00/01/02 全部占用（CN 图层持有 9/00/01/02）。
-  const digitsExhausted = {
+  const tokensExhausted = {
     ...LAYER_STATE_TOKEN_RESERVATIONS,
     ...Object.fromEntries([...'9'].map((digit) => [`prior-${digit}`, digit])),
   };
-  assert.equal(nextLayerStateToken(digitsExhausted), '03');
+  assert.equal(nextLayerStateToken(tokensExhausted), '03');
   assert.equal(
-    nextLayerStateToken({ ...digitsExhausted, retired: '03', used: '04' }),
+    nextLayerStateToken({ ...tokensExhausted, retired: '03', used: '04' }),
     '05',
   );
   assert.equal(
-    validateLayerStateAllocations(digitsExhausted, {
-      ...digitsExhausted,
+    validateLayerStateAllocations(tokensExhausted, {
+      ...tokensExhausted,
       pairB: '04',
       pairA: '03',
     }),
