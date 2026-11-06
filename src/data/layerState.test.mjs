@@ -344,7 +344,7 @@ test('production registry is exact, canonical, and rejects incomplete contracts'
         { ...LAYER_STATE_TOKEN_RESERVATIONS, merged: '03' },
         { ...LAYER_STATE_TOKEN_RESERVATIONS, merged: '03', competing: '03' },
       ),
-    /next free token 05/,
+    /next free token 04/,
   );
   assert.throws(
     () => validateLayerStateAllocations({ future: '00' }, { future: '01' }),
