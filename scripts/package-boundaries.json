@@ -1283,7 +1283,8 @@
       "src/ui/toast.js",
       "src/ui/stores/sceneInteractions.js",
       "src/ui/stores/dataPacks.js",
-      "src/ui/i18n.js"
+      "src/ui/i18n.js",
+      "src/maps/sourcePreference.js"
     ],
     "external": ["cesium", "vue", "pinia", "vue-i18n"]
   },
@@ -1529,7 +1530,8 @@
       "src/i18n/locales/zh-CN.json",
       "src/i18n/locales/zh-Hant.json",
       "src/ui/unitLabels.js",
-      "src/layers/recentImagery/display.js"
+      "src/layers/recentImagery/display.js",
+      "src/maps/sourcePreference.js"
     ],
     "external": ["cesium"]
   },
@@ -2148,7 +2150,8 @@
       "src/i18n/locales/ru.json",
       "src/i18n/locales/uk.json",
       "src/i18n/locales/zh-CN.json",
-      "src/i18n/locales/zh-Hant.json"
+      "src/i18n/locales/zh-Hant.json",
+      "src/maps/sourcePreference.js"
     ],
     "external": ["cesium"]
   },
@@ -3281,7 +3284,8 @@
       "src/app/layers/cnTraffic.js",
       "src/app/layers/cnAdmin.js",
       "src/app/layers/cnQuakes.js",
-      "src/app/layers/cnTyphoon.js"
+      "src/app/layers/cnTyphoon.js",
+      "src/maps/sourcePreference.js"
     ],
     "external": [
       "hls.js",
@@ -3924,7 +3928,8 @@
       "src/app/layers/cnTraffic.js",
       "src/app/layers/cnAdmin.js",
       "src/app/layers/cnQuakes.js",
-      "src/app/layers/cnTyphoon.js"
+      "src/app/layers/cnTyphoon.js",
+      "src/maps/sourcePreference.js"
     ],
     "external": [
       "hls.js",
