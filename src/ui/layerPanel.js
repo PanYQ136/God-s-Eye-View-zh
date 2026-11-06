@@ -50,6 +50,7 @@ const PANEL_GROUPS = [
       'traffic',
       'transit',
       'bikeshare',
+      'cn-traffic',
     ],
   },
   {
@@ -67,6 +68,7 @@ const PANEL_GROUPS = [
       'local-dams',
       'sea-marks',
       'ski-pistes',
+      'cn-admin',
     ],
   },
   {
@@ -78,6 +80,8 @@ const PANEL_GROUPS = [
       'fire-perimeters',
       'gnss-integrity',
       's2-ghostmaps',
+      'cn-quakes',
+      'cn-typhoon',
     ],
   },
   {

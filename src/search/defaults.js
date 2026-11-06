@@ -8,6 +8,7 @@ import { createPhotonGeocoder } from '../keylessGeocoder.js';
 import { createCoordinateGeocoder } from './coordinateGeocoder.js';
 import { createPresetGeocoder } from './presetGeocoder.js';
 import { createAlpsGeocoder } from './alpsGeocoder.js';
+import { createCnGeocoder } from './cnGeocoder.js';
 
 /**
  * Coordinates, bundled names and the unqualified Alps first — all offline —
@@ -43,6 +44,10 @@ export function createDefaultPlaceSearch({
       createCoordinateGeocoder(),
       ...(presets ? [createPresetGeocoder({ presets })] : []),
       createAlpsGeocoder(),
+      // 国内地名主通道（A6 反向移植）：中文查询走 /api/cn/geocode 并做
+      // GCJ02→WGS84 逆变换；非中文查询零请求直接放行。位置在一切
+      // 国外 provider 之前——国内地名的答案优先级高于 Google/Photon。
+      createCnGeocoder({ fetchImpl, endpoint: endpoints.cnGeocode }),
       ...(selected
         ? [selected]
         : [

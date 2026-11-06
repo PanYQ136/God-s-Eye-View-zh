@@ -611,6 +611,11 @@ export const LAYER_STATE_REGISTRY = Object.freeze([
     disposition: 'enabled+options',
     optionOwner: 'cctv',
   }),
+  // CN 反向移植图层（A1-A4）：token 走两字符 base-36 命名空间。
+  Object.freeze({ id: 'cn-admin', token: '9', disposition: 'enabled-only' }),
+  Object.freeze({ id: 'cn-quakes', token: '00', disposition: 'enabled-only' }),
+  Object.freeze({ id: 'cn-traffic', token: '01', disposition: 'enabled-only' }),
+  Object.freeze({ id: 'cn-typhoon', token: '02', disposition: 'enabled-only' }),
   Object.freeze({ id: 'directions', token: 'n', disposition: 'enabled-only' }),
   Object.freeze({
     id: 'drone-airspace',

@@ -11,7 +11,15 @@ import {
 
 // Layers whose module name is a proper name and stays as it is in every
 // language: the Bhote Koshi pair belong to a scripted scene.
-const UNTRANSLATED_NAMES = new Set(['bhote-koshi-2026', 'bhote-koshi-locator']);
+// CN 反向移植图层：中文名即产品名，不进入上游 8 语言翻译目录。
+const UNTRANSLATED_NAMES = new Set([
+  'bhote-koshi-2026',
+  'bhote-koshi-locator',
+  'cn-traffic',
+  'cn-admin',
+  'cn-quakes',
+  'cn-typhoon',
+]);
 
 const catalogIds = APPLICATION_LAYER_METADATA.map((layer) => layer.id);
 

@@ -457,6 +457,11 @@ export const VOICE_OFF_LAYERS = Object.freeze({
   // query for this layer wait until there is room.
   'drone-airspace':
     'informational airspace layer; no room in the prompt budget',
+  // CN 反向移植图层：中文优先 UI，语音指令由 control_cn 系列（如后续接入）承担。
+  'cn-traffic': 'reverse-ported China layer; Chinese-first UI',
+  'cn-admin': 'reverse-ported China layer; Chinese-first UI',
+  'cn-quakes': 'reverse-ported China layer; Chinese-first UI',
+  'cn-typhoon': 'reverse-ported China layer; Chinese-first UI',
 });
 
 const TYPE_NAMES = Object.freeze({

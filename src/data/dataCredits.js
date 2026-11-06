@@ -464,6 +464,35 @@ export const DATA_CREDITS = [
       'Modified: resampled 10 m IFS forecast vectors and animated display. ' +
       'ECMWF does not accept any liability whatsoever for any error or omission in the data, their availability, or for any loss or damage arising from their use.',
   },
+  // ── CN 反向移植图层（A1-A4 + A5 天气）──────────────────────────
+  {
+    key: 'amap',
+    html:
+      'China traffic congestion &amp; administrative boundaries: ' +
+      '© AutoNavi (AMap) / 高德地图 ' +
+      '(GCJ-02 coordinates; reverse-ported China layers)',
+  },
+  {
+    key: 'cenc',
+    html:
+      'China earthquakes (CENC): ' +
+      'China Earthquake Networks Center / 中国地震台网中心 ' +
+      '(<a href="https://www.wolfx.jp" target="_blank" rel="noopener">wolfx.jp mirror</a>)',
+  },
+  {
+    key: 'nmc',
+    html:
+      'China typhoons (NMC): ' +
+      'National Meteorological Center / 中央气象台, ' +
+      '<a href="https://www.nmc.cn" target="_blank" rel="noopener">nmc.cn</a>',
+  },
+  {
+    key: 'qweather',
+    html:
+      'China current conditions, 7-day forecast &amp; weather alerts: ' +
+      '和风天气 <a href="https://www.qweather.com" target="_blank" rel="noopener">QWeather</a> — ' +
+      '数据仅供参考，不用于航行或应急决策 (not for navigation or emergency decisions)',
+  },
   // ── Bundled snapshots ───────────────────────────────────────────
   {
     key: 'sky-background',
