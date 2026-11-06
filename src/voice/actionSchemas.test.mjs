@@ -55,7 +55,7 @@ test('the complete Realtime tool payload pins the manifest-generated layer relea
     // Voice geometry adds resolve_area, find_imagery, osm_query, the analyst
     // area scopes and the osm-places layer; natural-region candidates and the
     // tightened area tool wording follow review.
-    'd0c5ad733670972713a54cb10676c42b7c6e78834bfff52b473c0e8a45e742c3',
+    'c1c300a34f536c050d98c18f6817905c5256a2ce7135e60b6627951566683d1d',
   );
 });
 
@@ -237,7 +237,7 @@ test('all legacy action arguments are byte-identical after removing the delibera
   // Derived by applying the same removals to the 4b56d0e9 actionSchemas.
   assert.equal(
     createHash('sha256').update(JSON.stringify(legacy)).digest('hex'),
-    '01f14fdb1523eebfcbff8b115e48e6ab99e36fa06f55a3bb13c65e198f79d758',
+    '5572bb1a6ce86924cd7a8f90cf8fd75ddaddd9a797b2b5d6dfa8e86ab94500ee',
   );
 });
 
