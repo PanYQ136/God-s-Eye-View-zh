@@ -179,12 +179,17 @@ test('reservation ledger is complete, pinned, and rejects duplicate or malformed
   );
   assert.throws(
     () =>
-      parseLayerStateTokenReservations([...PRE_CN_RESERVATION_ROWS, ['future', 'a']]),
+      parseLayerStateTokenReservations([
+        ...PRE_CN_RESERVATION_ROWS,
+        ['future', 'a'],
+      ]),
     /Duplicate layer-state token reservation/,
   );
   assert.equal(
-    parseLayerStateTokenReservations([...PRE_CN_RESERVATION_ROWS, ['future', '9']])
-      .future,
+    parseLayerStateTokenReservations([
+      ...PRE_CN_RESERVATION_ROWS,
+      ['future', '9'],
+    ]).future,
     '9',
   );
   assert.throws(
@@ -196,7 +201,11 @@ test('reservation ledger is complete, pinned, and rejects duplicate or malformed
     /Legacy layer-state token is immutable/,
   );
   assert.throws(
-    () => parseLayerStateTokenReservations([...PRE_CN_RESERVATION_ROWS, ['future']]),
+    () =>
+      parseLayerStateTokenReservations([
+        ...PRE_CN_RESERVATION_ROWS,
+        ['future'],
+      ]),
     /Invalid layer-state token ledger row/,
   );
 });
@@ -235,74 +244,80 @@ test('published retired digits and competing PRs advance the merge-time allocati
 });
 
 test('PR B manually replaces provisional 9 with 00 after PR A publishes 9', () => {
-  withPublishedBase({ rows: [...PRE_CN_RESERVATION_ROWS, ['pr-a', '9']] }, (cwd) => {
-    mkdirSync(path.join(cwd, 'scripts'));
-    const fixtureChecker = path.join(
-      cwd,
-      'scripts/check-layer-state-tokens.mjs',
-    );
-    writeFileSync(fixtureChecker, readFileSync(CHECKER_PATH, 'utf8'));
-    const fixtureNext = path.join(cwd, 'scripts/next-layer-state-token.mjs');
-    writeFileSync(fixtureNext, readFileSync(NEXT_PATH, 'utf8'));
-    const runCheck = () =>
-      spawnSync(
-        process.execPath,
-        [realpathSync(fixtureChecker), '--base-ref', 'HEAD'],
-        {
-          cwd,
-          encoding: 'utf8',
-        },
+  withPublishedBase(
+    { rows: [...PRE_CN_RESERVATION_ROWS, ['pr-a', '9']] },
+    (cwd) => {
+      mkdirSync(path.join(cwd, 'scripts'));
+      const fixtureChecker = path.join(
+        cwd,
+        'scripts/check-layer-state-tokens.mjs',
+      );
+      writeFileSync(fixtureChecker, readFileSync(CHECKER_PATH, 'utf8'));
+      const fixtureNext = path.join(cwd, 'scripts/next-layer-state-token.mjs');
+      writeFileSync(fixtureNext, readFileSync(NEXT_PATH, 'utf8'));
+      const runCheck = () =>
+        spawnSync(
+          process.execPath,
+          [realpathSync(fixtureChecker), '--base-ref', 'HEAD'],
+          {
+            cwd,
+            encoding: 'utf8',
+          },
+        );
+
+      writeCodecFixture(
+        cwd,
+        [...PRE_CN_RESERVATION_ROWS, ['pr-b', '9']],
+        [{ id: 'pr-b', token: '9' }],
+      );
+      const beforeRebase = runCheck();
+      assert.equal(beforeRebase.status, 1);
+      assert.match(beforeRebase.stderr, /changed or removed: pr-a/);
+
+      writeCodecFixture(
+        cwd,
+        [...PRE_CN_RESERVATION_ROWS, ['pr-a', '9'], ['pr-b', '9']],
+        [
+          { id: 'pr-a', token: '9' },
+          { id: 'pr-b', token: '9' },
+        ],
+      );
+      const staleRebase = runCheck();
+      assert.equal(staleRebase.status, 1);
+      assert.match(
+        staleRebase.stderr,
+        /Duplicate layer-state token reservation/,
       );
 
-    writeCodecFixture(
-      cwd,
-      [...PRE_CN_RESERVATION_ROWS, ['pr-b', '9']],
-      [{ id: 'pr-b', token: '9' }],
-    );
-    const beforeRebase = runCheck();
-    assert.equal(beforeRebase.status, 1);
-    assert.match(beforeRebase.stderr, /changed or removed: pr-a/);
-
-    writeCodecFixture(
-      cwd,
-      [...PRE_CN_RESERVATION_ROWS, ['pr-a', '9'], ['pr-b', '9']],
-      [
-        { id: 'pr-a', token: '9' },
-        { id: 'pr-b', token: '9' },
-      ],
-    );
-    const staleRebase = runCheck();
-    assert.equal(staleRebase.status, 1);
-    assert.match(staleRebase.stderr, /Duplicate layer-state token reservation/);
-
-    const published = readPublishedLayerStateReservations('HEAD', cwd);
-    assert.equal(nextLayerStateToken(published), '00');
-    const validBaselineRows = [...PRE_CN_RESERVATION_ROWS, ['pr-a', '9']];
-    writeCodecFixture(cwd, validBaselineRows, [{ id: 'pr-a', token: '9' }]);
-    const helper = spawnSync(
-      process.execPath,
-      [realpathSync(fixtureNext), 'pr-b'],
-      { cwd, encoding: 'utf8' },
-    );
-    assert.equal(helper.status, 0, helper.stderr);
-    assert.match(helper.stdout, /pr-b: 00/);
-    assert.deepEqual(
-      JSON.parse(readFileSync(path.join(cwd, LEDGER_PATH), 'utf8')),
-      validBaselineRows,
-      'the helper reports a token without rewriting the ledger',
-    );
-    writeCodecFixture(
-      cwd,
-      [...PRE_CN_RESERVATION_ROWS, ['pr-a', '9'], ['pr-b', '00']],
-      [
-        { id: 'pr-a', token: '9' },
-        { id: 'pr-b', token: '00' },
-      ],
-    );
-    const corrected = runCheck();
-    assert.equal(corrected.status, 0, corrected.stderr);
-    assert.match(corrected.stdout, /36 published, 1 new/);
-  });
+      const published = readPublishedLayerStateReservations('HEAD', cwd);
+      assert.equal(nextLayerStateToken(published), '00');
+      const validBaselineRows = [...PRE_CN_RESERVATION_ROWS, ['pr-a', '9']];
+      writeCodecFixture(cwd, validBaselineRows, [{ id: 'pr-a', token: '9' }]);
+      const helper = spawnSync(
+        process.execPath,
+        [realpathSync(fixtureNext), 'pr-b'],
+        { cwd, encoding: 'utf8' },
+      );
+      assert.equal(helper.status, 0, helper.stderr);
+      assert.match(helper.stdout, /pr-b: 00/);
+      assert.deepEqual(
+        JSON.parse(readFileSync(path.join(cwd, LEDGER_PATH), 'utf8')),
+        validBaselineRows,
+        'the helper reports a token without rewriting the ledger',
+      );
+      writeCodecFixture(
+        cwd,
+        [...PRE_CN_RESERVATION_ROWS, ['pr-a', '9'], ['pr-b', '00']],
+        [
+          { id: 'pr-a', token: '9' },
+          { id: 'pr-b', token: '00' },
+        ],
+      );
+      const corrected = runCheck();
+      assert.equal(corrected.status, 0, corrected.stderr);
+      assert.match(corrected.stdout, /36 published, 1 new/);
+    },
+  );
 });
 
 test('allocation batches cross the last digit and base-36 pair boundaries in order', () => {
@@ -439,10 +454,13 @@ test('checker fails closed on unknown or malformed published ledgers', () => {
       /no recognizable layer-state token ledger/,
     );
   });
-  withPublishedBase({ rows: [...PRE_CN_RESERVATION_ROWS, ['future', 'a']] }, (cwd) => {
-    assert.throws(
-      () => readPublishedLayerStateReservations('HEAD', cwd),
-      /Duplicate layer-state token reservation/,
-    );
-  });
+  withPublishedBase(
+    { rows: [...PRE_CN_RESERVATION_ROWS, ['future', 'a']] },
+    (cwd) => {
+      assert.throws(
+        () => readPublishedLayerStateReservations('HEAD', cwd),
+        /Duplicate layer-state token reservation/,
+      );
+    },
+  );
 });
