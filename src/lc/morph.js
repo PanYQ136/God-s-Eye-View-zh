@@ -18,21 +18,41 @@
    ========================================================================== */
 import * as bridge from '../bridge.js';
 
-const S_SMALL = Math.sqrt(176 * 43); // 86.994
-const S_LARGE = Math.sqrt(320 * 380); // 348.712
-const K = (445 - 350) / (S_LARGE - S_SMALL); // 0.3630
+/* A1（2026-11-07 · kit.md §8.9）：mini↔面板动画统一 Spring，500ms。
+   几何仍是 FLIP（translate+scale 采样关键帧），脱层/测量流水线不变；
+   只把「采样进度」的形状从 easeOutBack 单峰过冲换成 kit 的 linear() 多峰振荡衰减，
+   并归一化到原有逐轴峰值 —— 视觉峰值仍精确 1.035，几何与可读性基线不动。 */
 
-export const MIN_MS = 350;
-export const MAX_MS = 450;
+/** kit.md --glass-ease-spring 的 11 个采样点（过冲 1.09 → 多峰衰减回 1）。 */
+export const SPRING_STOPS = Object.freeze([0, .32, .78, 1.04, 1.09, 1.06, 1.02, 1, .99, .99, 1]);
+export const SPRING_MAX = 1.09;
+
+export const MIN_MS = 500;
+export const MAX_MS = 500;
+export const SPRING_MS = 500;
 export const REDUCE_MS = 150;
 export const TARGET_OVERSHOOT = 1.035; // 视觉峰值 / 目标盒
 
-/** M1：目标盒面积 → 时长（ms），夹在 [350,450]。 */
-export function durationMs(w, h) {
-  const area = Math.max(1, Number(w) || 0) * Math.max(1, Number(h) || 0);
-  const s = Math.sqrt(area);
-  const v = 350 + (s - S_SMALL) * K;
-  return Math.round(Math.min(MAX_MS, Math.max(MIN_MS, v)));
+/** kit Spring 形状在 t∈[0,1] 的线性插值；p(0)=0、p(1)=1、峰值 1.09。 */
+export function springShape(t) {
+  const x = Math.min(1, Math.max(0, t)) * (SPRING_STOPS.length - 1);
+  const i = Math.min(SPRING_STOPS.length - 2, Math.floor(x));
+  const f = x - i;
+  return SPRING_STOPS[i] + (SPRING_STOPS[i + 1] - SPRING_STOPS[i]) * f;
+}
+
+/** 按逐轴目标峰值 pPeak 归一化 Spring 形状：
+      峰值精确 = pPeak，首末帧仍是 0/1，过冲后的多峰下冲(.99)保留 → 真 Spring。 */
+export function springProgress(t, pPeak) {
+  const raw = springShape(t);
+  if (!(pPeak > 1)) return 1 - Math.pow(1 - t, 3); // 无过冲需求 → ease-out
+  const amp = (pPeak - 1) / (SPRING_MAX - 1);
+  return raw <= 1 ? raw : 1 + (raw - 1) * amp;
+}
+
+/** M1：A1 固定 500ms（kit.md --glass-spring-duration），不再按面积插值。 */
+export function durationMs() {
+  return SPRING_MS;
 }
 
 /** easeOutBack：f(u) = 1 + (c1+1)u³ + c1u² ，u ∈ [-1, 0]；
@@ -77,13 +97,17 @@ export function keyframes(dx, dy, sx, sy, opts) {
   const pPeakY = reduce ? 1 : peakFor(sy);
   const c1 = reduce ? 0 : backC1(pPeakX);
   const c1y = reduce ? 0 : backC1(pPeakY);
-  const n = Math.max(12, Math.min(40, Math.round((o.duration || 400) / 12)));
+  /* A1：采样进度改用 kit Spring 形状（归一化到本轴目标峰值）。
+     backC1/easeOutBack 保留导出供 TC-M3 校验反解精度，但不再驱动主采样。 */
+  /* A1：采样数取 5 的倍数，保证 t=0.4（Spring 峰值 1.09 所在采样点）被精确采到，
+     否则线性插值会让归一化后的视觉峰值偏低、破坏逐轴标定契约。 */
+  const n = Math.max(20, Math.min(40, Math.round((o.duration || 500) / 12 / 5) * 5));
   const out = [];
   for (let i = 0; i <= n; i++) {
     const t = i / n;
     /* reduced-motion 用 ease-out（无回弹） */
-    const p = reduce ? 1 - Math.pow(1 - t, 3) : easeOutBack(t, c1);
-    const q = reduce ? p : easeOutBack(t, c1y);
+    const p = reduce ? 1 - Math.pow(1 - t, 3) : springProgress(t, pPeakX);
+    const q = reduce ? p : springProgress(t, pPeakY);
     out.push({
       offset: t,
       transform:

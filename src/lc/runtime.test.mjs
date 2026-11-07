@@ -1,13 +1,13 @@
 /* ============================================================================
    src/lc/runtime.test.mjs —— 材质门槛 / 动画时序 / 交互分类 / CollapsePort
    ----------------------------------------------------------------------------
-   TC-M1 时长：所有 8 卡目标尺寸都落在 350–450ms
+   TC-M1 时长：所有 8 卡目标尺寸都落在 [480,520]ms（A1 · kit.md --glass-spring-duration 500ms）
    TC-M2 视觉峰值：逐卡 1.02–1.05（这是「果冻」的唯一量化标准）
-   TC-M3 backC1：峰值反解精度
+   TC-M3 backC1：峰值反解精度（保留导出，A1 采样改用 Spring 形状）
    TC-M4 shiftKeyframes：t=0.5 精确等于 peak；端点精确；reduced 无回弹
    TC-M5 run()：单元素单动画、连点取消、reduced→150ms
-   TC-M6 material.css 硬门槛：≤300 行、!important=0、双 ID=0、token 与 tokens.json 一致
-   TC-M7 卡壳「零填充/零 blur/零 border/零 outline/零 inset」
+   TC-M6 material.css 硬门槛：≤340 行、!important=0、双 ID=0、token 与 tokens.json 一致
+   TC-M7 卡壳 Apple 毛玻璃契约：tint / backdrop-filter / 4 层 shadow；内容层仍零 blur（防双层）
    TC-M8 interaction 分类：header 切卡 / 控件不切 / mini 整条切 / 点外关闭
    TC-M9 CollapsePort：唯一 API 路径 + 精确 options + 语音卡不在披露体系
    ========================================================================== */
@@ -27,7 +27,7 @@ const TOKENS = JSON.parse(read('tokens.json'));
 
 /* ── 动画 ───────────────────────────────────────────────────────────────── */
 
-test('TC-M1 时长：8 卡目标尺寸逐一落在 [350,450]', () => {
+test('TC-M1 时长：8 卡目标尺寸逐一落在 [480,520]（A1 · Spring 500ms）', () => {
   for (const id of CARD_IDS) {
     const { expW, expH } = CARDS[id];
     const d = Morph.durationMs(expW, expH);
@@ -35,7 +35,7 @@ test('TC-M1 时长：8 卡目标尺寸逐一落在 [350,450]', () => {
   }
   for (const [w, h] of [[1, 1], [9999, 9999], [0, 0], [176, 43]]) {
     const d = Morph.durationMs(w, h);
-    assert.ok(d >= 350 && d <= 450, `${w}×${h} → ${d}ms`);
+    assert.ok(d >= 480 && d <= 520, `${w}×${h} → ${d}ms`);
   }
 });
 
@@ -130,7 +130,7 @@ test('TC-M5 run()：单元素单动画 + 连点取消 + reduced→150ms', () => 
   const a1 = Morph.run(el, first, { to, target: { w: 320, h: 380 } });
   assert.ok(a1, '必须有动画');
   assert.equal(calls.animate[0].timing.duration, Morph.durationMs(320, 380));
-  assert.ok(calls.animate[0].timing.duration >= 350 && calls.animate[0].timing.duration <= 450);
+  assert.ok(calls.animate[0].timing.duration >= 480 && calls.animate[0].timing.duration <= 520);
   const a2 = Morph.run(el, first, { to, target: { w: 320, h: 380 } });
   assert.ok(a2);
   assert.equal(calls.cancel, 1, '第二次必须取消第一条（一个元素只有一条）');
@@ -152,9 +152,11 @@ test('TC-M5 run()：单元素单动画 + 连点取消 + reduced→150ms', () => 
 
 /* ── 材质门槛 ───────────────────────────────────────────────────────────── */
 
-test('TC-M6 material.css 硬门槛：≤300 行 / !important=0 / 双 ID=0', () => {
+test('TC-M6 material.css 硬门槛：≤340 行 / !important=0 / 双 ID=0', () => {
   const lines = CSS.split('\n').length - (CSS.endsWith('\n') ? 1 : 0);
-  assert.ok(lines <= 300, `行数 ${lines} > 300`);
+  /* A1（2026-11-07）：Apple 毛玻璃新增 --glass-* token 段，行数预算 300→340。
+     !important=0 与双 ID=0 是灰圈/层叠纪律，任何材质下都不放宽。 */
+  assert.ok(lines <= 340, `行数 ${lines} > 340`);
   assert.equal((CSS.match(/!important/g) || []).length, 0, '!important 必须为 0');
   const stripped = CSS.replace(/\/\*[\s\S]*?\*\//g, '');
   const bad = [];
@@ -171,22 +173,30 @@ test('TC-M6 material.css 硬门槛：≤300 行 / !important=0 / 双 ID=0', () =
   assert.deepEqual(bad, [], '双 ID 选择器必须为 0');
 });
 
-test('TC-M7 卡壳零填充/零 blur/零 border/零 outline/零 inset；token 与 tokens.json 一致', () => {
-  /* 卡壳规则块（第 2 段）必须同时声明这些「归零」属性 */
+test('TC-M7 卡壳 Apple 毛玻璃契约；内容层仍零 blur；token 与 tokens.json 一致', () => {
+  /* A1（2026-11-07）：卡壳从「透明壳」换成 kit.md §公共 CSS 的 Apple 毛玻璃。
+     断言随之换契约——仍是硬断言，不是放宽：
+       卡壳 = tint + backdrop-filter(blur/saturate/brightness) + 4 层 shadow；
+       内容层(后代) = 零 blur，防止一张卡出现两层 backdrop-filter。 */
   const shell = CSS.slice(CSS.indexOf('/* ── 2)'), CSS.indexOf('/* ── 3)'));
-  assert.match(shell, /background:\s*var\(--lc-shell-fill\)/);
+  assert.match(shell, /background:\s*var\(--glass-tint-light\)/, '卡壳 tint 必须走 --glass-tint-light');
   assert.match(shell, /border:\s*0/);
   assert.match(shell, /outline:\s*0/);
-  assert.match(shell, /box-shadow:\s*var\(--lc-shell-shadow\)/);
-  assert.match(shell, /backdrop-filter:\s*none/);
-  assert.match(shell, /filter:\s*none/);
-  assert.equal(/inset 0 0 0|inset\s+0\s+0\s+0\s+1px/.test(shell), false, '卡壳不得有 inset 圆环');
-  /* 内容层归零 */
+  assert.match(shell, /box-shadow:\s*var\(--glass-shadow-blur\),\s*var\(--glass-rim-tl\),\s*var\(--glass-rim-br\)/, '4 层 shadow 必须齐备');
+  assert.match(shell, /backdrop-filter:\s*blur\(var\(--glass-blur-radius\)\)/, '卡壳必须有 backdrop blur');
+  assert.match(shell, /saturate\(var\(--glass-saturate\)\)/);
+  assert.match(shell, /brightness\(var\(--glass-brightness\)\)/);
+  assert.match(shell, /var\(--glass-lens\)/, 'lens 必须走变量，禁止直接写死 url()');
+  assert.equal(/inset 0 0 0|inset\s+0\s+0\s+0\s+1px/.test(shell), false, '卡壳不得有闭合 inset 圆环');
+  /* 内容层：仍归零（A1 保留，防双层玻璃 / 灰圈） */
   const body = CSS.slice(CSS.indexOf('/* ── 3)'), CSS.indexOf('/* ── 4)'));
   assert.match(body, /border:\s*0/);
   assert.match(body, /box-shadow:\s*none/);
-  assert.match(body, /backdrop-filter:\s*none/);
-  /* token 三处一致 */
+  assert.match(body, /backdrop-filter:\s*none/, '后代必须零 blur，否则双层玻璃');
+  /* 命名防火墙：kit 的 --glass-* 与 App 既有 --glass-bg/-border 不得混用 */
+  assert.equal(CSS.includes('--glass-bg'), false, '禁止复用 App 的 --glass-bg');
+  assert.equal(CSS.includes('--glass-border'), false, '禁止复用 App 的 --glass-border');
+  /* token 唯一来源：tokens.json 每个键都必须在 material.css 逐值出现 */
   for (const [k, v] of Object.entries(TOKENS.tokens)) {
     assert.equal(CSS.includes(`${k}: ${v};`), true, `material.css 缺少 ${k}: ${v}`);
   }
