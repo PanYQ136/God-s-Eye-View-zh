@@ -1,46 +1,6 @@
 import { resolveCatalogSources } from './sourceComposition.js';
-import { createWeatherClock } from '../layers/weather/clock.js';
-import { createWeatherLayer } from '../layers/weather/index.js';
-import { createCyclonesLayer } from '../layers/cyclones/index.js';
-import { createWindLayer } from '../layers/wind/index.js';
 import { createLayerCatalog } from './catalog.js';
 import { LAYER_STATE_REGISTRY } from '../data/layerState.js';
-import { createMilitaryRegistry } from '../layers/aircraft/classification.js';
-import { createApplicationFlights } from './layers/flights.js';
-import { createApplicationMilitary } from './layers/militaryFlights.js';
-import { createApplicationVessels } from './layers/aisLiveVessels.js';
-import { createApplicationCctv } from './layers/cctv.js';
-import { createApplicationRadio } from './layers/radio.js';
-import { createApplicationTraffic } from './layers/traffic.js';
-import { createApplicationCnTraffic } from './layers/cnTraffic.js';
-import { createApplicationCnAdmin } from './layers/cnAdmin.js';
-import { createApplicationCnQuakes } from './layers/cnQuakes.js';
-import { createApplicationCnTyphoon } from './layers/cnTyphoon.js';
-import { createApplicationBikeshare } from './layers/bikeshare.js';
-import { createApplicationDirections } from './layers/directions.js';
-import { createApplicationRecentImagery } from './layers/recentImagery.js';
-import { createApplicationOsmPlaces } from './layers/osmPlaces.js';
-import { createApplicationTransit } from './layers/transit.js';
-import { createApplicationInstallations } from './layers/militaryInstallations.js';
-import { createApplicationSatellites } from './layers/satellites.js';
-import { createApplicationLaunches } from './layers/rocketLaunches.js';
-import { createApplicationAlpr } from './layers/alprCameras.js';
-import { createApplicationLocalAdsb } from './layers/localAdsb.js';
-import { createApplicationAwareness } from './layers/militaryAwareness.js';
-import { createApplicationFirms } from './layers/firms.js';
-import { createApplicationEarthquakes } from './layers/earthquakes.js';
-import { createApplicationAirQuality } from './layers/airQuality.js';
-import { createApplicationFirePerimeters } from './layers/perimeters.js';
-import { createApplicationGnssIntegrity } from './layers/gnss.js';
-import { createApplicationGhostMaps } from './layers/ghostMaps.js';
-import { createApplicationDroneAirspace } from './layers/droneAirspace.js';
-import { createApplicationCables } from './layers/submarineCables.js';
-import { createOsmOverlayLayers } from '../data/osmOverlays.js';
-import { createApplicationStreetLevel } from './layers/streetLevel.js';
-import { createInfrastructureLayers } from '../data/infrastructure.js';
-import { localGeoJsonServices } from './localGeojsonServices.js';
-import { createBhoteKoshiEventLayer } from '../data/bhoteKoshiEvent.js';
-import { createBhoteKoshiLocatorLayer } from '../data/bhoteKoshiLocator.js';
 
 /**
  * Hardware-local layers are registered like any other but never enter share
@@ -58,11 +18,32 @@ export const APPLICATION_LAYER_METADATA = Object.freeze([
   ...LOCAL_ONLY_LAYER_METADATA,
 ]);
 
+/**
+ * Load the two factory waves (问题清单 #16 · Phase8E · D2).
+ *
+ * Both `import()` calls start in the same tick, so the network sees two
+ * parallel requests instead of one 1.8 MB entry module: `index-*.js` no longer
+ * carries any layer code, and Vite emits one chunk per wave (`modulepreload`
+ * edges come from the import graph, not from hand-written chunk rules).
+ *
+ * Construction order is unchanged. Both waves are awaited before the first
+ * factory runs, so `catalog.layers` is the same array of the same instances —
+ * the entry graph shrank, the catalog did not.
+ */
+async function loadCatalogFactories() {
+  const [core, rest] = await Promise.all([
+    import('./catalogFactoriesCore.js'),
+    import('./catalogFactoriesRest.js'),
+  ]);
+  return Object.freeze({ ...core, ...rest });
+}
+
 /** Construct the current catalog without choosing any source provider.
  * Scene engines remain page-owned; layers and classification have this app's lifetime.
  * The manager owns layer destruction, while abort releases classification even if startup fails.
+ * Asynchronous only because the factory waves are `import()`ed — see above.
  */
-export function createApplicationCatalog({
+export async function createApplicationCatalog({
   surface,
   sources,
   signal,
@@ -80,6 +61,52 @@ export function createApplicationCatalog({
 
   const sourceComposition = resolveCatalogSources(sources);
   sources = sourceComposition.sources;
+  const factories = await loadCatalogFactories();
+  // The wave requests are the only suspension point: a lifetime that ended
+  // while they were in flight must not leave a half-built catalog behind.
+  signal.throwIfAborted();
+  const {
+    createMilitaryRegistry,
+    createWeatherClock,
+    createApplicationFlights,
+    createApplicationMilitary,
+    createApplicationLocalAdsb,
+    createBhoteKoshiEventLayer,
+    createBhoteKoshiLocatorLayer,
+    createWeatherLayer,
+    createCyclonesLayer,
+    createWindLayer,
+    createApplicationVessels,
+    createApplicationCctv,
+    createApplicationRadio,
+    createApplicationTraffic,
+    createApplicationBikeshare,
+    createApplicationDirections,
+    createApplicationRecentImagery,
+    createApplicationTransit,
+    createApplicationInstallations,
+    createApplicationSatellites,
+    createApplicationLaunches,
+    createApplicationAlpr,
+    createApplicationAwareness,
+    createApplicationFirms,
+    createApplicationEarthquakes,
+    createApplicationFirePerimeters,
+    createApplicationCables,
+    createInfrastructureLayers,
+    localGeoJsonServices,
+    createApplicationCnTraffic,
+    createApplicationCnAdmin,
+    createApplicationCnQuakes,
+    createApplicationCnTyphoon,
+    createApplicationAirQuality,
+    createApplicationOsmPlaces,
+    createApplicationGnssIntegrity,
+    createApplicationGhostMaps,
+    createApplicationDroneAirspace,
+    createApplicationStreetLevel,
+    createOsmOverlayLayers,
+  } = factories;
   const militaryRegistry = createMilitaryRegistry();
   const weatherClock = createWeatherClock();
   const dispose = () => {

@@ -1,6 +1,15 @@
 /**
  * Phase8E2（t_1ad4e981）：波次 2 图层工厂的首帧后水合调度。
  *
+ * ⚠️ 当前状态：未接线（未完成态，仅自身单测覆盖）。本文件的消费方
+ *   `catalog.hydrate()` 需要 catalog 契约支持「部分层 + 惰性 control getter」，
+ *   而 `catalog.js` 现在要求 metadata 与 41 层 control 严格一一对应，UI 在构造阶段
+ *   即读取波次 2 实例的行/控件，因此直接接线会让 catalog 变成不完整层集。
+ *   2026-11-08 实测（dist-d2，冷启动）：波次 2 chunk 已在 load（2593 ms）之后的
+ *   6768 ms 才发起，rest 仅 301 kB gzip，占首屏 wire 不足 8%——完整惰性的增量收益
+ *   小于契约改造的回归风险，故本调度保持待接线，留待独立立项（D3）。
+ *   接线前置：catalog.js partial 支持 + controls/panels 的缺失层兜底 + hydrate A/B。
+ *
  * 默认口径（可观测、可回滚）：
  *   1. 调用方在 `application.start()` 兑现之后调用本函数（此时应用已就绪、
  *      首帧早已绘制：FCP ≈ 1.7 s，ready ≈ 5 s）；

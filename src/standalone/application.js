@@ -74,7 +74,7 @@ export function createStandaloneApplication({
         cesiumToken,
         loaderStatus,
       });
-      catalog = createStandaloneCatalog({
+      catalog = await createStandaloneCatalog({
         sources,
         streetLevelProviders,
         nepalBoundaryResolver: (signal) =>
