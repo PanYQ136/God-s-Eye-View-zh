@@ -274,7 +274,8 @@ export function boot() {
         const started = c.phase === PHASE.CLOSING ? c.closeStart : c.openStart;
         if (!started || t - started < PHASE_WATCHDOG_MS) continue;
         api.diagnostics = api.diagnostics || {};
-        api.diagnostics.phaseWatchdog = (api.diagnostics.phaseWatchdog || 0) + 1;
+        api.diagnostics.phaseWatchdog =
+          (api.diagnostics.phaseWatchdog || 0) + 1;
         controller.dispatch({ type: ACT.ANIM_END, id, gen: c.gen });
       }
     }, 400);
