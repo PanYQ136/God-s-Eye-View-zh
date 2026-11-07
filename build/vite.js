@@ -258,6 +258,41 @@ export function createBrowserViteConfig({
         mapillaryToken ?? '',
       ),
     },
-    build: { chunkSizeWarningLimit: 1500 },
+    // The entry graph is nearly the whole application (D1 analysis: 1051 of
+    // 1119 source modules are reachable through static imports), so splitting
+    // it by feature would only rename bytes. What pays instead is splitting the
+    // third-party half: the browser caches a vendor file across application
+    // deploys, and the entry chunk stops being the single ~6 MB unit the parser
+    // must finish before the first frame.
+    //
+    // Only these named groups are forced. Everything else - including packages
+    // that are reached through a dynamic import (mapillary-js, the @jtarrio SDR
+    // modules) and Cesium, whose layout vite-plugin-cesium owns - is left to
+    // Rollup, because a manual group is loaded by the first importer and would
+    // pull an on-demand package back into the first paint.
+    build: {
+      chunkSizeWarningLimit: 1500,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (!id.includes('node_modules')) return undefined;
+            if (
+              /node_modules[\\/](?:@vue|vue|vue-i18n|@intlify|pinia)[\\/]/.test(
+                id,
+              )
+            )
+              return 'vendor-vue';
+            if (/node_modules[\\/]hls\.js[\\/]/.test(id)) return 'vendor-media';
+            if (
+              /node_modules[\\/](?:satellite\.js|pbf|mgrs|@mapbox)[\\/]/.test(
+                id,
+              )
+            )
+              return 'vendor-geo';
+            return undefined;
+          },
+        },
+      },
+    },
   };
 }
