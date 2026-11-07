@@ -1,4 +1,5 @@
 import { UiLifetime } from './uiLifetime.js';
+import * as bridge from '../bridge.js';
 import { prefersCollapsed, readPanelState } from './rail/panelState.js';
 import { usePanelChromeStore } from './stores/panelChrome.js';
 import { applicationPinia } from './vueRuntime.js';
@@ -103,6 +104,29 @@ export class PanelChrome {
       },
     });
     this._cockpitPanelRestore = null;
+    /* App 侧折叠 API：LC 层（src/lc/collapse-port.js）写开合的唯一入口。
+       不注册它，LC 只能裸改 class，而 Vue store 仍是旧值，下一帧 watcher 会
+       把刚展开的卡按旧值重画回去 —— 同一状态两个真值，谁的帧晚谁生效。 */
+    try {
+      bridge.register(
+        'app.panelApi',
+        {
+          setPanelCollapsed: (panelId, collapsed, options = {}) =>
+            this.setPanelCollapsed(panelId, collapsed, options),
+          isCollapsed: (panelId) => {
+            const el = document.getElementById(panelId);
+            return el ? Boolean(this._shownPanel(el).collapsed) : null;
+          },
+        },
+        {
+          owner: 'src/ui/panelChrome.js',
+          global: '__lcPanelApi',
+          replace: true,
+        },
+      );
+    } catch (err) {
+      console.warn('[panelChrome] app.panelApi 注册失败', err);
+    }
     this._cockpitContextCollapsedForDataPanel = false;
     this._panelPosition = new PanelPositionControls({
       presentPanel: (panel, patch) => this._presentPanel(panel, patch),

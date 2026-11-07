@@ -11,9 +11,9 @@
   align-items: flex-start;
   gap: 8px;
   pointer-events: none;
-  transition:
-    top var(--transition-fast),
-    bottom var(--transition-fast);
+  /* G12：槽位只允许 translate 过渡（liftRails 用独立 translate，不参与布局）。
+     top / bottom 过渡会让「过渡中的位置」被 once-per-frame 的测量读成槽位 → 抖动 + 1px 漂移。 */
+  transition: none;
 }
 
 #data-panel {
@@ -138,9 +138,8 @@
   align-items: flex-end;
   gap: 8px;
   pointer-events: none;
-  transition:
-    top var(--transition-fast),
-    max-height var(--transition-fast);
+  /* G12：同 #left-panel-stack —— top / max-height 过渡会污染槽位测量，位移交给 translate */
+  transition: none;
 }
 #right-context-rail > #pp-toggles,
 #right-context-rail > #cctv-panel,
@@ -244,6 +243,21 @@
 }
 #left-panel-stack.layout-exclusive > [data-panel-id].collapsed {
   display: none;
+}
+/* G01（去重留一）：收起态的显隐归 LC 管。App 的 layout-exclusive 用 display:none
+   「藏掉非 active 卡」，而 LC 的 mini 胶囊必须在布局里才能被测量到槽位 —— 两条规则
+   同时生效时 5 张卡 rect 全 0（探针 probe3 实测 display:none），表现为「点不到、看不见」。
+   这里只放行已被 LC 接管的卡（.gev-lc）；未接管的卡维持 App 原行为。
+   特异性提升到 html body 前缀，是为了压过后置主题层（cyber.css）里的同型规则。 */
+html body #left-panel-stack.layout-exclusive > [data-panel-id].collapsed.gev-lc,
+html body #left-panel-stack.layout-focus > [data-panel-id].collapsed.gev-lc,
+html body #left-panel-stack.layout-focus.layout-exclusive > [data-panel-id].collapsed.gev-lc,
+html body #right-context-rail.layout-exclusive > [data-panel-id].collapsed.gev-lc,
+html body #right-context-rail.layout-focus.layout-exclusive > [data-panel-id].collapsed.gev-lc,
+html body :root[data-ui-theme='cyber'] #left-panel-stack.layout-focus.layout-exclusive > [data-panel-id].collapsed.gev-lc,
+html body :root[data-ui-theme='cyber'] #right-context-rail.layout-focus.layout-exclusive > [data-panel-id].collapsed.gev-lc {
+  display: block;
+  flex: 0 0 auto;
 }
 
 /* Panel rails (src/ui/panelNavigation.js). Each rail lives inside its stack,

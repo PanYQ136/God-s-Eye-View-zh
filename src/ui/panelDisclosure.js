@@ -1,3 +1,5 @@
+import { get as bridgeGet } from '../bridge.js';
+
 /** Track listeners so a discarded controller leaves no active DOM callbacks. */
 function listenerScope() {
   const removers = [];
@@ -103,6 +105,28 @@ export function createHoverDisclosure({
   const performance = window.performance;
   const scope = listenerScope();
   const listen = scope.listen;
+  /* LC 层接管开合（挂载时给卡片打 .gev-lc，并在 document 捕获期把 HEAD_SEL 的
+     点击整体收走）之后，App 侧不能再写一次 collapsed —— 那是同一状态的两个写者：
+     点击被 App 的 onChange 与 LC 的 ACTIVATE 各翻译一次，最终 phase 会反着落。
+     点击/键盘入口统一留给 LC；hover 计时仍归 App（LC 没有 hover 能力）。 */
+  const lcOwned = () => !!panelEl.classList.contains('gev-lc');
+  /* LC 接管后，hover 展开也归它：App 写 store 而 LC 的 phase 仍是 mini，
+     就是同一状态的两个真值（点击 header 时 LC 会当成「没开」再开一次）。 */
+  const lcActivate = () => {
+    let api = null;
+    try {
+      api = bridgeGet('lc.api');
+    } catch {
+      api = null;
+    }
+    if (!api || typeof api.dispatch !== 'function') return false;
+    api.dispatch({ type: 'ACTIVATE', id: panelEl.id });
+    return true;
+  };
+  /* 这次展开是不是 hover 打开的：只有 hover 打开的才该被 hover 离开关掉。
+     点击打开后指针因为展开动画被判定离开又回来时，closeTimer 不会被
+     pointerenter 清掉（指针没动），于是刚点开的卡会在 ~486ms 后自己关上。 */
+  let hoverOpened = false;
   let destroyed = false;
   let openTimer = null;
   let closeTimer = null;
@@ -136,7 +160,8 @@ export function createHoverDisclosure({
       if (!panelEl.matches(':hover')) return;
       if (performance.now() - lastWheelTime < 280) return;
       if (!panelEl.classList.contains('collapsed')) return;
-      onChange(false);
+      hoverOpened = lcOwned() ? lcActivate() : true;
+      if (!lcOwned()) onChange(false);
     }, openDelayMs);
   };
 
@@ -187,6 +212,7 @@ export function createHoverDisclosure({
     if (event.target.closest('.panel-collapse-btn, .dock-tray-toggle')) return;
     clearOpen();
     clearClose();
+    if (lcOwned()) return;
     if (panelEl.classList.contains('collapsed')) {
       onChange(false, { explicit: true });
     }
@@ -205,10 +231,12 @@ export function createHoverDisclosure({
     const pointerType = event.pointerType || 'mouse';
     if (pointerType !== 'mouse' && pointerType !== 'pen') return;
     clearOpen();
+    if (!hoverOpened) return; // 点击打开的卡归 LC 的点击外部/Escape 关
     scheduleClose();
   });
 
   listen(panelEl, 'pointerdown', () => {
+    hoverOpened = false;
     cancelPendingFocus();
     clearOpen();
     clearClose();
@@ -252,6 +280,7 @@ export function createHoverDisclosure({
 
   const toggleDisclosure = ({ focusContent = false } = {}) => {
     if (destroyed || !isActive()) return;
+    if (lcOwned()) return; // 开合的唯一写者是 LC 状态机，App 侧不再二次翻译
     cancelPendingFocus();
     clearOpen();
     clearClose();
@@ -270,6 +299,10 @@ export function createHoverDisclosure({
   });
   listen(disclosure, 'keydown', (event) => {
     if (event.key !== 'Enter') return;
+    /* LC 接管后键盘也不在这里 toggle：拦掉默认行为就等于抢走了 native click，
+       LC 再也收不到那次激活（表现为「键盘能开、鼠标点关不掉」）。放行浏览器
+       派发 click，由 LC 的 HEAD_SEL 分类统一处理。 */
+    if (lcOwned()) return;
     // Preserve immediate Enter activation while leaving Space to the native
     // button path, which emits its synthesized click only after key release.
     event.preventDefault();
@@ -282,6 +315,7 @@ export function createHoverDisclosure({
   listen(panelEl, 'focusout', (event) => {
     cancelPendingFocus();
     if (panelEl.contains(event.relatedTarget)) return;
+    if (!hoverOpened) return;
     scheduleClose();
   });
   listen(panelEl, 'keydown', (event) => {

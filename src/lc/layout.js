@@ -121,13 +121,21 @@ export function layout(snap) {
       if (oc.mini.y > c.mini.y + 1) reserve += oc.mini.h + GEO.GAP; // 只预留「槽位在下方」的兄弟
     }
 
-    const availH = Math.max(GEO.MIN_H, limitY - c.mini.y - reserve);
+    let availH = Math.max(GEO.MIN_H, limitY - c.mini.y - reserve);
+    /* G07：再受「宿主栈底」约束（limitH 由 adapter.measure 给出，已含 liftRails 位移）。
+       只受视口 SAFE_BOTTOM 约束时，内容高的左卡会长出 #left-panel-stack 的可视底界。 */
+    if (c.limitH > 0) availH = Math.min(availH, c.limitH);
     let h = Math.min(cfg.expH, availH);
     if (h < GEO.MIN_EXP_H) h = Math.max(120, Math.min(GEO.MIN_EXP_H, availH));
     let w = Math.min(cfg.expW, view.w - 2 * GEO.EDGE);
 
-    let x = cfg.rail === 'right' ? c.mini.x + c.mini.w - w : c.mini.x;
-    let y = c.mini.y;
+    /* G10：左轨向左取整、右轨从右边界回推 —— 两侧混用 round 会在 0.5 边界各漂 1px，
+       连续 resize 往返后表现为可见的「热漂移」。 */
+    let x =
+      cfg.rail === 'right'
+        ? Math.floor(c.mini.x + c.mini.w - w)
+        : Math.floor(c.mini.x);
+    let y = Math.floor(c.mini.y);
 
     const off = offsets[id] || { x: 0, y: 0 };
     x += off.x || 0;

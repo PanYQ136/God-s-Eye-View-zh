@@ -20,8 +20,8 @@
   --lc-safe-top: 84px; --lc-safe-bottom: 158px; --lc-push-x: 0px; --lc-push-y: 0px;
 }
 /* ── 1) 舞台：展开卡唯一父层（fixed 坐标系 = 视口）──────────────────────── */
-.lc-stage { position: fixed; inset: 0; z-index: var(--z-stage, 138); pointer-events: none; } /* 低于坞(151)/座舱 HUD(145)，避免脱层卡压住坞与托盘 */
-.lc-stage > .gev-lc { pointer-events: auto; position: fixed; margin: 0; box-sizing: border-box; }
+.lc-stage { position: fixed; inset: 0; z-index: var(--z-stage, 149); pointer-events: none; } /* G11：压住坞(145)、低于座舱 HUD(151)；dock 面板已被 GEO.DOCK_LIFT 抬到坞上方，抬 z 不遮坞本体 */
+.lc-stage > .gev-lc { pointer-events: auto; position: fixed; margin: 0; box-sizing: border-box; transform-origin: 0 0; } /* FLIP：缩放须绕盒子左上角，默认 center 使 morph 的 translate 位移不对等，开卡会先弹歪再回位 */
 /* ── 2) 卡壳（①）：透明 + 顶部高光 + 单层外投影；无 border/outline/inset ──
    Phase 4（2026-10-29）玻璃分工，改这里之前先读：
      · 边缘折射/镜面高光 = public/gev-edge-lens.js（band 10px、单层、半透 bandAlpha、单向光源）

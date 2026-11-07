@@ -17,6 +17,8 @@ import * as bridge from '../bridge.js';
 
 const BOOT_MAX_FRAMES = 900; // ≈15s（rAF 计帧，不用 setTimeout）
 const SETTLE_FRAMES = 90; // ≈1.5s：App 启动期会搬容器/恢复状态，沉降后强制全 mini（D1）
+/* G02：相位看门狗阈值。最长 morph 445ms（D1=A），留 2.5x 余量再判「回调丢了」。 */
+const PHASE_WATCHDOG_MS = 1200;
 /* Phase7A3：语音卡（#gev-voice-control）不是静态卡壳 —— 它由 App 在命令坞里注入，
    排在 Cesium 之后。卡壳/LC 现在先于 Cesium mount，**不能**为它把整层挂载推到
    App 就绪（实测那样 cardsClickable 又回到 7–9.5s）。改为：必需卡 = 7 张静态卡壳，
@@ -172,6 +174,16 @@ export function boot() {
   function handleEffects(state, effects) {
     for (const e of effects) {
       if (e.type === EFF.COLLAPSE_WRITE) {
+        /* G03：只有「卡片真的回到 mini」才允许写 collapsed=true。
+           队列里可能还压着一条早先排队的收起（closing 被用户点击取消 → 已回 opening），
+           盲写会让 App 收起一张正在展开的卡：内容瞬空、让位被撤、morph 目标消失。 */
+        const cur = state.cards[e.id];
+        if (e.collapsed && (!cur || cur.phase !== PHASE.MINI)) {
+          api.diagnostics = api.diagnostics || {};
+          api.diagnostics.collapseWriteSkipped =
+            (api.diagnostics.collapseWriteSkipped || 0) + 1;
+          continue;
+        }
         if (!e.collapsed) {
           /* 先脱层再让 App 展开：否则 App 的 `:has(#x:not(.collapsed))` 会闪一帧 */
           const cached =
@@ -241,11 +253,31 @@ export function boot() {
     window.addEventListener(
       'resize',
       () => {
+        /* G05：视口变了 → 槽位必须整体重读（liftRails 内部也会失效一次，这里覆盖 rotate/DPR 变化） */
+        adapter.invalidateSlots();
         adapter.liftRails(94);
         controller.dispatch({ type: ACT.RESIZE });
       },
       { passive: true },
     );
+
+    /* G02：相位看门狗。WAAPI finish 回调在隐藏标签页、节点被 App 抢回、cancel 竞态下都可能丢；
+       一旦丢，卡就永停 opening/closing —— 表现为「点不到」「内容悬空不落位」。
+       超过最长动画时长仍未落定，即用当前 gen 强制落定（gen 不匹配会被 reducer 丢弃，不会误杀新动画）。 */
+    setInterval(() => {
+      const { st } = phaseMap();
+      const t = performance.now();
+      for (const id of CARD_IDS) {
+        const c = st.cards[id];
+        if (!c) continue;
+        if (c.phase !== PHASE.OPENING && c.phase !== PHASE.CLOSING) continue;
+        const started = c.phase === PHASE.CLOSING ? c.closeStart : c.openStart;
+        if (!started || t - started < PHASE_WATCHDOG_MS) continue;
+        api.diagnostics = api.diagnostics || {};
+        api.diagnostics.phaseWatchdog = (api.diagnostics.phaseWatchdog || 0) + 1;
+        controller.dispatch({ type: ACT.ANIM_END, id, gen: c.gen });
+      }
+    }, 400);
 
     /* 5) App 把展开卡抢回轨道 → 重新脱层（展开卡必须在 stage 是 renderer 的不变量） */
     const parentWatch = new MutationObserver(() => {
@@ -280,6 +312,9 @@ export function boot() {
       appGeomQueued = true;
       requestAnimationFrame(() => {
         appGeomQueued = false;
+        /* G05：App 重排轨道（换 active / 改 safe-top / 切座舱）时视口没变，
+           旧槽位却已失效 —— 必须先作废缓存再对齐，否则 live 卡按旧槽位落位。 */
+        adapter.invalidateSlots();
         adapter.liftRails(94);
         controller.dispatch({ type: ACT.RESIZE });
       });
