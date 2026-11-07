@@ -526,6 +526,9 @@ import { probe as gpuProbe } from './lc/gpu.js';
   }
 
   function watchdog() {
+    // 后台标签页不纠正画面参数：隐藏时 Cesium 不渲染，改 resolutionScale /
+    // targetFrameRate 没有可观察效果，只会把配置写脏。
+    if (document.hidden) return;
     const v = st.viewer;
     if (!v || !v.scene) return;
     // GEV (G7): 性能模式(gev-perf，localStorage gev.perfMode==='1')激活时，运行时画质

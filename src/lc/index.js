@@ -265,6 +265,9 @@ export function boot() {
        一旦丢，卡就永停 opening/closing —— 表现为「点不到」「内容悬空不落位」。
        超过最长动画时长仍未落定，即用当前 gen 强制落定（gen 不匹配会被 reducer 丢弃，不会误杀新动画）。 */
     setInterval(() => {
+      // 后台标签页不巡检：WAAPI finish 与 rAF 在隐藏时同样被挂起，相位本来就
+      // 不会前进；此时强推 ANIM_END 反而会把「隐藏期间打开」的卡片瞬间落定。
+      if (document.hidden) return;
       const { st } = phaseMap();
       const t = performance.now();
       for (const id of CARD_IDS) {
