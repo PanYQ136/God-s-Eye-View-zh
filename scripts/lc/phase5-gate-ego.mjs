@@ -248,7 +248,7 @@ rec("5 显示卡：行距 ≥8 / 零重叠 / 可滚 / 滚到底见末行",
   pp.rows >= 15 && pp.overlaps === 0 && pp.minGap >= 7.5 && pp.squashed.length === 0 && pp.canScroll && ppScroll.lastVisible,
   { ...pp, ppScroll });
 
-/* ── 11 动画时长 350–450ms + 果冻峰值 1.02–1.05 ─────────────────────── */
+/* ── 11 动画时长 480–520ms + Spring 峰值 1.02–1.05 ─────────────────────── */
 const anim = await page.evaluate(async () => {
   const card = document.getElementById("data-panel");
   const b = card.getBoundingClientRect();
@@ -287,7 +287,7 @@ const fpsSample = await page.evaluate(async () => {
 rec("13 页面可响应（evaluate RTT ≤ 50ms，无主线程卡死）", Math.max(...rtts) <= 50, { rtts, fps: fpsSample });
 
 /* ── 11(record) 动画时长/峰值 ───────────────────────────────────────── */
-rec("11a 开卡动画时长在 350–450ms（WAAPI 实测）", durs.length > 0 && durs.every((d) => d >= 350 && d <= 450), { animLive, durs });
+rec("11a 开卡动画时长在 480–520ms（WAAPI 实测）", durs.length > 0 && durs.every((d) => d >= 480 && d <= 520), { animLive, durs });
 rec("11b 果冻峰值 1.02–1.05（源码 TARGET_OVERSHOOT=1.035 / SHIFT_PEAK=1.02）", true, morphSrc);
 
 /* ── FPS 记录（不判定为 13 项之一，单独列）────────────────────────── */

@@ -320,4 +320,16 @@
   .lc-stage > .dock-panel { background: var(--lc-soft-fill); }
 }
 
+/* ── 23) A1 边缘折射 opt-in / 无透镜降级（2026-11-07）──────────────────────
+   --glass-lens 默认 none；只有显式 data-glass-lens="on" 才引用 index.html 注入的
+   #lg-lens。kit.md §7：未注入 filter 就写 url() 会让整条 backdrop-filter 失效。
+   data-glass-nolens：kit 的 .glass-no-lens 与默认同值（no-op），这里显式把
+   blur/saturate/brightness 归零，列表与嵌套面板才真的省掉 GPU 合成。 */
+:is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc[data-glass-lens='on'] {
+  --glass-lens: url(#lg-lens);
+}
+:is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc[data-glass-nolens] {
+  --glass-blur-radius: 0px; --glass-saturate: 1; --glass-brightness: 1; --glass-lens: none;
+}
+
 }
