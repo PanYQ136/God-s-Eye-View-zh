@@ -1,59 +1,54 @@
 /**
  * src/lc/morph.test.mjs —— MorphAnimation 纯函数单测（Phase 1 · S4m / 架构 §15.2）
  *
- * 只测可离线复算的部分：时长公式（两点插值，端点 350/445）、值域、逐卡时长表、
- * easeOutBack 的 overshoot 标定、关键帧首尾自洽、reduced-motion 无回弹。
+ * A1（2026-11-07 · kit.md §8.9）：时长改为固定 500ms（--glass-spring-duration），
+ * 采样形状改为 kit 的 Spring 多点振荡，逐轴峰值标定与 FLIP 几何不变。
+ * 只测可离线复算的部分：时长、值域、backC1 反解精度、关键帧首尾自洽、reduced-motion 无回弹。
  * 运行时行为（WAAPI 实际时长/峰值）由 scripts/lc/phase1-accept.mjs 在真浏览器里断言。
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { durationMs, keyframes, backC1, MIN_MS, MAX_MS, REDUCE_MS, TARGET_OVERSHOOT } from './morph.js';
+import { durationMs, keyframes, backC1, springShape, springProgress, SPRING_STOPS, MIN_MS, MAX_MS, SPRING_MS, REDUCE_MS, TARGET_OVERSHOOT } from './morph.js';
 
-const K = (445 - 350) / (Math.sqrt(320 * 380) - Math.sqrt(176 * 43));
-
-/* 架构 §15.2 的逐卡时长表（目标盒来自 gev-liquid-cards.js 的 CARDS） */
-const CARDS = {
-  'data-panel': [320, 380, 445],
-  'scene-panel': [320, 340, 438],
-  'pp-toggles': [300, 430, 449],
-  'cctv-panel': [340, 430, 450],
-  'global-context-panel': [320, 400, 448],
-  'location-bar': [380, 240, 428],
-  'control-panel': [520, 380, 450],
-  'gev-voice-control': [260, 240, 409],
+/* A1：逐卡目标盒（尺寸仍来自 CARDS，但时长不再按面积插值）。 */
+const CARD_BOXES = {
+  'data-panel': [320, 380],
+  'scene-panel': [320, 340],
+  'pp-toggles': [300, 430],
+  'cctv-panel': [340, 430],
+  'global-context-panel': [320, 400],
+  'location-bar': [380, 240],
+  'control-panel': [520, 380],
+  'gev-voice-control': [260, 240],
 };
 
-test('K 常量与文档一致（0.3630）', () => {
-  assert.equal(K.toFixed(4), '0.3630');
-});
-
-test('端点：176×43 = 350ms，320×380 = 445ms', () => {
-  assert.equal(durationMs(176, 43), 350);
-  assert.equal(durationMs(320, 380), 445);
-});
-
-test('逐卡时长表 9/9 命中 ±1ms', () => {
-  for (const [id, [w, h, want]] of Object.entries(CARDS)) {
-    const got = durationMs(w, h);
-    assert.ok(Math.abs(got - want) <= 1, `${id}: ${got} != ${want}`);
+test('A1 Spring 时长：固定 500ms，与盒尺寸无关', () => {
+  assert.equal(SPRING_MS, 500);
+  assert.equal(MIN_MS, 500);
+  assert.equal(MAX_MS, 500);
+  assert.equal(durationMs(176, 43), 500);
+  assert.equal(durationMs(320, 380), 500);
+  for (const [id, [w, h]] of Object.entries(CARD_BOXES)) {
+    assert.equal(durationMs(w, h), 500, `${id} 应恒为 500ms`);
   }
 });
 
-test('值域恒定夹在 [350,450]，且随面积单调不减', () => {
-  let prev = 0;
-  for (let a = 1; a < 400000; a = Math.round(a * 1.6) + 1) {
-    const v = durationMs(Math.sqrt(a), Math.sqrt(a));
-    assert.ok(v >= MIN_MS && v <= MAX_MS, `${a} → ${v}`);
-    assert.ok(v >= prev, `${a} → ${v} < ${prev}`);
-    prev = v;
-  }
+test('A1 Spring 形状：kit.md 11 点、峰值 1.09、首末 0/1', () => {
+  assert.equal(SPRING_STOPS.length, 11);
+  assert.ok(Math.abs(springShape(0) - 0) < 1e-9);
+  assert.ok(Math.abs(springShape(1) - 1) < 1e-9);
+  assert.ok(Math.abs(springShape(0.4) - 1.09) < 1e-9);
+  assert.ok(springShape(0.9) < 1, '过冲后必须有多峰下冲，不是单峰 easeOutBack');
 });
 
-test('P 表原式（350+√area*4）会夹到 450 —— 反例留档', () => {
-  const orig = (w, h) => Math.round(Math.min(450, Math.max(350, 350 + Math.sqrt(w * h) * 4)));
-  assert.equal(orig(176, 43), 450); // 表里写的是「≈350」
-  assert.equal(orig(320, 380), 450);
+test('A1 springProgress 归一化：峰值精确等于逐轴目标 pPeak', () => {
+  for (const pPeak of [1.01, 1.035, 1.08, 1.2]) {
+    const peak = Math.max(...Array.from({ length: 41 }, (_, i) => springProgress(i / 40, pPeak)));
+    assert.ok(Math.abs(peak - pPeak) < 1e-9, `pPeak=${pPeak} → ${peak}`);
+    assert.equal(springProgress(0, pPeak), 0);
+    assert.equal(springProgress(1, pPeak), 1);
+  }
 });
 
 test('backC1：overshoot 1.035 → c1≈0.972；峰值反算一致', () => {
