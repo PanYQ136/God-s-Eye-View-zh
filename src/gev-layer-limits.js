@@ -243,6 +243,9 @@
   // 轻量自愈：图层被关开重置后，把用户设定重新下发。
   function startSelfHeal() {
     setInterval(() => {
+      // 后台标签页跳过：自愈靠 setLimit 触发的重建，隐藏时无人看，且会打断
+      // 可见后首次恢复的图层重建批次。
+      if (document.hidden) return;
       for (const cfg of LAYERS) {
         if (!supportsLimit(cfg.id)) continue;
         const want = storedLimit(cfg.id);

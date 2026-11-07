@@ -174,6 +174,13 @@ import { mountChip } from './lc/gpu.js';
   }
 
   function tickFps() {
+    // 后台标签页不做 FPS 采样：浏览器已把 rAF 降到 ~1fps 或暂停，
+    // 采样值只会把自适应分辨率误判成「卡了」，白白丢画质。
+    if (document.hidden) {
+      st.frames = 0;
+      st.t0 = performance.now();
+      return;
+    }
     if (!st.viewer) return;
     const el = document.getElementById('gev-perf-fps');
     const now = performance.now();
