@@ -49,3 +49,11 @@ wx-cloud/
 # 运行/验收产物不入库（本地保留，需要时用 git add -f 单独放行）
 out-qa/
 vite.err
+
+# 2026-11-07 液态玻璃改造：11-07 凌晨的临时诊断脚本，本地保留但不入库。
+/diag*.mjs
+/temp-diag*.mjs
+/temp/qa/
+/scripts/_diag-*.mjs
+/scripts/qa-panel-interaction.mjs
+/scripts/qa-rail-probe.mjs
