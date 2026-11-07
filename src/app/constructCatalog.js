@@ -18,6 +18,52 @@ export const APPLICATION_LAYER_METADATA = Object.freeze([
   ...LOCAL_ONLY_LAYER_METADATA,
 ]);
 
+/** Shared wave record: the preload and the construction share one request. */
+let factoriesInFlight = null;
+
+/** `?wavepreload=0` turns the early wave requests off (A/B + rollback). */
+function wavePreloadDisabled() {
+  try {
+    return (
+      new URLSearchParams(globalThis.location?.search ?? '').get(
+        'wavepreload',
+      ) === '0'
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Start the wave requests before the catalog is constructed (D2-3).
+ *
+ * `createApplicationCatalog` only runs once the scene is up — 6.8 s on a cold
+ * start — so the waves used to be the tail of that critical path even though
+ * they share nothing with Cesium's viewer, terrain or tiles. Callers that know
+ * a catalog is coming can start the downloads while the scene is still
+ * building; the later `createApplicationCatalog` then finds the modules (and
+ * their factories) already resolved.
+ *
+ * `?wavepreload=0` restores strictly-on-demand loading for A/B comparison.
+ * @returns {Promise<object>|null} The shared wave module record, or null when
+ *   disabled. A rejected record is dropped so a retry can re-import.
+ */
+export function preloadCatalogFactories() {
+  if (wavePreloadDisabled()) return null;
+  if (!factoriesInFlight) {
+    factoriesInFlight = Promise.all([
+      import('./catalogFactoriesCore.js'),
+      import('./catalogFactoriesRest.js'),
+    ]).then(([core, rest]) => Object.freeze({ ...core, ...rest }));
+    // A failed preload must not poison the real construction: drop the record
+    // and let whoever needs it next start over.
+    factoriesInFlight.catch(() => {
+      factoriesInFlight = null;
+    });
+  }
+  return factoriesInFlight;
+}
+
 /**
  * Load the two factory waves (问题清单 #16 · Phase8E · D2).
  *
@@ -31,6 +77,8 @@ export const APPLICATION_LAYER_METADATA = Object.freeze([
  * the entry graph shrank, the catalog did not.
  */
 async function loadCatalogFactories() {
+  const preloaded = preloadCatalogFactories();
+  if (preloaded) return preloaded;
   const [core, rest] = await Promise.all([
     import('./catalogFactoriesCore.js'),
     import('./catalogFactoriesRest.js'),
