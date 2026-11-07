@@ -208,25 +208,41 @@ export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
           if (w.__lc.chDbg.length > 12) w.__lc.chDbg.shift();
         }
       } catch (_) {}
-    } catch (_) {}
-    if (!hadDock) e.classList.remove('dock-panel');
-    if (savePhase === undefined) delete e.dataset.lcPhase;
-    else e.dataset.lcPhase = savePhase;
-    st.width = save.width;
-    st.height = save.height;
-    st.position = save.position;
-    st.visibility = save.visibility;
-    st.left = save.left;
-    st.top = save.top;
-    st.right = save.right;
-    st.bottom = save.bottom;
-    st.overflowY = save.overflowY;
+    } catch (_) {
+      h = 0;
+    } finally {
+      /* G09：还原必须走 finally。旧写法把 9 个 inline 属性的还原排在 try/catch 之后，
+         任何一处抛错（或测量窗口被打断）都会把「left:-99999px / height:auto / 透明」
+         留在卡上；下一次读 rect 得到的就是测量态，dock 面板 resize 往返后 y 偏 +67px 即此因。 */
+      if (!hadDock) e.classList.remove('dock-panel');
+      if (savePhase === undefined) delete e.dataset.lcPhase;
+      else e.dataset.lcPhase = savePhase;
+      st.width = save.width;
+      st.height = save.height;
+      st.position = save.position;
+      st.visibility = save.visibility;
+      st.left = save.left;
+      st.top = save.top;
+      st.right = save.right;
+      st.bottom = save.bottom;
+      st.overflowY = save.overflowY;
+    }
+    /* 测量失败（抛错/量到 0）→ 交回 fallback，并让布局按新值重算，禁止沿用上一次 */
     return h || fallback || GEO.PANEL_MIN_H;
   }
 
   /* ── 测量帧 ───────────────────────────────────────────────────────────── */
   const slotCache = new Map(); // id → 自然槽位 {x,y,w,h}（只在 push=0 的帧里刷新）
   let slotViewKey = ''; // 视口变了 → 槽位缓存失效（否则 resize 后仍用旧槽位）
+
+  /* G05：槽位的失效条件不能只看 viewport。"轨道几何变了但视口没变" 是常态
+     （liftRails 平移、App 重排/换 active、移动端地址栏收起），此时 live 卡仍按旧槽位
+     布局 —— 实测错位 −211px / +67px 都出自这里。所有轨道几何变化点都显式调用本函数。 */
+  function invalidateSlots() {
+    slotCache.clear();
+    slotViewKey = '';
+    return true;
+  }
 
   /* 轨道顺序（配置序，唯一一份；槽位归一化只依赖它 + 实测卡高） */
   const RAIL_ORDER = Object.freeze({
@@ -330,12 +346,25 @@ export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
       }
       /* 兜底：缓存缺失且本卡被钳在「轨道忙」里 → 用当前 rect（宁可一次小跳，不给 null） */
       if (!mini && vis) mini = { x: vis.x, y: vis.y, w: vis.w, h: vis.h };
+      /* G07：该卡可用的最大高度 = 宿主栈底 − 该卡 mini 顶 − 间隙。
+         展开盒此前只受视口 SAFE_BOTTOM 约束，左卡内容高时会长出 #left-panel-stack
+         的可视底界，压到栈下方的内容与坞上沿。宿主 rect 已含 liftRails 的 translate。 */
+      const hostEl = e.parentElement;
+      const hostR = hostEl ? hostEl.getBoundingClientRect() : null;
+      const limitH =
+        hostR && mini
+          ? Math.max(
+              GEO.PANEL_MIN_H,
+              Math.round(hostR.bottom - mini.y - GEO.GAP),
+            )
+          : 0;
       cards[id] = {
         connected: true,
         mini,
         visual: vis,
         header: rectOf(headerOf(id)),
         contentH: 0,
+        limitH,
       };
     }
     /* 槽位归一化：把「谁在动画」的影响从槽位里彻底去掉（见 normalizeRailSlots 注释） */
@@ -431,12 +460,11 @@ export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
       const want = Math.round(Math.min(0, targetTop - natural));
       if (Math.abs(want - cur) > 0.5) {
         rail.style.setProperty('translate', `0 ${want}px`);
-        /* 轨道位置变了 → 槽位缓存整体作废。
+        /* 轨道位置变了 → 槽位缓存整体作废（G05 统一入口）。
            慢渲染（软件渲染/SwiftShader）下第一帧测量可能发生在 translate 之前，
            缓存里留下 pre-lift 的 y（实测 pp=190）→ normalizeRailSlots 按 190 归一，
            cctv 槽位变 248，展开卡与 mini 全错位（T19 实测）。 */
-        slotCache.clear();
-        slotViewKey = '';
+        invalidateSlots();
       }
       out[sel] = want;
     }
@@ -494,6 +522,7 @@ export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
     contentHeight,
     measure,
     liftRails,
+    invalidateSlots,
     setPanelCollapsed,
     isCollapsed,
     hasPanelApi: () => !!panelApi(),

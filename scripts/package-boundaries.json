@@ -18,6 +18,7 @@
   "application": {
     "exports": ["./application"],
     "modules": [
+      "src/bridge.js",
       "src/app/application.js",
       "src/ui/vueRuntime.js",
       "src/ui/views/index.js",
@@ -578,7 +579,7 @@
   },
   "panel-disclosure": {
     "exports": ["./ui/panels"],
-    "modules": ["src/ui/panelDisclosure.js"],
+    "modules": ["src/bridge.js", "src/ui/panelDisclosure.js"],
     "external": []
   },
   "surface-keyboard": {
@@ -927,6 +928,7 @@
   "ui-shell": {
     "exports": ["./ui/shell"],
     "modules": [
+      "src/bridge.js",
       "src/data/headingDegrees.js",
       "src/data/distanceFormat.js",
       "src/i18n/marker.js",
@@ -4141,6 +4143,7 @@
   "ui-panel-chrome": {
     "exports": ["./ui/panel-chrome"],
     "modules": [
+      "src/bridge.js",
       "src/ui/displayPanelScroll.js",
       "src/ui/radioPanelPlacement.js",
       "src/panelStackLayout.js",

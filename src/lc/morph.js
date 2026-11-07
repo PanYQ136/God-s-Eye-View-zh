@@ -224,13 +224,9 @@ export function run(el, first, opts) {
       ? !!o.reducedMotion
       : (() => {
           try {
-            /* §6.7：software tier 也走 150ms / 无回弹（不做第二套材质，只切一个开关） */
-            if (
-              (bridge.get('gpu') || {}).tier &&
-              typeof bridge.get('gpu').tier === 'function' &&
-              bridge.get('gpu').tier() === 'software'
-            )
-              return true;
+            /* G13：software tier 不再切「150ms / 无回弹」。降级只由系统 reduced-motion 决定：
+               tier 是渲染能力信号，不是动效偏好，拿它劫持曲线会让同一构建在不同 GPU 上
+               出两套时长（实测 software 下 duration=150，与验收 350–445 互斥）。 */
             return matchMedia('(prefers-reduced-motion: reduce)').matches;
           } catch (_) {
             return false;
@@ -359,13 +355,9 @@ export function pushTiming(w, h) {
 export const SHIFT_PEAK = 1.02;
 function reducedNow(opts) {
   if (opts && opts.reducedMotion !== undefined) return !!opts.reducedMotion;
+  /* G13：reduce 只认用户系统级偏好。software tier 不再劫持曲线 —— 旧口径 150ms/无回弹
+     与 D1=A（350–445ms + easeOutBack 3.5% 过冲）直接冲突，实测 duration=150 即由此而来。 */
   try {
-    if (
-      (bridge.get('gpu') || {}).tier &&
-      typeof bridge.get('gpu').tier === 'function' &&
-      bridge.get('gpu').tier() === 'software'
-    )
-      return true;
     return matchMedia('(prefers-reduced-motion: reduce)').matches;
   } catch (_) {
     return false;

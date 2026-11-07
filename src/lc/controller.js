@@ -40,6 +40,9 @@ export const EFF = Object.freeze({
 const isLive = (p) => p === PHASE.OPENING || p === PHASE.OPEN;
 const isAnimating = (p) => p === PHASE.OPENING || p === PHASE.CLOSING;
 
+/** G04：App 侧回流去重窗口。class 观察 + API 回调是两条通道，同一值会连发。 */
+export const EXT_DEDUPE_MS = 120;
+
 function blankState(ids) {
   const cards = {};
   for (const id of ids) {
@@ -47,11 +50,19 @@ function blankState(ids) {
       phase: PHASE.MINI,
       gen: 0,
       closeStart: 0,
+      openStart: 0,
+      lastExt: null,
       offset: { x: 0, y: 0 },
       dragging: false,
     };
   }
-  return { cards, openOrder: [], layoutDirty: true, seq: 0 };
+  return {
+    cards,
+    openOrder: [],
+    layoutDirty: true,
+    seq: 0,
+    echoDropped: 0,
+  };
 }
 
 /** 深拷贝（状态很小，测试要能对比前后）。 */
@@ -64,6 +75,7 @@ export function cloneState(s) {
     openOrder: s.openOrder.slice(),
     layoutDirty: s.layoutDirty,
     seq: s.seq,
+    echoDropped: s.echoDropped || 0,
   };
 }
 
@@ -121,6 +133,7 @@ export function reduce(state, action, ctx = {}) {
       frame();
     } else if (c.phase === PHASE.CLOSING) {
       c.phase = PHASE.MINI;
+      c.openStart = 0;
       c.offset = { x: 0, y: 0 }; // 收起归位必须逐像素回到基线
       c.dragging = false;
       next.openOrder = next.openOrder.filter((x) => x !== action.id);
@@ -162,6 +175,18 @@ export function reduce(state, action, ctx = {}) {
     const c = next.cards[action.id];
     if (!c) return { state, effects };
     const collapsed = !!action.collapsed;
+    /* G04：App 回流去重。App 侧「class 观察」与「API 回调」是两条独立通道，
+       同一值会在同一帧里连发两次；第二次 dispatch 会再次 gen++，把正在飞的 morph
+       世代作废（视觉上是卡在半路的「果冻」）。同值且在窗口内的一律丢弃。 */
+    if (
+      c.lastExt &&
+      c.lastExt.collapsed === collapsed &&
+      now - c.lastExt.at < EXT_DEDUPE_MS
+    ) {
+      next.echoDropped = (next.echoDropped || 0) + 1;
+      return { state: next, effects };
+    }
+    c.lastExt = { collapsed, at: now };
     if (collapsed) {
       /* App 把「我们正开着的卡」收起了 → 翻译成 closing（不是瞬间 mini） */
       if (isLive(c.phase)) {
@@ -202,6 +227,7 @@ export function reduce(state, action, ctx = {}) {
       /* §4.3：closing 期间点击 = 取消关闭，从当前屏幕值重开（禁止 return 吞点） */
       c.phase = PHASE.OPENING;
       c.closeStart = 0;
+      c.openStart = now;
       c.gen += 1;
       next.openOrder = next.openOrder
         .filter((x) => x !== action.id)
@@ -235,6 +261,8 @@ export function reduce(state, action, ctx = {}) {
     const c = st.cards[id];
     c.phase = PHASE.OPENING;
     c.closeStart = 0;
+    /* G02：opening 也留时间戳 → 看门狗可判定「动画回调丢失」，不让卡永停 opening */
+    c.openStart = t;
     c.gen += 1;
     st.openOrder = st.openOrder.filter((x) => x !== id).concat([id]);
     /* 展开时先让 App 把面板展开（内容可见，才能量内容高/渲染），收起在 closing 落定后写 */

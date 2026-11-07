@@ -669,19 +669,58 @@ export function createRenderer({ adapter, onAnimEnd, morph = Morph }) {
       }
 
       if (phase === PHASE.CLOSING) {
-        const target = box || (cards[id] && cards[id].mini) || r.box;
-        if (!target) continue;
-        if (!r.staged) {
-          /* 从没展开过就收到 closing（异常）→ 直接回 mini */
+        /* 关闭目标恒为「这张卡自己的槽位」。layout 的 boxes 在关闭期间会带让位/推挤偏移，
+           实测（probe7）会把卡送向屏幕外（28,-72 / 978,-96），视觉上是"飞出去再消失"。
+           槽位是 App 布局的真值，比 layout 推演可靠。 */
+        const target = (cards[id] && cards[id].mini) || box || r.box;
+        if (!target || !r.staged) {
+          /* 没有可播放的收起动画（目标盒缺失 / 从没 stage 过）→ 直接回 mini。
+             必须把「无动画」这件事回推给状态机，否则 controller 会永远停在
+             CLOSING：ANIM_END 不会来，openOrder/互斥/ESC 全部卡死。
+             实测复现：voice 卡点击后 CLOSING 永停。 */
           r.phase = PHASE.MINI;
+          r.box = null;
+          if (typeof onAnimEnd === 'function') onAnimEnd(id, gens[id]);
           continue;
         }
         if (r.phase !== PHASE.CLOSING) {
-          /* 开始关闭：inline 几何先落到 mini 目标，再用 FLIP 把视觉倒推回当前 */
-          const from = toFlip((cards[id] && cards[id].visual) || r.box);
-          writeBox(el, target);
+          /* 开始关闭。mini 胶囊(176×48)与展开面板(320×380)不是同一个"盒子的两种尺寸"，
+             任何 transform 补间都会把壳拉成 1.82×7.92 的畸变（实测 matrix(1.8182,0,0,7.9167)）。
+             关闭取最确定的一条路：展开态原地淡出 → 落位到槽位（无位移、无缩放、无畸变）。 */
+          const fromBox =
+            (r.box && r.box.w ? { ...r.box } : (cards[id] && cards[id].visual) || target);
           el.dataset.lcPhase = PHASE.CLOSING;
-          playClose(id, el, from, target, gens[id]);
+          writeBox(el, fromBox);
+          stopAnim(id);
+          let anim = null;
+          try {
+            anim = el.animate([{ opacity: '1' }, { opacity: '0' }], {
+              duration: 160,
+              easing: 'ease-out',
+            });
+          } catch (_) {
+            anim = null;
+          }
+          if (anim) {
+            const gen = gens[id];
+            anims.set(id, anim);
+            anim.onfinish = () => {
+              if (anims.get(id) === anim) anims.delete(id);
+              try {
+                writeBox(el, target);
+              } catch (_) {}
+              if (typeof onAnimEnd === 'function') onAnimEnd(id, gen);
+            };
+            anim.oncancel = () => {
+              if (anims.get(id) === anim) anims.delete(id);
+            };
+          } else {
+            writeBox(el, target);
+            r.phase = PHASE.CLOSING;
+            r.box = { ...target };
+            if (typeof onAnimEnd === 'function') onAnimEnd(id, gens[id]);
+            continue;
+          }
           stats.closes += 1;
         } else if (box && !same(r.box, box)) {
           writeBox(el, box); // 关途中窗口 resize：直接改目标
@@ -692,7 +731,19 @@ export function createRenderer({ adapter, onAnimEnd, morph = Morph }) {
       }
 
       /* opening / open */
-      if (!box) continue;
+      /* 注：曾经这里做过「DOM collapsed 与相位矛盾就 setPanelCollapsed(false)」的真值纠偏，
+         实测反而更差——App 的展开 API 会重排卡的内联尺寸，把 LC 刚写好的展开盒改回 176×48。
+         双引擎下 App 只负责槽位、LC 负责几何，不要越界去调 App 的展开动作。 */
+      if (!box) {
+        /* 目标盒持续缺失（布局未就绪/卡已被移出布局）时不能一直挂在 OPENING：
+         状态机会等一个永不到来的 ANIM_END。首个无盒帧不算（布局通常下一帧到），
+         连着上一帧就已经是 OPENING 才判定为「等不到」。 */
+        if (r.phase === PHASE.OPENING && !r.box) {
+          r.phase = PHASE.MINI;
+          if (typeof onAnimEnd === 'function') onAnimEnd(id, gens[id]);
+        }
+        continue;
+      }
       const from = toFlip((cards[id] && cards[id].visual) || box);
       if (!r.staged) {
         const mini = (cards[id] && cards[id].mini) || null;

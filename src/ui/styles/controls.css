@@ -394,6 +394,13 @@ html:not([lang='en']):not(:lang(zh)):not(:lang(ja))
   pointer-events: none;
 }
 
+/* 输入放行（boot gate 的 releaseInputDom）：遮罩还在做「胶囊 + 暗纱」时，
+   卡片层必须已经可点。缺这条规则时 .input-released 只是死类名 —— 遮罩
+   一直以 auto 吃掉整屏点击，直到 .hidden 才让开（冷启动头几秒卡点不动）。 */
+#loading-screen.input-released {
+  pointer-events: none;
+}
+
 .loader-content {
   text-align: center;
 }
