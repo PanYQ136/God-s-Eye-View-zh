@@ -295,11 +295,11 @@ if (!only.length || only.includes('T2')) {
   });
   record(
     'T2',
-    'data 展开 = 320×380@(52,94)、脱层到 #lc-stage、内容可见、动画 350–450ms/峰值 1.02–1.05',
+    'data 展开 = 320×380@(52,94)、脱层到 #lc-stage、内容可见、动画 480–520ms/峰值 1.02–1.05',
     ok === 'open' &&
       near(g.rect[0], 52) && near(g.rect[1], 94) && near(g.rect[2], 320) && near(g.rect[3], 380) &&
       g.parent === 'lc-stage' && content.controls > 0 && content.textLen > 20 &&
-      anim.duration >= 350 && anim.duration <= 450 && anim.peak >= 1.018 && anim.peak <= 1.052,
+      anim.duration >= 480 && anim.duration <= 520 && anim.peak >= 1.018 && anim.peak <= 1.052,
     { pt, phase: ok, rect: g.rect, parent: g.parent, anim, content },
   );
 }
@@ -363,9 +363,9 @@ if (!only.length || only.includes('T5')) {
   const wantY = data.rect[1] + data.rect[3] + 8;
   record(
     'T5',
-    'data 展开 → scene 让位到「data 下沿+8」且让位有 350–450ms 果冻动画、不叠死',
+    'data 展开 → scene 让位到「data 下沿+8」且让位有 480–520ms Spring 动画、不叠死',
     near(after.rect[1], wantY) && after.phase === 'mini' && near(after.rect[2], 176) &&
-      anim.duration >= 350 && anim.duration <= 450 && anim.peak >= 1.015 && anim.peak <= 1.06,
+      anim.duration >= 480 && anim.duration <= 520 && anim.peak >= 1.015 && anim.peak <= 1.06,
     { before: before.rect, after: after.rect, wantY, anim },
   );
   await realClick('data-panel');
@@ -544,7 +544,7 @@ if (!only.length || only.includes('T12')) {
   record('T12', '点地图空白处关闭展开卡且不误开别的卡', open1 === 'open' && ok === 'mini', { open1, phase: ok });
 }
 
-/* ── T13 逐卡动画：350–450ms + 峰值 1.02–1.05（真采样）────────────────── */
+/* ── T13 逐卡动画：480–520ms + 峰值 1.02–1.05（真采样）────────────────── */
 if (!only.length || only.includes('T13')) {
   await ensureAllMini();
   const rows = [];
@@ -566,11 +566,11 @@ if (!only.length || only.includes('T13')) {
     rows.push({ id, open: { d: open.duration, p: open.peak, ease: open.easing }, close: { d: close.duration, p: close.peak, min: close.min }, err: open.error || close.error || null });
     await sleep(120);
   }
-  const inDur = (d) => d >= 350 && d <= 450;
+  const inDur = (d) => d >= 480 && d <= 520;
   const openOk = (r) => inDur(r.open.d) && r.open.p >= 1.018 && r.open.p <= 1.052;
   const closeOk = (r) => inDur(r.close.d) && r.close.min >= 1 / 1.052 && r.close.min <= 1 / 1.018;
   const bad = rows.filter((r) => r.err || !openOk(r) || !closeOk(r));
-  record('T13', '8 卡开/关各一次：WAAPI 时长 ∈[350,450]ms；开 scale 峰值 ∈[1.018,1.052]，关 FLIP 反向过冲 min ∈[1/1.052,1/1.018]', bad.length === 0, { rows, bad });
+  record('T13', '8 卡开/关各一次：WAAPI 时长 ∈[480,520]ms；开 scale 峰值 ∈[1.018,1.052]，关 FLIP 反向过冲 min ∈[1/1.052,1/1.018]', bad.length === 0, { rows, bad });
 }
 
 /* ── T14 21 组跨组双开矩阵：零违规 ─────────────────────────────────────── */
@@ -947,7 +947,7 @@ if (!only.length || only.includes('T20')) {
   const firstClosing = samples.find((x) => x.data.phase === 'closing');
   const firstMini = samples.find((x) => x.data.phase === 'mini');
   const sceneOpen = samples.find((x) => x.scene.phase === 'open');
-  /* 旧卡「不瞬灭」：closing → mini 之间至少经历一次真实的 350–450ms 动画（留 300ms 余量给采样粒度） */
+  /* 旧卡「不瞬灭」：closing → mini 之间至少经历一次真实的 480–520ms 动画（留 300ms 余量给采样粒度） */
   const closeSpan = firstClosing && firstMini ? firstMini.t - firstClosing.t : -1;
   const overlapSamples = samples.filter((x) => x.viol > 0).length;
   /* 展开盒在过渡期间不许跳位（槽位冻结的回归断言：曾出现 scene 从 150 跳到 94） */

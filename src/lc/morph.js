@@ -24,7 +24,9 @@ import * as bridge from '../bridge.js';
    并归一化到原有逐轴峰值 —— 视觉峰值仍精确 1.035，几何与可读性基线不动。 */
 
 /** kit.md --glass-ease-spring 的 11 个采样点（过冲 1.09 → 多峰衰减回 1）。 */
-export const SPRING_STOPS = Object.freeze([0, .32, .78, 1.04, 1.09, 1.06, 1.02, 1, .99, .99, 1]);
+export const SPRING_STOPS = Object.freeze([
+  0, 0.32, 0.78, 1.04, 1.09, 1.06, 1.02, 1, 0.99, 0.99, 1,
+]);
 export const SPRING_MAX = 1.09;
 
 export const MIN_MS = 500;
@@ -101,7 +103,10 @@ export function keyframes(dx, dy, sx, sy, opts) {
      backC1/easeOutBack 保留导出供 TC-M3 校验反解精度，但不再驱动主采样。 */
   /* A1：采样数取 5 的倍数，保证 t=0.4（Spring 峰值 1.09 所在采样点）被精确采到，
      否则线性插值会让归一化后的视觉峰值偏低、破坏逐轴标定契约。 */
-  const n = Math.max(20, Math.min(40, Math.round((o.duration || 500) / 12 / 5) * 5));
+  const n = Math.max(
+    20,
+    Math.min(40, Math.round((o.duration || 500) / 12 / 5) * 5),
+  );
   const out = [];
   for (let i = 0; i <= n; i++) {
     const t = i / n;

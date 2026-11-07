@@ -15,7 +15,7 @@
                              默认 mode=off 时 data-lc-scrim 仍 off（观感不变）；
                              setScrim('auto') 后 data-lc-scrim=on 且卡面压暗 ≥ 12 灰阶
    A7 morph↔lens（D3/G22）：真点击期间 __gevEdge.cfg().enabled 出现 false 且随后恢复 true；
-                             duration ∈ [350,450]；pPeak ∈ [1.02,1.05]；degrade→restore 间隔 ≥ 1 帧
+                             duration ∈ [480,520]；pPeak ∈ [1.02,1.05]；degrade→restore 间隔 ≥ 1 帧
    用法: node scripts/lc/phase8b-gate.mjs [tag]
    产物: .gev-logs/lc/phase8b/*.png + phase8b-gate[-tag].json
 */
@@ -323,7 +323,7 @@ const morphChk = await page.evaluate(() => {
     last: { duration: m.duration, pPeak: m.pPeak, pPeakY: m.pPeakY, easing: m.easing, id: m.id, from: m.from, to: m.to },
   };
 });
-const dOk = morphChk.last.duration >= 350 && morphChk.last.duration <= 450;
+const dOk = morphChk.last.duration >= 480 && morphChk.last.duration <= 520;
 /* pPeak 是「曲线参数」的峰值，视觉峰值 = 1 + |1-s|·(pPeak-1) —— 卡片要的是视觉 1.02–1.05 */
 const [fx, fy, fw, fh] = morphChk.last.from || [0, 0, 1, 1];
 const [tx, ty, tw, th] = morphChk.last.to || [0, 0, 1, 1];

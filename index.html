@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -43,6 +43,15 @@
   <script type="module" src="/src/lc/index.js"></script>
 </head>
 <body>
+  <!-- A1 · kit.md §公共 CSS：边缘折射 SVG filter（20px 带宽）。
+       必须先注入再引用：--glass-lens 默认 none，只有 opt-in 元素才写 url(#lg-lens)，
+       否则 kit.md §7 的「filter 缺失 → 整条 backdrop-filter 失效」会抹掉毛玻璃。 -->
+  <svg width="0" height="0" aria-hidden="true" style="position:absolute;pointer-events:none">
+    <filter id="lg-lens" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="7" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="20" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
   <div class="gev-view" data-gev-view="scene-chrome"></div>
   <div class="gev-view" data-gev-view="cockpit"></div>
   <div class="gev-view" data-gev-view="display-controls"></div>
