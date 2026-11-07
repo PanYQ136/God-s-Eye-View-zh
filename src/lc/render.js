@@ -688,7 +688,9 @@ export function createRenderer({ adapter, onAnimEnd, morph = Morph }) {
              任何 transform 补间都会把壳拉成 1.82×7.92 的畸变（实测 matrix(1.8182,0,0,7.9167)）。
              关闭取最确定的一条路：展开态原地淡出 → 落位到槽位（无位移、无缩放、无畸变）。 */
           const fromBox =
-            (r.box && r.box.w ? { ...r.box } : (cards[id] && cards[id].visual) || target);
+            r.box && r.box.w
+              ? { ...r.box }
+              : (cards[id] && cards[id].visual) || target;
           el.dataset.lcPhase = PHASE.CLOSING;
           writeBox(el, fromBox);
           stopAnim(id);

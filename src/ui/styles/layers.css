@@ -251,11 +251,28 @@
    特异性提升到 html body 前缀，是为了压过后置主题层（cyber.css）里的同型规则。 */
 html body #left-panel-stack.layout-exclusive > [data-panel-id].collapsed.gev-lc,
 html body #left-panel-stack.layout-focus > [data-panel-id].collapsed.gev-lc,
-html body #left-panel-stack.layout-focus.layout-exclusive > [data-panel-id].collapsed.gev-lc,
-html body #right-context-rail.layout-exclusive > [data-panel-id].collapsed.gev-lc,
-html body #right-context-rail.layout-focus.layout-exclusive > [data-panel-id].collapsed.gev-lc,
-html body :root[data-ui-theme='cyber'] #left-panel-stack.layout-focus.layout-exclusive > [data-panel-id].collapsed.gev-lc,
-html body :root[data-ui-theme='cyber'] #right-context-rail.layout-focus.layout-exclusive > [data-panel-id].collapsed.gev-lc {
+html
+  body
+  #left-panel-stack.layout-focus.layout-exclusive
+  > [data-panel-id].collapsed.gev-lc,
+html
+  body
+  #right-context-rail.layout-exclusive
+  > [data-panel-id].collapsed.gev-lc,
+html
+  body
+  #right-context-rail.layout-focus.layout-exclusive
+  > [data-panel-id].collapsed.gev-lc,
+html
+  body
+  :root[data-ui-theme='cyber']
+  #left-panel-stack.layout-focus.layout-exclusive
+  > [data-panel-id].collapsed.gev-lc,
+html
+  body
+  :root[data-ui-theme='cyber']
+  #right-context-rail.layout-focus.layout-exclusive
+  > [data-panel-id].collapsed.gev-lc {
   display: block;
   flex: 0 0 auto;
 }
