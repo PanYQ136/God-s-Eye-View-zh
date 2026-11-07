@@ -55,3 +55,34 @@
     flex-basis: 0 !important;
   }
 }
+
+/* ── A1（2026-11-07）：dock 双卡的 Apple 毛玻璃材质归位 ────────────────────
+   必须放在所有 @layer 之外：command-dock-sliding.css:512 的
+   `#command-dock > #location-bar, #command-dock > #control-panel`
+   是 **unlayered** 且带 2 个 ID，写死了 blur(24px) saturate(1.4) 与 --glass-bg。
+   按层叠规则 unlayered 压过任何 layered 声明，所以这里也用 unlayered +
+   同等特异性(2 ID) + 文件最后加载(index.html:32) 才能赢。
+   只覆盖材质三属性，不动 dock 的几何/圆角/托盘行为。 */
+#command-dock > #location-bar.gev-lc,
+#command-dock > #control-panel.gev-lc {
+  background: var(--glass-tint-light);
+  -webkit-backdrop-filter: blur(var(--glass-blur-radius)) saturate(var(--glass-saturate)) brightness(var(--glass-brightness)) var(--glass-lens);
+  backdrop-filter: blur(var(--glass-blur-radius)) saturate(var(--glass-saturate)) brightness(var(--glass-brightness)) var(--glass-lens);
+  box-shadow: var(--glass-shadow-blur), var(--glass-rim-tl), var(--glass-rim-br);
+  border: 0;
+  outline: 0;
+}
+#command-dock > #location-bar.gev-lc[data-glass-lens='on'],
+#command-dock > #control-panel.gev-lc[data-glass-lens='on'] {
+  --glass-lens: url(#lg-lens);
+}
+
+/* A1 例外（唯一 1 张）：语音卡的卡壳**刻意**不带 backdrop-filter ——
+   ai-chat.css:1489 注释说明：卡壳自己 blur 会让内部语音面板无法模糊地图，
+   所以上游把 blur 放在 ::before 的 -1 层。这里保留该机制（功能需求），
+   只把 ::before 的数值对齐 A1 的 --glass-*，避免两套 blur(24px)/blur(2px) 并存。 */
+:root:not([data-ui-theme='cyber']) #command-dock > #gev-voice-control.gev-lc::before {
+  -webkit-backdrop-filter: blur(var(--glass-blur-radius)) saturate(var(--glass-saturate)) brightness(var(--glass-brightness)) var(--glass-lens);
+  backdrop-filter: blur(var(--glass-blur-radius)) saturate(var(--glass-saturate)) brightness(var(--glass-brightness)) var(--glass-lens);
+  background: var(--glass-tint-light);
+}

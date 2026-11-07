@@ -187,6 +187,13 @@ test('TC-M7 卡壳 Apple 毛玻璃契约；内容层仍零 blur；token 与 toke
   assert.match(shell, /saturate\(var\(--glass-saturate\)\)/);
   assert.match(shell, /brightness\(var\(--glass-brightness\)\)/);
   assert.match(shell, /var\(--glass-lens\)/, 'lens 必须走变量，禁止直接写死 url()');
+  /* 运行时防回归（2026-11-07 浏览器实测）：backdrop-filter 的 <filter-function>+
+     不能与 none 混用，否则整条声明作废、毛玻璃消失。默认值必须是合法 no-op。 */
+  assert.equal(
+    TOKENS.tokens['--glass-lens'],
+    'contrast(1)',
+    '--glass-lens 默认值不得为 none：blur()...none 会让整条 backdrop-filter 失效',
+  );
   assert.equal(/inset 0 0 0|inset\s+0\s+0\s+0\s+1px/.test(shell), false, '卡壳不得有闭合 inset 圆环');
   /* 内容层：仍归零（A1 保留，防双层玻璃 / 灰圈） */
   const body = CSS.slice(CSS.indexOf('/* ── 3)'), CSS.indexOf('/* ── 4)'));

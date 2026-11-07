@@ -25,7 +25,11 @@
   --glass-blur-radius: 2px;
   --glass-saturate: 1.8;
   --glass-brightness: 1.06;
-  --glass-lens: none;
+  /* A1：--glass-lens 默认值必须是合法的「空操作滤镜」，不能是 none。
+     backdrop-filter 语法是 <filter-function>+ 或 none（不能混用）：
+     blur() saturate() brightness() none 会让整条声明作废，毛玻璃完全消失。
+     contrast(1) 视觉中性且语法合法；kit.md §公共 CSS 的 none 默认值在此不适用。 */
+  --glass-lens: contrast(1);
   --glass-shadow-blur: 0 0 0 .5px rgb(255 255 255 / .08), 0 6px 24px rgb(0 0 0 / .35);
   --glass-rim-tl: inset 1.5px 1.5px 1px -1px rgb(255 255 255 / .9);
   --glass-rim-br: inset -1.5px -1.5px 1px -1px rgb(255 255 255 / .25);
@@ -321,15 +325,16 @@
 }
 
 /* ── 23) A1 边缘折射 opt-in / 无透镜降级（2026-11-07）──────────────────────
-   --glass-lens 默认 none；只有显式 data-glass-lens="on" 才引用 index.html 注入的
-   #lg-lens。kit.md §7：未注入 filter 就写 url() 会让整条 backdrop-filter 失效。
+   --glass-lens 默认 contrast(1)（合法 no-op）；只有显式 data-glass-lens="on" 才引用
+   index.html 注入的 #lg-lens。kit.md §7：未注入 filter 就写 url() 会让整条失效。
    data-glass-nolens：kit 的 .glass-no-lens 与默认同值（no-op），这里显式把
    blur/saturate/brightness 归零，列表与嵌套面板才真的省掉 GPU 合成。 */
 :is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc[data-glass-lens='on'] {
   --glass-lens: url(#lg-lens);
 }
 :is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc[data-glass-nolens] {
-  --glass-blur-radius: 0px; --glass-saturate: 1; --glass-brightness: 1; --glass-lens: none;
+  --glass-blur-radius: 0px; --glass-saturate: 1; --glass-brightness: 1;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
 }
 
 }
