@@ -30,12 +30,12 @@ test('catalogs construct distinct layers and classification from their supplied 
   });
   const callsA = [];
   const callsB = [];
-  const first = createApplicationCatalog({
+  const first = await createApplicationCatalog({
     sources: fixtureSources(['abc123'], callsA),
     signal: a.signal,
     surface: fixtureSurface(a.signal),
   });
-  const second = createApplicationCatalog({
+  const second = await createApplicationCatalog({
     sources: fixtureSources(['def456'], callsB),
     signal: b.signal,
     surface: fixtureSurface(b.signal),
@@ -131,9 +131,9 @@ test('catalogs construct distinct layers and classification from their supplied 
   assert.equal(second.militaryRegistry.isMilitaryIcao('def456'), true);
 });
 
-test('invalid or already cancelled construction fails before classification can acquire', () => {
+test('invalid or already cancelled construction fails before classification can acquire', async () => {
   const lifetime = new AbortController();
-  assert.throws(
+  await assert.rejects(
     () =>
       createApplicationCatalog({
         sources: { flights: {} },
@@ -143,7 +143,7 @@ test('invalid or already cancelled construction fails before classification can 
     /catalog source/,
   );
   lifetime.abort();
-  assert.throws(
+  await assert.rejects(
     () =>
       createApplicationCatalog({
         sources: createStandaloneLayerSources(),
@@ -161,7 +161,7 @@ function fixtureSurface(signal) {
   });
 }
 
-test('Mapillary can be omitted or replaced without changing catalog membership', (t) => {
+test('Mapillary can be omitted or replaced without changing catalog membership', async (t) => {
   const lifetime = new AbortController();
   t.after(() => lifetime.abort());
   const sources = fixtureSources([], []);
@@ -171,7 +171,7 @@ test('Mapillary can be omitted or replaced without changing catalog membership',
     signal: lifetime.signal,
     surface: fixtureSurface(lifetime.signal),
   };
-  const catalog = createApplicationCatalog(options);
+  const catalog = await createApplicationCatalog(options);
   assert.equal(catalog.layers.length, 41);
   assert.deepEqual(catalog.get('street-level').providerIds, []);
   assert.equal(
@@ -186,7 +186,7 @@ test('Mapillary can be omitted or replaced without changing catalog membership',
     id: 'example',
     pickPrefix: 'example:',
   });
-  const replacement = createApplicationCatalog({
+  const replacement = await createApplicationCatalog({
     ...options,
     streetLevelProviders: [provider],
   });
@@ -194,14 +194,16 @@ test('Mapillary can be omitted or replaced without changing catalog membership',
   assert.deepEqual(replacement.metadata, catalog.metadata);
   assert.equal(provider.calls.activate, 0, 'construction must not acquire');
   assert.deepEqual(
-    createApplicationCatalog({
-      ...options,
-      sources: fixtureSources([], []),
-      streetLevelProviders: [],
-    }).get('street-level').providerIds,
+    (
+      await createApplicationCatalog({
+        ...options,
+        sources: fixtureSources([], []),
+        streetLevelProviders: [],
+      })
+    ).get('street-level').providerIds,
     [],
   );
-  assert.throws(
+  await assert.rejects(
     () =>
       createApplicationCatalog({
         ...options,
@@ -211,20 +213,22 @@ test('Mapillary can be omitted or replaced without changing catalog membership',
   );
 });
 
-test('a GNSS integrity source can set the layer evidence window', (t) => {
+test('a GNSS integrity source can set the layer evidence window', async (t) => {
   const lifetime = new AbortController();
   t.after(() => lifetime.abort());
-  const gnssLayer = (descriptor) => {
+  const gnssLayer = async (descriptor) => {
     const sources = fixtureSources([], []);
     sources['gnss-integrity'] = {
       getSnapshot: async () => ({}),
       ...descriptor,
     };
-    return createApplicationCatalog({
-      sources,
-      signal: lifetime.signal,
-      surface: fixtureSurface(lifetime.signal),
-    }).get('gnss-integrity');
+    return (
+      await createApplicationCatalog({
+        sources,
+        signal: lifetime.signal,
+        surface: fixtureSurface(lifetime.signal),
+      })
+    ).get('gnss-integrity');
   };
   const shows = (layer, minutes) => {
     assert.equal(layer.provenance.window.minutes, minutes);
@@ -232,8 +236,8 @@ test('a GNSS integrity source can set the layer evidence window', (t) => {
     assert.match(info, new RegExp(`visited views over ${minutes} min`));
     assert.match(legend[0].blurb, new RegExp(`over ${minutes} minutes`));
   };
-  shows(gnssLayer({ windowMs: 65 * 60_000 }), 65);
-  shows(gnssLayer({}), 30);
+  shows(await gnssLayer({ windowMs: 65 * 60_000 }), 65);
+  shows(await gnssLayer({}), 30);
   for (const windowMs of [
     undefined,
     null,
@@ -244,7 +248,7 @@ test('a GNSS integrity source can set the layer evidence window', (t) => {
     '3600000',
   ])
     assert.equal(
-      gnssLayer({ windowMs }).provenance.window.minutes,
+      (await gnssLayer({ windowMs })).provenance.window.minutes,
       30,
       `${String(windowMs)} falls back to the default`,
     );

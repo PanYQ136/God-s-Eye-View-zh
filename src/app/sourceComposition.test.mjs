@@ -9,7 +9,7 @@ import { createSurfaceServices } from './surfaceServices.js';
 import { createStandaloneLayerSources } from '../standalone/layerSources.js';
 import { LayerLifecycle } from '../data/lifecycle.js';
 
-function catalog(sources, t) {
+async function catalog(sources, t) {
   const lifetime = new AbortController();
   t.after(() => lifetime.abort());
   return createApplicationCatalog({
@@ -23,11 +23,11 @@ function catalog(sources, t) {
   });
 }
 
-test('every acquisition source can be omitted without losing catalog membership', (t) => {
-  const baseline = catalog(createStandaloneLayerSources(), t);
+test('every acquisition source can be omitted without losing catalog membership', async (t) => {
+  const baseline = await catalog(createStandaloneLayerSources(), t);
   for (const name of Object.keys(CATALOG_SOURCE_CONTRACTS)) {
     const sources = createStandaloneLayerSources({ [name]: null });
-    const actual = catalog(sources, t);
+    const actual = await catalog(sources, t);
     assert.deepEqual(actual.metadata, baseline.metadata, name);
     for (const id of CATALOG_SOURCE_CONTRACTS[name].layers) {
       assert.equal(actual.getSourceAvailability(id).available, false, id);
@@ -36,7 +36,7 @@ test('every acquisition source can be omitted without losing catalog membership'
 });
 
 test('all acquisition sources may be absent, and enable fails before initializing or fetching', async (t) => {
-  const actual = catalog({}, t);
+  const actual = await catalog({}, t);
   assert.equal(actual.layers.length, 41);
   const manager = new LayerLifecycle(
     {},
@@ -92,7 +92,7 @@ test('GhostMaps obeys source omission, replacement and explicit removal', async 
     fetches++;
     throw new Error('Unexpected standalone acquisition');
   });
-  const missing = catalog({}, t);
+  const missing = await catalog({}, t);
   assert.equal(missing.getSourceAvailability('s2-ghostmaps')?.available, false);
   const manager = new LayerLifecycle(
     {},
@@ -126,7 +126,7 @@ test('GhostMaps obeys source omission, replacement and explicit removal', async 
   };
   const supplied = createStandaloneLayerSources({ 's2-ghostmaps': source });
   assert.equal(supplied['s2-ghostmaps'], source);
-  const configured = catalog(supplied, t);
+  const configured = await catalog(supplied, t);
   assert.equal(
     configured.getSourceAvailability('s2-ghostmaps').available,
     true,
@@ -151,7 +151,7 @@ test('GhostMaps obeys source omission, replacement and explicit removal', async 
 });
 
 test('empty Street Level uses the shared unavailable lifecycle without initialization', async (t) => {
-  const actual = catalog({}, t);
+  const actual = await catalog({}, t);
   const manager = new LayerLifecycle(
     {},
     { getSourceAvailability: actual.getSourceAvailability },
@@ -163,7 +163,7 @@ test('empty Street Level uses the shared unavailable lifecycle without initializ
   assert.equal(row.stats.status, 'unavailable');
   assert.equal(row.stats.error, 'No street-level imagery providers configured');
   assert.equal(await manager.setEnabled('street-level', false), true);
-  const configured = catalog(createStandaloneLayerSources(), t);
+  const configured = await catalog(createStandaloneLayerSources(), t);
   assert.equal(
     configured.get('street-level').getSourceAvailability().available,
     true,
@@ -200,7 +200,7 @@ test('absent military acquisition does not poll, suppress flights, or erase supp
     fetches++;
     throw new Error('Unexpected fallback acquisition');
   });
-  const actual = catalog(createStandaloneLayerSources({ military: null }), t);
+  const actual = await catalog(createStandaloneLayerSources({ military: null }), t);
   const registry = actual.militaryRegistry;
   assert.equal(actual.getSourceAvailability('flights').available, true);
   assert.equal(registry.isMilitaryLayerActive(), false);
