@@ -1,4 +1,5 @@
 import { createStandaloneCatalog } from './catalog.js';
+import { preloadCatalogFactories } from '../app/constructCatalog.js';
 import { createStandalonePlaceSearch } from './placeSearch.js';
 import { CITY_POIS } from '../cityPois.js';
 import { createApplication } from '../app/application.js';
@@ -49,6 +50,11 @@ export function createStandaloneApplication({
   let catalog;
   return createApplication({
     createScene: async (context) => {
+      // The factory waves are pure module code: no source, surface or scene
+      // dependency, so the download rides along with the scene build instead of
+      // queueing behind it (see `preloadCatalogFactories`). Failure here is
+      // harmless — `createStandaloneCatalog` re-imports on demand.
+      preloadCatalogFactories()?.catch(() => {});
       // A language switch applies in place; the page's own markup follows.
       context.defer(
         onLocaleChange(() => {

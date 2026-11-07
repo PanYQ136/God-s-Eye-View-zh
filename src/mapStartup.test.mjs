@@ -75,6 +75,9 @@ async function standaloneStartup(Cesium, credentials, fetchImpl) {
     createApplication: (options) => options,
     createStandalonePlaceSearch: () => ({}),
     createStandaloneCatalog: () => ({}),
+    // The wave preload is a network side road; startup routing is what is under
+    // test here, so the seam stays a no-op.
+    preloadCatalogFactories: () => null,
     createGoogleTokenSource: () => createGoogleTokenSource({ fetchImpl }),
     selectMapStartupRoute,
     // The real scene forwards these credentials to this same loader.
