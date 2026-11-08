@@ -176,6 +176,34 @@ test('TC-C6 HYDRATE 只回填 offset，不改相位；MINI 不得留 offset', ()
   assert.equal(state.cards['data-panel'].phase, PHASE.MINI, '形态不持久化（D1 初始全 mini）');
 });
 
+test('TC-C6b Q6：收起归零不清盘存几何，再展开回到用户位置', () => {
+  /* 开→拖→收→再开：offset 必须逐像素归零再复原，savedOffset 全程不动。 */
+  const end = (st, id) =>
+    run(st, { type: ACT.ANIM_END, id, gen: st.cards[id].gen }).state;
+  let s = run(base(), { type: ACT.HYDRATE, offsets: { 'data-panel': { x: -60, y: 40 } } }).state;
+  assert.deepEqual(s.cards['data-panel'].savedOffset, { x: -60, y: 40 }, 'HYDRATE 同步 savedOffset');
+
+  s = end(run(s, { type: ACT.ACTIVATE, id: 'data-panel' }).state, 'data-panel');
+  assert.equal(s.cards['data-panel'].phase, PHASE.OPEN);
+  assert.deepEqual(s.cards['data-panel'].offset, { x: -60, y: 40 }, '展开恢复拖拽位');
+
+  s = run(s, { type: ACT.DRAG, id: 'data-panel', dx: 10, dy: -5 }).state;
+  assert.deepEqual(s.cards['data-panel'].offset, { x: -50, y: 35 }, '拖动累计进 offset');
+  assert.deepEqual(s.cards['data-panel'].savedOffset, { x: -50, y: 35 }, '拖动同步进 savedOffset');
+
+  /* 收起：closing → ANIM_END 归零 */
+  s = run(s, { type: ACT.ACTIVATE, id: 'data-panel' }).state;
+  assert.equal(s.cards['data-panel'].phase, PHASE.CLOSING);
+  const r = run(s, { type: ACT.ANIM_END, id: 'data-panel', gen: s.cards['data-panel'].gen });
+  assert.deepEqual(r.state.cards['data-panel'].offset, { x: 0, y: 0 }, '收起逐像素归位');
+  assert.equal(r.state.cards['data-panel'].phase, PHASE.MINI);
+  assert.deepEqual(r.state.cards['data-panel'].savedOffset, { x: -50, y: 35 }, '收起不得清掉持久意图');
+  assert.ok(r.effects.some((e) => e.type === EFF.PERSIST), '收起仍要落盘');
+
+  const reopened = run(r.state, { type: ACT.ACTIVATE, id: 'data-panel' }).state;
+  assert.deepEqual(reopened.cards['data-panel'].offset, { x: -50, y: 35 }, '再展开回到用户位置');
+});
+
 test('TC-C7 gev-gfx-fab 不能展开', () => {
   const { state, effects } = run(base(), { type: ACT.ACTIVATE, id: 'gev-gfx-fab' });
   assert.equal(state.cards['gev-gfx-fab'], undefined, '不进 state（非 CARD_IDS）');
