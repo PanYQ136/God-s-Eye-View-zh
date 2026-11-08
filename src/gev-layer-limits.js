@@ -238,11 +238,12 @@
       tries += 1;
       if (attach() || tries > 300) clearInterval(t);
     }, 500);
+    return t;
   }
 
   // 轻量自愈：图层被关开重置后，把用户设定重新下发。
   function startSelfHeal() {
-    setInterval(() => {
+    const timer = setInterval(() => {
       // 后台标签页跳过：自愈靠 setLimit 触发的重建，隐藏时无人看，且会打断
       // 可见后首次恢复的图层重建批次。
       if (document.hidden) return;
@@ -253,6 +254,7 @@
         if (currentLimit(cfg.id) !== want) setLimit(cfg.id, want);
       }
     }, 3000);
+    return timer;
   }
 
   window.__gevLayerLimits = {
@@ -265,6 +267,19 @@
     _layers: LAYERS,
   };
 
-  startObserver();
-  startSelfHeal();
+  const observerRetryTimer = startObserver();
+  const selfHealTimer = startSelfHeal();
+  // 句柄集中持有：页面进入 bfcache / 卸载时清理，避免返回后叠加轮询。
+  window.__gevLayerLimits._timers = {
+    retry: observerRetryTimer ?? null,
+    selfHeal: selfHealTimer,
+  };
+  window.addEventListener(
+    'pagehide',
+    () => {
+      if (observerRetryTimer) clearInterval(observerRetryTimer);
+      clearInterval(selfHealTimer);
+    },
+    { once: true },
+  );
 })();

@@ -12,11 +12,16 @@
   const SNAP = 8,
     MOVE_TOL = 8,
     HEADER_H = 46;
-  const TARGETS = {
-    // 左栈/右栏交由卡片层(src/lc)+App 原生布局管理；gev-panel-win 不再接管，
-    // 否则其 applyGeom 会把容器 top 强设为捕获值，与卡片层的 translate 让位叠加导致卡片出屏。
-    'command-dock': { minW: 300, minH: 70 },
-  };
+  /* 接管名单为空：左栈 / 右栏 / 命令坞三者全部交由卡片层(src/lc) + App 原生布局管理。
+     命令坞原先在此被接管为 fixed 476×86，与 App 原生 502×60 不一致，而 src/lc 把
+     #command-dock 当布局锚点使用（dock.top → 展开盒 maxH、dock.cx → 展开盒水平居中、
+     dock rect → 五张卡的避让区），锚点被改写后表现为：
+       · 三张 dock 卡永久偏移 +13/−20、高度 60→86（flex stretch 跟随写死的容器高）；
+       · 其余卡展开盒整体右移、避让区失效、关合后回不到槽位。
+     该接管由 boot 的「等待稳定 1.6s / 最长 30s 兜底」触发，因此前 30 秒一切正常、
+     之后位置自己乱跳 —— 排查时必须排除这条时间相关的污染源。
+     若将来确实要恢复接管，先让 src/lc 的 dock 锚点改走独立的测量元素。 */
+  const TARGETS = {};
   const INTERACTIVE =
     'button,input,select,textarea,a,label,[role=slider],.pp-slider,.pp-select,.pp-mode-btn,#gev-pw-reset';
 
@@ -352,7 +357,41 @@
     ].join(',');
   }
 
+  /* 接管名单为空时的收尾：清掉历史版本残留在页面上的痕迹。
+     inline 几何与 .gev-win 是运行时写入、刷新即消失，但「重置布局」按钮会留在 DOM 里
+     一直挂在右下角（正好压在右轨卡片的点击热区上），localStorage 里也可能留着
+     command-dock 的旧几何（476×86）被下一次 initPanel 读走，所以一并清理。 */
+  function cleanupLegacy() {
+    const el = document.getElementById('command-dock');
+    if (el) {
+      if (el.classList.contains('gev-win')) el.classList.remove('gev-win');
+      [
+        'position',
+        'left',
+        'top',
+        'right',
+        'bottom',
+        'width',
+        'height',
+        'transform',
+        'margin',
+        'max-height',
+        'transition',
+      ].forEach((p) => el.style.removeProperty(p));
+    }
+    const rb = document.getElementById('gev-pw-reset');
+    if (rb && rb.parentNode) rb.parentNode.removeChild(rb);
+    if (store['command-dock']) {
+      delete store['command-dock'];
+      save();
+    }
+  }
+
   function boot() {
+    if (!Object.keys(TARGETS).length) {
+      cleanupLegacy();
+      return;
+    }
     addResetBtn();
     if (!ghost.parentNode) document.body.appendChild(ghost);
     const hasSaved = Object.keys(TARGETS).some((id) => store[id]);
