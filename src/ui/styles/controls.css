@@ -384,8 +384,8 @@ html:not([lang='en']):not(:lang(zh)):not(:lang(ja))
   align-items: center;
   justify-content: center;
   transition:
-    opacity 0.8s ease,
-    visibility 0.8s ease;
+    opacity 0.45s ease,
+    visibility 0.45s ease;
 }
 
 #loading-screen.hidden {

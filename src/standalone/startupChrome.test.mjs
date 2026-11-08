@@ -1,4 +1,4 @@
-import test from 'node:test';
+﻿import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
@@ -75,7 +75,7 @@ async function flush() {
 
 test('welcome waits for restoration, minimum delay, and the cover transition', async () => {
   const f = fixture();
-  f.fire(1000);
+  f.fire(350);
   await flush();
   assert.deepEqual(f.events, []);
   f.restored();
@@ -92,7 +92,7 @@ test('welcome waits for restoration, minimum delay, and the cover transition', a
 test('reduced motion uses the bounded fallback after the cover hides', async () => {
   const f = fixture();
   f.restored();
-  f.fire(1000);
+  f.fire(350);
   await flush();
   f.fire(900);
   assert.deepEqual(f.events, ['hidden', 'welcome']);
@@ -105,7 +105,7 @@ test('shutdown while restore is pending never reveals late welcome UI', async ()
   await f.stop();
   f.restored();
   await flush();
-  f.fire(1000);
+  f.fire(350);
   f.fire(900);
   assert.deepEqual(f.events, ['settings:destroy']);
   assert.equal(f.listeners.size, 0);
@@ -115,7 +115,7 @@ test('shutdown while restore is pending never reveals late welcome UI', async ()
 test('shutdown during the cover transition cancels the listener and fallback', async () => {
   const f = fixture();
   f.restored();
-  f.fire(1000);
+  f.fire(350);
   await flush();
   const transition = f.listeners.get('transitionend');
   f.controller.abort();
