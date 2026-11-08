@@ -154,3 +154,69 @@ test('geoidHeight throws a clear error if called before the grid is ready', asyn
   const fresh = await import('./geoid.js?fresh-not-ready-check');
   assert.throws(() => fresh.geoidHeight(0, 0), /not ready|ensureGeoidReady/i);
 });
+
+// ── perf wave D5 — the grid waits for the start-up cover ────────────────────
+//
+// The ~2.7 MB grid is not needed by anything on the first paint, but it used
+// to start downloading the moment a layer enabled, competing with the entry
+// and Cesium chunks. It must stay queued until the cover leaves, then load in
+// an idle slice. These two tests lock both halves of that contract without a
+// browser: the gate is driven by the documented event, and it degrades to
+// "go now" when there is no cover at all.
+
+test('the grid stays queued until the start-up cover leaves, then loads on idle', async () => {
+  const listeners = new Map();
+  let idleCalls = 0;
+  globalThis.window = {
+    addEventListener: (type, fn) => listeners.set(type, fn),
+    removeEventListener: (type) => listeners.delete(type),
+    requestIdleCallback: (fn) => {
+      idleCalls += 1;
+      fn();
+    },
+  };
+  globalThis.document = {
+    getElementById: () => ({ classList: { contains: () => false } }),
+  };
+  try {
+    const fresh = await import('./geoid.js?d5-cover-gate');
+    let settled = false;
+    const pending = fresh.ensureGeoidReady().then(() => {
+      settled = true;
+    });
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    assert.equal(settled, false, 'the grid must not load while the cover is up');
+    assert.equal(idleCalls, 0, 'no idle slice may be requested before the reveal');
+    assert.ok(
+      listeners.has('gev:startup-revealed'),
+      'the module must subscribe to the reveal event'
+    );
+
+    listeners.get('gev:startup-revealed')();
+    await pending;
+    assert.equal(settled, true, 'the grid must load once the cover leaves');
+    assert.ok(idleCalls > 0, 'the download belongs in an idle slice');
+    assert.doesNotThrow(() => fresh.geoidHeight(51.5, -0.13));
+  } finally {
+    delete globalThis.window;
+    delete globalThis.document;
+  }
+});
+
+test('with no start-up cover the grid loads immediately (no deadlock)', async () => {
+  const listeners = new Map();
+  globalThis.window = {
+    addEventListener: (type, fn) => listeners.set(type, fn),
+    removeEventListener: (type) => listeners.delete(type),
+  };
+  globalThis.document = { getElementById: () => null };
+  try {
+    const fresh = await import('./geoid.js?d5-no-cover');
+    await fresh.ensureGeoidReady();
+    assert.equal(listeners.size, 0, 'nothing to wait for, so nothing to subscribe');
+    assert.doesNotThrow(() => fresh.geoidHeight(51.5, -0.13));
+  } finally {
+    delete globalThis.window;
+    delete globalThis.document;
+  }
+});
