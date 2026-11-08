@@ -8,16 +8,15 @@
    ========================================================================== */
 /* ── 0) token（唯一来源；与 src/lc/tokens.json 一一对应，单测校验）────────── */
 .gev-lc, .lc-stage {
-  --lc-radius: 16px; --lc-shell-fill: transparent; --lc-shell-shadow: 0 2px 10px rgba(var(--lc-shadow-rgb, 0, 0, 0), var(--lc-shadow-a, 0.14));
-  --lc-shadow-a: 0.14; --lc-gloss: rgba(255, 255, 255, 0.1); --lc-gloss-x: 50%; --lc-gloss-a: 0.1;
+  --lc-radius: 16px;
+  --lc-shadow-a: 0.14; --lc-gloss-x: 50%; --lc-gloss-a: 0.1;
   --lc-text: #eaf4ff; --lc-text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-  --lc-text-scrim-a: 0.3; --lc-text-scrim-px: 24px; --lc-scrim-a: 0; --lc-scrim-a-max: 0.35; --lc-fg-flip: #eaf4ff;
+  --lc-text-scrim-a: 0.3; --lc-text-scrim-px: 24px; --lc-scrim-a: 0; --lc-fg-flip: #eaf4ff;
   --lc-inset: 8px; --lc-fg-flip-ms: 120ms;
   --lc-radius-inner: max(0px, calc(var(--lc-radius) - var(--lc-inset, 0px)));
   --lc-shadow-rgb: 0, 0, 0; --lc-tint-rgb: 255, 255, 255; --lc-tint-a: 0;
   --lc-control-fill: transparent; --lc-control-active: rgba(0, 212, 255, 0.12);
-  --lc-soft-fill: rgba(8, 12, 18, 0.55); --lc-refract-band: 16px;
-  --lc-safe-top: 84px; --lc-safe-bottom: 158px; --lc-push-x: 0px; --lc-push-y: 0px;
+  --lc-soft-fill: rgba(8, 12, 18, 0.55); --lc-push-x: 0px; --lc-push-y: 0px;
   /* A1（2026-11-07）：kit.md §公共 CSS 的静态调参层。App 在
      foundation.css:8-10 另有一组同前缀的深色平板变量（背景/描边/悬停描边），
      两套语义不同，禁止互相别名或复用。--lc-* 仍是运行时采样状态变量。 */
@@ -33,12 +32,7 @@
   --glass-shadow-blur: 0 0 0 .5px rgb(255 255 255 / .08), 0 6px 24px rgb(0 0 0 / .35);
   --glass-rim-tl: inset 1.5px 1.5px 1px -1px rgb(255 255 255 / .9);
   --glass-rim-br: inset -1.5px -1.5px 1px -1px rgb(255 255 255 / .25);
-  --glass-glow: radial-gradient(at 0 0, rgb(255 255 255 / .15), transparent 55%);
   --glass-radius: 16px;
-  --glass-ink: rgb(255 255 255 / 90%);
-  --glass-ink-sub: rgb(235 235 245 / 65%);
-  --glass-ease-spring: linear(0, .32, .78, 1.04, 1.09, 1.06, 1.02, 1, .99, .99, 1);
-  --glass-spring-duration: 500ms;
 }
 /* ── 1) 舞台：展开卡唯一父层（fixed 坐标系 = 视口）──────────────────────── */
 .lc-stage { position: fixed; inset: 0; z-index: var(--z-stage, 149); pointer-events: none; } /* G11：压住坞(145)、低于座舱 HUD(151)；dock 面板已被 GEO.DOCK_LIFT 抬到坞上方，抬 z 不遮坞本体 */
@@ -46,14 +40,12 @@
 /* ── 2) 卡壳（①）：A1 · Apple 毛玻璃（kit.md §公共 CSS）────────────────────
    2026-11-07 由「透明壳」改为 tint + backdrop-filter + 4 层 shadow：
      · 调参只改 --glass-*（tokens.json 是唯一来源），禁止在卡壳上直接写 background:；
-     · 4 层 shadow = 外描边+投影(--glass-shadow-blur) + inset 边缘光×2(rim-tl/rim-br)；
-     · --glass-lens 默认 none；设 url(#lg-lens) 前必须先注入 SVG filter，否则整条失效；
-     · border/outline 仍归零，闭合 inset 圆环仍禁止（灰圈的两个历史来源）；
-     · 内容层(§3)保持零 blur，防止一张卡出现两层 backdrop-filter。 */
+     · 4 层 shadow = 外描边+投影(--glass-shadow-blur) + inset 边缘光×2(rim-tl/rim-br)；--glass-lens 默认 none，设 url(#lg-lens) 前必须先注入 SVG filter，否则整条失效；
+     · border/outline 仍归零，闭合 inset 圆环仍禁止（灰圈的两个历史来源）；内容层(§3)保持零 blur，防止一张卡出现两层 backdrop-filter。 */
 :is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc {
   background: var(--glass-tint-light); background-image: none; border: 0; outline: 0;
   box-shadow: var(--glass-shadow-blur), var(--glass-rim-tl), var(--glass-rim-br);
-  border-radius: var(--glass-radius);
+  border-radius: var(--glass-radius); corner-shape: superellipse(2);
   color: var(--lc-text); text-shadow: var(--lc-text-shadow); filter: none;
   -webkit-backdrop-filter: blur(var(--glass-blur-radius)) saturate(var(--glass-saturate)) brightness(var(--glass-brightness)) var(--glass-lens);
   backdrop-filter: blur(var(--glass-blur-radius)) saturate(var(--glass-saturate)) brightness(var(--glass-brightness)) var(--glass-lens);
@@ -66,9 +58,10 @@
    强度由 --lc-gloss-a（基础 0.10、指针在卡内最高 0.25）驱动；仍是同一条 1px 发丝，
    不新增带、不闭合、不加第二层。指针不在卡附近时退回 50% / 0.10 ≈ 旧观感。 */
 :is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc::before {
-  content: ''; position: absolute; inset: 0 0 auto 0; height: 1px; border-radius: inherit; pointer-events: none;
+  content: ''; position: absolute; inset: 0 0 auto 0; height: 1px; border-radius: inherit; corner-shape: superellipse(2); pointer-events: none;
   background-image: radial-gradient(88px 100% at var(--lc-gloss-x, 50%) 50%, rgba(255, 255, 255, var(--lc-gloss-a, 0.1)) 0%, rgba(255, 255, 255, 0) 100%);
 }
+/* 2b) Phase9·缺口3a：卡壳角是 squircle（超椭圆 n≈4），CSS 侧即 corner-shape: superellipse(2)（Chrome 156+ 参数化后 n≈4.09）；::before 不可继承故显式跟一次，不支持则该声明整条丢弃、落回圆弧。 */
 /* ── 3) 内容层（③）：零填充/零 blur/零 filter/零描边（通配，不靠名单）──── */
 :is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc * {
   border: 0; outline: 0; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; filter: none; background-image: none;
@@ -231,7 +224,7 @@
        + 一点冷白外发光；0 填充、0 backdrop-filter、0 border。
    box-shadow/background 都画在卡壳 border-box 上，不随卡内滚动内容移动。 */
 :is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc {
-  transition: box-shadow 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 :is(#data-panel,#scene-panel,#pp-toggles,#cctv-panel,#global-context-panel,#location-bar,#control-panel,#gev-voice-control).gev-lc:hover {
   /* A1：hover 只追加弥散辉光，保留 4 层 shadow（rim 不能丢） */

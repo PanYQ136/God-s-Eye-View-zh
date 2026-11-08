@@ -352,6 +352,7 @@ export function initFirstRunExperience({
       'It feels like a forbidden cockpit—then you realize the sources are public and the data is real.',
     ),
     scrollable: null,
+    focusWrap: '',
   };
   let signature = '';
   const present = (patch) => {
@@ -434,6 +435,7 @@ export function initFirstRunExperience({
     rememberFirstRunSessionDismissed(sessionStorageRef);
     present({ visible: false, closing: true });
     globalThis.removeEventListener?.('resize', onViewportResize);
+    globalThis.clearTimeout?.(wrapTimer);
     surfaceObserver?.disconnect();
     const remove = () => {
       store.connect(null);
@@ -529,6 +531,27 @@ export function initFirstRunExperience({
     return false;
   };
 
+  /*
+   * The keyboard is trapped inside the card (surfaceKeyboard cycles the ring),
+   * and a trapped ring is only honest if the visitor can TELL it is trapped.
+   * Without a signal, Tab landing back on the first tile reads as a broken page
+   * that will not move on — that was the reported defect. So the ring reports
+   * its boundary: `data-focus-wrap` pulses the card's edge (first-run.css) and
+   * the status line already says ESC dismisses. No new copy, no state.
+   *
+   * The flag rides the store, not `root.dataset`: the view owns that attribute,
+   * so a direct write would be patched away on the next render — and a signal
+   * that only sometimes appears is worse than none.
+   */
+  let wrapTimer = null;
+  const announceWrap = (edge) => {
+    present({ focusWrap: edge });
+    globalThis.clearTimeout?.(wrapTimer);
+    wrapTimer = globalThis.setTimeout?.(() => {
+      present({ focusWrap: '' });
+    }, 700);
+  };
+
   const keyboard = createSurfaceKeyboard({
     root,
     documentRef,
@@ -537,6 +560,7 @@ export function initFirstRunExperience({
     isActive: () => !closing && isTopmost(),
     onEscape: () => dismiss(),
     fallbackFocus: () => documentRef.body,
+    onWrap: announceWrap,
   });
 
   store.connect({
@@ -657,6 +681,7 @@ export function initFirstRunExperience({
     closing = true;
     keyboard.destroy();
     globalThis.removeEventListener?.('resize', onViewportResize);
+    globalThis.clearTimeout?.(wrapTimer);
     surfaceObserver?.disconnect();
     store.connect(null);
     present({ visible: false, removed: true });

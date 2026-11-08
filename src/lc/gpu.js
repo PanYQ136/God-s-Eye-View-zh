@@ -18,6 +18,12 @@
 import * as bridge from '../bridge.js';
 const SOFT_RE =
   /SwiftShader|llvmpipe|Software|Basic Render|Microsoft Basic|ANGLE\s*\(Software/i;
+/* 中档信号（Phase9）：GPU 可用但算力偏弱的一类 —— 移动 GPU、Intel 集显、老 GMA。
+   这里**不新增 tier 值**：tier 仍是 {none,software,high}（"能不能用 GPU"），
+   quality 是正交的一层（"用多少"），既有验收口径 tier ∈ {high,software,none} 不受影响。
+   判错方向要保守：宁可让弱机多降一档，也不要把弱机当满血跑出个位数帧率。 */
+const MID_RE =
+  /Adreno|Mali|PowerVR|Intel\(R\)\s*(UHD|HD|Iris|GMA)|GMA\s*\d|Intel.*UHD Graphics/i;
 const REQUESTED = 'high-performance';
 const HAS_DOM =
   typeof document !== 'undefined' && typeof window !== 'undefined';
@@ -113,6 +119,7 @@ export function probe(force) {
   }
   const renderer = r ? r.renderer : '';
   const software = !!r && SOFT_RE.test(renderer);
+  const quality = !r || software || weakSignal(renderer) ? 'reduced' : 'full';
   _state = {
     ok: !!r,
     api: r ? r.api : 'none',
@@ -122,6 +129,7 @@ export function probe(force) {
     granted: r ? r.granted : null,
     software,
     tier: !r ? 'none' : software ? 'software' : 'high',
+    quality,
     at: Date.now(),
     noticeShown: _noticeShown,
   };
@@ -134,8 +142,24 @@ export function probe(force) {
   return _state;
 }
 
+/** 弱算力信号：renderer 命中移动/集显，或"核少 + 内存小"的机器。只读，不写任何设置。 */
+function weakSignal(renderer) {
+  if (MID_RE.test(String(renderer || ''))) return true;
+  try {
+    const cores = navigator.hardwareConcurrency || 0;
+    const mem = navigator.deviceMemory || 0;
+    if (cores && cores <= 4 && (!mem || mem <= 4)) return true;
+  } catch (_) {}
+  return false;
+}
+
 export function tier() {
   return probe().tier;
+}
+
+/** 质量档：full（满血光学）/ reduced（仍开玻璃，但走轻档 CFG）。 */
+export function quality() {
+  return probe().quality;
 }
 
 export function subscribe(fn) {
@@ -313,6 +337,7 @@ function boot() {
   const api = {
     state: () => _state,
     tier,
+    quality,
     probe,
     contextOptions,
     mountChip,

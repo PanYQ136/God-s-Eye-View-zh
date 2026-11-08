@@ -202,6 +202,12 @@ export function createInteraction({ dispatch, phaseOf, onDrag }) {
     const cardEl = t.closest('.gev-lc');
     if (!cardEl) return;
     if (t.closest(HEAD_NO_TOGGLE)) return;
+    /* 披露按钮（UiPanelToggle / PanelCollapseButton）自己带 Vue handler：
+       它不在 HEAD_TOGGLE_SELF 里（不是 pointerdown 驱动的整卡热区），
+       灭口会让它的 click 彻底收不到，折叠按钮静默失效。
+       dock 的 .location-bar-toggle / .dock-tray-toggle 仍走 pointerdown，保持灭口。 */
+    const disclosure = t.closest('.panel-collapse-btn');
+    if (disclosure && !disclosure.matches(HEAD_TOGGLE_SELF)) return;
     if (t.closest(HEAD_SEL)) {
       e.preventDefault();
       e.stopPropagation();

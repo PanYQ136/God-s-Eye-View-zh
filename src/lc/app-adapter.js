@@ -235,11 +235,91 @@ export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
   const slotCache = new Map(); // id → 自然槽位 {x,y,w,h}（只在 push=0 的帧里刷新）
   let slotViewKey = ''; // 视口变了 → 槽位缓存失效（否则 resize 后仍用旧槽位）
 
+  /* 槽位「稳定确认」闸门。为什么要它：dock 轨（location-bar / control-panel / 语音卡）
+     同处 #command-dock，一张卡脱层展开后 App 的 flex 会把剩下两张重新居中；
+     收起的那一帧 App 还没把兄弟排回原位，此刻读到的 rect（实测 x=631）是**中间态**，
+     一旦写进槽位缓存就永久偏 —— 表现是「开一次卡，dock 卡从此站到 dock 中央」。
+     规则：与缓存差异大的候选值必须连续两帧一致才采纳，否则继续用缓存。
+     （真实布局变化只延迟一帧 ≈16ms，肉眼不可见；中间态却再也写不脏槽位。） */
+  const slotSettle = new Map(); // id → { sig, n }
+
+  function slotSig(m) {
+    return (
+      Math.round(m.x) + ',' + Math.round(m.y) + ',' + Math.round(m.w) + ',' + Math.round(m.h)
+    );
+  }
+
+  function nearSlot(a, b) {
+    return (
+      a &&
+      b &&
+      Math.abs(a.x - b.x) < 1 &&
+      Math.abs(a.y - b.y) < 1 &&
+      Math.abs(a.w - b.w) < 1 &&
+      Math.abs(a.h - b.h) < 1
+    );
+  }
+
+  /** 采纳/否决一个候选槽位。返回本帧该卡应使用的槽位。
+      need：连续几次同签名才采纳（左右轨 2，dock 轨 3 —— dock 会被 App flex 重排，
+      中间态更黏，实测 x 549→631 这种居中态能连续出现两帧）。 */
+  function confirmSlot(id, cand, need) {
+    const cached = slotCache.get(id);
+    if (!cached) {
+      slotCache.set(id, cand);
+      slotSettle.set(id, { sig: slotSig(cand), n: 0 });
+      return cand;
+    }
+    if (nearSlot(cached, cand)) {
+      slotCache.set(id, cand);
+      slotSettle.set(id, { sig: slotSig(cand), n: 0 });
+      return cand;
+    }
+    const st = slotSettle.get(id) || { sig: '', n: 0 };
+    const sig = slotSig(cand);
+    if (st.sig === sig) {
+      st.n += 1;
+      if (st.n >= (need || 2)) {
+        slotCache.set(id, cand);
+        slotSettle.set(id, { sig, n: 0 });
+        return cand;
+      }
+    } else {
+      st.sig = sig;
+      st.n = 1;
+    }
+    slotSettle.set(id, st);
+    return cached;
+  }
+
   /* G05：槽位的失效条件不能只看 viewport。"轨道几何变了但视口没变" 是常态
      （liftRails 平移、App 重排/换 active、移动端地址栏收起），此时 live 卡仍按旧槽位
-     布局 —— 实测错位 −211px / +67px 都出自这里。所有轨道几何变化点都显式调用本函数。 */
+     布局 —— 实测错位 −211px / +67px 都出自这里。所有轨道几何变化点都显式调用本函数。
+
+     注意：这里**只标记失效、不清缓存**。早先直接 slotCache.clear() 会让「开着的卡」
+     在回 mini 时找不到目标槽位，只能落回 App 给的原始位置（实测 data-panel 在
+     resize 后停在 [100,306,280,48] —— 就是「缩放后位置乱跳」）。
+     标记失效后由 measure 在「该轨空闲」的那一帧重锁，忙时继续用旧槽位（旧槽位永远安全）。 */
+  const slotStale = new Set(['left', 'right', 'dock']);
+
+  /* dock 轨的槽位必须等 App 把 #command-dock 摆好之后才能锁。
+     启动早期 App 会把两张 dock 卡临时靠拢（实测 control-panel 637，正常 888），
+     这一帧要是被锁进缓存，后面所有「开→合」都以此为家 —— 也就是「位置乱跳」的另一条来源。
+     index.js 在左右轨顶部稳定 1s 后调用 armDockSlots()，此前 dock 卡不参与槽位锁定。 */
+  let dockArmed = false;
+
+  function armDockSlots() {
+    if (dockArmed) return false;
+    dockArmed = true;
+    slotStale.add('dock');
+    if (typeof globalThis !== 'undefined') globalThis.__lcDockArmed = true;
+    return true;
+  }
+
   function invalidateSlots() {
-    slotCache.clear();
+    slotStale.add('left');
+    slotStale.add('right');
+    slotStale.add('dock');
     slotViewKey = '';
     return true;
   }
@@ -282,8 +362,13 @@ export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
     };
     const viewKey = view.w + 'x' + view.h;
     if (viewKey !== slotViewKey) {
+      /* 曾经这里直接 slotCache.clear()。清空后脱层卡既无缓存也无可靠占位，只能回退读
+         自身 rect —— 而脱层卡的 rect 是「内容自然尺寸 + 残留 transform」，不是槽位。
+         实测（probe-v14→diag-box）：1600→1180→1600 往返后第一次开 data-panel，
+         槽位宽度被永久写成 280（内容自然宽，正确 176），此后右轨 x 计算、让位宽度、
+         收起目标全部跟着偏，直到 reload —— 这就是「缩放后位置乱跳」的根因。
+         槽位宽高不随视口变化，只有 x/y 会变；x/y 由非脱层的静止帧自然刷新即可。 */
       slotViewKey = viewKey;
-      slotCache.clear();
     }
     /* 轨道级「忙」判定（槽位缓存的门禁）：
        同轨只要有一张卡在脱层 / 动画 / 让位 / 非 mini 相位，该轨其余卡虽然自己「静止」，
@@ -340,12 +425,48 @@ export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
         (railBusy || pushing || ph !== 'mini' || animating)
       )
         mini = slotCache.get(id);
-      else if (vis) {
-        mini = { x: vis.x, y: vis.y, w: vis.w, h: vis.h };
-        slotCache.set(id, mini);
+      else if (vis && !isStaged(id)) {
+        /* 脱层中的卡不能用自身 rect 当槽位：rect = 内容自然尺寸 + 动画/让位 transform。
+           实测把 data-panel 的槽位宽永久写成 280（内容自然宽，正确 176）→ 后续右轨 x、
+           让位宽度、收起目标全偏。脱层卡只认占位与缓存。
+           静止卡也要过「稳定确认」闸门：收起瞬间兄弟的重排中间态不是槽位。
+           dock 轨另有硬规矩：卡片开合会把兄弟在 #command-dock 里重新居中（实测 x 549→631），
+           这种 flex 中间态一律不吃 —— dock 槽位只在「显式失效（resize / App 改几何）
+           且 dock 全空闲」时才重锁。 */
+        const railKey = (CARDS[id] && CARDS[id].rail) || 'chrome';
+        const stale = slotStale.has(railKey);
+        const isDock = railKey === 'dock';
+        /* dock 未 arm：不给槽位、不写缓存（本帧该卡不参与布局，留在 App 原位） */
+        const dockCold = isDock && !dockArmed && !slotCache.has(id);
+        /* 只有「轨道忙」才沿用旧槽位。
+           早先写成 dock 一律 hold 缓存，结果是 arm 那一帧锁到 App 的居中态
+           （control-panel 637，正确 888），之后 App 改成右对齐也不再回锁 —— 脏槽位永久留存，
+           表现为开→合回到 637 再被 App 弹回 888 的「位置乱跳」。 */
+        const hold = slotCache.has(id) && (isDock ? railBusy : stale && railBusy);
+        if (!dockCold)
+          mini = hold
+            ? slotCache.get(id)
+            : confirmSlot(
+                id,
+                { x: vis.x, y: vis.y, w: vis.w, h: vis.h },
+                isDock ? 3 : 2,
+              );
+        if (!railBusy) slotStale.delete(railKey);
       }
-      /* 兜底：缓存缺失且本卡被钳在「轨道忙」里 → 用当前 rect（宁可一次小跳，不给 null） */
-      if (!mini && vis) mini = { x: vis.x, y: vis.y, w: vis.w, h: vis.h };
+      /* 兜底：缓存缺失且本卡被钳在「轨道忙」里 → 用当前 rect（宁可一次小跳，不给 null）。
+         脱层卡例外：本帧宁可没有 mini（该卡不参与本帧布局），也不把脏 rect 写成槽位。
+         dock 轨同样例外：忙时无缓存说明它正在被 App 重排，本帧不参与布局更安全。 */
+      if (
+        !mini &&
+        vis &&
+        !isStaged(id) &&
+        !(
+          CARDS[id] &&
+          CARDS[id].rail === 'dock' &&
+          (railBusy || (!dockArmed && !slotCache.has(id)))
+        )
+      )
+        mini = { x: vis.x, y: vis.y, w: vis.w, h: vis.h };
       /* G07：该卡可用的最大高度 = 宿主栈底 − 该卡 mini 顶 − 间隙。
          展开盒此前只受视口 SAFE_BOTTOM 约束，左卡内容高时会长出 #left-panel-stack
          的可视底界，压到栈下方的内容与坞上沿。宿主 rect 已含 liftRails 的 translate。 */
@@ -427,9 +548,26 @@ export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
       left: 0,
       right: 0,
     };
+    /* Q1：侧轨容器边缘（实时 DOM 几何）。
+       为什么要它：右轨展开盒的 x 依赖 `c.mini`，而槽位在「同轨有卡在展开」时按设计
+       **冻结不刷新**（hold = stale && railBusy，展开卡自身就让该轨 busy）。视口一变，
+       旧槽位不会自愈 —— 展开盒带着旧绝对坐标，只是被 EDGE 兜底 clamp 顶到右缘 12px，
+       与 mini 卡的右对齐基准（rail 右界，实测距屏 100px）错位 74px。
+       槽位不能为此解冻（解冻会重新引入「缩放后位置乱跳」），所以另给一条**永不 stale**
+       的锚：rail 容器的实时 rect。layout 用 railRight 回推 x，与 mini 右缘天然一致。 */
+    const rails = {};
+    for (const [key, sel] of [
+      ['left', '#left-panel-stack'],
+      ['right', '#right-context-rail'],
+    ]) {
+      const r = rectOf(doc.querySelector(sel));
+      if (r && r.w > 1 && r.h > 1)
+        rails[key] = { x: r.x, y: r.y, w: r.w, h: r.h, right: r.x + r.w };
+    }
     return {
       viewport: view,
       safe,
+      rails,
       cards,
       dock,
       protected: protectedRects,
@@ -523,6 +661,13 @@ export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
     measure,
     liftRails,
     invalidateSlots,
+    armDockSlots,
+    slotsSnapshot() {
+      const out = {};
+      for (const [id, v] of slotCache)
+        out[id] = { x: v.x, y: v.y, w: v.w, h: v.h };
+      return { slots: out, stale: [...slotStale], dockArmed };
+    },
     setPanelCollapsed,
     isCollapsed,
     hasPanelApi: () => !!panelApi(),

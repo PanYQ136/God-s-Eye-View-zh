@@ -9,6 +9,8 @@
  * @param {() => boolean} options.isActive Whether this surface may handle input now.
  * @param {() => void} options.onEscape Caller-owned dismissal action.
  * @param {() => HTMLElement} [options.fallbackFocus] Return target if the opener is gone.
+ * @param {(edge: 'first'|'last') => void} [options.onWrap] Called on the key that
+ *   cycles the ring, so a cycled surface can say so instead of silently jumping.
  * @returns {{activate: Function, deactivate: Function, destroy: Function}}
  */
 export function createSurfaceKeyboard({
@@ -17,6 +19,7 @@ export function createSurfaceKeyboard({
   isActive,
   onEscape,
   fallbackFocus,
+  onWrap,
 }) {
   let active = false;
   let destroyed = false;
@@ -54,12 +57,15 @@ export function createSurfaceKeyboard({
     if (!root.contains(focused)) {
       event.preventDefault();
       (event.shiftKey ? last : first).focus();
+      onWrap?.(event.shiftKey ? 'last' : 'first');
     } else if (event.shiftKey && focused === first) {
       event.preventDefault();
       last.focus();
+      onWrap?.('last');
     } else if (!event.shiftKey && focused === last) {
       event.preventDefault();
       first.focus();
+      onWrap?.('first');
     }
   };
 

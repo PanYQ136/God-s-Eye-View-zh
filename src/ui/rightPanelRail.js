@@ -3,6 +3,7 @@ import {
   panelStackAutoCollapseIndices,
 } from '../panelStackLayout.js';
 import { resolveHudRailLayout } from './panelRailGeometry.js';
+import { syncCollapsedA11y } from './panelA11y.js';
 
 import { displayPanelScroller } from './displayPanelScroll.js';
 import { settleSideAccordion } from './panelAccordion.js';
@@ -103,9 +104,10 @@ export function layoutRightPanelRail({
   const exclusive = !isMobile;
   stack.classList.toggle('layout-exclusive', exclusive);
   for (const panel of panels) {
-    if (exclusive && panel.classList.contains('collapsed'))
-      panel.setAttribute('aria-hidden', 'true');
-    else panel.removeAttribute('aria-hidden');
+    syncCollapsedA11y(
+      panel,
+      exclusive && panel.classList.contains('collapsed'),
+    );
   }
 
   if (isMobile) {

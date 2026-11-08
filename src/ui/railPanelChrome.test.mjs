@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readStylesheet } from '../testSupport/readStylesheet.mjs';
+import { fontSizePx } from '../testSupport/typeScale.mjs';
 
 const css = readStylesheet(new URL('../../style.css', import.meta.url));
 const clean = (selector) =>
@@ -96,7 +97,12 @@ test('collapsed launchers on both rails keep titles inside the card', () => {
       selector.includes('.panel-collapsible.collapsed'),
   );
   assert.ok(translated, 'translated collapsed titles must fit on both rails');
-  assert.match(translated.body, /font-size:\s*8px/);
+  // Audit UI-03 lifted the 8px strays onto the 9px floor, so this asserts the
+  // resolved size rather than the old literal.
+  assert.equal(
+    fontSizePx(/font-size:\s*([^;]+);/.exec(translated.body)?.[1]),
+    9,
+  );
   // Chinese and Japanese titles fit at full size; 8px would put them under
   // the 9px CJK floor in cjk.css.
   assert.match(translated.selector, /:not\(:lang\(zh\)\):not\(:lang\(ja\)\)/);
@@ -161,7 +167,10 @@ test('the default theme geometry change leaves cyber gutters alone', () => {
     ({ selector }) =>
       selector === '#pp-toggles > .pp-header-row .pp-collapse-btn',
   );
-  assert.match(display?.body || '', /font-size:\s*12px/);
+  assert.equal(
+    fontSizePx(/font-size:\s*([^;]+);/.exec(display?.body || '')?.[1]),
+    12,
+  );
 });
 
 test('rail titles and dock labels share one set of label tokens', () => {
@@ -208,7 +217,7 @@ test('default theme overrides never reach the cyber theme', () => {
   const display = rules.find(
     ({ selector, body }) =>
       selector.endsWith('#pp-toggles > .pp-header-row .pp-collapse-btn') &&
-      /font-size:\s*13px/.test(body),
+      fontSizePx(/font-size:\s*([^;]+);/.exec(body)?.[1]) === 13,
   );
   assert.ok(
     display?.selector.startsWith(notCyber),

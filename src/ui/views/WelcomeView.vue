@@ -29,7 +29,11 @@ function onSuppress(event) {
        until the visitor asks; shared links skip this surface entirely. It returns
        every session until "Don't show this again" is ticked — see
        src/firstRunExperience.js for the full show policy. -->
-  <aside v-if="!launcher?.removed" id="first-run-launcher" role="dialog" aria-labelledby="first-run-title" aria-describedby="first-run-description" :class="{ visible: launcher?.visible }" :hidden="!launcher?.shown" :aria-hidden="launcher?.closing ? 'true' : undefined" :aria-busy="launcher?.busy ?? undefined" :data-state="launcher?.state ?? undefined">
+  <!-- `aria-modal` because surfaceKeyboard really does trap Tab inside this
+       card: without it a screen reader announces a plain dialog and never says
+       the ring is closed. `data-focus-wrap` is set by the same handler on the
+       wrap key so the boundary is visible, not just enforced. -->
+  <aside v-if="!launcher?.removed" id="first-run-launcher" role="dialog" aria-modal="true" aria-labelledby="first-run-title" aria-describedby="first-run-description" :class="{ visible: launcher?.visible }" :hidden="!launcher?.shown" :aria-hidden="launcher?.closing ? 'true' : undefined" :aria-busy="launcher?.busy ?? undefined" :data-state="launcher?.state ?? undefined" :data-focus-wrap="launcher?.focusWrap ?? undefined">
     <div class="first-run-scanline" aria-hidden="true"></div>
     <header class="first-run-header">
       <span class="first-run-kicker">{{ t('MISSION CONTROL · FIRST LAUNCH') }}</span>
