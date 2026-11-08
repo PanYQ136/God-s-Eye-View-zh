@@ -9,8 +9,9 @@ import { markRaw, shallowRef } from 'vue';
 export const useFirstRunStore = defineStore('gev-first-run', () => {
   /**
    * `{removed, shown, visible, closing, state, busy, status, description,
-   * environmentalTitle, environmentalSub, scrollable}`, or null until the
-   * launcher is initialized (the card stays hidden).
+   * environmentalTitle, environmentalSub, scrollable, focusWrap}`, or null
+   * until the launcher is initialized (the card stays hidden). `focusWrap`
+   * carries the Tab-ring boundary signal ('first' | 'last' | '') for one beat.
    */
   const launcher = shallowRef(null);
 

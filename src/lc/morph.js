@@ -125,6 +125,9 @@ export function keyframes(dx, dy, sx, sy, opts) {
 
 /* 每个元素只允许一条本模块创建的动画（M3/M6） */
 const CURRENT = new WeakMap();
+/* WeakMap 不能枚举，而宿主需要「还有几条动画在跑」。LIVE 只做计数用，
+   元素本身已由 DOM 树持有，不构成额外泄漏。 */
+const LIVE = new Set();
 
 /* ── D3/G22：morph ↔ 边缘玻璃联动（「先变形，后上玻璃」）────────────────────
    变形期间 __gevEdge 关闭（画布清空，不画冻结的边缘带）；变形结束 1 帧后恢复。
@@ -204,12 +207,30 @@ export function cancel(el) {
     a.cancel();
   } catch (_) {}
   CURRENT.delete(el);
+  LIVE.delete(el);
   return true;
 }
 
 export function animationsOf(el) {
   const a = CURRENT.get(el);
   return a ? [a] : [];
+}
+
+/** 还有几条动画在跑。宿主用它决定「是否需要继续按需帧」——
+ *  WAAPI 在页面没有合成帧时不会自己推进，没有帧尾巴的让位回弹会永久悬停。 */
+export function activeCount() {
+  let n = 0;
+  for (const el of LIVE) {
+    const a = CURRENT.get(el);
+    if (!a) {
+      LIVE.delete(el);
+      continue;
+    }
+    try {
+      if (a.playState === 'running') n += 1;
+    } catch (_) {}
+  }
+  return n;
 }
 
 /**
@@ -289,6 +310,7 @@ export function run(el, first, opts) {
     } catch (_) {}
   }
   CURRENT.set(el, anim);
+  LIVE.add(el);
   try {
     const LC = bridge.ensure('lc', {
       global: '__lc',
@@ -322,6 +344,7 @@ export function run(el, first, opts) {
 
   const drop = () => {
     if (CURRENT.get(el) === anim) CURRENT.delete(el);
+    LIVE.delete(el);
   };
   try {
     anim.addEventListener('finish', drop);
@@ -452,6 +475,7 @@ export function runShift(el, opts = {}) {
   edgeBegin('shift');
   bindEdge(anim, 'shift');
   CURRENT.set(el, anim);
+  LIVE.add(el);
   try {
     const LC = bridge.ensure('lc', {
       global: '__lc',
@@ -469,10 +493,27 @@ export function runShift(el, opts = {}) {
   } catch (_) {}
   const drop = () => {
     if (CURRENT.get(el) === anim) CURRENT.delete(el);
+    LIVE.delete(el);
   };
   try {
     anim.addEventListener('finish', drop);
     anim.addEventListener('cancel', drop);
   } catch (_) {}
+  /* 节流看门狗（与 run() 同口径）。
+     实测（probe-v16）：展开卡收起后，兄弟卡的「让位回弹」动画在 running 状态下
+     currentTime 恒为 0，fill:none 的 transform 永久停在 translateY(332)，
+     卡片被推到下方 482px 再也回不来 —— 只要宿主停止按需帧，动画时钟就不再推进。
+     判死阈值取 200ms（同 run()：布局独占主线程时正常动画也可能几百毫秒才起步）。 */
+  setTimeout(() => {
+    let t = 0;
+    try {
+      t = Number(anim.currentTime) || 0;
+    } catch (_) {}
+    if (anim.playState === 'running' && t < 32) {
+      try {
+        anim.cancel();
+      } catch (_) {}
+    }
+  }, 200);
   return anim;
 }

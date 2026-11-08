@@ -5,6 +5,7 @@ import {
   resolvePanelStackCorridor,
 } from '../panelStackLayout.js';
 import { measurePanelNaturalHeight } from './panelMeasurement.js';
+import { syncCollapsedA11y } from './panelA11y.js';
 import { settleSideAccordion } from './panelAccordion.js';
 
 /**
@@ -325,9 +326,10 @@ export function layoutLeftPanelRail({
   // CockpitView.syncSignalLayout() owns `--cockpit-utility-top` instead.
 
   for (const panel of panels) {
-    if (exclusive && panel.classList.contains('collapsed'))
-      panel.setAttribute('aria-hidden', 'true');
-    else panel.removeAttribute('aria-hidden');
+    syncCollapsedA11y(
+      panel,
+      exclusive && panel.classList.contains('collapsed'),
+    );
   }
   // The right controls share this top baseline; update them after the left
   // accordion commits an HUD-variant or obstacle-driven position change.

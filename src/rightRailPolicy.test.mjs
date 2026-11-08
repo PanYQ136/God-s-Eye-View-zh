@@ -10,7 +10,12 @@ test('desktop side rails hide collapsed panels in every HUD layout, never on pho
   const css = readStylesheet(new URL('../style.css', import.meta.url));
   for (const ui of [right, left]) {
     assert.match(ui, /const isMobile = windowRef\.matchMedia\('\(max-width: 720px\)'\)\.matches/);
-    assert.match(ui, /if \(exclusive && panel\.classList\.contains\('collapsed'\)\)\s*panel\.setAttribute\('aria-hidden', 'true'\)/);
+    // 折叠卡的可达性交给 syncCollapsedA11y：内容块 inert，标题行留在 a11y 树里。
+    assert.match(
+      ui,
+      /syncCollapsedA11y\(\s*panel,\s*exclusive && panel\.classList\.contains\('collapsed'\),?\s*\)/,
+    );
+    assert.doesNotMatch(ui, /panel\.setAttribute\('aria-hidden', 'true'\)/);
     assert.doesNotMatch(ui, /hud\.variant === 'cyber'/);
   }
   assert.match(right, /const exclusive = !isMobile;/);

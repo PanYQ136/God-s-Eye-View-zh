@@ -19,6 +19,8 @@ const BOOT_MAX_FRAMES = 900; // ≈15s（rAF 计帧，不用 setTimeout）
 const SETTLE_FRAMES = 90; // ≈1.5s：App 启动期会搬容器/恢复状态，沉降后强制全 mini（D1）
 /* G02：相位看门狗阈值。最长 morph 445ms（D1=A），留 2.5x 余量再判「回调丢了」。 */
 const PHASE_WATCHDOG_MS = 1200;
+/* 帧尾巴上限：动画未落定时续帧，最多 360 帧（≈6s）后交回看门狗处理，绝不死循环。 */
+const TAIL_MAX_FRAMES = 360;
 /* Phase7A3：语音卡（#gev-voice-control）不是静态卡壳 —— 它由 App 在命令坞里注入，
    排在 Cesium 之后。卡壳/LC 现在先于 Cesium mount，**不能**为它把整层挂载推到
    App 就绪（实测那样 cardsClickable 又回到 7–9.5s）。改为：必需卡 = 7 张静态卡壳，
@@ -76,6 +78,7 @@ export function boot() {
   let frames = 0;
   let settleLeft = SETTLE_FRAMES;
   let queued = false;
+  let tailFrames = 0; /* 帧尾巴计数：动画未落定时续帧，见 runFrame 末尾 */
 
   const api = { version: '2.0.0' };
   const LC = bridge.ensure('lc', { global: '__lc', owner: 'src/lc/index.js' });
@@ -124,6 +127,14 @@ export function boot() {
     queued = true;
     requestAnimationFrame(runFrame);
   }
+  /* 测试/调试钩子：同步推一帧。窗口被遮挡或后台时 rAF 会被节流到 1fps，
+     探针没法「等帧」，只能主动驱动 measure→layout→render 才测得准槽位与相位。 */
+  LC.requestFrame = () => {
+    if (queued) return false;
+    queued = true;
+    runFrame();
+    return true;
+  };
 
   function runFrame() {
     queued = false;
@@ -145,6 +156,7 @@ export function boot() {
     const result = layout({
       viewport: snapshot.viewport,
       safe: snapshot.safe,
+      rails: snapshot.rails,
       cards: snapshot.cards,
       dock: snapshot.dock,
       protected: snapshot.protected,
@@ -162,6 +174,7 @@ export function boot() {
     LC.violations = result.violations;
     LC.snapshot = {
       viewport: snapshot.viewport,
+      rails: snapshot.rails,
       dock: snapshot.dock,
       protected: snapshot.protected,
       minis: Object.fromEntries(
@@ -169,6 +182,21 @@ export function boot() {
       ),
     };
     LC.lastFrameAt = performance.now();
+    /* 探针只读出口：槽位缓存 / 失效标记 / dock arm 状态（无副作用）。 */
+    LC.slots = adapter.slotsSnapshot ? adapter.slotsSnapshot() : null;
+
+    /* 帧尾巴：morph / 让位回弹还在跑就继续按需帧。
+       根因（probe-v16）：宿主只在事件/相位变化时调度单帧，WAAPI 的动画时钟一旦
+       没有合成帧就不再推进 —— 收起卡后兄弟卡的让位回弹停在 currentTime=0、
+       transform 残留 translateY(332)，卡片永久卡在下方。这里用有界续帧
+       （≤TAIL_MAX_FRAMES ≈6s）把动画推到落定，而不是靠看门狗硬切。 */
+    const pending = renderer.pendingMorph();
+    if (pending > 0 && tailFrames < TAIL_MAX_FRAMES) {
+      tailFrames += 1;
+      scheduleFrame();
+    } else {
+      tailFrames = 0;
+    }
   }
 
   function handleEffects(state, effects) {
@@ -264,7 +292,7 @@ export function boot() {
     /* G02：相位看门狗。WAAPI finish 回调在隐藏标签页、节点被 App 抢回、cancel 竞态下都可能丢；
        一旦丢，卡就永停 opening/closing —— 表现为「点不到」「内容悬空不落位」。
        超过最长动画时长仍未落定，即用当前 gen 强制落定（gen 不匹配会被 reducer 丢弃，不会误杀新动画）。 */
-    setInterval(() => {
+    const watchdogTimer = setInterval(() => {
       // 后台标签页不巡检：WAAPI finish 与 rAF 在隐藏时同样被挂起，相位本来就
       // 不会前进；此时强推 ANIM_END 反而会把「隐藏期间打开」的卡片瞬间落定。
       if (document.hidden) return;
@@ -282,6 +310,17 @@ export function boot() {
         controller.dispatch({ type: ACT.ANIM_END, id, gen: c.gen });
       }
     }, 400);
+    // 句柄留档：卸载时停表（bfcache 返回会重新 boot，否则同一个页面会有两条看门狗）。
+    api.diagnostics = api.diagnostics || {};
+    api.diagnostics.watchdogTimer = watchdogTimer;
+    window.addEventListener(
+      'pagehide',
+      () => {
+        clearInterval(watchdogTimer);
+        api.diagnostics.watchdogTimer = null;
+      },
+      { once: true },
+    );
 
     /* 5) App 把展开卡抢回轨道 → 重新脱层（展开卡必须在 stage 是 renderer 的不变量） */
     const parentWatch = new MutationObserver(() => {
@@ -349,17 +388,45 @@ export function boot() {
        这里用有界的 rAF 采样（不是 timer）在它落定前持续校正，稳定 60 帧即退出。 */
     let railFrames = 0;
     let railStable = 0;
+    let railSince = 0;
+    const RAIL_ARM_MS = 900;
+    /* 三条轨道都摆好之后才允许锁 dock 槽位。
+       判据用「稳定持续真实时间」而不是帧数：rAF 在窗口被遮挡/后台时会被节流到 1fps，
+       纯帧计数会把 arm 无限推迟（实测 6s 只推进 6 帧），dock 卡于是永远不进 LC 布局。 */
+    const armIfReady = () => {
+      if (!railSince || Date.now() - railSince < RAIL_ARM_MS) return false;
+      if (!adapter.armDockSlots()) return false;
+      adapter.invalidateSlots();
+      scheduleFrame();
+      return true;
+    };
     const railTick = () => {
       railFrames += 1;
       adapter.liftRails(94);
       const L = document.getElementById('left-panel-stack');
       const R = document.getElementById('right-context-rail');
       const okTop = (e) => !e || e.getBoundingClientRect().top <= 95;
-      if (okTop(L) && okTop(R)) railStable += 1;
-      else railStable = 0;
-      if (railStable < 60 && railFrames < 900) requestAnimationFrame(railTick);
+      if (okTop(L) && okTop(R)) {
+        railStable += 1;
+        if (!railSince) railSince = Date.now();
+      } else {
+        railStable = 0;
+        railSince = 0;
+      }
+      globalThis.__lcRail = { stable: railStable, frames: railFrames };
+      /* 早于此刻锁会把 App 启动期的「两卡靠拢」中间态当成家（control-panel 637 vs 888）。 */
+      armIfReady();
+      if (!globalThis.__lcDockArmed && railFrames < 900) requestAnimationFrame(railTick);
     };
     requestAnimationFrame(railTick);
+    /* rAF 兜底：即使启动期一帧都跑不动，也要在 6s 后把 dock 槽位放行，不能让卡永久缺槽位。 */
+    for (const ms of [1600, 3000, 6000]) {
+      setTimeout(() => {
+        adapter.liftRails(94);
+        if (!railSince) railSince = Date.now() - RAIL_ARM_MS;
+        armIfReady();
+      }, ms);
+    }
 
     /* 6) 首帧 + 沉降后再次强制全 mini（App 启动恢复可能把某张卡展开） */
     scheduleFrame();

@@ -556,6 +556,8 @@ export function createRenderer({ adapter, onAnimEnd, morph = Morph }) {
   const prev = new Map(); // id → {phase, box, push, staged}
   const anims = new Map(); // id → Animation
   const stats = { opens: 0, closes: 0, pushAnims: 0, writes: 0 };
+  /* Q1b：上一帧视口尺寸，用来识别「窗口缩放帧」并让静置展开卡即时落位 */
+  const lastVp = { w: 0, h: 0 };
   /* 玻璃状态：与几何解耦（只写 CSS 变量/data-*），本层是它唯一的启动点 */
   const glass = createGlass({ adapter });
   try {
@@ -627,6 +629,15 @@ export function createRenderer({ adapter, onAnimEnd, morph = Morph }) {
    */
   function apply({ snapshot, result, phases, gens }) {
     const cards = snapshot.cards || {};
+    /* Q1b：视口尺寸变化的那一帧，静置的展开卡要**瞬时**落位，不播 300ms 滑行。
+       否则缩窗口时卡还停在旧坐标（旧视口更大），右缘越出窗口 66~88px 约 300ms 才归位 ——
+       探针在 resize+60ms 稳定复现 OVERFLOW。窗口缩放是环境变化，不是交互动作，
+       用户不会期待滑行动画；中途 OPENING 的卡仍走动画（状态机在等 ANIM_END）。 */
+    const vp = snapshot.viewport || {};
+    const vpChanged =
+      (vp.w > 0 && vp.w !== lastVp.w) || (vp.h > 0 && vp.h !== lastVp.h);
+    if (vp.w > 0) lastVp.w = vp.w;
+    if (vp.h > 0) lastVp.h = vp.h;
     for (const id of CARD_IDS) {
       const el = adapter.el(id);
       if (!el) continue;
@@ -640,8 +651,9 @@ export function createRenderer({ adapter, onAnimEnd, morph = Morph }) {
       el.dataset.lcRail = (CARDS[id] && CARDS[id].rail) || '';
 
       if (phase === PHASE.MINI) {
-        if (r.staged) {
-          /* ANIM_END 之后 render.finishClose 已经卸过；这里只是兜底 */
+        if (r.staged || adapter.isStaged(id)) {
+          /* ANIM_END 之后 render.finishClose 已经卸过；这里兜底「App 抢回轨道」与
+             r.staged 标记失同步两种漏网（只看标记会留下无人认领的脱层节点）。 */
           adapter.unstageCard(id);
           r.staged = false;
         }
@@ -708,6 +720,10 @@ export function createRenderer({ adapter, onAnimEnd, morph = Morph }) {
             anims.set(id, anim);
             anim.onfinish = () => {
               if (anims.get(id) === anim) anims.delete(id);
+              /* 世代/相位守卫（P0 回归）：finishClose 或新一代 morph 可能已先把卡回栈，
+                 此时再写 box 会把 mini 卡重新钉成 fixed —— 卡脱离文档流后，同轨其余卡
+                 整排上移填补，表现为「收起后位置乱跳、并带动其他卡位移」。 */
+              if (gens[id] !== gen || r.phase !== PHASE.CLOSING) return;
               try {
                 writeBox(el, target);
               } catch (_) {}
@@ -746,7 +762,16 @@ export function createRenderer({ adapter, onAnimEnd, morph = Morph }) {
         }
         continue;
       }
-      const from = toFlip((cards[id] && cards[id].visual) || box);
+      /* FLIP 起点：从槽位态（mini/closing）进入展开时，起点必须用 **mini 槽位**这个权威值，
+         不能用 visual —— 上一帧 rect 可能还带着旧动画 transform 或 App 重排的中间尺寸。
+         实测（probe-v14）：缩放往返后展开 data-panel，from 被读成 (100,306,280,48)，
+         正确应为 (100,94,176,48)，动画首帧把卡从下方 212px 处窜上来 = 用户看到的「位置乱跳」。
+         只有「展开过程中改目标」（retarget）才用 visual，让动画从当前表现继续，不硬跳。 */
+      const freshOpen = r.phase === PHASE.MINI || r.phase === PHASE.CLOSING;
+      const startBox = freshOpen
+        ? (cards[id] && cards[id].mini) || (cards[id] && cards[id].visual)
+        : cards[id] && cards[id].visual;
+      const from = toFlip(startBox || box);
       if (!r.staged) {
         const mini = (cards[id] && cards[id].mini) || null;
         adapter.stageCard(id, mini);
@@ -767,7 +792,12 @@ export function createRenderer({ adapter, onAnimEnd, morph = Morph }) {
       } else if (changing && !r.dragging) {
         writeBox(el, box);
         el.dataset.lcPhase = phase;
-        playOpen(id, el, from, box, gens[id], { retarget: true });
+        if (vpChanged && phase === PHASE.OPEN) {
+          /* 视口变化：已展开的卡即时对齐，不播滑行（见 apply 顶部注释） */
+          stopAnim(id);
+        } else {
+          playOpen(id, el, from, box, gens[id], { retarget: true });
+        }
       } else if (changing) {
         writeBox(el, box);
       }
@@ -857,6 +887,9 @@ export function createRenderer({ adapter, onAnimEnd, morph = Morph }) {
     const el = adapter.el(id);
     if (el) {
       el.dataset.lcPhase = PHASE.MINI;
+      /* 回栈必须把脱层几何一起收干净：只 unstage 不清 box 会残留 position:fixed，
+         mini 卡随后按 fixed 脱离文档流，同轨兄弟卡整排让位 → 收起后位置错乱。 */
+      clearBox(el);
       el.style.setProperty('--lc-push-x', '0px');
       el.style.setProperty('--lc-push-y', '0px');
     }
@@ -898,6 +931,9 @@ export function createRenderer({ adapter, onAnimEnd, morph = Morph }) {
       Object.fromEntries(
         [...anims.entries()].map(([k, a]) => [k, a && a.playState]),
       ),
+    /** 只读：还有几条 morph/让位动画在跑。index.js 据此续帧，别让动画悬停。 */
+    pendingMorph: () =>
+      typeof morph.activeCount === 'function' ? morph.activeCount() : 0,
   };
 }
 

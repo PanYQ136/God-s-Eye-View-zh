@@ -32,7 +32,8 @@ for (const side of ['left', 'right']) {
       assert.equal(f.first.classList.contains('accordion-collapsed'), true);
       assert.equal(f.second.classList.contains('collapsed'), false);
       assert.equal(f.stack.classList.contains('layout-exclusive'), true);
-      assert.equal(f.first.getAttribute('aria-hidden'), 'true');
+      // 折叠卡不再挂整卡 aria-hidden（那会把展开按钮一起摘出 a11y 树）。
+      assert.equal(f.first.getAttribute('aria-hidden'), undefined);
       assert.equal(f.retries(), 0, 'the accordion needs no auto-collapse pass');
       f.run();
       assert.equal(
@@ -763,7 +764,7 @@ test('right layout still restores panels that exclusive presentation hides', () 
 
   f.run();
   assert.equal(f.stack.classList.contains('layout-exclusive'), true);
-  assert.equal(f.second.getAttribute('aria-hidden'), 'true');
+  assert.equal(f.second.getAttribute('aria-hidden'), undefined);
 
   f.options.hud.visible = false;
   f.run();

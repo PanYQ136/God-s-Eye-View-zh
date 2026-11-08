@@ -130,10 +130,21 @@ export function layout(snap) {
     let w = Math.min(cfg.expW, view.w - 2 * GEO.EDGE);
 
     /* G10：左轨向左取整、右轨从右边界回推 —— 两侧混用 round 会在 0.5 边界各漂 1px，
-       连续 resize 往返后表现为可见的「热漂移」。 */
+       连续 resize 往返后表现为可见的「热漂移」。
+       Q1：右轨的右边界优先取 rail 容器的**实时**右缘（snap.rails，adapter 每测量帧现读），
+       而不是 `c.mini.x + c.mini.w`。原因：同轨有卡展开时槽位按设计冻结不刷新，
+       视口一变旧槽位不自愈，只剩 EDGE clamp 兜底 → 展开盒贴视口右缘 12px，
+       与 mini 卡右对齐基准（rail 右界）错位。rail 边缘永不过期，且 mini 卡右缘本就贴它。
+       无 rails 的快照（如单元测试喂的 12 组静态数据）自动回落到原 mini 锚，行为不变。 */
+    const railRight =
+      snap.rails && snap.rails.right && snap.rails.right.right > 0
+        ? snap.rails.right.right
+        : null;
     let x =
       cfg.rail === 'right'
-        ? Math.floor(c.mini.x + c.mini.w - w)
+        ? Math.floor(
+            (railRight != null ? railRight : c.mini.x + c.mini.w) - w,
+          )
         : Math.floor(c.mini.x);
     let y = Math.floor(c.mini.y);
 

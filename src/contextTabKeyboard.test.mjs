@@ -8,6 +8,7 @@ const radioBindings = readRadioSource(new URL('./ui/radioBindings.js', import.me
 const contextView = readRadioSource(new URL('./ui/views/ContextView.vue', import.meta.url), 'utf8');
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
+import { fontSizePx } from './testSupport/typeScale.mjs';
 import assert from 'node:assert/strict';
 
 const html = await renderApplicationHtml(readFileSync(new URL('../index.html', import.meta.url), 'utf8'));
@@ -111,7 +112,12 @@ test('Context reads as one segmented control with legible type and no halo', () 
   const rules = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)];
   const clean = (selector) => selector.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ').trim();
   const rule = (selector) => rules.find(([, s]) => clean(s) === selector)?.[2] || '';
-  const px = (body, prop) => Number(body.match(new RegExp(`${prop}:[^;]*?(\\d+(?:\\.\\d+)?)px`))?.[1] || 0);
+  // Small type now lives on the --fs-* scale (audit UI-03), so resolve the
+  // token instead of matching a px literal; the >= 10px floor is the contract.
+  const px = (body, prop) =>
+    fontSizePx(
+      body.match(new RegExp(`${prop}:[^;]*?([\\d.]+px|var\\(--fs-[\\w-]+\\))`))?.[1],
+    ) ?? 0;
 
   assert.match(rule('#global-context-panel .panel-glow'), /display:\s*none/);
   const modes = rule('.global-context-modes');
