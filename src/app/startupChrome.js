@@ -16,7 +16,11 @@ export function startApplicationChrome({
   const minimumDelay = new Promise((resolve) => {
     resolveDelay = resolve;
   });
-  const delayTimer = setTimeout(resolveDelay, 1000);
+  /* Floor that keeps the loading screen from flickering when restoration is
+     instant. It is a lower bound, not extra work: the cover still waits for
+     `initialRestorePromise`. 1000ms was longer than the 450ms fade below, so
+     the tail of the hold was pure waiting on cold start. */
+  const delayTimer = setTimeout(resolveDelay, 350);
   const revealFirstRun = () => {
     if (disposed || signal.aborted || firstRun) return;
     firstRun = initializeWelcome?.({ styleManager, dataManager });
