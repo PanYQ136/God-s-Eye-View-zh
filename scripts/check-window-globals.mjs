@@ -65,6 +65,11 @@ const LEGACY_WHITELIST = {
   __gevShaderCache: '着色器缓存统计（诊断）',
   __gevEdgeGrab: '验收仪器通道：gate 脚本写、lens 同帧读（跨脚本一帧内往返，桥无收益）',
   __gevEdgeGrabOut: '验收仪器通道：lens 写、gate 脚本读',
+  __gevStartupRevealed:
+    '启动握手标志（D5）：startupChrome 写、data/geoid.js 读，决定 EGM96 是否等遮罩；单写多读的启动期一次性开关',
+  __gevCnHealth: '中文健康面板句柄（gev-cn-health.js 幂等守卫 + 人工调试），无其他模块消费',
+  __gevCnWeather: '中文天气面板句柄（gev-cn-weather.js 幂等守卫 + 人工调试），无其他模块消费',
+  __gevGeoImport: '地理文件导入 handle：geoFileImport.js 唯一写方，测试与人工调试读（用例断言存在/清理）',
 };
 
 const CODE = /\.[mc]?js$/;

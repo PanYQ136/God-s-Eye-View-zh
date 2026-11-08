@@ -271,7 +271,6 @@
     "./ui/composition": "./src/ui/composition.js",
     "./ui/context": "./src/ui/context.js",
     "./ui/context/policy": "./src/contextModePolicy.js",
-    "./ui/display": "./src/ui/displayControls.js",
     "./ui/effects": "./src/ui/effects.js",
     "./ui/effects/bloom": "./src/bloom.js",
     "./ui/hud": "./src/hud.js",
