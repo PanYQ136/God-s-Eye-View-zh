@@ -69,7 +69,7 @@
   top: 2px;
   color: var(--accent);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: var(--fs-3xs);
   font-weight: 700;
   line-height: 1;
 }
@@ -97,7 +97,7 @@
   -webkit-backdrop-filter: blur(14px);
   color: rgba(170, 252, 255, 0.92);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: var(--fs-3xs);
   letter-spacing: 1.35px;
   text-transform: uppercase;
   transform: translateX(-50%);
@@ -174,7 +174,7 @@ html:not([lang='en']) #global-loading-detail {
 }
 
 .share-icon {
-  font-size: 16px;
+  font-size: var(--fs-lg);
   line-height: 1;
 }
 
@@ -196,14 +196,14 @@ html:not([lang='en']) #global-loading-detail {
   -webkit-backdrop-filter: blur(14px);
   color: rgba(170, 252, 255, 0.92);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: var(--fs-3xs);
   letter-spacing: 1.35px;
   text-transform: uppercase;
   opacity: 0;
   pointer-events: none;
   transition:
-    opacity 0.22s ease,
-    transform 0.22s ease;
+    opacity 220ms ease,
+    transform 220ms ease;
   box-shadow:
     0 8px 24px rgba(0, 0, 0, 0.34),
     0 0 14px rgba(0, 212, 255, 0.08);
@@ -401,7 +401,7 @@ html:not([lang='en']) #global-loading-detail {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--fs-xs);
   letter-spacing: 2px;
   color: var(--accent);
   text-transform: uppercase;
@@ -409,9 +409,9 @@ html:not([lang='en']) #global-loading-detail {
   visibility: hidden;
   pointer-events: none;
   transition:
-    opacity 0.3s ease,
-    visibility 0.3s ease,
-    transform 0.3s ease;
+    opacity 300ms ease,
+    visibility 300ms ease,
+    transform 300ms ease;
   box-shadow: 0 0 20px rgba(0, 212, 255, 0.15);
 }
 

@@ -5,7 +5,7 @@
         仅在悬停/拖动时给淡色虚提示，右下角提供缩放手柄。 */
 .gev-win {
   outline: 0 solid transparent;
-  transition: outline-color .18s ease;
+  transition: outline-color 180ms ease;
   will-change: left, top, width, height;
 }
 /* Phase8D #13：去 !important —— 与本文件 `.gev-win{outline:0 solid transparent}` 同层同源，

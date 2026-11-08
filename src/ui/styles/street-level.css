@@ -319,7 +319,7 @@ html:not([lang='en']) .sl-meta-row .sl-nearest-btn {
   border-radius: 50%;
   border: 2px solid rgba(255, 255, 255, 0.2);
   border-top-color: var(--sl-green);
-  animation: sl-spin 0.9s linear infinite;
+  animation: sl-spin 900ms linear infinite;
 }
 
 @keyframes sl-spin {

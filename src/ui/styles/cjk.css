@@ -24,7 +24,7 @@ html:is(:lang(zh), :lang(ja)) #command-dock .gev-mic-label,
 html:is(:lang(zh), :lang(ja)) #command-dock #gev-voice-detail,
 html:is(:lang(zh), :lang(ja)) .gev-voice-tier-btn,
 html:is(:lang(zh), :lang(ja)) .panel-layer-toggle {
-  font-size: 9px;
+  font-size: var(--fs-3xs);
 }
 
 /* A two-glyph button label must not break between its glyphs. */

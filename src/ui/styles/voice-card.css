@@ -496,7 +496,6 @@ body.recording-mode .gev-pointer-reticle {
   border-color: currentColor;
   box-shadow: 0 -2px 0 currentColor inset;
 }
-#gev-voice-control .gev-voice-panel [role='tab']:focus,
 #gev-voice-control .gev-voice-panel :focus-visible {
   outline: 2px solid var(--voice-panel-accent, var(--accent));
   outline-offset: 2px;

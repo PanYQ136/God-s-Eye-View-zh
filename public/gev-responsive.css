@@ -120,7 +120,7 @@ html #gev-dossier { max-width: min(340px, calc(100vw - 24px)); }
 
 /* ── 触摸设备：加大点击目标（≥40px）───────────────────────────── */
 @media (hover: none) and (pointer: coarse) {
-  #gev-locate-btn { padding: 8px 13px; font-size: 11px; min-height: 34px; }
+  #gev-locate-btn { padding: 8px 13px; font-size: var(--fs-xs); min-height: 34px; }
   #gev-perf-btn,
   #gev-perf-fps   { min-height: 32px; }
   html #gev-dossier button,

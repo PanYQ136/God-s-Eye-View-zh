@@ -94,7 +94,7 @@ html:not([lang='en']) .cctv-controls .scene-btn {
 
 .cctv-cal-value {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--fs-3xs);
   letter-spacing: 0.7px;
   color: #91edff;
   background: rgba(255, 255, 255, 0.04);
@@ -103,8 +103,8 @@ html:not([lang='en']) .cctv-controls .scene-btn {
   padding: 4px 7px;
   cursor: text;
   transition:
-    border-color 0.15s ease,
-    background 0.15s ease;
+    border-color 150ms ease,
+    background 150ms ease;
 }
 
 .cctv-cal-value:hover:not(:disabled) {
@@ -204,12 +204,12 @@ html:not([lang='en']) .cctv-controls .scene-btn {
   transform: translateX(-100%);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s ease;
+  transition: opacity 200ms ease;
 }
 
 .cctv-frame-wrap.loading::after {
   opacity: 1;
-  animation: cctv-frame-shimmer 1.4s linear infinite;
+  animation: cctv-frame-shimmer 1400ms linear infinite;
 }
 
 /* "Acquiring" caption only when no previous frame is showing underneath.
@@ -221,7 +221,7 @@ html:not([lang='en']) .cctv-controls .scene-btn {
   align-items: center;
   justify-content: center;
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: var(--fs-3xs);
   letter-spacing: 2.2px;
   color: rgba(145, 237, 255, 0.62);
   pointer-events: none;
@@ -276,7 +276,7 @@ html:not([lang='en']) .cctv-controls .scene-btn {
 
 #cctv-meta {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--fs-3xs);
   letter-spacing: 1px;
   color: var(--text-secondary);
 }
@@ -299,7 +299,7 @@ html:not([lang='en']) .cctv-controls .scene-btn {
 
 .cctv-summary-label {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: var(--fs-3xs);
   letter-spacing: 1.7px;
   color: var(--text-dim);
 }
@@ -307,7 +307,7 @@ html:not([lang='en']) .cctv-controls .scene-btn {
 #cctv-summary {
   min-height: 38px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--fs-2xs);
   letter-spacing: 0.8px;
   line-height: 1.45;
   color: #a8f7ff;
@@ -329,7 +329,7 @@ html:not([lang='en']) .cctv-cal-value {
 
 html:not([lang='en']) #cctv-camera-select {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--fs-2xs);
   letter-spacing: 0.04em;
 }
 

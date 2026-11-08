@@ -57,7 +57,7 @@
 
 .panel-mini-label {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: var(--fs-3xs);
   letter-spacing: 1.4px;
   color: var(--text-dim);
   text-transform: uppercase;
@@ -65,7 +65,7 @@
 
 .panel-mini-value {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--fs-3xs);
   letter-spacing: 1.8px;
   color: var(--accent);
   text-transform: uppercase;
@@ -74,7 +74,7 @@
 
 .panel-title {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--fs-3xs);
   letter-spacing: 3px;
   color: var(--text-dim);
   text-transform: uppercase;
@@ -177,7 +177,7 @@ html:not([lang='en']):not(:lang(zh)):not(:lang(ja))
   > [class$='-panel-inner']
   > .panel-header
   > .panel-title {
-  font-size: 8px;
+  font-size: var(--fs-3xs);
   letter-spacing: 1px;
 }
 
@@ -195,7 +195,7 @@ html:not([lang='en']):not(:lang(zh)):not(:lang(ja))
   background: rgba(255, 255, 255, 0.03);
   color: var(--text-dim);
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: var(--fs-md);
   line-height: 1;
   /* A long title or a header action must not squeeze the toggle. */
   flex-shrink: 0;
@@ -351,7 +351,7 @@ html:not([lang='en']):not(:lang(zh)):not(:lang(ja))
 
 .btn-label {
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: var(--fs-xs);
   font-weight: 500;
   color: var(--text-secondary);
   letter-spacing: 0.3px;
@@ -363,7 +363,7 @@ html:not([lang='en']):not(:lang(zh)):not(:lang(ja))
   top: 6px;
   right: 6px;
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: var(--fs-3xs);
   color: var(--text-dim);
   opacity: 0;
   transition: opacity var(--transition-fast);
@@ -384,8 +384,8 @@ html:not([lang='en']):not(:lang(zh)):not(:lang(ja))
   align-items: center;
   justify-content: center;
   transition:
-    opacity 0.45s ease,
-    visibility 0.45s ease;
+    opacity 450ms ease,
+    visibility 450ms ease;
 }
 
 #loading-screen.hidden {
@@ -437,7 +437,7 @@ html:not([lang='en']):not(:lang(zh)):not(:lang(ja))
 
 .loader-status {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--fs-xs);
   letter-spacing: 2px;
   color: var(--text-dim);
   animation: pulse 2s ease-in-out infinite;
@@ -582,7 +582,7 @@ html:not([lang='en']):not(:lang(zh)):not(:lang(ja))
   width: 20px;
   height: 20px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: var(--fs-sm);
   padding: 0;
 }
 
@@ -593,7 +593,7 @@ html:not([lang='en']):not(:lang(zh)):not(:lang(ja))
   .pp-collapse-btn {
   width: 22px;
   height: 22px;
-  font-size: 13px;
+  font-size: var(--fs-md);
 }
 
 #pp-toggles.collapsed {
@@ -642,7 +642,7 @@ html:not([lang='en']):not(:lang(zh)):not(:lang(ja))
 
 .pp-label {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--fs-3xs);
   letter-spacing: 1.5px;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -709,7 +709,7 @@ html:not([lang='en']):not(:lang(zh)):not(:lang(ja))
 
 .pp-slider-mini-label {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: var(--fs-3xs);
   letter-spacing: 1px;
   color: var(--text-dim);
   text-transform: uppercase;
@@ -787,7 +787,7 @@ html:not([lang='en']) .pp-slider-row > .pp-slider-mini-label {
   justify-content: space-between;
   color: rgba(190, 221, 230, 0.62);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: var(--fs-3xs);
   letter-spacing: 1.35px;
 }
 
@@ -804,7 +804,7 @@ html:not([lang='en']) .pp-slider-row > .pp-slider-mini-label {
   gap: 4px;
   padding: 4px 7px;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--fs-3xs);
   letter-spacing: 0.6px;
   text-transform: uppercase;
   white-space: nowrap;
@@ -873,7 +873,7 @@ html:not([lang='en']) .pp-slider-row > .pp-slider-mini-label {
 }
 
 .map-stack-chip-req {
-  font-size: 7px;
+  font-size: var(--fs-3xs);
   letter-spacing: 0.3px;
   color: rgba(232, 234, 237, 0.28);
 }
@@ -885,7 +885,7 @@ html:not([lang='en']) .pp-slider-row > .pp-slider-mini-label {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--fs-3xs);
   letter-spacing: 0.8px;
   color: var(--accent);
   text-align: center;
@@ -917,7 +917,7 @@ html:not([lang='en']) .pp-slider-row > .pp-slider-mini-label {
 }
 .draw-shape-seg .material-symbols-outlined {
   display: block;
-  font-size: 16px;
+  font-size: var(--fs-lg);
   line-height: 1;
 }
 .draw-colors {
@@ -1009,7 +1009,7 @@ html:not([lang='en']) .pp-slider-row > .pp-slider-mini-label {
 .draw-hint {
   flex-basis: 100%;
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: var(--fs-3xs);
   letter-spacing: 0.6px;
   color: var(--text-dim);
   line-height: 1.4;
@@ -1058,7 +1058,7 @@ body.gev-drawing #cesiumContainer canvas {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--fs-2xs);
   letter-spacing: 0.6px;
   color: var(--text-primary);
 }
@@ -1107,7 +1107,7 @@ body.gev-geo-import-drag #cesiumContainer {
   border: none;
   color: var(--text-dim);
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--fs-3xs);
   letter-spacing: 0.6px;
   text-transform: uppercase;
   cursor: pointer;
@@ -1152,7 +1152,7 @@ body.gev-geo-import-drag #cesiumContainer {
   background: rgba(8, 10, 14, 0.88);
   color: #d9f7ff;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--fs-2xs);
   letter-spacing: 1.8px;
   padding: 8px 14px;
   cursor: pointer;
@@ -1283,7 +1283,7 @@ body.ui-clean-view #scene-runtime.active {
 
 .param-panel-title {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: var(--fs-3xs);
   letter-spacing: 2.5px;
   color: var(--text-dim);
   text-transform: uppercase;
@@ -1334,7 +1334,7 @@ html:not([lang='en']) .param-slider-row {
 
 .param-label {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--fs-3xs);
   letter-spacing: 1px;
   color: var(--text-secondary);
   min-width: 72px;

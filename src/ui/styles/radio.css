@@ -180,7 +180,7 @@
     0 0 10px rgba(255, 77, 50, 0.65);
   pointer-events: none;
   transform: translateX(-50%);
-  transition: left 0.18s ease-out;
+  transition: left 180ms ease-out;
 }
 .radio-tuner.is-dragging .radio-tuner-needle,
 .radio-tuner.is-dragging .radio-tuner-tick {
@@ -451,7 +451,7 @@ html:not([lang='en']) .radio-transport button {
 }
 .military-awareness-note {
   margin: 8px 0 0;
-  font-size: 10px;
+  font-size: var(--fs-2xs);
 }
 .military-awareness-standby {
   display: grid;
@@ -461,13 +461,13 @@ html:not([lang='en']) .radio-transport button {
 }
 .military-awareness-standby strong {
   color: var(--text-primary);
-  font-size: 10px;
+  font-size: var(--fs-2xs);
   font-weight: 600;
   letter-spacing: 0.08em;
 }
 .military-awareness-standby span {
   color: rgba(214, 236, 255, 0.72);
-  font-size: 10px;
+  font-size: var(--fs-2xs);
   line-height: 1.5;
   letter-spacing: 0.02em;
 }
@@ -566,7 +566,7 @@ html:not([lang='en']) .radio-transport button {
 }
 .military-awareness-compass-heading {
   color: rgba(190, 225, 249, 0.76);
-  font-size: 8px;
+  font-size: var(--fs-3xs);
 }
 .military-awareness-direction-marker {
   position: absolute;
@@ -629,13 +629,13 @@ html:not([lang='en']) .radio-transport button {
 }
 
 .data-icon {
-  font-size: 16px;
+  font-size: var(--fs-lg);
   line-height: 1;
 }
 
 .data-name {
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: var(--fs-md);
   font-weight: 500;
   color: var(--text-primary);
   letter-spacing: 0.3px;
@@ -649,7 +649,7 @@ html:not([lang='en']) .radio-transport button {
 
 .data-count {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--fs-xs);
   letter-spacing: 0.5px;
   color: var(--text-secondary);
   min-width: 30px;
@@ -723,7 +723,7 @@ html:not([lang='en']) .data-toggle-row--count-line .data-count {
   order: 1;
   flex: 1 0 100%;
   padding-left: 26px;
-  font-size: 10px;
+  font-size: var(--fs-2xs);
   text-align: left;
 }
 
@@ -748,7 +748,7 @@ html:not([lang='en'])
 .data-toggle-btn {
   padding: 3px 10px;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--fs-3xs);
   letter-spacing: 1.5px;
   color: var(--text-dim);
   background: rgba(255, 255, 255, 0.04);
@@ -839,7 +839,7 @@ html:not([lang='en'])
 
 .data-toggle-meta {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--fs-3xs);
   letter-spacing: 0.5px;
   color: var(--text-dim);
   padding-left: 26px;
@@ -865,7 +865,7 @@ html:not([lang='en'])
 .data-toggle-chip {
   padding: 2px 7px;
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: var(--fs-3xs);
   letter-spacing: 1.2px;
   color: var(--text-dim);
   background: rgba(255, 255, 255, 0.04);
@@ -916,7 +916,7 @@ html:not([lang='en'])
   align-items: center;
   gap: 4px;
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: var(--fs-3xs);
   letter-spacing: 0.5px;
   color: var(--text-dim);
   cursor: default;
@@ -956,7 +956,7 @@ html:not([lang='en'])
   width: 100%;
   padding: 2px 4px;
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: var(--fs-3xs);
   letter-spacing: 0.4px;
   text-align: left;
   color: var(--text-dim);
@@ -1037,7 +1037,7 @@ html:not([lang='en']) .data-row-list-text {
 .data-toggle-controls-info {
   flex-basis: 100%;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--fs-3xs);
   color: var(--text-secondary);
   padding-top: 3px;
   overflow-wrap: anywhere;
@@ -1054,7 +1054,7 @@ html:not([lang='en']) .data-row-list-text {
   flex-basis: 100%;
   padding-top: 2px;
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: var(--fs-3xs);
   letter-spacing: 1.2px;
   color: var(--text-dim);
   text-transform: uppercase;
@@ -1063,7 +1063,7 @@ html:not([lang='en']) .data-row-list-text {
 .data-toggle-controls .data-toggle-segment {
   min-height: 20px;
   padding: 3px 6px;
-  font-size: 8px;
+  font-size: var(--fs-3xs);
   letter-spacing: 0.8px;
 }
 
@@ -1083,7 +1083,7 @@ html:not([lang='en']) .data-row-list-text {
   align-items: baseline;
   gap: 8px;
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: var(--fs-3xs);
   letter-spacing: 1.2px;
   color: var(--text-dim);
   text-transform: uppercase;
@@ -1091,7 +1091,7 @@ html:not([lang='en']) .data-row-list-text {
 
 .data-toggle-slider-value {
   min-width: 0;
-  font-size: 9px;
+  font-size: var(--fs-3xs);
   letter-spacing: 0.5px;
   text-transform: none;
 }
@@ -1138,7 +1138,7 @@ html:not([lang='en']) .data-row-list-text {
   height: 10px;
   margin: 0 5px;
   font-family: var(--font-mono);
-  font-size: 7px;
+  font-size: var(--fs-3xs);
   letter-spacing: 0.4px;
   color: var(--text-dim);
 }
@@ -1146,7 +1146,7 @@ html:not([lang='en']) .data-row-list-text {
 .data-toggle-slider-tick {
   position: absolute;
   top: 0;
-  left: var(--at);
+  left: var(--at, 50%);
   transform: translateX(-50%);
   white-space: nowrap;
 }

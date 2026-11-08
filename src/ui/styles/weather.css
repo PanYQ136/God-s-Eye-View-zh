@@ -108,7 +108,7 @@
   flex: 1 1 auto;
   min-width: 0;
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: var(--fs-md);
   font-weight: 500;
   color: var(--text-secondary);
   letter-spacing: 0.3px;
@@ -130,7 +130,7 @@
 .rail-card-line,
 .rail-timeline-readout {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--fs-3xs);
   letter-spacing: 0.5px;
   color: var(--text-dim);
 }
@@ -184,7 +184,7 @@ html:not([lang='en']) .weather-card [data-line-id='status'] {
 .rail-card .data-row-list-item {
   min-width: 0;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--fs-3xs);
   letter-spacing: 0.5px;
 }
 .rail-card [hidden],
