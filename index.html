@@ -3,6 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <!-- 安全基线（#20）：只放「不改变任何资源加载行为」的指令，零白屏风险。
+       完整策略走强制响应头 Content-Security-Policy（vercel.json）。
+       2026-11-08 已从 Report-Only 升级为强制：升级前用 csp-probe 在真实 Chrome 里
+       托管带该头的 dist 实测 —— violations=0，Cesium 瓦片/地形、autonavi、
+       Google Fonts 全部正常加载，8 个 canvas 就绪、无 console error。
+       策略里 connect-src 保留 https: wss: 是为了容纳后续换瓦片源，不收紧到域名白名单。 -->
+  <meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'" />
   <title>God's Eye View</title>
   <!-- Raster fallbacks: Safari ignores an SVG apple-touch-icon and falls back to a
        screenshot of the page, so an installed app needs a real PNG. Regenerate
@@ -45,7 +52,14 @@
 <body>
   <!-- A1 · kit.md §公共 CSS：边缘折射 SVG filter（20px 带宽）。
        必须先注入再引用：--glass-lens 默认 none，只有 opt-in 元素才写 url(#lg-lens)，
-       否则 kit.md §7 的「filter 缺失 → 整条 backdrop-filter 失效」会抹掉毛玻璃。 -->
+       否则 kit.md §7 的「filter 缺失 → 整条 backdrop-filter 失效」会抹掉毛玻璃。
+
+       ⚠ 2026-11-08 评估结论：保留定义，但**不要 opt-in**（当前只有 --glass-lens 默认值在用）。
+       原因：backdrop-filter 里的 url(#…) 只接受 filter function，它的 SourceGraphic 是「整块
+       backdrop 图」，SourceAlpha 恒为整屏不透明 —— 拿不到卡片的形状。因此这版 feTurbulence +
+       feDisplacementMap 无法做「只在边缘一圈扰动」，scale=20 会把卡片背后 20px 内的底图整体
+       撕成噪声（滤镜一旦打开就是整面糊，而不是液态玻璃边缘的微米级扰动）。
+       真要做边缘湍流只能进 WebGL shader（沿 SDF 法线按 t 加权加噪声位移），那是另一条改动。 -->
   <svg width="0" height="0" aria-hidden="true" style="position:absolute;pointer-events:none">
     <filter id="lg-lens" x="-10%" y="-10%" width="120%" height="120%">
       <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="7" result="noise" />

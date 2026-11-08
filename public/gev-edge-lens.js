@@ -128,9 +128,38 @@
        （83% 符号抵消：沿边/沿深的梯度正负交替，见 .gev-logs/lc/phase7d3 报告 §3）。 */
     dispBandStart: 0.85,
     blurPx: 0.7,       // 斜面透镜的轻微柔化（只在 band 内，<1px；中心不采样）
-    lod: 0.0,          // 采样 LOD（0=最锐；1 略柔）
+    /* Phase9（2026-11-08）：LOD 由「死声明」接成真旋钮（FS 的 lodInner / blurLod）。
+       0 = 旧行为（带内全 5 tap、核宽固定）；1 = 内缘 45% 带宽降为单 tap（省 12 次采样/片元）
+       且外缘核宽 ×1.8。像素等价点在 0 —— 转正前须在真实 demo 上 A/B。 */
+    lod: 0.0,
     rimAmt: 0.80,      // 边缘高光强度（单一光源；只在上沿/右沿，不成闭合线）
-    curvature: 1.7, spread: 1.59, smoothness: 8.0,
+    /* Phase9 · GGX 边缘高光（uGGX 0→1 与 legacy pow(ndl,2) 插值，0 = 逐像素等于旧行为）。
+       rough 越小高光越锐（金属/湿面），越大越宽（磨砂玻璃）。默认关，只在 optical 档试开。 */
+    ggx: 0.0,
+    rough: 0.55,
+    ggxPow: 0.5,
+    /* Phase9：以下三个此前是**死参数**（shader 有 uniform 声明，但从未参与任何计算）。
+       接线后语义与默认值取「与旧硬编码常量逐位等价」的点，避免视觉回归：
+         curvature  倒角剖面 pow(1-s^n, 1/n) 的 n，旧硬编码 4 → 默认 4.0
+         spread     色散通道分离宽度，旧硬编码 0.82/1.00/1.22 → 默认 1.0
+         smoothness 法线中心差分步长（CSS px），旧硬编码 ±1.0 → 默认 1.0
+       旧值 1.7 / 1.59 / 8.0 从未生效，已作废（已确认无外部脚本引用这三个数值）。 */
+    curvature: 4.0, spread: 1.0, smoothness: 1.0,
+    /* 背界面折射强度（FS 的 dBack）：0 = 只有前界面（旧行为）；0.5–0.8 = 内缘出现
+       「透过厚度看背面」的第二层偏移。默认 0，真实 demo A/B 通过后再转正。 */
+    back: 0.0,
+    /* ── Phase9 · Liquid（2026-11-08）：液态玻璃边缘湍流 ─────────────────────
+       原需求是 SVG feTurbulence，但它只能整面扰动（见 FS 里 turb() 上方的说明），
+       改为在 SDF 上做分形 value-noise 位移，语义相同、只作用于边缘。
+         turbAmp   起伏幅度（CSS px）。0 = 逐像素等于旧 shader（默认，零回归）。
+                   0.6–1.2 才有明显「液面」感；>2 会把圆角吃成波浪。
+         turbFreq  空间频率（1/CSS px）。0.055 ≈ 每 18px 一个起伏；越大越碎。
+         turbSpeed 流动速度（相位/秒）。0.35 是「缓慢呼吸」，2 以上像沸腾。
+         turbOct   八度层数 1/2/3。2 = 大起伏套小起伏（默认，最像水）。
+       ⚠ 性能：turbAmp>0 时 SDF 每帧都变 → 全屏层每帧变脏，本文件既有实测
+       （Intel UHD）整窗上限约 40fps。因此默认 0，只在 preset('liquid') 或
+       显式 set({turbAmp}) 时开启。 */
+    turbAmp: 0.0, turbFreq: 0.055, turbSpeed: 0.35, turbOct: 2.0,
     innerDark: 0,      // 0 = 无内圈压暗（禁内圈灰线）
     aa: 1.2,           // 外轮廓抗锯齿（CSS px）
     bandAlpha: 0.55,   // Phase 4：band 半透系数（1 = 实心替换底图 → 会读出双灰圈；0.55 = 玻璃斜面）
@@ -177,6 +206,12 @@
     thick: CFG.thick, ior: CFG.ior, gain: CFG.gain, dispPx: CFG.dispPx, dispGain: CFG.dispGain,
     dispCap: CFG.dispCap, dispBandStart: CFG.dispBandStart, bandAlpha: CFG.bandAlpha,
     blurPx: CFG.blurPx, rimAmt: CFG.rimAmt, aa: CFG.aa, maxScale: CFG.maxScale,
+    /* Phase9（2026-11-08）：本轮接线的四个光学旋钮 + 新增 back。
+       gate 用 stats().cfg 断言「源码默认值」，这四个进来后死参数才有可核对的基线。 */
+    lod: CFG.lod, curvature: CFG.curvature, spread: CFG.spread, smoothness: CFG.smoothness, back: CFG.back,
+    /* Phase9 · Liquid：turbAmp 默认 0 也要进 BASE —— 门禁据此断言「液态默认关」
+       （stats().cfg.turbAmp === 0），避免以后被悄悄改成默认开启。 */
+    turbAmp: CFG.turbAmp, turbFreq: CFG.turbFreq, turbSpeed: CFG.turbSpeed, turbOct: CFG.turbOct,
   };
 
   /* 玻璃面：9 张卡（与 src/lc/cards.js 的卡片表一致，去掉顶部功能条） */
@@ -200,6 +235,8 @@
     drawMax: 0, drawMaxAt: 0, drawFirstMs: 0, drawLog: [], drawN: 0,
     upMax: 0, upMaxAt: 0, peakWindows: [] };
   var ready = false, cv = null, gl = null, texValid = false;
+  /* Phase9 · 中档标记：quality=reduced 时置位，只影响起始 CFG 与内核分辨率上限。 */
+  var MID_TIER = false;
   /* ── 空闲去重（t_834a621c · 2026-10-28）──────────────────────────────────
      Cesium 在 requestRenderMode 下空闲时 postRender 不再触发（实测 1.5s 内 0 次），
      而本文件的 rAF 兜底仍在每帧 clear + drawArrays → 整张全屏 canvas 每帧变脏 →
@@ -302,7 +339,8 @@
     'uniform vec2 uRes;',
     'uniform vec4 uRect;',
     'uniform float uRadius, uCornerN, uBand, uFeather, uThick, uIOR, uGain, uDispPx, uDispGain, uDispCap, uDispE0, uLod,',
-    '              uRimAmt, uCurv, uSpread, uSmooth, uInnerDark, uAA, uScale, uBlurPx, uBandAlpha;',
+    '              uRimAmt, uCurv, uSpread, uSmooth, uInnerDark, uAA, uScale, uBlurPx, uBandAlpha, uBack,',
+    '              uGGX, uRough, uGGXPow, uTurbAmp, uTurbFreq, uTurbTime, uTurbOct;',
     'float sdRound(vec2 p, vec2 hs, float r){',
     '  vec2 q = abs(p) - hs + vec2(r);',
     '  return length(max(q, vec2(0.0))) + min(max(q.x, q.y), 0.0) - r;',
@@ -322,9 +360,18 @@
     '  float gx = g * pow(ax, n - 1.0) / r, gy = g * pow(ay, n - 1.0) / r;',
     '  return (f - 1.0) / max(sqrt(gx * gx + gy * gy), 1e-6);',
     '}',
+    /* 中心差分梯度。h = 采样半径：直边上线性 → 与 h 无关；角的折点处 h 决定平滑程度。 */
+    'vec2 sdGrad(vec2 p, vec2 hs, float r, float n, float h){',
+    '  return vec2(sdShape(p + vec2(h, 0.0), hs, r, n) - sdShape(p - vec2(h, 0.0), hs, r, n),',
+    '              sdShape(p + vec2(0.0, h), hs, r, n) - sdShape(p - vec2(0.0, h), hs, r, n));',
+    '}',
+    /* 倒角剖面 pow(1-s^n, 1/n)：n = uCurv（Phase9 · 把硬编码的 4.0 接成旋钮）。
+       uCurv = 4 → 与旧式 pow(1-s*s*s*s, 0.25) 逐像素等价（默认即此值）。
+       n 小 → 台面更平、收边更缓；n 大 → 更陡的倒角（更像切削边）。 */
     'float surfaceHeight(float t){',
     '  float s = 1.0 - t;',
-    '  return pow(max(1.0 - s * s * s * s, 0.0), 0.25);',
+    '  float n = max(uCurv, 1.01);',
+    '  return pow(max(1.0 - pow(s, n), 0.0), 1.0 / n);',
     '}',
     /* 5 抽样小模糊：斜面是透镜（3:25 的 blur≈2px），全锐会读成「贴片/相框」 */
     'vec3 tap(sampler2D t, vec2 uv, vec2 d){ return texture(t, uv + d).rgb; }',
@@ -336,11 +383,55 @@
     '  s += tap(t, uv, vec2(0.0, -px.y)) * 0.16;',
     '  return s;',
     '}',
+    /* ── Phase9 · Inner/Outer 分档 LOD（把死 uniform uLod 接活）─────────────────
+       t = 0 在玻璃外轮廓，t = 1 在内缘（靠卡中心）。
+         · Outer 段（t 小）= 翻卷进边框的远景：5 tap 全核，核宽随 uLod 一起放大。
+         · Inner 段（t→1）= 紧贴卡片中心，图像已被 material.css 的中心 blur 接管：
+           单 tap 即可（省 4 次采样 × 3 路 = 12 次/片元），肉眼不可辨。
+       uLod = 0 → 全带 5 tap、核宽不变（旧行为，逐像素不变）。
+       uLod = 1 → 内缘 45% 带宽走单 tap，外缘核宽 ×1.8。 */
+    'float lodInner(float tv){',
+    '  if (uLod <= 0.0) return 0.0;',
+    '  return smoothstep(1.0 - 0.45 * min(uLod, 1.0), 1.0, tv);',
+    '}',
+    'vec3 blurLod(sampler2D t, vec2 uv, vec2 px, float tv){',
+    '  float w = lodInner(tv);',
+    '  if (w >= 0.999) return texture(t, uv).rgb;',
+    '  vec3 c5 = blur3(t, uv, px);',
+    '  return w <= 0.001 ? c5 : mix(c5, texture(t, uv).rgb, w);',
+    '}',
+    /* ── Phase9 · Liquid：边缘湍流（原「feTurbulence 液态玻璃」的可行实现）─────────
+       SVG feTurbulence 这条路走不通：它作用于**整张**滤镜区域，配 backdrop-filter 时
+       只能整面扰动，做不出「只有边缘像液体」的效果（上一轮否决的正是这一点）。
+       这里直接在 SDF 上做同一种分形 value-noise 位移，等价且可控：
+         d += (turb(p*freq + t*speed) - 0.5) * 2 * amp     // amp = CSS px 的起伏幅度
+       uTurbAmp = 0 → 分支整段跳过，逐像素等于旧 shader（默认值，零回归风险）。
+       uTurbOct = 1/2/3 层八度（大起伏套小起伏），uTurbFreq 单位是 1/CSS px。 */
+    'float h21(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }',
+    'float vnoise(vec2 p){',
+    '  vec2 i = floor(p), f = fract(p);',
+    '  vec2 u = f * f * (3.0 - 2.0 * f);',
+    '  float a = h21(i), b = h21(i + vec2(1.0, 0.0));',
+    '  float c = h21(i + vec2(0.0, 1.0)), e = h21(i + vec2(1.0, 1.0));',
+    '  return mix(mix(a, b, u.x), mix(c, e, u.x), u.y);',
+    '}',
+    'float turb(vec2 p, float t){',
+    '  float s = vnoise(p + vec2(t, -t * 0.7)) * 0.62;',
+    '  if (uTurbOct > 1.5) s += vnoise(p * 2.13 + vec2(-t * 1.3, t)) * 0.26;',
+    '  if (uTurbOct > 2.5) s += vnoise(p * 4.37 + vec2(t * 1.7, -t * 1.1)) * 0.12;',
+    '  return s;',
+    '}',
     'void main(){',
     '  vec2 hs = uRect.zw * 0.5;',
     '  vec2 c  = uRect.xy + hs;',
     '  vec2 p  = vPx - c;',
     '  float d = sdShape(p, hs, uRadius, uCornerN);',
+    /* Phase9 · Liquid：只位移 SDF 本身（外轮廓起伏），法线仍由未扰动的 sdGrad 求，
+       所以高光不会跟着噪——否则边缘会读成「磨砂」而不是「液体」。 */
+    '  if (uTurbAmp > 0.0001) {',
+    '    float tb = (turb(p * uTurbFreq, uTurbTime) - 0.5) * 2.0;',
+    '    d += tb * uTurbAmp;',
+    '  }',
     '  if (d > 0.0) discard;',
     '  float depth = -d;',
     '  if (depth > uBand) discard;',                          // 中心不画（CSS blur 负责）
@@ -350,20 +441,42 @@
     '  float slope = atan(abs(dh) * (uThick / max(uBand, 1.0)));',
     '  float thR = asin(clamp(sin(slope) / uIOR, -1.0, 1.0));',
     '  float dBase = h * uThick * (tan(slope) - tan(thR)) * uGain;',   // 真 Snell（内缘 → 0）
-    '  vec2 n = normalize(vec2(',
-    '      sdShape(p + vec2(1.0, 0.0), hs, uRadius, uCornerN) - sdShape(p - vec2(1.0, 0.0), hs, uRadius, uCornerN),',
-    '      sdShape(p + vec2(0.0, 1.0), hs, uRadius, uCornerN) - sdShape(p - vec2(0.0, 1.0), hs, uRadius, uCornerN)) + 1e-6);',
+    /* 法线用中心差分，步长 = uSmooth（CSS px）。1 = 旧行为（±1px）；
+       加大步长 = 低噪法线：超椭圆角的 SDF 一阶导数在角部有折点，±1px 会把折点
+       当高频噪声放大成沿角的亮线，2–3px 步长给出更稳的方向场。 */
+    '  float ne = max(uSmooth, 0.5);',
+    '  vec2 gA = sdGrad(p, hs, uRadius, uCornerN, ne);',
+    /* uSmooth > 1：再加一个 2.5 倍半径的尺度，两个尺度**各自归一化后**平均。
+       只放大步长看不出效果（实测 smooth=4 与 1 逐像素零差异：sdShape 在直边是
+       线性、在角部一阶差分的方向对步长只有二阶敏感），真正压住角部折点噪声的是
+       多尺度方向场的平均。uSmooth = 1 → 与旧式 normalize(diff + 1e-6) 完全一致。 */
+    '  vec2 n = uSmooth > 1.01',
+    '    ? normalize(normalize(gA + 1e-6) + normalize(sdGrad(p, hs, uRadius, uCornerN, ne * 2.5) + 1e-6) + 1e-6)',
+    '    : normalize(gA + 1e-6);',
     '  vec2 dir = -n;',                                       // 向内取样（倒角把外景折进来）
     '  float edgeBand = 1.0 - smoothstep(uDispE0, 1.0, t);',
-        '  float dEdge = uDispPx * edgeBand;',
+    '  float dEdge = uDispPx * edgeBand;',
+    /* 色散分离宽度 = uSpread（1.0 → 旧式 0.82 / 1.00 / 1.22）。R/B 相对 G 反向错开，G 为基准轴。 */
+    '  float spR = 1.0 - 0.18 * uSpread;',
+    '  float spB = 1.0 + 0.22 * uSpread;',
+    /* ── Phase9 · 背界面折射（uBack）─────────────────────────────────────────
+       真实玻璃有两个界面：前表面把外景折射进来（dBase + dEdge = 旧行为），
+       光线穿过厚度后再从后表面出射 —— 后界面给出「绕到卡内侧的第二次偏移」。
+       旧 shader 只有前界面，dBase 到内缘归零就平掉了，所以边缘读起来是单薄薄片。
+       这里在 band 的 inner 段（t→1）叠加一层反向外采样（-dir），幅度随 t 增大，
+       形成「越靠内缘越像透过厚度看背面」的双界面结构。
+       三通道同幅、不带色散（不污染 gate 的 ΔR−ΔB 判据）。
+       uBack = 0 → 逐像素等于旧行为（默认关闭，待视觉评估后再决定转正）。 */
+    '  float dBack = uBack * smoothstep(0.35, 1.0, t) * uThick * 0.6;',
     '  vec2 uv = vPx / uRes;',
-    '  vec2 uvR = uv + dir * (dBase + dEdge * 0.82) / uRes;',
-    '  vec2 uvG = uv + dir * (dBase + dEdge * 1.00) / uRes;',
-    '  vec2 uvB = uv + dir * (dBase + dEdge * 1.22) / uRes;',
-    '  vec2 bpx = vec2(uBlurPx) / uRes;',
-    '  vec3 sR = blur3(uMap, uvR, bpx);',
-    '  vec3 sG = blur3(uMap, uvG, bpx);',
-    '  vec3 sB = blur3(uMap, uvB, bpx);',
+    '  vec2 uvR = uv + dir * (dBase + dEdge * spR - dBack) / uRes;',
+    '  vec2 uvG = uv + dir * (dBase + dEdge - dBack) / uRes;',
+    '  vec2 uvB = uv + dir * (dBase + dEdge * spB - dBack) / uRes;',
+    /* Outer 段核宽随 uLod 放大（外缘 = 翻卷的远景，越远越柔）；uLod = 0 时与旧式一致。 */
+    '  vec2 bpx = vec2(uBlurPx * (1.0 + uLod * 0.8)) / uRes;',
+    '  vec3 sR = blurLod(uMap, uvR, bpx, t);',
+    '  vec3 sG = blurLod(uMap, uvG, bpx, t);',
+    '  vec3 sB = blurLod(uMap, uvB, bpx, t);',
     '  vec3 col = vec3(sR.r, sG.g, sB.b);',
     /* Phase6C5 色散对比度补偿：以 G（无偏移基准）为轴，把 R/B 的色散偏移放大 dispGain 倍并限幅。
        只改「色散分量」，不动位移/亮度/alpha；限幅 dispCap 让硬边最坏情况也只是一层淡彩边。 */
@@ -376,7 +489,37 @@
     '  vec2 L = normalize(vec2(0.45, -0.89));',
     '  float bandf = exp(-pow(t / 0.22, 2.0));',
     '  float ndl = max(dot(n, L), 0.0);',
-    '  float rim = pow(ndl, 2.0) * bandf;',
+    /* ── 高光模型：legacy pow(ndl,2) ↔ GGX（uGGX 插值，0 = 逐像素等于旧行为）────────
+       旧式 pow(ndl,2) 是「宽而软」的 Lambert 类比：整条受光边都亮，且亮度只跟法线夹角有关，
+       没有材质粗糙度、没有掠射增亮 —— 读起来像「描了一条白边」而不是玻璃表面。
+       真玻璃的边缘光是微表面镜面反射：法线只在很窄的角度范围内对齐半程向量时才出亮，
+       掠射角因菲涅尔而增亮。这里用归一化 GGX（Trowbridge-Reitz）D 项：
+         Dn = (a² / (ndh²(a²−1)+1))²   ← 已除以自身峰值 1/(πa²)，峰值恒为 1，
+                                        便于与 legacy 的 ndl²（峰值也是 1）做 mix 而不改亮度标度
+         F  = Schlick(0.04) 归一化到 0.04 的倍数并限幅 3（掠射最多 3 倍，防爆白）
+         × smoothstep(−0.15, 0.55, n·L) 只让朝向光源的边亮 —— 背光边不亮，四周仍不闭合
+       uRough 是唯一的观感旋钮：小 = 一条锐利亮线（金属感），大 = 宽而柔的湿润感。
+       分支只在 uGGX>0 时进入，保证 stock 档不走新数学、逐像素与旧版一致。 */
+    '  float rim = pow(ndl, 2.0);',
+    '  if (uGGX > 0.001) {',
+    '    vec3 Nv = vec3(n, sqrt(max(1.0 - dot(n, n), 0.0)));',
+    '    vec3 Vv = vec3(0.0, 0.0, 1.0);',
+    '    vec3 Lv = normalize(vec3(L, 0.62));',
+    '    vec3 Hv = normalize(Lv + Vv);',
+    '    float rr = clamp(uRough, 0.10, 0.95);',
+    '    float a2 = rr * rr; a2 = a2 * a2;',
+    '    float ndh = clamp(dot(Nv, Hv), 0.0, 1.0);',
+    '    float den = ndh * ndh * (a2 - 1.0) + 1.0;',
+    '    float Dn = a2 / max(den, 1e-4); Dn = Dn * Dn;',
+    '    float F = 0.04 + 0.96 * pow(1.0 - clamp(dot(Vv, Hv), 0.0, 1.0), 5.0);',
+    '    float fres = clamp(F * 25.0, 1.0, 3.0);',
+    /* 能量补偿：归一化 D 的峰值是 1，但只有极窄法线范围命中峰值 —— 直接使用会让受光边整体
+       变暗 3–6 灰阶（实测），读起来是「玻璃发灰」，正是历史上反复禁掉的灰圈。
+       uGGXPow < 1 对 D 开方 → 保持 GGX 的单侧陡降形状，同时把有效亮区展宽回可用范围。 */
+    '    float rimGGX = pow(max(Dn, 1e-5), uGGXPow) * fres * smoothstep(-0.15, 0.55, dot(n, L));',
+    '    rim = mix(rim, rimGGX, clamp(uGGX, 0.0, 1.0));',
+    '  }',
+    '  rim *= bandf;',
     '  col = mix(col, vec3(1.0), clamp(rim * uRimAmt, 0.0, 0.5));',
     '  col *= 1.0 - uInnerDark * (1.0 - smoothstep(0.0, uBand * 0.5, depth));',
     '  float aOut = smoothstep(0.0, uAA, depth);',             // 外轮廓 AA
@@ -410,8 +553,22 @@
   }
 
   /* ── 地图源 ───────────────────────────────────────────────────────────── */
-  function mapCanvas() {
+  /* Phase9 修复：`window.__gevViewer` 在 src/app 重构后已无任何赋值点
+     （HEAD 里 git grep 只有读取、没有写入；合并 e31d0042 时丢了
+     `src/app/viewer.js` 的 `window.__gevViewer = viewer`），于是 boot() 里
+     `!viewer → return false` 恒成立 —— 整块边缘折射层在真实 demo 里从未启动过，
+     只剩 CSS blur 在撑视觉。这里改为「旧全局优先、新入口 __godsEyeView.viewer 兜底」，
+     不复活已废弃的全局赋值。 */
+  function gevViewer() {
     var v = window.__gevViewer;
+    if (v && v.scene) return v;
+    var g = window.__godsEyeView;
+    if (g && g.viewer && g.viewer.scene) return g.viewer;
+    return null;
+  }
+
+  function mapCanvas() {
+    var v = gevViewer();
     if (v && v.canvas && v.canvas.width > 400) { stats.src = 'viewer:' + v.canvas.id + ':' + v.canvas.width + 'x' + v.canvas.height; return v.canvas; }
     var cs = document.querySelectorAll('canvas'), best = null, area = 0;
     for (var i = 0; i < cs.length; i++) {
@@ -426,7 +583,8 @@
 
   function pickScale() {
     if (CFG.scale > 0) return CFG.scale;
-    var s = Math.min(window.devicePixelRatio || 1, CFG.maxScale);
+    /* 中档：内核分辨率不再超采样（DPR 2 的机器上省 4 倍片元） */
+    var s = Math.min(window.devicePixelRatio || 1, MID_TIER ? Math.min(CFG.maxScale, 1) : CFG.maxScale);
     /* Phase 4A：只夹宽度会在 4K/竖屏上把画布拉成非等比（宽被夹扁、高不夹）→ 边缘环错位。
        宽高同时夹，比例不变。 */
     var MAXW = 4096, MAXH = 4096;
@@ -605,8 +763,20 @@
         return true;
       }
     } catch (e) {}
+    /* Phase9 · 中档降级：GPU 能用但算力弱（移动 GPU / Intel 集显 / 核少内存小）。
+       旧行为只有「满血」与「彻底不建 canvas」两档，弱机上要么卡要么整层消失。
+       这里改为**仍然开玻璃**，但从 perf 档起步：LOD 拉到 1（边缘降采样）、不引背界面折射、
+       内核分辨率上限压到 1.0（不做超采样）。判定同样只来自 src/lc/gpu.js，不写第二份正则。 */
+    try {
+      if (window.__gevGpu && typeof window.__gevGpu.quality === 'function' && window.__gevGpu.quality() === 'reduced') {
+        MID_TIER = true;
+        var P = { lod: 1.0, back: 0.0, curvature: 4.0, spread: 1.0, smoothness: 1.0 };
+        for (var pk in P) CFG[pk] = P[pk];
+        console.info('[gev-edge] quality=reduced · 中档降级（LOD=1，无背界面折射，scale≤1）');
+      }
+    } catch (e) {}
     var map = mapCanvas();
-    var viewer = window.__gevViewer;
+    var viewer = gevViewer();
     if (!map || !viewer || !viewer.scene || !viewer.scene.postRender) return false;
     if (!document.getElementById('data-panel')) return false;
 
@@ -636,7 +806,18 @@
     gl.enableVertexAttribArray(loc);
     gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
     ['uMap', 'uRes', 'uQuad', 'uRect', 'uRadius', 'uCornerN', 'uBand', 'uFeather', 'uThick', 'uIOR', 'uGain', 'uDispPx', 'uDispGain', 'uDispCap', 'uDispE0',
-      'uLod', 'uRimAmt', 'uCurv', 'uSpread', 'uSmooth', 'uInnerDark', 'uAA', 'uScale', 'uBandAlpha']
+      'uGGX', 'uRough', 'uGGXPow',
+      'uLod', 'uRimAmt', 'uCurv', 'uSpread', 'uSmooth', 'uInnerDark', 'uAA', 'uScale', 'uBandAlpha',
+      /* Phase9 发现：uBlurPx 此前**不在这张表里** —— draw() 里每帧都调
+         gl.uniform1f(u.uBlurPx, …)，但 u.uBlurPx 恒为 undefined（WebIDL 转 null → 静默 no-op），
+         即 CFG.blurPx 从上线起就没生效过（边缘一直是 0 模糊的锐取样）。
+         本轮补进列表 = 行为变更（0.7px 核宽开始真的参与采样）；uBack = 背界面折射。 */
+      'uBlurPx', 'uBack',
+      /* Phase9 修复（2026-11-08）：湍流 4 个 uniform 之前既没进这张表也没下发，
+         `u.uTurbAmp` 恒 undefined → uniform1f(null) 静默 no-op → shader 里
+         `if (uTurbAmp > 0.0001)` 永远为假，liquid preset 与 stock 逐像素相同。
+         名字必须同时出现在这里 + draw() 下发处，任缺一处都是「接线了但没通电」。 */
+      'uTurbAmp', 'uTurbFreq', 'uTurbTime', 'uTurbOct']
       .forEach(function (k) { u[k] = gl.getUniformLocation(prog, k); });
 
     mapTex = gl.createTexture();
@@ -953,6 +1134,9 @@
     gl.uniform1f(u.uDispE0, Math.min(Math.max(CFG.dispBandStart, 0), 0.98));
     gl.uniform1f(u.uLod, CFG.lod);
     gl.uniform1f(u.uRimAmt, CFG.rimAmt);
+    gl.uniform1f(u.uGGX, CFG.ggx);
+    gl.uniform1f(u.uRough, CFG.rough);
+    gl.uniform1f(u.uGGXPow, CFG.ggxPow);
     gl.uniform1f(u.uCurv, CFG.curvature);
     gl.uniform1f(u.uSpread, CFG.spread);
     gl.uniform1f(u.uSmooth, CFG.smoothness);
@@ -960,6 +1144,14 @@
     gl.uniform1f(u.uAA, CFG.aa * scale);
     gl.uniform1f(u.uBlurPx, CFG.blurPx * scale);
     gl.uniform1f(u.uBandAlpha, CFG.bandAlpha);
+    gl.uniform1f(u.uBack, CFG.back);
+    /* Phase9 · Liquid 湍流 uniform：这里原本漏传（shader 声明了但从未赋值 → 恒为 0，
+       分支永不进入，实测 pixel-diff 恒等于 stock）。amp 单位 CSS px 需 ×scale，
+       freq 单位是 1/CSS px 需 ÷scale；相位 = 秒 × turbSpeed，turbAmp=0 时整段被跳过。 */
+    gl.uniform1f(u.uTurbAmp, CFG.turbAmp * scale);
+    gl.uniform1f(u.uTurbFreq, CFG.turbFreq / scale);
+    gl.uniform1f(u.uTurbTime, (ts / 1000) * CFG.turbSpeed);
+    gl.uniform1f(u.uTurbOct, CFG.turbOct);
 
     var out = [];
     for (var i = 0; i < list.length; i++) {
@@ -994,9 +1186,54 @@
   }
 
   /* ── 钩子 ─────────────────────────────────────────────────────────────── */
+  /* Phase9 · Liquid opt-in 守卫：turbAmp 默认 0（逐像素等于旧 shader），一旦有人把它
+     打开，全屏层就变成每帧变脏 —— 这条代价此前只写在注释里，运行时没有任何信号。
+     这里不改默认值、不改渲染路径，只做两件事：
+       ① 打开那一刻打一次 warn（幂等，避免每帧刷屏）；
+       ② 把 stats.turbDirty 置真，探针/门禁可以断言「当前是不是每帧变脏模式」。 */
+  var turbWarned = false;
+  function noteTurbState() {
+    var on = CFG.turbAmp > 0;
+    stats.turbDirty = on;
+    if (on && !turbWarned) {
+      turbWarned = true;
+      if (window.console && console.warn) {
+        console.warn('[edge-lens] turbAmp=' + CFG.turbAmp + ' → SDF 每帧变化，全屏玻璃层每帧变脏（requestRenderMode 下会持续出帧）。这是 opt-in 实验档，不是默认口径。');
+      }
+    }
+    if (!on) turbWarned = false;
+  }
+
   var EDGE_API = publish('edge.lens', {
-    set: function (patch) { if (patch) for (var k in patch) CFG[k] = patch[k]; geoDirty = true; if (patch && patch.scale != null) resize(); return CFG; },
+    set: function (patch) { if (patch) for (var k in patch) CFG[k] = patch[k]; geoDirty = true; if (patch && patch.turbAmp != null) noteTurbState(); if (patch && patch.scale != null) resize(); return CFG; },
+    /* Phase9：整档切换本轮接线的光学项。三档都只写 CFG —— 不重建 GL、不重启、不动几何签名，
+       退档随时回 stock。gate / 探针用档名做 A/B 归因，避免逐字段手写导致基线漂移。
+         stock   全默认（与旧 shader 逐像素等价；唯一差异是 blurPx 补进 uniform 表后 0.7px 柔化开始生效）
+         optical 背界面折射 + 分档 LOD + 低噪法线 + 加宽色散（待视觉评估，未转正）
+                 GGX 高光**不**进 optical：2026-11-08 棋盘 A/B 实测 band 均值 110.5→108.1（-2.3 灰阶，
+                 ggxPow 0.2 才回到 109.3），10px band 内 GGX 窄峰没有足够空间展开，净收益为负。
+                 保留 ggx/rough/ggxPow 三个旋钮供逐卡实验，默认全关。
+         perf    只提 LOD 降采样（省采样，不引入新光学） */
+    preset: function (name) {
+      var P = {
+        stock:   { lod: 0.0, back: 0.0, curvature: 4.0, spread: 1.0, smoothness: 1.0, ggx: 0.0, rough: 0.55, ggxPow: 0.5, turbAmp: 0.0 },
+        optical: { lod: 0.85, back: 0.55, curvature: 4.0, spread: 1.45, smoothness: 2.5, ggx: 0.0, rough: 0.50, ggxPow: 0.5, turbAmp: 0.0 },
+        perf:    { lod: 1.0, back: 0.0, curvature: 4.0, spread: 1.0, smoothness: 1.0, ggx: 0.0, rough: 0.55, ggxPow: 0.5, turbAmp: 0.0 },
+        /* Phase9 · Liquid：只加边缘湍流，其余光学项保持 stock，便于单独归因。
+           性能代价见 CFG.turbAmp 注释（全屏层每帧变脏）。 */
+        liquid:  { lod: 0.0, back: 0.0, curvature: 4.0, spread: 1.0, smoothness: 1.0, ggx: 0.0, rough: 0.55, ggxPow: 0.5,
+                   turbAmp: 5.0, turbFreq: 0.030, turbSpeed: 0.60, turbOct: 3.0 },
+      }[String(name || 'stock')];
+      if (!P) return { err: 'unknown preset', name: name, known: ['stock', 'optical', 'perf', 'liquid'] };
+      for (var k in P) CFG[k] = P[k];
+      geoDirty = true;
+      noteTurbState();
+      return { preset: String(name || 'stock'), applied: P,
+        eff: { lod: CFG.lod, back: CFG.back, curvature: CFG.curvature, spread: CFG.spread, smoothness: CFG.smoothness, ggx: CFG.ggx, rough: CFG.rough, ggxPow: CFG.ggxPow } };
+    },
     cfg: function () { return CFG; },
+    /* Phase9：中档降级是否生效（gate / 探针可断言，不动 stats 键集合） */
+    mid: function () { return MID_TIER; },
     only: function (ids) { CFG.only = ids && ids.length ? ids.slice() : null; return CFG.only; },
     testBg: function (on, css, flat) { CFG.testBg = !!on; if (css != null) CFG.testBgCss = +css; CFG.testBgFlat = flat == null ? null : +flat; if (on) CFG.testBgGrid = 0; return { on: CFG.testBg, css: CFG.testBgCss, flat: CFG.testBgFlat }; },
     /* 棋盘底（确定性主判据）：横竖两个方向都有高频结构 → 四边位移都可测。
@@ -1086,6 +1323,11 @@
           ior: BASE.ior, gain: BASE.gain, dispPx: BASE.dispPx, dispGain: BASE.dispGain, dispCap: BASE.dispCap,
           dispBandStart: BASE.dispBandStart, bandAlpha: BASE.bandAlpha, blurPx: BASE.blurPx, rimAmt: BASE.rimAmt,
           aa: BASE.aa, maxScale: BASE.maxScale,
+          lod: BASE.lod, curvature: BASE.curvature, spread: BASE.spread, smoothness: BASE.smoothness, back: BASE.back,
+          /* Phase9 · Liquid：BASE 里早就有这四个值，但 cfg 没投影出来，门禁想断言
+             「液态默认关」时拿不到基线（stats().cfg.turbAmp 为 undefined，断言只能
+             写成恒真）。补上，让源码默认值可核对。 */
+          turbAmp: BASE.turbAmp, turbFreq: BASE.turbFreq, turbSpeed: BASE.turbSpeed, turbOct: BASE.turbOct,
           tint: { min: CFG.tintMin, max: CFG.tintMax, hz: CFG.lookHz, on: CFG.tint },
           spill: { max: CFG.spillMax, hz: CFG.lookHz, on: CFG.spill },
           fgFlip: { maxIconPx: CFG.fgIconMax, threshold: CFG.fgThreshold, ms: 120, light: CFG.fgLight, dark: CFG.fgDark },
@@ -1093,6 +1335,12 @@
         eff: {
           band: CFG.band, dispPx: +(CFG.dispPx * scale).toFixed(3), gain: CFG.gain, ior: CFG.ior,
           bandAlpha: CFG.bandAlpha, scale: scale, enabled: CFG.enabled, a11y: CFG.a11y,
+          lod: CFG.lod, curvature: CFG.curvature, spread: CFG.spread, smoothness: CFG.smoothness, back: CFG.back,
+          turbAmp: CFG.turbAmp, turbFreq: CFG.turbFreq, turbSpeed: CFG.turbSpeed, turbOct: CFG.turbOct,
+          /* shader 里 turbAmp 是 ×scale 后再喂 uTurbAmp 的（见绘制段 uniform1f），
+             所以「像素级可见的湍流幅度」= CFG.turbAmp × scale。只报 turbAmp 会让
+             像素差分探针算错期望位移，这里按同一公式暴露有效值。 */
+          turbAmpPx: +(CFG.turbAmp * scale).toFixed(3),
           bands: stats.surfaces.map(function (s) { return { id: s.id, band: s.band }; }),
         },
         a11y: stats.a11y || null,

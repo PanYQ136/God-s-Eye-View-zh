@@ -238,6 +238,17 @@ export function createBrowserViteConfig({
     // The preview server serves the same documents, so it carries the same
     // framing + CSP hardening (one constant, no drift).
     preview: { headers: BROWSER_HEADERS },
+    // Production builds drop the debug tier of console output (log/info/debug).
+    // warn/error survive: they are the only diagnostic channel a deployed page
+    // has, and the QA scripts' console listeners run against the dev server,
+    // which this option never touches.
+    ...(command === 'build'
+      ? {
+          esbuild: {
+            pure: ['console.log', 'console.info', 'console.debug'],
+          },
+        }
+      : {}),
     define: {
       // vue-i18n holds the locale and catalogs; Core formats the messages
       // (src/ui/i18n.js), so the build drops vue-i18n's message compiler.
