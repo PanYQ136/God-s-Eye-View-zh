@@ -53,6 +53,10 @@ function blankState(ids) {
       openStart: 0,
       lastExt: null,
       offset: { x: 0, y: 0 },
+      /* Q6：offset 是「展开态相对槽位」的运行时位移，收起必须逐像素归零；
+         savedOffset 是「用户上次把这张卡拖到哪」的持久意图，收起不动它。
+         两者分离后，几何持久化才不会被一次收起动作抹掉。 */
+      savedOffset: { x: 0, y: 0 },
       dragging: false,
     };
   }
@@ -69,7 +73,11 @@ function blankState(ids) {
 export function cloneState(s) {
   const cards = {};
   for (const id in s.cards)
-    cards[id] = { ...s.cards[id], offset: { ...s.cards[id].offset } };
+    cards[id] = {
+      ...s.cards[id],
+      offset: { ...s.cards[id].offset },
+      savedOffset: { ...(s.cards[id].savedOffset || { x: 0, y: 0 }) },
+    };
   return {
     cards,
     openOrder: s.openOrder.slice(),
@@ -98,8 +106,10 @@ export function reduce(state, action, ctx = {}) {
     const offs = action.offsets || {};
     for (const id in next.cards) {
       const o = offs[id];
-      if (o && Number.isFinite(o.x) && Number.isFinite(o.y))
+      if (o && Number.isFinite(o.x) && Number.isFinite(o.y)) {
         next.cards[id].offset = { x: o.x, y: o.y };
+        next.cards[id].savedOffset = { x: o.x, y: o.y };
+      }
     }
     return { state: next, effects };
   }
@@ -157,6 +167,7 @@ export function reduce(state, action, ctx = {}) {
       x: (c.offset.x || 0) + (Number(action.dx) || 0),
       y: (c.offset.y || 0) + (Number(action.dy) || 0),
     };
+    c.savedOffset = { x: c.offset.x, y: c.offset.y };
     c.dragging = true;
     next.layoutDirty = true;
     frame();
@@ -242,6 +253,10 @@ export function reduce(state, action, ctx = {}) {
   /* ── 内部：ACTIVATE 的互斥事务 ───────────────────────────────────────────── */
   function activate(st, id, t, eff, opts) {
     const grp = groupOf(id);
+    /* Q6：展开回到用户上次拖到的位置（收起时 offset 已归零，但 savedOffset 还在）。 */
+    const self = st.cards[id];
+    if (self && self.savedOffset)
+      self.offset = { x: self.savedOffset.x || 0, y: self.savedOffset.y || 0 };
     /* §4.2 MUTEX：同 tick 内先 retire 同组旧卡（进入 closing，并行动画），再开自己 */
     for (const sid of grp) {
       if (sid === id) continue;

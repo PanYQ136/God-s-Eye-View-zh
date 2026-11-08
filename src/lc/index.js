@@ -238,7 +238,9 @@ export function boot() {
       } else if (e.type === EFF.PERSIST) {
         const st = controller.state();
         const offsets = {};
-        for (const id of CARD_IDS) offsets[id] = st.cards[id].offset;
+        /* Q6：写盘取 savedOffset（持久意图），不取 offset（收起后已归零的运行时位移）。 */
+        for (const id of CARD_IDS)
+          offsets[id] = st.cards[id].savedOffset || st.cards[id].offset;
         writeStore(offsets);
       }
     }
