@@ -1,5 +1,21 @@
 import { initFirstRunExperience } from '../firstRunExperience.js';
 
+/**
+ * Fired the moment the cover starts leaving. Deferred warm-ups (the 2.7 MB
+ * EGM96 grid in `src/data/geoid.js`) listen for this so they stop competing
+ * with the first-paint chunks. The literal is duplicated there on purpose:
+ * `data/` must not import from `app/`, and the event name is the contract.
+ */
+const STARTUP_REVEAL_EVENT = 'gev:startup-revealed';
+
+/** Announce the reveal to deferred work; no-op outside a browser (tests). */
+function announceStartupReveal() {
+  if (typeof window === 'undefined') return;
+  window.__gevStartupRevealed = true;
+  if (typeof Event === 'function')
+    window.dispatchEvent(new Event(STARTUP_REVEAL_EVENT));
+}
+
 /** Reveal welcome controls only after restoration and the loading transition. */
 export function startApplicationChrome({
   loadingScreen,
@@ -34,6 +50,7 @@ export function startApplicationChrome({
     .then(() => {
       if (disposed || signal.aborted) return;
       loadingScreen.classList.add('hidden');
+      announceStartupReveal();
       loadingScreen.addEventListener('transitionend', revealFirstRun, {
         once: true,
       });

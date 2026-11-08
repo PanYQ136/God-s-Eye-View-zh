@@ -23,18 +23,77 @@
 let egm96Module = null;
 let readyPromise = null;
 
+/*
+ * Start-up cover gate (perf wave D5).
+ *
+ * The ~2.7 MB grid used to start downloading the moment a layer enabled,
+ * which on a cold start lands inside the window where the entry/Cesium chunks
+ * are still competing for bandwidth — the first thing a user on a real
+ * network sees is slower because of a grid nothing on screen needs yet. Every
+ * caller below is already fire-and-forget (or a late trajectory parse), so the
+ * grid can wait until the cover is gone without changing any behaviour.
+ *
+ * Both gates degrade to "go now" outside a browser (node test runner) and when
+ * there is no cover to wait for, so `ensureGeoidReady()` keeps its documented
+ * "resolves once the grid is available" contract everywhere.
+ */
+const STARTUP_REVEAL_EVENT = 'gev:startup-revealed';
+/** If the reveal event never arrives (cover removed by other code), unblock. */
+const REVEAL_FALLBACK_MS = 8000;
+/** Idle callback ceiling, so a busy-but-visible page still gets the grid. */
+const IDLE_TIMEOUT_MS = 2000;
+
+function whenStartupRevealed() {
+  if (typeof window === 'undefined' || typeof document === 'undefined')
+    return Promise.resolve();
+  if (window.__gevStartupRevealed === true) return Promise.resolve();
+  const cover = document.getElementById?.('loading-screen');
+  // No cover, or it is already on its way out: nothing to yield to.
+  if (!cover || cover.classList?.contains('hidden')) return Promise.resolve();
+  return new Promise((resolve) => {
+    let settled = false;
+    let timer;
+    const done = () => {
+      if (settled) return;
+      settled = true;
+      window.removeEventListener?.(STARTUP_REVEAL_EVENT, done);
+      if (timer !== undefined) clearTimeout(timer);
+      resolve();
+    };
+    timer = setTimeout(done, REVEAL_FALLBACK_MS);
+    window.addEventListener?.(STARTUP_REVEAL_EVENT, done, { once: true });
+  });
+}
+
+function whenBrowserIdle() {
+  if (
+    typeof window === 'undefined' ||
+    typeof window.requestIdleCallback !== 'function'
+  )
+    return Promise.resolve();
+  return new Promise((resolve) => {
+    window.requestIdleCallback(() => resolve(), { timeout: IDLE_TIMEOUT_MS });
+  });
+}
+
 /**
  * Lazily loads the EGM96 grid (dynamic import — code-split by Vite so the
  * ~2.7 MB grid data stays out of the eager main bundle). Safe to call many
  * times; the underlying import only happens once and subsequent calls
  * resolve immediately from the cached promise.
+ *
+ * The import itself is deferred past the start-up cover and into an idle
+ * slice (perf wave D5) so it never competes with the first-paint chunks.
  * @returns {Promise<void>}
  */
 export async function ensureGeoidReady() {
   if (!readyPromise) {
-    readyPromise = import('egm96-universal').then((mod) => {
-      egm96Module = mod;
-    });
+    readyPromise = whenStartupRevealed()
+      .then(whenBrowserIdle)
+      .then(() => import('egm96-universal'))
+      .then((mod) => {
+        egm96Module = mod;
+      });
   }
   return readyPromise;
 }
