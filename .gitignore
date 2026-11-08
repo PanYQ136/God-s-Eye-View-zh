@@ -57,3 +57,6 @@ vite.err
 /scripts/_diag-*.mjs
 /scripts/qa-panel-interaction.mjs
 /scripts/qa-rail-probe.mjs
+
+# 2026-11-09 交互遗留挖掘：Puppeteer 探针与帧采样 JSON 属运行期诊断物，本地保留不入库。
+/temp/
