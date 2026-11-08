@@ -63,7 +63,7 @@
   min-width: 28px;
   color: var(--accent);
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--fs-3xs);
   letter-spacing: 0.5px;
   text-align: right;
   flex-shrink: 0;

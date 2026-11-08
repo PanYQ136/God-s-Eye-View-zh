@@ -53,6 +53,31 @@
   pointer-events: auto;
 }
 
+/* 焦点环回边界。Tab 被锁在这张卡里（surfaceKeyboard 循环焦点环），环回本身
+   必须看得见，否则「Tab 又回到第一块」读起来像页面卡死。用 outline 而不是
+   border/box-shadow：outline 不参与布局，也不与卡片自带的双层阴影打架。 */
+#first-run-launcher[data-focus-wrap] {
+  outline: 1px solid rgba(54, 220, 255, 0.7);
+  outline-offset: 3px;
+  animation: first-run-wrap-edge 700ms ease-out both;
+}
+
+@keyframes first-run-wrap-edge {
+  0% {
+    outline-color: rgba(54, 220, 255, 0.95);
+  }
+  100% {
+    outline-color: rgba(54, 220, 255, 0.18);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #first-run-launcher[data-focus-wrap] {
+    animation: none;
+    outline-color: rgba(54, 220, 255, 0.55);
+  }
+}
+
 .first-run-scanline {
   position: absolute;
   inset: 0 0 auto;

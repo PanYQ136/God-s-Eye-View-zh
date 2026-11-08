@@ -82,8 +82,6 @@
   --scroll-track: transparent;
   --cyber-red: #c45454;
   --cyber-red-bright: #e16666;
-  --cyber-slate: #26343a;
-  --cyber-slate-raised: #334a53;
   --cyber-grid: rgba(188, 211, 218, 0.1);
   --cyber-telemetry-fill: rgba(13, 20, 23, 0.985);
   --cyber-panel-width: 272px;
@@ -1111,7 +1109,7 @@
     [data-status='executing']
   )
   .gev-mic-orbit::before {
-  animation: gev-cyber-voice-lock 1.45s ease-in-out infinite;
+  animation: gev-cyber-voice-lock 1450ms ease-in-out infinite;
 }
 
 :root[data-ui-theme='cyber'] #command-dock .gev-mic-orbit > * {
@@ -1211,7 +1209,7 @@
   opacity: 0.42;
   pointer-events: none;
   transform: skewX(-10deg);
-  animation: gev-cyber-voice-scan 2.8s linear infinite;
+  animation: gev-cyber-voice-scan 2800ms linear infinite;
 }
 
 :root[data-ui-theme='cyber'] #command-dock .gev-voice-visualizer span,
@@ -1261,7 +1259,7 @@
   #gev-voice-control:is([data-status='listening'], [data-status='executing'])
   .gev-voice-visualizer::after {
   opacity: 0.72;
-  animation-duration: 1.65s;
+  animation-duration: 1650ms;
 }
 
 @keyframes gev-cyber-voice-scan {
@@ -1540,7 +1538,7 @@
   );
   transform-origin: 50% 50%;
   will-change: transform;
-  animation: cyber-sonar-sweep 5.2s linear infinite;
+  animation: cyber-sonar-sweep 5200ms linear infinite;
   animation-delay: var(--cyber-sonar-phase-delay, 0ms);
 }
 
@@ -1766,9 +1764,11 @@
   :root[data-ui-theme='cyber'] #right-context-rail {
     --right-display-collapsed-width: var(--cyber-panel-collapsed-width);
     --right-context-collapsed-width: var(--cyber-panel-collapsed-width);
-    /* The edge line and its gap keep the panels where they were. */
+    /* The edge line and its gap keep the panels where they were. Derived from
+       the shared rail measure instead of a hand-tuned 323 so the theme cannot
+       drift out of step with #right-context-rail. */
     right: calc(51px + var(--panel-rail-clearance));
-    width: 323px;
+    width: calc(var(--right-rail-width, 330px) - 7px);
     padding-inline-end: 10px;
     border-inline-end: 1px solid transparent;
   }
@@ -2120,7 +2120,7 @@
 }
 
 :root[data-ui-theme='cyber'] body.cockpit-mode .cockpit-target-side-arcs {
-  animation: cockpit-instrument-breathe 4.8s ease-in-out infinite alternate;
+  animation: cockpit-instrument-breathe 4800ms ease-in-out infinite alternate;
 }
 
 :root[data-ui-theme='cyber'] body.cockpit-mode .cockpit-target-orbit {
@@ -2228,7 +2228,7 @@
   border: 0;
   color: rgba(231, 241, 241, 0.84);
   background: none;
-  font-size: 7px;
+  font-size: var(--fs-3xs);
   font-weight: 700;
   letter-spacing: 0.28em;
   text-align: center;
@@ -2281,7 +2281,7 @@
   justify-self: end;
   color: rgba(205, 225, 226, 0.6);
   background: linear-gradient(270deg, rgba(10, 27, 31, 0.72), transparent);
-  font-size: 7px;
+  font-size: var(--fs-3xs);
   letter-spacing: 0.16em;
   text-align: right;
   clip-path: polygon(12px 0, 100% 0, 100% 100%, 0 100%, 0 12px);
@@ -2321,7 +2321,7 @@
 }
 
 :root[data-ui-theme='cyber'] body.cockpit-mode #cockpit-callsign {
-  font-size: 16px;
+  font-size: var(--fs-lg);
   letter-spacing: 0.16em;
 }
 
@@ -2590,7 +2590,7 @@
   box-shadow: var(--cyber-panel-shadow);
   clip-path: var(--cyber-panel-frame);
   color: var(--cyber-red-bright);
-  font-size: 8px;
+  font-size: var(--fs-3xs);
   font-weight: 600;
   letter-spacing: 1.8px;
 }
@@ -2669,7 +2669,7 @@
 /* Keep the existing button labels/expanded semantics; match Data Layers' glyph. */
 :root[data-ui-theme='cyber'] body.cockpit-mode .cockpit-utility-glyph::after {
   content: '+';
-  font-size: 13px;
+  font-size: var(--fs-md);
 }
 
 :root[data-ui-theme='cyber']
@@ -2791,7 +2791,7 @@
 :root[data-ui-theme='cyber'] body.cockpit-mode .cockpit-help {
   bottom: 24px;
   color: rgba(205, 225, 226, 0.54);
-  font-size: 8px;
+  font-size: var(--fs-3xs);
 }
 
 :root[data-ui-theme='cyber'] body.cockpit-mode .cockpit-position-readout {

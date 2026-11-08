@@ -13,7 +13,7 @@
   background: var(--status-badge-background, rgba(0, 212, 255, 0.09));
   color: var(--status-badge-color, #9defff);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: var(--fs-3xs);
   letter-spacing: 1.3px;
   overflow-wrap: anywhere;
 }
@@ -21,7 +21,7 @@
 .gev-status-badge--box {
   padding: 6px 8px;
   border-radius: 8px;
-  font-size: 9px;
+  font-size: var(--fs-3xs);
   letter-spacing: 1px;
   text-transform: uppercase;
 }
@@ -32,7 +32,7 @@
   border-radius: 0;
   background: none;
   color: var(--status-badge-color, var(--text-dim));
-  font-size: 9px;
+  font-size: var(--fs-3xs);
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }

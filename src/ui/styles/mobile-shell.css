@@ -116,7 +116,7 @@ body.mobile-shell #intel-hud .hud-bottom-left {
   top: calc(var(--mobile-top-inset) + 62px);
   bottom: auto;
   left: 16px;
-  font-size: 9px;
+  font-size: var(--fs-3xs);
   opacity: 0.8;
 }
 

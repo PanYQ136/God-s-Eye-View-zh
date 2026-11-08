@@ -666,13 +666,13 @@
   opacity: 0.3;
 }
 #gev-voice-control[data-chat-busy='true'] .gev-chat-thinking span {
-  animation: gev-thinking-pulse 1.2s ease-in-out infinite;
+  animation: gev-thinking-pulse 1200ms ease-in-out infinite;
 }
 #gev-voice-control .gev-chat-thinking span:nth-child(2) {
-  animation-delay: 0.16s;
+  animation-delay: 160ms;
 }
 #gev-voice-control .gev-chat-thinking span:nth-child(3) {
-  animation-delay: 0.32s;
+  animation-delay: 320ms;
 }
 @keyframes gev-thinking-pulse {
   0%,
@@ -974,7 +974,7 @@
 #gev-chat-panel #gev-chat-input,
 #gev-chat-panel #gev-chat-mini-text {
   color: #dcebf0;
-  font-size: 13px;
+  font-size: var(--fs-md);
 }
 #gev-chat-suggestions {
   padding: 0 14px 8px;
@@ -988,7 +988,7 @@
 #gev-chat-suggestions small {
   width: 100%;
   color: var(--text-secondary);
-  font-size: 10px;
+  font-size: var(--fs-2xs);
 }
 #gev-chat-suggestions button {
   max-width: 100%;
@@ -1111,7 +1111,7 @@
   background: linear-gradient(180deg, #a3edf4, #42bfd7 55%, #238ba8);
   box-shadow: none;
   transform-origin: center;
-  transform: scaleY(calc(0.4 + min(var(--bar), 14 - var(--bar)) * 0.085));
+  transform: scaleY(calc(0.4 + min(var(--bar, 0), 14 - var(--bar, 0)) * 0.085));
   transition:
     height 120ms ease-out,
     opacity 180ms ease-out;
@@ -1208,8 +1208,8 @@
     #gev-voice-control[data-assistant-mode='voice'][data-status='connecting']
     > .gev-voice-visualizer
     span {
-    animation: gev-voice-connecting 1.2s ease-in-out infinite;
-    animation-delay: calc(var(--bar) * 60ms);
+    animation: gev-voice-connecting 1200ms ease-in-out infinite;
+    animation-delay: calc(var(--bar, 0) * 60ms);
   }
 }
 @keyframes gev-voice-connecting {

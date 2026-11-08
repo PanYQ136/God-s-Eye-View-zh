@@ -94,7 +94,7 @@
   padding-top: 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--text-secondary);
-  font-size: 10px;
+  font-size: var(--fs-2xs);
   font-weight: 600;
   letter-spacing: 1.4px;
   text-transform: uppercase;
@@ -131,7 +131,9 @@
   z-index: 110;
   top: var(--right-stack-safe-top, 26vh);
   right: var(--right-rail-x);
-  width: 330px;
+  /* 与 foundation 的 --right-rail-width 同源；栏内卡片全部 width:100%，
+     所以「栏宽 ≥ 卡宽」由结构保证，不靠溢出兜底。 */
+  width: var(--right-rail-width, 330px);
   max-height: var(--right-stack-max-height, 70vh);
   display: flex;
   flex-direction: column;
@@ -441,18 +443,18 @@ body.recording-mode .gev-panel-rail {
 }
 #space-mission-panel-host .space-mission-roster-header strong {
   color: #8fcfff;
-  font-size: 9px;
+  font-size: var(--fs-3xs);
   letter-spacing: 0.16em;
 }
 #space-mission-panel-host .space-mission-roster-header span {
   color: rgba(190, 230, 230, 0.46);
-  font-size: 7px;
+  font-size: var(--fs-3xs);
   letter-spacing: 0.1em;
 }
 #space-mission-panel-host .space-mission-roster-header output {
   flex: 0 0 auto;
   color: #22e6e6;
-  font-size: 9px;
+  font-size: var(--fs-3xs);
   letter-spacing: 0.08em;
 }
 #space-mission-panel-host .space-mission-roster-list {
@@ -480,9 +482,9 @@ body.recording-mode .gev-panel-rail {
   text-align: left;
   cursor: pointer;
   transition:
-    border-color 0.15s ease,
-    background 0.15s ease,
-    transform 0.15s ease;
+    border-color 150ms ease,
+    background 150ms ease,
+    transform 150ms ease;
 }
 #space-mission-panel-host .space-mission-roster-item::before {
   content: '';
@@ -501,7 +503,7 @@ body.recording-mode .gev-panel-rail {
     linear-gradient(#22e6e6, #22e6e6) right bottom / 1px 9px no-repeat;
   filter: drop-shadow(0 0 4px rgba(34, 230, 230, 0.45));
   pointer-events: none;
-  transition: opacity 0.12s ease;
+  transition: opacity 120ms ease;
 }
 #space-mission-panel-host .space-mission-roster-item:hover,
 #space-mission-panel-host .space-mission-roster-item:focus-visible {
@@ -540,18 +542,18 @@ body.recording-mode .gev-panel-rail {
 }
 #space-mission-panel-host .space-mission-roster-copy strong {
   color: #d8ffff;
-  font-size: 9px;
+  font-size: var(--fs-3xs);
   font-weight: 500;
   letter-spacing: 0.07em;
 }
 #space-mission-panel-host .space-mission-roster-copy small {
   color: rgba(190, 230, 230, 0.48);
-  font-size: 7px;
+  font-size: var(--fs-3xs);
   letter-spacing: 0.035em;
 }
 #space-mission-panel-host .space-mission-roster-chevron {
   color: rgba(34, 230, 230, 0.54);
-  font-size: 16px;
+  font-size: var(--fs-lg);
   line-height: 1;
 }
 #space-mission-panel-host .space-mission-roster-empty {
@@ -669,7 +671,7 @@ body.recording-mode .gev-panel-rail {
   display: block;
   margin-top: 3px;
   color: rgba(190, 230, 230, 0.56);
-  font-size: 8px;
+  font-size: var(--fs-3xs);
   line-height: 1.35;
 }
 #space-mission-panel .mission-table-empty {
@@ -739,10 +741,10 @@ body.recording-mode .gev-panel-rail {
   letter-spacing: 0.16em;
   cursor: pointer;
   transition:
-    border-color 0.15s ease,
-    color 0.15s ease,
-    background 0.15s ease,
-    box-shadow 0.15s ease;
+    border-color 150ms ease,
+    color 150ms ease,
+    background 150ms ease,
+    box-shadow 150ms ease;
 }
 #space-mission-panel .mission-focus-button {
   border-color: rgba(34, 230, 230, 0.58);
@@ -792,11 +794,11 @@ body.recording-mode .gev-panel-rail {
     monospace;
   cursor: pointer;
   transition:
-    border-color 0.15s ease,
-    color 0.15s ease,
-    background 0.15s ease,
-    box-shadow 0.15s ease,
-    opacity 0.15s ease;
+    border-color 150ms ease,
+    color 150ms ease,
+    background 150ms ease,
+    box-shadow 150ms ease,
+    opacity 150ms ease;
 }
 #space-mission-panel .mission-replay-transport button:hover:not(:disabled),
 #space-mission-panel .mission-replay-transport button:focus-visible {
@@ -842,9 +844,9 @@ body.recording-mode .gev-panel-rail {
   letter-spacing: 0.12em;
   cursor: pointer;
   transition:
-    background 0.15s ease,
-    border-color 0.15s ease,
-    opacity 0.15s ease;
+    background 150ms ease,
+    border-color 150ms ease,
+    opacity 150ms ease;
 }
 #space-mission-panel .mission-nav-button:hover:not(:disabled) {
   background: rgba(34, 230, 230, 0.18);
@@ -961,8 +963,8 @@ body.recording-mode .gev-panel-rail {
   stroke-width: 2;
   opacity: 0;
   vector-effect: non-scaling-stroke;
-  animation: mission-thrust-wave 0.9s ease-in-out infinite;
-  animation-delay: calc(var(--thrust-index) * 0.15s);
+  animation: mission-thrust-wave 900ms ease-in-out infinite;
+  animation-delay: calc(var(--thrust-index, 0) * 150ms);
 }
 
 .mission-replay-thrust ellipse:nth-child(2n) {
@@ -996,7 +998,7 @@ body.recording-mode .gev-panel-rail {
 
 .mission-replay-overlay-callout strong {
   color: #22e6e6;
-  font-size: 10px;
+  font-size: var(--fs-2xs);
   font-weight: 500;
 }
 
@@ -1150,12 +1152,12 @@ body.recording-mode .gev-panel-rail {
   letter-spacing: 0.06em;
   cursor: pointer;
   transition:
-    border-color 0.15s ease,
-    color 0.15s ease,
-    background 0.15s ease;
+    border-color 150ms ease,
+    color 150ms ease,
+    background 150ms ease;
 }
 .context-mode-button .material-symbols-outlined {
-  font-size: 16px;
+  font-size: var(--fs-lg);
 }
 .context-mode-button:hover,
 .context-mode-button:focus-visible {
@@ -1193,7 +1195,7 @@ body.recording-mode .gev-panel-rail {
 }
 .context-mode-standby strong {
   color: var(--text-primary);
-  font-size: 10px;
+  font-size: var(--fs-2xs);
   font-weight: 600;
   letter-spacing: 0.08em;
 }
@@ -1238,7 +1240,7 @@ body.recording-mode .gev-panel-rail {
   width: 100%;
   min-height: 32px;
   padding: 6px 8px;
-  font-size: 10px;
+  font-size: var(--fs-2xs);
   letter-spacing: 0.06em;
 }
 #global-context-panel #cockpit-entry {
@@ -1249,7 +1251,7 @@ body.recording-mode .gev-panel-rail {
   padding: 5px 8px;
   border-radius: 5px;
   justify-content: center;
-  font-size: 10px;
+  font-size: var(--fs-2xs);
   box-shadow: none;
 }
 #global-context-panel #cockpit-entry .material-symbols-outlined {
@@ -1343,7 +1345,7 @@ body.recording-mode #right-context-rail > [data-panel-id] {
 #utilities-panel .utilities-tools .pp-icon {
   flex: none;
   width: 16px;
-  font-size: 16px;
+  font-size: var(--fs-lg);
   line-height: 1;
   color: var(--text-primary);
   text-align: center;
@@ -1351,7 +1353,7 @@ body.recording-mode #right-context-rail > [data-panel-id] {
 
 #utilities-panel .utilities-tools .pp-label {
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: var(--fs-md);
   font-weight: 500;
   letter-spacing: 0.3px;
   text-transform: none;

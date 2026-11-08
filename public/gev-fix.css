@@ -6,15 +6,15 @@
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── P1-3 / P2 可读性：数据面板微字偏小(9px) ── */
-.data-toggle-meta { font-size: 10.5px; line-height: 1.3; }
-.data-toggle-btn  { font-size: 10px; }
-.data-layer-group-heading { font-size: 11px; }
-#data-panel .panel-title { font-size: 11px; }
+.data-toggle-meta { font-size: var(--fs-xs); line-height: 1.3; }
+.data-toggle-btn  { font-size: var(--fs-2xs); }
+.data-layer-group-heading { font-size: var(--fs-xs); }
+#data-panel .panel-title { font-size: var(--fs-xs); }
 
 /* ── P2 可读性：位置弹层城市胶囊 8.96px 偏小 ── */
-.location-pill { font-size: 10.5px; }
-.location-mini-city { font-size: 10.5px; }
-.location-mini-poi  { font-size: 10px; }
+.location-pill { font-size: var(--fs-xs); }
+.location-mini-city { font-size: var(--fs-xs); }
+.location-mini-poi  { font-size: var(--fs-2xs); }
 
 /* ── P2：命令坞中间语音模块高 66px，比左右托盘(62px)外凸，收敛到 62 对齐 ── */
 #gev-voice-button { height: 62px; align-self: center; }
@@ -25,7 +25,7 @@
 #command-dock .button-grid .style-btn { flex: 1 1 0; min-width: 0; width: auto; max-width: none; }
 
 /* ── N-6：近期影像面板 chips 字号 8px→9.5px（仅限该面板） ── */
-#recent-imagery-panel .data-toggle-chip { font-size: 9.5px; }
+#recent-imagery-panel .data-toggle-chip { font-size: var(--fs-2xs); }
 
 /* ── N-7：标题栏可读性——主标题加强阴影；副标题提亮+强阴影（原先融入卫星纹理） ── */
 #title-bar h1 { text-shadow: 0 1px 3px rgba(0,0,0,.9), 0 0 10px rgba(0,0,0,.7); }
@@ -33,12 +33,12 @@
 
 /* ── N-2/N-3：命令坞语音模块可读性重设计（微缩 6px→~9px）+ 与托盘齐高(按钮56,内容≈80) ── */
 #command-dock #gev-voice-button { height: 56px; }
-#command-dock .gev-voice-kicker { font-size: 8.5px; letter-spacing: 0.6px; }
-#command-dock #gev-voice-status { font-size: 10px; }
-#command-dock .gev-voice-tier-btn { height: 1rem; font-size: 8.5px; min-width: 3rem; }
-#command-dock .gev-voice-cost-value { font-size: 8.5px; }
-#command-dock .gev-mic-label { font-size: 8px; }
-#command-dock #gev-voice-detail { font-size: 9.5px; }
+#command-dock .gev-voice-kicker { font-size: var(--fs-3xs); letter-spacing: 0.6px; }
+#command-dock #gev-voice-status { font-size: var(--fs-2xs); }
+#command-dock .gev-voice-tier-btn { height: 1rem; font-size: var(--fs-3xs); min-width: 3rem; }
+#command-dock .gev-voice-cost-value { font-size: var(--fs-3xs); }
+#command-dock .gev-mic-label { font-size: var(--fs-3xs); }
+#command-dock #gev-voice-detail { font-size: var(--fs-2xs); }
 
 /* ── N-4：右 rail 滑块行(密度/分配/淡出/外侧)行距过紧 → 增行高+内边距 ── */
 #right-context-rail .pp-slider-row { min-height: 30px; padding-top: 3px; padding-bottom: 3px; }
@@ -51,7 +51,7 @@
    ═══════════════════════════════════════════════════════════════════════ */
 
 /* C-2 数据源 meta 对比度 2.4:1(#4d4e54/#0b0b13) → 提亮到 AA；字号 10.5→11 下限 */
-.data-toggle-meta { color: #9aa3ad; font-size: 11px; }
+.data-toggle-meta { color: #9aa3ad; font-size: var(--fs-xs); }
 /* C-2b 数据层开关按钮文字本身 2.4:1(#54555b/#15151c) → 提亮 */
 .data-toggle-btn { color: #9aa3ad; }
 .data-toggle-btn.active, .data-toggle-btn.on { color: #e8f4ff; }
@@ -64,24 +64,24 @@
    若要回滚：恢复下面三行注释里的选择器即可（但会重新引入「面板看不清」缺陷）。 */
 
 /* C-3 场景 meta 对比度 2.4:1 + 字距 0.10em 过宽 + 卡片嵌套 → 提亮 + 收字距 + 11px */
-.scene-shot-meta { color: #9aa3ad; letter-spacing: 0.02em; font-size: 11px; }
+.scene-shot-meta { color: #9aa3ad; letter-spacing: 0.02em; font-size: var(--fs-xs); }
 
 /* C-4 当前风格指示标签 2.4:1 → 提亮 */
 span.indicator-label { color: #aab2bc; }
 
 /* R 关键功能字提到 11px 下限 */
-#data-panel .panel-title { font-size: 11px; }
-.location-toolbar-label { font-size: 11px; }
-.gl-label { font-size: 11px; }
+#data-panel .panel-title { font-size: var(--fs-xs); }
+.location-toolbar-label { font-size: var(--fs-xs); }
+.gl-label { font-size: var(--fs-xs); }
 
 /* D-3 dark-glow：零偏移青色发光 → 改实心投影（保留可读不刺眼） */
 #active-style-name { text-shadow: 0 1px 3px rgba(0,0,0,.9); }
 #detection-toggle > span.pp-icon { text-shadow: none; }
 
 /* D-6 tiny-text：电台/上下文/监控正文 7–10px → 11px */
-p.radio-privacy { font-size: 11px; }
-#sdr-radio-card p { font-size: 11px; }
-#cctv-summary { font-size: 11px; }
+p.radio-privacy { font-size: var(--fs-xs); }
+#sdr-radio-card p { font-size: var(--fs-xs); }
+#cctv-summary { font-size: var(--fs-xs); }
 
 /* ═══════════════════════════════════════════════════════════════════════
    全量清理批次（2026-10-25）— 低→高风险：字距 / 小字号 / 卡片扁平化 / 字号下限 / 临界对比
@@ -93,8 +93,8 @@ p.radio-privacy { font-size: 11px; }
 #cctv-summary { letter-spacing: 0.03em; }
 
 /* —— 低风险：C 小字号 tiny-text —— */
-#context-mode-standby > span { font-size: 11px; }
-p.first-run-note { font-size: 11px; color: #b8c2cc; }
+#context-mode-standby > span { font-size: var(--fs-xs); }
+p.first-run-note { font-size: var(--fs-xs); color: #b8c2cc; }
 
 /* —— 低风险：E 临界低对比 near-miss(4.46/4.49:1) —— */
 #gev-voice-control #gev-voice-detail { color: #9aa6ad; }
@@ -107,41 +107,41 @@ p.first-run-note { font-size: 11px; color: #b8c2cc; }
 #scene-panel .scene-shot-label,
 #scene-panel .scene-shot-btn,
 #scene-panel .panel-title,
-#scene-panel .scene-btn { font-size: 11px; }
+#scene-panel .scene-btn { font-size: var(--fs-xs); }
 /* 显示/检测面板 */
 #pp-toggles .pp-label,
 #pp-toggles .pp-header-label,
 #pp-toggles .pp-slider-mini-label,
-#pp-toggles .pp-slider-value { font-size: 11px; }
+#pp-toggles .pp-slider-value { font-size: var(--fs-xs); }
 /* CCTV 监控面板 */
 #cctv-panel .scene-btn,
 #cctv-panel #cctv-source-badge,
 #cctv-panel #cctv-meta,
-#cctv-panel #cctv-quality-chip { font-size: 11px; }
+#cctv-panel #cctv-quality-chip { font-size: var(--fs-xs); }
 /* 面板标题 / 当前风格标签 */
-#control-panel-toggle .panel-title { font-size: 11px; }
-span.indicator-label { font-size: 11px; }
+#control-panel-toggle .panel-title { font-size: var(--fs-xs); }
+span.indicator-label { font-size: var(--fs-xs); }
 /* 语音模块：微缩模块，谨慎提到 10px（≥11 会撑破 86px 模块，见报告说明） */
 #gev-voice-control .gev-voice-tier-btn,
 #gev-voice-control .gev-voice-cost-value,
-#gev-voice-control .gev-mic-label { font-size: 10px; }
-#gev-voice-control #gev-voice-detail { font-size: 10px; }
+#gev-voice-control .gev-mic-label { font-size: var(--fs-2xs); }
+#gev-voice-control #gev-voice-detail { font-size: var(--fs-2xs); }
 
 /* —— 扩展：电台/SDR/监控校准/全局上下文/显示分段 字号下限 + 5处临界对比 + 剩余卡片扁平化 —— */
-#pp-toggles .pp-mode-btn { font-size: 11px; }
-#scene-panel #scene-status { font-size: 11px; }
+#pp-toggles .pp-mode-btn { font-size: var(--fs-xs); }
+#scene-panel #scene-status { font-size: var(--fs-xs); }
 #cctv-panel .panel-title, #cctv-panel .cctv-summary-label,
-#cctv-panel .cctv-cal-value, #cctv-panel .cctv-calibration-header { font-size: 11px; }
+#cctv-panel .cctv-cal-value, #cctv-panel .cctv-calibration-header { font-size: var(--fs-xs); }
 .global-context-panel-inner .panel-title,
-#global-context-flights-btn span, #global-context-missions-btn span { font-size: 11px; }
-#context-mode-standby strong { font-size: 11px; }
+#global-context-flights-btn span, #global-context-missions-btn span { font-size: var(--fs-xs); }
+#context-mode-standby strong { font-size: var(--fs-xs); }
 .radio-panel-inner .panel-title, #radio-enable-btn, .radio-filter-label, #radio-station-meta,
 #radio-prev-btn, #radio-play-btn, #radio-next-btn, #radio-stop-btn, .radio-volume-row span,
-#radio-volume-value, #radio-playback-state, .radio-links a { font-size: 11px; }
+#radio-volume-value, #radio-playback-state, .radio-links a { font-size: var(--fs-xs); }
 .sdr-radio-heading strong, #sdr-connection-state, #sdr-connect-btn, #sdr-locate-btn,
 #sdr-change-device-btn, #sdr-mode-fm-btn, #sdr-mode-adsb-btn, .sdr-gain-row label,
 .sdr-frequency-row label, #sdr-tune-btn, #sdr-seek-back-btn, #sdr-seek-forward-btn,
-#sdr-radio-card .radio-volume-row span, #sdr-volume-value, #sdr-status { font-size: 11px; }
+#sdr-radio-card .radio-volume-row span, #sdr-volume-value, #sdr-status { font-size: var(--fs-xs); }
 /* 5 处临界低对比收尾 */
 #gev-voice-tier { color: #eaf6ff; }
 #gev-voice-cost-value { color: #9aa6ad; }
@@ -152,14 +152,14 @@ p.radio-privacy { color: #9aa6ad; }
 .cctv-calibration-block { background: transparent; border: none; box-shadow: none; }
 
 /* —— 微调收尾批：位置胶囊 / 开关 off 态 / 电台 meta 对比 / 芯片标签字号 —— */
-.location-pill { font-size: 11px; color: #aeb6bf; }
+.location-pill { font-size: var(--fs-xs); color: #aeb6bf; }
 #detection-allocation-weighted { color: #aeb6bf; }
 label.radio-filter-label, #radio-station-meta, .radio-volume-row > span { color: #aeb6bf; }
-#key-setup-chip > span:nth-of-type(2) { font-size: 11px; }
+#key-setup-chip > span:nth-of-type(2) { font-size: var(--fs-xs); }
 /* 2026-11-01：中文药丸改无衬线 12px（effective override，必须与 gev-cn.css 的基础规则一致，
    否则本行会把它压回 11px mono）。 */
 #gev-lang-toggle > span, span.gev-locate-text {
-  font-size: 12px;
+  font-size: var(--fs-sm);
   font-family: var(--font-sans);
   font-weight: 500;
 }
@@ -171,7 +171,7 @@ label.radio-filter-label, #radio-station-meta, .radio-volume-row > span { color:
 /* —— 结构/布局级收尾（已获授权改布局，保功能）：nested-cards 扁平化 + tiny-text 提到 12px —— */
 #pp-toggles > .compact.pp-header-row, #pp-toggles .pp-header-row { background: transparent; box-shadow: none; border-left: none; }
 #sdr-radio-card { background: transparent; box-shadow: none; border: none; border-radius: 0; }
-#cctv-summary, #context-mode-standby > span, p.radio-privacy, #sdr-radio-card > p { font-size: 12px; }
+#cctv-summary, #context-mode-standby > span, p.radio-privacy, #sdr-radio-card > p { font-size: var(--fs-sm); }
 
 }
 

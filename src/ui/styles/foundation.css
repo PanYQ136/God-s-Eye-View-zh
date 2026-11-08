@@ -21,6 +21,16 @@
   --menu-bg: #12121c;
   --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Type scale (audit UI-03). Five steps replace the 74 ad-hoc sizes the CSS
+     used to carry; nothing below --fs-3xs is allowed, because 6/7/8px text is
+     unreadable at 100% Windows scaling. Read-only chrome (kickers, units,
+     timestamps) uses 3xs/2xs; body-ish UI never drops under xs. */
+  --fs-3xs: 9px;
+  --fs-2xs: 10px;
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs-md: 13px;
+  --fs-lg: 16px;
   --panel-radius: 16px;
   --btn-radius: 10px;
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -39,6 +49,10 @@
   --left-stack-gap: 72px;
   --left-collapsed-width: 176px;
   --display-panel-expanded-width: 272px;
+  /* 右栏容器宽度是唯一真值：栏内每张卡都按 100% 铺满它（layers.css），所以
+     栏宽变窄只会压卡、不会溢出；把这个数留在 foundation 里，主题与断点才能
+     通过改一个令牌等比派生，而不是各自硬编码一个相近的数字。 */
+  --right-rail-width: 330px;
   --cockpit-radio-collapsed-width: 148px;
   --cockpit-radio-expanded-width: 232px;
 }
@@ -80,6 +94,23 @@
 ):focus-visible {
   outline: 2px solid var(--text-primary) !important;
   outline-offset: 2px;
+}
+
+/* Press feedback (audit UI-09). The sheets carried 126 :hover rules against
+   three :active ones, so a click produced no acknowledgement until the new
+   state painted. Brightness only — many controls rely on `transform` for
+   centring and optical offsets, and a translate here would tear their
+   geometry. No transition is declared either: these controls own their
+   `transition` shorthands for background/border, and overriding the shorthand
+   here would silently drop those. */
+:where(
+    button,
+    a[href],
+    [role='button'],
+    [role='tab'],
+    [role='menuitem']
+  ):active:not(:disabled, [aria-disabled='true']) {
+  filter: brightness(0.88);
 }
 
 /* Native `<select>` popups are painted by the browser, not by this sheet: the
@@ -317,7 +348,7 @@ body.cockpit-mode #cockpit-cloud-effects.active {
   white-space: nowrap;
   pointer-events: auto;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--fs-2xs);
   color: rgba(232, 234, 237, 0.55);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
 }
@@ -357,7 +388,7 @@ body.cockpit-mode #cockpit-cloud-effects.active {
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
-  font-size: 12px !important;
+  font-size: var(--fs-sm) !important;
   line-height: 1.35;
   white-space: normal;
 }
@@ -423,7 +454,7 @@ body.cockpit-mode #cockpit-cloud-effects.active {
   border: 1px solid rgba(0, 212, 255, 0.28);
   border-radius: var(--btn-radius);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--fs-2xs);
   letter-spacing: 0;
   cursor: pointer;
 }
@@ -441,7 +472,7 @@ body.cockpit-mode #cockpit-cloud-effects.active {
 }
 
 #gev-voice-status {
-  font-size: 10px;
+  font-size: var(--fs-2xs);
   color: var(--accent);
 }
 
@@ -450,7 +481,7 @@ body.cockpit-mode #cockpit-cloud-effects.active {
   margin-top: 2px;
   overflow: hidden;
   color: var(--text-secondary);
-  font-size: 9px;
+  font-size: var(--fs-3xs);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -570,11 +601,11 @@ body.cockpit-mode #cockpit-cloud-effects.active {
 #title-bar.radio-broadcasting .title-logo::before,
 #title-bar.radio-broadcasting .title-logo::after {
   opacity: var(--radio-broadcast-opacity);
-  animation: title-radio-broadcast 1.8s ease-in-out infinite;
+  animation: title-radio-broadcast 1800ms ease-in-out infinite;
 }
 
 #title-bar.radio-broadcasting .title-logo::after {
-  animation-delay: 0.28s;
+  animation-delay: 280ms;
 }
 
 @keyframes title-radio-broadcast {
@@ -617,7 +648,7 @@ body.cockpit-mode #cockpit-cloud-effects.active {
 
 #title-bar .subtitle {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--fs-xs);
   letter-spacing: 5px;
   color: var(--text-dim);
   margin-top: 8px;
@@ -627,7 +658,7 @@ body.cockpit-mode #cockpit-cloud-effects.active {
 #title-bar .frame-rate-readout {
   margin-top: 6px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--fs-xs);
   font-variant-numeric: tabular-nums;
   letter-spacing: 1px;
   color: var(--accent);
@@ -647,7 +678,7 @@ body.cockpit-mode #cockpit-cloud-effects.active {
 #style-indicator .indicator-label {
   display: block;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--fs-2xs);
   letter-spacing: 3px;
   color: var(--text-dim);
   text-transform: uppercase;
@@ -656,7 +687,7 @@ body.cockpit-mode #cockpit-cloud-effects.active {
 #style-indicator .indicator-value {
   display: block;
   font-family: var(--font-mono);
-  font-size: 16px;
+  font-size: var(--fs-lg);
   font-weight: 500;
   letter-spacing: 5px;
   color: var(--accent);

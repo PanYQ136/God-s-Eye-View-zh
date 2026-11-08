@@ -326,7 +326,7 @@
   .gev-voice-visualizer
   span {
   animation: gev-voice-bar 680ms ease-in-out infinite alternate;
-  animation-delay: calc(var(--bar) * -45ms);
+  animation-delay: calc(var(--bar, 0) * -45ms);
 }
 
 #command-dock .gev-voice-readout {
