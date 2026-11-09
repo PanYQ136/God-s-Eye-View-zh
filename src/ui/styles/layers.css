@@ -40,6 +40,16 @@
   transform: translateY(0);
 }
 
+/* The glass-layer override in material.css targets `.gev-lc`, so its class
+   specificity loses to the ID rule above and the panel kept its 300ms slide
+   when motion is reduced. The panel owns the transition, so it also owns the
+   opt-out. */
+@media (prefers-reduced-motion: reduce) {
+  #data-panel {
+    transition: none;
+  }
+}
+
 #data-panel .panel-glow,
 #utilities-panel .panel-glow {
   position: absolute;
@@ -1287,7 +1297,7 @@ body.recording-mode #right-context-rail > [data-panel-id] {
   visibility: hidden !important;
   pointer-events: none !important;
 }
-@media (max-width: 760px) {
+@media (max-width: 760px), (max-height: 480px) and (pointer: coarse) {
   #right-context-rail #weather-panel.collapsed,
   #right-context-rail #recent-imagery-panel.collapsed {
     width: 100%;

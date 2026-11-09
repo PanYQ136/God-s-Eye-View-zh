@@ -1900,7 +1900,7 @@
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 760px), (max-height: 480px) and (pointer: coarse) {
   :root[data-ui-theme='cyber'] body::after {
     background-size: 78px 78px;
   }
@@ -2805,14 +2805,14 @@
   left: 30px;
 }
 
-@media (min-width: 761px) and (max-height: 820px) {
+@media (min-width: 761px) and (max-height: 820px) and (not ((max-height: 480px) and (pointer: coarse))) {
   :root[data-ui-theme='cyber'] body.cockpit-mode .cockpit-roll-arc::before {
     top: -18px;
   }
 }
 
 /* Both expanded side panels occupy the same slot; footers clear the frame. */
-@media (min-width: 761px) {
+@media (min-width: 761px) and (not ((max-height: 480px) and (pointer: coarse))) {
   :root[data-ui-theme='cyber']
     body.cockpit-mode
     #left-panel-stack
@@ -2848,7 +2848,7 @@
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 760px), (max-height: 480px) and (pointer: coarse) {
   :root[data-ui-theme='cyber'] body.cockpit-mode #cockpit-hud::before {
     inset: 10px;
   }

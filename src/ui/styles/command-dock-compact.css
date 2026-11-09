@@ -435,3 +435,13 @@ body:not(.ui-clean-view):not(.recording-mode) #cesium-credits {
     flex-basis: 8.5rem;
   }
 }
+
+/* The dock slides sideways when a side panel expands. Under reduced-motion the
+   position still has to change, it just must not travel: snap instead of slide. */
+@media (prefers-reduced-motion: reduce) {
+  #command-dock,
+  #command-dock > #location-bar,
+  #command-dock > #control-panel {
+    transition: none;
+  }
+}

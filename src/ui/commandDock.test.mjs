@@ -9,7 +9,11 @@ import { setLocale } from '../i18n/index.js';
 import { useDisplayStore } from './stores/display.js';
 import { useLocationStore } from './stores/location.js';
 import { LocationControls } from './locationControls.js';
-import { MOBILE_TABS, initMobileShell } from './mobileShell.js';
+import {
+  MOBILE_SHEET_PANELS,
+  MOBILE_TABS,
+  initMobileShell,
+} from './mobileShell.js';
 import CommandDockView from './views/CommandDockView.vue';
 import SceneChromeView from './views/SceneChromeView.vue';
 import { VisualSettings } from './visualSettings.js';
@@ -303,7 +307,12 @@ test('the phone tab bar joins the end of the page while the shell publishes', as
   // The scene adds its credits after the views mount; the bar follows them.
   const credits = document.body.appendChild(document.createElement('div'));
   const store = useDisplayStore(pinia);
-  store.publishPhoneShell({ enabled: true, sheet: null, tabs: MOBILE_TABS });
+  store.publishPhoneShell({
+    enabled: true,
+    sheet: null,
+    tabs: MOBILE_TABS,
+    sheetPanels: MOBILE_SHEET_PANELS,
+  });
   await nextTick();
   const bar = $('#mobile-tab-bar');
   const backdrop = $('#mobile-sheet-backdrop');
@@ -330,6 +339,17 @@ test('the phone tab bar joins the end of the page while the shell publishes', as
   assert.deepEqual(
     tabs.map((tab) => tab.getAttribute('aria-expanded')),
     ['false', 'false', 'false', 'false', 'false'],
+  );
+  // Each tab names the sheet's first panel, which the shell labels while open.
+  assert.deepEqual(
+    tabs.map((tab) => tab.getAttribute('aria-controls')),
+    [
+      'data-panel',
+      'cctv-panel',
+      'global-context-panel',
+      'location-bar',
+      'control-panel',
+    ],
   );
   store.publishPhoneShell({
     enabled: true,

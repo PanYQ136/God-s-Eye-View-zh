@@ -434,3 +434,23 @@ body.mobile-shell.ui-clean-view #command-dock,
 body.mobile-shell.cockpit-mode #command-dock {
   bottom: calc(var(--mobile-bottom-inset) + 10px);
 }
+
+/* A thumb is not a mouse: every control a sheet reveals is at least 24px on
+   each side, sliders included. Scoped to the phone shell so the denser desktop
+   rails keep their spacing. */
+body.mobile-shell .ui-button,
+body.mobile-shell .cctv-cal-value {
+  min-width: 24px;
+  min-height: 24px;
+  box-sizing: border-box;
+}
+
+/* The search field collapses to width 0 when the bar is idle, so only its
+   height is raised; a min-width here would leave a gap in the collapsed bar. */
+body.mobile-shell #location-search {
+  min-height: 24px;
+}
+
+body.mobile-shell .gev-quantitative-slider {
+  height: 24px;
+}

@@ -644,14 +644,18 @@ for (const variant of ['minimal', 'full']) {
 // that scrolls nothing but glow. The narrow block therefore pins every hosted
 // glow to its panel box.
 
+/** The phone media block, whatever branches its prelude carries. */
+const NARROW_MEDIA = /@media \(max-width: 760px\)[^{]*\{/;
+
 /** Strip comments and return the bodies of every ≤760px media block. */
 function narrowScreenBlocks(css) {
   const source = css.replace(/\/\*[\s\S]*?\*\//g, '');
   const blocks = [];
   let from = 0;
   for (;;) {
-    const start = source.indexOf('@media (max-width: 760px) {', from);
-    if (start === -1) break;
+    const match = NARROW_MEDIA.exec(source.slice(from));
+    if (!match) break;
+    const start = from + match.index;
     const open = source.indexOf('{', start);
     let depth = 0;
     let close = -1;

@@ -362,6 +362,58 @@ test('focus moves into the sheet and returns to the tab on close', () => {
   assert.equal(document.activeElement, tab('layers'));
 });
 
+test('focus retries on the next frame when the borrowed panel is not laid out', () => {
+  const { document, press, runFrames } = fixture();
+  const dataPanel = document.getElementById('data-panel');
+  const controls = dataPanel.children.filter(
+    (child) => child.tagName === 'BUTTON',
+  );
+  // On the opening frame a just-borrowed panel reports no client rects, so its
+  // first control refuses focus; the shell has to come back for it.
+  for (const control of controls) control.hidden = true;
+  press('layers');
+  assert.equal(document.activeElement, document.body);
+  controls[2].hidden = false;
+  runFrames();
+  assert.equal(document.activeElement, dataPanel.children[2]);
+});
+
+test('focus the opening layout drops a frame later is put back', () => {
+  const { document, press, runFrames } = fixture();
+  const dataPanel = document.getElementById('data-panel');
+  press('layers');
+  assert.equal(document.activeElement, dataPanel.children[2]);
+  // The rail borrows the panel on the opening frame and re-lays it out after,
+  // and re-laying out the focused subtree sends focus back to the body.
+  document.activeElement = document.body;
+  runFrames();
+  assert.equal(document.activeElement, dataPanel.children[2]);
+});
+
+test('focus the user moves elsewhere during the opening stays there', () => {
+  const { document, press, runFrames } = fixture();
+  press('layers');
+  const elsewhere = document.getElementById('location-search');
+  elsewhere.focus();
+  runFrames();
+  assert.equal(document.activeElement, elsewhere);
+});
+
+test('a sheet names its panels as landmarks and closing takes the name back', () => {
+  const { document, press } = fixture();
+  const dataPanel = document.getElementById('data-panel');
+  assert.equal(dataPanel.getAttribute('role'), null);
+  press('layers');
+  assert.equal(dataPanel.getAttribute('role'), 'region');
+  assert.equal(dataPanel.getAttribute('aria-label'), 'Layers');
+  // Switching sheets renames the panel the previous sheet had borrowed.
+  press('cameras');
+  assert.equal(dataPanel.getAttribute('role'), null);
+  assert.equal(document.getElementById('cctv-panel').getAttribute('role'), 'region');
+  press('cameras');
+  assert.equal(document.getElementById('cctv-panel').getAttribute('role'), null);
+});
+
 test('the share link keeps the state from before the sheets', () => {
   const { shell, press, document, closedCount } = fixture({
     expanded: ['street-level-panel'],
@@ -532,22 +584,25 @@ test('the shell publishes whether it is on and which sheet is open', () => {
     enabled: true,
     sheet: null,
     tabs: MOBILE_TABS,
+    sheetPanels: MOBILE_SHEET_PANELS,
   });
   phone.press('search');
   assert.deepEqual(phone.views.at(-1), {
     enabled: true,
     sheet: 'search',
     tabs: MOBILE_TABS,
+    sheetPanels: MOBILE_SHEET_PANELS,
   });
   phone.resize(false);
   assert.deepEqual(phone.views.at(-1), {
     enabled: false,
     sheet: null,
     tabs: MOBILE_TABS,
+    sheetPanels: MOBILE_SHEET_PANELS,
   });
   const desktop = fixture({ mobile: false });
   assert.deepEqual(desktop.views, [
-    { enabled: false, sheet: null, tabs: MOBILE_TABS },
+    { enabled: false, sheet: null, tabs: MOBILE_TABS, sheetPanels: MOBILE_SHEET_PANELS },
   ]);
 });
 
