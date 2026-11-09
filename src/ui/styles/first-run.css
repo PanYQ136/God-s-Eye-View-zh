@@ -152,7 +152,7 @@
   text-align: start;
   background: rgba(29, 69, 81, 0.18);
   border: 1px solid rgba(100, 200, 220, 0.18);
-  border-radius: 0.42rem;
+  border-radius: 0.4rem;
   cursor: pointer;
   transition:
     background var(--transition-fast),
@@ -201,6 +201,14 @@
 }
 
 .first-run-arrow {
+  /* The arrow is a Material Symbols glyph: the font draws slightly wider than
+     its em box, so a flex-shrunk 21px slot clipped the tip. Pin it to one em
+     and keep it out of the shrinking set. */
+  flex: none;
+  width: 1em;
+  height: 1em;
+  line-height: 1;
+  overflow: visible;
   color: rgba(54, 220, 255, 0.4);
   font-size: 1rem;
   transition:

@@ -418,7 +418,8 @@ export function boot() {
       globalThis.__lcRail = { stable: railStable, frames: railFrames };
       /* 早于此刻锁会把 App 启动期的「两卡靠拢」中间态当成家（control-panel 637 vs 888）。 */
       armIfReady();
-      if (!globalThis.__lcDockArmed && railFrames < 900) requestAnimationFrame(railTick);
+      if (!globalThis.__lcDockArmed && railFrames < 900)
+        requestAnimationFrame(railTick);
     };
     requestAnimationFrame(railTick);
     /* rAF 兜底：即使启动期一帧都跑不动，也要在 6s 后把 dock 槽位放行，不能让卡永久缺槽位。 */

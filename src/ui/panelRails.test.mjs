@@ -635,7 +635,7 @@ for (const variant of ['minimal', 'full']) {
   });
 }
 // ── Narrow-screen rail overflow pin ──────────────────────────────────────────
-// At ≤720px both panel stacks become scroll containers (overflow-y: auto),
+// At ≤760px both panel stacks become scroll containers (overflow-y: auto),
 // which also makes their overflow-x compute to auto. Each panel's decorative
 // .panel-glow is absolutely positioned with a negative inset, so inside a
 // scroll container that overhang is no longer harmless paint: it becomes
@@ -644,13 +644,13 @@ for (const variant of ['minimal', 'full']) {
 // that scrolls nothing but glow. The narrow block therefore pins every hosted
 // glow to its panel box.
 
-/** Strip comments and return the bodies of every ≤720px media block. */
+/** Strip comments and return the bodies of every ≤760px media block. */
 function narrowScreenBlocks(css) {
   const source = css.replace(/\/\*[\s\S]*?\*\//g, '');
   const blocks = [];
   let from = 0;
   for (;;) {
-    const start = source.indexOf('@media (max-width: 720px) {', from);
+    const start = source.indexOf('@media (max-width: 760px) {', from);
     if (start === -1) break;
     const open = source.indexOf('{', start);
     let depth = 0;
@@ -722,7 +722,7 @@ test('narrow-screen rails pin every hosted panel glow inside its panel box', () 
           selectors.includes(`${rail} .panel-glow`) &&
           /(?:^|;)\s*inset:\s*0\s*;/.test(declarations),
       ),
-      `${rail} scrolls at ≤720px but does not pin its panel glows (inset: 0)`,
+      `${rail} scrolls at ≤760px but does not pin its panel glows (inset: 0)`,
     );
   }
 });

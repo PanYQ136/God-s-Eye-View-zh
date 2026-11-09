@@ -233,6 +233,12 @@ body.mobile-shell #command-dock > * {
   pointer-events: auto;
 }
 
+/* The trays are rendered into the stage layer, not the dock: keep them
+   clickable there and let the sheet rules below find them. */
+body.mobile-shell .lc-stage > .dock-panel {
+  pointer-events: auto;
+}
+
 body.mobile-shell #location-bar,
 body.mobile-shell #control-panel {
   display: none;
@@ -243,8 +249,8 @@ body.mobile-shell[data-mobile-sheet] #command-dock {
   bottom: calc(var(--mobile-tab-space) + var(--mobile-sheet-height, 0px) + 8px);
 }
 
-body.mobile-shell[data-mobile-sheet='search'] #command-dock > #location-bar,
-body.mobile-shell[data-mobile-sheet='more'] #command-dock > #control-panel {
+body.mobile-shell[data-mobile-sheet='search'] :is(#command-dock, .lc-stage) > #location-bar,
+body.mobile-shell[data-mobile-sheet='more'] :is(#command-dock, .lc-stage) > #control-panel {
   position: relative;
   inset: auto;
   display: flex;
@@ -282,18 +288,18 @@ body.mobile-shell[data-mobile-sheet='more'] #right-context-rail {
 /* Presets and Location show their popover inline instead of as a floating
    tray; the dock scrolls, so a tray above it would be clipped. */
 body.mobile-shell[data-mobile-sheet='more']
-  #command-dock
+  :is(#command-dock, .lc-stage)
   #control-panel
   .panel-inner,
 body.mobile-shell[data-mobile-sheet='more']
-  #command-dock
+  :is(#command-dock, .lc-stage)
   #control-panel-popover,
 body.mobile-shell[data-mobile-sheet='search']
-  #command-dock
+  :is(#command-dock, .lc-stage)
   #location-bar
   .location-inner,
 body.mobile-shell[data-mobile-sheet='search']
-  #command-dock
+  :is(#command-dock, .lc-stage)
   #location-bar-popover {
   position: static;
   inset: auto;
@@ -310,20 +316,20 @@ body.mobile-shell[data-mobile-sheet='search']
 }
 
 /* The tab names the sheet; the tray toggle and pin have nothing to do here. */
-body.mobile-shell[data-mobile-sheet='more'] #command-dock #control-panel-toggle,
+body.mobile-shell[data-mobile-sheet='more'] :is(#command-dock, .lc-stage) #control-panel-toggle,
 body.mobile-shell[data-mobile-sheet='more']
-  #command-dock
+  :is(#command-dock, .lc-stage)
   #control-panel
   .dock-pin-btn,
 body.mobile-shell[data-mobile-sheet='search']
-  #command-dock
+  :is(#command-dock, .lc-stage)
   #location-bar-toggle,
 body.mobile-shell[data-mobile-sheet='search']
-  #command-dock
+  :is(#command-dock, .lc-stage)
   #location-bar
   .panel-collapse-btn,
 body.mobile-shell[data-mobile-sheet='search']
-  #command-dock
+  :is(#command-dock, .lc-stage)
   #location-bar
   .dock-pin-btn {
   display: none;

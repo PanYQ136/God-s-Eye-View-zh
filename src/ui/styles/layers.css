@@ -1287,7 +1287,7 @@ body.recording-mode #right-context-rail > [data-panel-id] {
   visibility: hidden !important;
   pointer-events: none !important;
 }
-@media (max-width: 720px) {
+@media (max-width: 760px) {
   #right-context-rail #weather-panel.collapsed,
   #right-context-rail #recent-imagery-panel.collapsed {
     width: 100%;

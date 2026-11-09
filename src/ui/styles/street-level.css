@@ -385,7 +385,12 @@ html:not([lang='en']) .sl-meta-row .sl-nearest-btn {
   cursor: pointer;
   display: grid;
   place-items: center;
-  transition: all var(--transition-fast);
+  /* Explicit list, not `transition: all`: only the hover repaint animates, so
+     a thread switch never animates layout properties through this node. */
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
 }
 
 .sl-viewer-x:hover {
@@ -600,7 +605,7 @@ html:not([lang='en']) .sl-meta-row .sl-nearest-btn {
 /* The phone rail spans 50vh + 8px to 2vh + 7.5rem from the bottom
    (responsive.css). Size the photo to that band, less ~150px of panel chrome,
    so it shows without scrolling. */
-@media (max-width: 720px) {
+@media (max-width: 760px) {
   .sl-viewer {
     aspect-ratio: auto;
     height: clamp(110px, calc(48vh - 8px - 7.5rem - 150px), 320px);

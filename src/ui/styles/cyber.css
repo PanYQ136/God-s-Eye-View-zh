@@ -1900,7 +1900,7 @@
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 760px) {
   :root[data-ui-theme='cyber'] body::after {
     background-size: 78px 78px;
   }

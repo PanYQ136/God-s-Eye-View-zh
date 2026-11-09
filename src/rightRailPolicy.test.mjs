@@ -9,7 +9,9 @@ test('desktop side rails hide collapsed panels in every HUD layout, never on pho
   const left = readFileSync(new URL('./ui/leftPanelRail.js', import.meta.url), 'utf8');
   const css = readStylesheet(new URL('../style.css', import.meta.url));
   for (const ui of [right, left]) {
-    assert.match(ui, /const isMobile = windowRef\.matchMedia\('\(max-width: 720px\)'\)\.matches/);
+    assert.match(ui, /import \{[^}]*isMobileViewport[^}]*\} from '\.\/viewport\.js'/);
+    assert.match(ui, /const isMobile = isMobileViewport\(windowRef\)/);
+    assert.doesNotMatch(ui, /\(max-width: \d+px\)/);
     // 折叠卡的可达性交给 syncCollapsedA11y：内容块 inert，标题行留在 a11y 树里。
     assert.match(
       ui,

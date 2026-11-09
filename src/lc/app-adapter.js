@@ -245,7 +245,13 @@ export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
 
   function slotSig(m) {
     return (
-      Math.round(m.x) + ',' + Math.round(m.y) + ',' + Math.round(m.w) + ',' + Math.round(m.h)
+      Math.round(m.x) +
+      ',' +
+      Math.round(m.y) +
+      ',' +
+      Math.round(m.w) +
+      ',' +
+      Math.round(m.h)
     );
   }
 
@@ -442,7 +448,8 @@ export function createAdapter({ ids = CARD_IDS, doc = document } = {}) {
            早先写成 dock 一律 hold 缓存，结果是 arm 那一帧锁到 App 的居中态
            （control-panel 637，正确 888），之后 App 改成右对齐也不再回锁 —— 脏槽位永久留存，
            表现为开→合回到 637 再被 App 弹回 888 的「位置乱跳」。 */
-        const hold = slotCache.has(id) && (isDock ? railBusy : stale && railBusy);
+        const hold =
+          slotCache.has(id) && (isDock ? railBusy : stale && railBusy);
         if (!dockCold)
           mini = hold
             ? slotCache.get(id)

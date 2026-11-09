@@ -1,4 +1,5 @@
 import { nextTick } from 'vue';
+import { isMobileViewport } from '../ui/viewport.js';
 
 const DOCK_KEY = 'gev.panel.docked';
 
@@ -61,7 +62,7 @@ function layOut({ ui, name, minimize, restore }) {
   const isDocked = () => Boolean(ui.state.layout.docked);
   const listen = (target, event, handler) =>
     target?.addEventListener(event, handler, { signal: lifetime.signal });
-  const isMobile = () => view.matchMedia?.('(max-width: 720px)').matches;
+  const isMobile = () => isMobileViewport(view);
   const shown = (element) =>
     !element.hidden && element.checkVisibility?.() !== false;
   // The rail yields its lane while any assistant panel is docked over it.

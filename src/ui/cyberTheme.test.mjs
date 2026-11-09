@@ -861,7 +861,7 @@ test('Cyber Cockpit keeps Data Layers inside its bounded rail', () => {
 test('Cyber desktop cockpit collapsed utility frames match the 50px Data Layers frame', () => {
   const desktop = cyberStyles.slice(
     cyberStyles.indexOf('@media (min-width: 961px) and (min-height: 650px)'),
-    cyberStyles.indexOf('@media (max-width: 720px)'),
+    cyberStyles.indexOf('@media (max-width: 760px)'),
   );
   assert.match(
     desktop,

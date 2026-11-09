@@ -153,8 +153,11 @@
 .ui-rail--expanded {
   border-radius: 21px;
 }
+/* Follows the panel token rather than a literal 16px: the cyber theme drops
+   --panel-radius to 1px and the expanded rail must keep the same hard edge as
+   the panels it sits beside. */
 .ui-rail--expanded .ui-rail__item {
-  border-radius: 16px;
+  border-radius: var(--panel-radius);
 }
 .ui-rail--expanded .ui-rail__label {
   max-width: 220px;
@@ -178,4 +181,11 @@
    children of the page, as the static markup they replace did. */
 .gev-view {
   display: contents;
+}
+
+/* WCAG 2.5.8 (AA) minimum target size. The pills stay visually compact, but
+   their hit area never drops below 24×24 CSS px, which is where the mono
+   captions and tray headers used to land. */
+:is(.data-toggle-btn, .dock-tray-toggle, .gev-voice-error-dismiss) {
+  min-height: 24px;
 }

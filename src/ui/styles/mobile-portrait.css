@@ -1,103 +1,138 @@
 @layer components {
-/* ════════════════════════════════════════════════════════════════
+  /* ════════════════════════════════════════════════════════════════
    mobile-portrait.css — 手机竖屏适配（纯 @media 作用域，桌面/横屏不受影响）
    目标：地图优先。左右面板堆叠在窄屏改为「两侧抽屉」，默认移出屏幕、
    点悬浮按钮滑出；指令坞贴底并避让安全区；顶部避让刘海。杜绝全宽铺满/互相重叠。
-   回滚：删 style.css 末尾本文件的 @import 一行 + index.html 的 mobile-ui.js 一行。
+   注意：断点与 src/ui/viewport.js 的 MOBILE_MAX_WIDTH 必须一致（760px），
+   且手机壳层（body.mobile-shell，见 mobile-shell.css）接管同一批元素时本文件的
+   定位规则必须让位——壳层用底部 tab 栏 + sheet，不需要两侧抽屉，两套定位同时
+   生效会把面板推出视口。故凡与壳层重叠的规则均限定 body:not(.mobile-shell)。
+   回滚：删 style.css 末尾本文件的 @import 一行 + boot-defer.js 对 mobile-ui.js 的导入。
    ════════════════════════════════════════════════════════════════ */
-@media (max-width: 760px) {
-  :root {
-    --m-safe-t: env(safe-area-inset-top, 0px);
-    --m-safe-b: env(safe-area-inset-bottom, 0px);
-    --m-safe-l: env(safe-area-inset-left, 0px);
-    --m-safe-r: env(safe-area-inset-right, 0px);
-  }
+  @media (max-width: 760px) {
+    :root {
+      --m-safe-t: env(safe-area-inset-top, 0px);
+      --m-safe-b: env(safe-area-inset-bottom, 0px);
+      --m-safe-l: env(safe-area-inset-left, 0px);
+      --m-safe-r: env(safe-area-inset-right, 0px);
+    }
 
-  html, body { overflow-x: hidden; }
+    html,
+    body {
+      overflow-x: hidden;
+    }
 
-  /* ── 左右面板堆叠 → 两侧抽屉 ── */
-  #left-panel-stack,
-  #right-context-rail {
-    position: fixed !important;
-    top: calc(var(--m-safe-t) + 58px) !important;
-    bottom: calc(var(--m-safe-b) + 86px) !important;
-    width: min(90vw, 380px) !important;
-    max-height: none !important;
-    height: auto !important;
-    margin: 0 !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    -webkit-overflow-scrolling: touch;
-    /* 高于指令坞(151)与展开卡(.lc-stage 150)，抽屉内容不被压住。 */
-    z-index: 152 !important;
-    border-radius: 16px;
-    box-shadow: 0 10px 34px rgba(0, 0, 0, 0.46);
-    transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 200ms ease;
-    will-change: transform;
-  }
-  #left-panel-stack {
-    left: 8px !important; right: auto !important;
-    transform: translateX(calc(-100% - 16px));
-    opacity: 0; pointer-events: none;
-  }
-  #right-context-rail {
-    right: 8px !important; left: auto !important;
-    transform: translateX(calc(100% + 16px));
-    opacity: 0; pointer-events: none;
-  }
-  #left-panel-stack.mobile-open,
-  #right-context-rail.mobile-open {
-    transform: translateX(0) !important;
-    opacity: 1; pointer-events: auto;
-  }
+    /* ── 左右面板堆叠 → 两侧抽屉（壳层接管时让位，见文件头注释） ── */
+    body:not(.mobile-shell) #left-panel-stack,
+    body:not(.mobile-shell) #right-context-rail {
+      position: fixed !important;
+      top: calc(var(--m-safe-t) + 58px) !important;
+      bottom: calc(var(--m-safe-b) + 86px) !important;
+      width: min(90vw, 380px) !important;
+      max-height: none !important;
+      height: auto !important;
+      margin: 0 !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      -webkit-overflow-scrolling: touch;
+      /* 高于指令坞(151)与展开卡(.lc-stage 150)，抽屉内容不被压住。 */
+      z-index: 152 !important;
+      border-radius: 16px;
+      box-shadow: 0 10px 34px rgba(0, 0, 0, 0.46);
+      transition:
+        transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1),
+        opacity 200ms ease;
+      will-change: transform;
+    }
+    body:not(.mobile-shell) #left-panel-stack {
+      left: 8px !important;
+      right: auto !important;
+      transform: translateX(calc(-100% - 16px));
+      opacity: 0;
+      pointer-events: none;
+    }
+    body:not(.mobile-shell) #right-context-rail {
+      right: 8px !important;
+      left: auto !important;
+      transform: translateX(calc(100% + 16px));
+      opacity: 0;
+      pointer-events: none;
+    }
+    body:not(.mobile-shell) #left-panel-stack.mobile-open,
+    body:not(.mobile-shell) #right-context-rail.mobile-open {
+      transform: translateX(0) !important;
+      opacity: 1;
+      pointer-events: auto;
+    }
 
-  /* ── 悬浮触发按钮（图层 / 工具），触控友好 + 安全区 ── */
-  .gev-mfab {
-    position: fixed;
-    bottom: calc(var(--m-safe-b) + 16px);
-    width: 50px; height: 50px;
-    border-radius: 16px;
-    display: none; align-items: center; justify-content: center;
-    background: rgba(18, 22, 30, 0.74);
-    color: #e8edf6; font-size: 24px; line-height: 1;
-    border: 0; cursor: pointer;
-    backdrop-filter: blur(18px) saturate(1.6);
-    -webkit-backdrop-filter: blur(18px) saturate(1.6);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.14);
-    z-index: 132;
-    transition: background 180ms ease, transform 120ms ease;
-    -webkit-tap-highlight-color: transparent;
-  }
-  body.gev-mobile-portrait .gev-mfab { display: inline-flex; }
-  #gev-mfab-left { left: calc(var(--m-safe-l) + 10px); }
-  #gev-mfab-right { right: calc(var(--m-safe-r) + 10px); }
-  .gev-mfab.on { background: rgba(0, 190, 255, 0.9); color: #00121a; }
-  .gev-mfab:active { transform: scale(0.93); }
+    /* ── 悬浮触发按钮（图层 / 工具），触控友好 + 安全区 ── */
+    .gev-mfab {
+      position: fixed;
+      bottom: calc(var(--m-safe-b) + 16px);
+      width: 50px;
+      height: 50px;
+      border-radius: 16px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(18, 22, 30, 0.74);
+      color: #e8edf6;
+      font-size: 24px;
+      line-height: 1;
+      border: 0;
+      cursor: pointer;
+      backdrop-filter: blur(18px) saturate(1.6);
+      -webkit-backdrop-filter: blur(18px) saturate(1.6);
+      box-shadow:
+        0 6px 20px rgba(0, 0, 0, 0.42),
+        inset 0 1px 0 rgba(255, 255, 255, 0.14);
+      z-index: 132;
+      transition:
+        background 180ms ease,
+        transform 120ms ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body.gev-mobile-portrait .gev-mfab {
+      display: inline-flex;
+    }
+    #gev-mfab-left {
+      left: calc(var(--m-safe-l) + 10px);
+    }
+    #gev-mfab-right {
+      right: calc(var(--m-safe-r) + 10px);
+    }
+    .gev-mfab.on {
+      background: rgba(0, 190, 255, 0.9);
+      color: #00121a;
+    }
+    .gev-mfab:active {
+      transform: scale(0.93);
+    }
 
-  /* ── 指令坞：贴底避让安全区，触控 44px+，横向可滚 ── */
-  #command-dock {
-    bottom: calc(var(--m-safe-b) + 12px) !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    flex-wrap: nowrap;
-    max-width: calc(100vw - 20px);
-    -webkit-overflow-scrolling: touch;
-  }
-  #command-dock .dock-tray-toggle,
-  #command-dock #gev-voice-button,
-  #command-dock .gev-voice-tier-btn {
-    min-width: 46px; min-height: 44px;
-  }
+    /* ── 指令坞：贴底避让安全区，触控 44px+，横向可滚 ── */
+    body:not(.mobile-shell) #command-dock {
+      bottom: calc(var(--m-safe-b) + 12px) !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      flex-wrap: nowrap;
+      max-width: calc(100vw - 20px);
+      -webkit-overflow-scrolling: touch;
+    }
+    body:not(.mobile-shell) #command-dock .dock-tray-toggle,
+    body:not(.mobile-shell) #command-dock #gev-voice-button,
+    body:not(.mobile-shell) #command-dock .gev-voice-tier-btn {
+      min-width: 46px;
+      min-height: 44px;
+    }
 
-  /* ── 顶部避让刘海/安全区 ── */
-  #title-bar {
-    left: calc(10px + var(--m-safe-l)) !important;
-    top: calc(var(--m-safe-t) + 10px) !important;
+    /* ── 顶部避让刘海/安全区（壳层接管时让位） ── */
+    body:not(.mobile-shell) #title-bar {
+      left: calc(10px + var(--m-safe-l)) !important;
+      top: calc(var(--m-safe-t) + 10px) !important;
+    }
+    body:not(.mobile-shell) #top-center-actions {
+      top: calc(var(--m-safe-t) + 8px) !important;
+      right: calc(10px + var(--m-safe-r)) !important;
+    }
   }
-  #top-center-actions {
-    top: calc(var(--m-safe-t) + 8px) !important;
-    right: calc(10px + var(--m-safe-r)) !important;
-  }
-}
-
 }

@@ -788,7 +788,7 @@ export class StyleManager extends ShellFacade {
 
   /**
    * Phone layout: a bottom tab bar presenting one panel sheet at a time
-   * (src/ui/mobileShell.js). Inactive above 720px.
+   * (src/ui/mobileShell.js). Inactive above the phone gate in src/ui/viewport.js.
    * @returns {void}
    */
   _initMobileShell() {

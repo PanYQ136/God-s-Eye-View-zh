@@ -1363,3 +1363,17 @@ html:not([lang='en']) .param-slider-row {
     content: '';
   }
 }
+
+/* Pointer targets: the panel header glyph buttons (expand / collapse) render at
+   22px, under the 24px minimum in WCAG 2.5.8. An overhanging ::after does not
+   survive here — the panel body clips it — so the box itself grows to 24px and
+   the glyph stays centred. The LC rails measure card slots from the rail, not
+   from these header buttons, so the 2px gain does not move any slot.
+   #control-panel-toggle is not fixed here: its 22.4px box comes from a rule
+   that beats every 24px min-height (resolved min-height is 16px), still open. */
+.panel-header > .ui-button,
+.pp-header-row > .ui-button {
+  min-width: 24px;
+  min-height: 24px;
+  box-sizing: border-box;
+}
