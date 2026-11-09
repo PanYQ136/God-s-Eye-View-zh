@@ -86,6 +86,9 @@
   0%, 100% { opacity: 0.45; }
   50% { opacity: 0.78; }
 }
+@media (prefers-reduced-motion: reduce) {
+  #title-bar .title-glow { animation: none; opacity: 0.58; }
+}
 
 /* 7) 汉化后排版：收窄字距、取消大写字形，让中文更透气 */
 body.gev-zh .panel-title,
@@ -134,7 +137,11 @@ body.gev-zh .btn-label { font-size: var(--fs-sm); }
   border: 1px solid rgba(0, 212, 255, 0.28);
   border-radius: 999px;
   cursor: pointer;
-  transition: all 180ms ease;
+  /* Explicit properties: `all` also animates layout and paints, which is the
+     slow path for a chip that only changes its border on hover. */
+  transition:
+    border-color 180ms ease,
+    color 180ms ease;
 }
 #gev-lang-toggle:hover {
   border-color: var(--accent);
@@ -218,7 +225,11 @@ option {
   border: 1px solid rgba(0, 212, 255, 0.28);
   border-radius: 999px;
   cursor: pointer;
-  transition: all 180ms ease;
+  /* Explicit properties: `all` also animates layout and paints, which is the
+     slow path for a chip that only changes its border on hover. */
+  transition:
+    border-color 180ms ease,
+    color 180ms ease;
 }
 #gev-locate-btn:hover {
   border-color: var(--accent);
@@ -226,6 +237,15 @@ option {
 #gev-locate-btn .gev-locate-icon {
   font-size: var(--fs-md);
   line-height: 1;
+}
+
+/* WCAG 2.5.8: these pills measure 17px tall. The LC layout engine anchors the
+   chip slots by their rect, so the box must not grow; the hit area does. */
+#gev-lang-toggle::after,
+#gev-locate-btn::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
 }
 #gev-toast {
   position: fixed;

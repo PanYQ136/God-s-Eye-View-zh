@@ -512,7 +512,7 @@ body.gev-imagery-box .cesium-widget canvas {
   outline-offset: 4px;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 760px) {
   #recent-imagery-panel-body {
     max-height: 48vh;
   }

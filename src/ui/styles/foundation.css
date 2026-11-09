@@ -63,6 +63,18 @@
   box-sizing: border-box;
 }
 
+/* Form controls do not inherit the page's type on their own: a button without
+   an explicit size fell back to the platform UI face at 13.3333px, which broke
+   the type ladder wherever a control relied on inheritance. Inherit once, and
+   let each control that needs a specific step set it. */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  letter-spacing: inherit;
+}
+
 /* Keyboard focus is an app-wide state and must survive selected/active button
    skins. Individual controls can choose an inset/outset offset, but no local
    `outline: none` rule may erase the ring. */

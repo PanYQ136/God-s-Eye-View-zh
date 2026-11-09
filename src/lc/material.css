@@ -214,6 +214,8 @@
    把中/EN 药丸拉成整行宽。material 只负责材质（透明 / 零描边 / 单层文字投影）。 */
 #gev-lang-toggle:hover { border: 0; box-shadow: none; }
 #gev-locate-btn:hover { border: 0; box-shadow: none; }
+/* WCAG 2.2 · 2.5.8：两个 chip 实测只有 17px 高，撑到 24px 透明行盒（材质本就透明，文字居中不变）。 */
+#gev-lang-toggle, #gev-locate-btn { min-height: 24px; box-sizing: border-box; }
 
 /* ── 16) hover 镜面高光（P0-2）：单层、只作用于卡壳 ────────────────────────
    实测改前 hover 前后 boxShadow/background/filter/transform/::before 全不变（审计 hover.json），

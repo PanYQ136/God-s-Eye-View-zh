@@ -7,6 +7,7 @@ import { syncCollapsedA11y } from './panelA11y.js';
 
 import { displayPanelScroller } from './displayPanelScroll.js';
 import { settleSideAccordion } from './panelAccordion.js';
+import { isMobileViewport } from './viewport.js';
 
 const pendingCollapseRetries = new WeakSet();
 
@@ -90,7 +91,7 @@ export function layoutRightPanelRail({
   }
   // One panel is open per desktop side; this marker is distinct from
   // Tactical's space-based collapse.
-  const isMobile = windowRef.matchMedia('(max-width: 720px)').matches;
+  const isMobile = isMobileViewport(windowRef);
   settleSideAccordion({
     panels,
     enabled: !isMobile,

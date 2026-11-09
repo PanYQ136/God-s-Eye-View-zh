@@ -1350,7 +1350,7 @@ body[data-assistant-docked='true'] #right-context-rail {
 
 /* Phones have no right rail to dock into. It outranks the shared header
    button rule, which would otherwise show the dock button again. */
-@media (max-width: 720px) {
+@media (max-width: 760px) {
   #command-dock #gev-voice-control .gev-panel-layout [data-layout-dock] {
     display: none !important;
   }

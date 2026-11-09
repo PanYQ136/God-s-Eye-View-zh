@@ -1,18 +1,28 @@
-/* mobile-ui.js — 手机竖屏抽屉触发（配合 mobile-portrait.css）。
-   纯增强：不改变桌面/横屏行为；仅在竖屏且窗口<=760px 时创建两个悬浮按钮，
+/* mobile-ui.js — 窄屏悬浮抽屉（兜底增强，配合 mobile-portrait.css）。
+   仅在窗口 <=760px 且手机壳层（body.mobile-shell）未接管时创建两个悬浮按钮，
    点击把 #left-panel-stack / #right-context-rail 加 .mobile-open 滑出，点地图外收起。
-   回滚：删 index.html 里本文件 <script> 一行即可。 */
+   壳层自带底部 tab 栏覆盖同一批面板，两套导航并存既挤压底部又语义重复，
+   因此壳层挂载时本增强自动退场（MutationObserver 监听 body class）。
+   纯增强：不改变桌面/横屏行为。
+   回滚：删 boot-defer.js 里对本文件的动态导入即可。 */
+import { MOBILE_MEDIA_QUERY } from './viewport.js';
+
 (() => {
   if (window.__gevMobileUI) return;
   window.__gevMobileUI = true;
 
-  const MQ = window.matchMedia('(max-width: 760px)');
+  // Mirrors MOBILE_SHELL_CLASS in ./mobileShell.js; kept as a literal so this
+  // fallback does not pull the shell module into the boot graph.
+  const SHELL_CLASS = 'mobile-shell';
+  const MQ = window.matchMedia(MOBILE_MEDIA_QUERY);
   const LEFT = 'left-panel-stack';
   const RIGHT = 'right-context-rail';
   let fabL = null;
   let fabR = null;
+  let applied = null;
 
-  const isPortrait = () => MQ.matches;
+  const isPortrait = () =>
+    MQ.matches && !document.body.classList.contains(SHELL_CLASS);
 
   function mkFab(id, icon, label) {
     const b = document.createElement('button');
@@ -94,6 +104,16 @@
     }
   }
 
+  // Idempotent state sync: build/teardown both mutate body classes, which
+  // re-enters through the observer below, so the last applied value gates it.
+  function sync() {
+    const want = isPortrait();
+    if (want === applied) return;
+    applied = want;
+    if (want) build();
+    else teardown();
+  }
+
   // 点抽屉/按钮之外（地图等）收起
   document.addEventListener(
     'pointerdown',
@@ -106,16 +126,19 @@
     true,
   );
 
-  MQ.addEventListener('change', () => (isPortrait() ? build() : teardown()));
+  MQ.addEventListener('change', sync);
+  new MutationObserver(sync).observe(document.body, {
+    attributes: true,
+    attributeFilter: ['class'],
+  });
   let _rt = null;
   window.addEventListener('resize', () => {
     if (_rt) clearTimeout(_rt);
-    _rt = setTimeout(() => (isPortrait() ? build() : teardown()), 200);
+    _rt = setTimeout(sync, 200);
   });
 
   function init() {
-    if (document.getElementById(LEFT) && document.getElementById(RIGHT))
-      build();
+    if (document.getElementById(LEFT) && document.getElementById(RIGHT)) sync();
     else setTimeout(init, 400);
   }
   if (document.readyState !== 'loading') init();

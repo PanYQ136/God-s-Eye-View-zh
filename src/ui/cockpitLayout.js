@@ -12,6 +12,7 @@ import {
   COCKPIT_UTILITY_LAUNCHER_MIN_HEIGHT_PX,
   isRenderedOnScreen,
 } from './cockpitPresentation.js';
+import { isMobileViewport } from './viewport.js';
 
 export function scheduleContextLayout() {
   if (this.destroyed) return false;
@@ -64,7 +65,7 @@ export function setSignalCollapsed(collapsed, { user = false } = {}) {
 
 export function syncContextLayout() {
   if (!this.context || this.context.hidden) return;
-  if (window.matchMedia('(max-width: 760px)').matches) {
+  if (isMobileViewport()) {
     this.context.dataset.layoutMode = 'compact-bottom';
     this.context.style.removeProperty('--cockpit-context-left');
     this.context.style.removeProperty('--cockpit-context-top');
@@ -132,7 +133,7 @@ export function syncContextLayout() {
 export function syncSignalLayout() {
   if (!this.signalStream || this.signalStream.hidden) return;
   const utilityControls = document.getElementById('cockpit-utility-controls');
-  if (window.matchMedia('(max-width: 760px)').matches) {
+  if (isMobileViewport()) {
     this.signalStream.dataset.layoutMode = 'compact-top';
     // The compact strip shows only an expanded control.
     this.publishUtilityLayout(utilityLayoutView({ hideCollapsed: true }));

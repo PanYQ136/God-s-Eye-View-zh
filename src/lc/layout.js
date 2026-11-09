@@ -142,9 +142,7 @@ export function layout(snap) {
         : null;
     let x =
       cfg.rail === 'right'
-        ? Math.floor(
-            (railRight != null ? railRight : c.mini.x + c.mini.w) - w,
-          )
+        ? Math.floor((railRight != null ? railRight : c.mini.x + c.mini.w) - w)
         : Math.floor(c.mini.x);
     let y = Math.floor(c.mini.y);
 

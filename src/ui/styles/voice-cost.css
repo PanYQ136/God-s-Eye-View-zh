@@ -225,7 +225,7 @@ html:not([lang='en'])
     --gev-provider-lift: calc(3.5rem + var(--dock-pinned-stack-height));
   }
 }
-@media (max-width: 720px) {
+@media (max-width: 760px) {
   #command-dock #gev-voice-control[data-provider-choice='true'] {
     --gev-provider-lift: calc(2vh + 2.5rem);
   }
@@ -367,7 +367,7 @@ html:not([lang='en'])
     --gev-voice-tray-clearance: calc(3rem - 1.2rem);
   }
 }
-@media (max-width: 720px) {
+@media (max-width: 760px) {
   #gev-voice-control:has(> .gev-voice-settings-button) {
     --gev-voice-tray-clearance: calc(2vh + 2.5rem - 1.2rem);
   }

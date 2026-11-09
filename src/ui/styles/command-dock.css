@@ -219,6 +219,23 @@ body:not(.ui-clean-view):not(.recording-mode) #cesium-credits {
   bottom: calc(2vh + 7rem);
 }
 
+/* Cesium 自带署名链接只有 ~10px 行高，是页面上最小的可点目标（WCAG 2.2 · 2.5.8）。
+   把它撑到 24px 行盒；容器贴底，向上长不会压到 dock 的既有间距。
+   实测 min-height 单独不够（10px 字号把 border-box 压到 22.4px），补 padding-block 推过 24。 */
+#cesium-credits a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding-block: 4px;
+}
+
+/* 展开链接带内联 display:inline，内联元素吃不到 min-height / padding-block 的高度；
+   只对带 style 属性的署名链接反转 display，避免波及其它链接。 */
+#cesium-credits a[style] {
+  display: inline-flex !important;
+  align-items: center;
+}
+
 body:not(.ui-clean-view):not(.recording-mode):has(
     #intel-hud[data-variant='minimal'].active
   )
@@ -287,7 +304,7 @@ body.recording-mode #cesium-credits {
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 760px) {
   #command-dock {
     bottom: 8px;
   }

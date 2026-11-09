@@ -1,5 +1,5 @@
 /**
- * Phone shell for narrow viewports (≤720px). The globe stays full screen and a
+ * Phone shell for narrow viewports (≤760px, src/ui/viewport.js). The globe stays full screen and a
  * bottom tab bar opens one sheet at a time; each sheet shows existing panels,
  * which stay where they are in the rails and dock while CSS presents them
  * (styles/mobile-shell.css). Desktop never sees the class or the sheet state.
@@ -17,8 +17,9 @@ import {
   prefersCollapsed as prefersStateCollapsed,
   readPanelState,
 } from './rail/panelState.js';
+import { MOBILE_MEDIA_QUERY } from './viewport.js';
 
-export const MOBILE_SHELL_MEDIA_QUERY = '(max-width: 720px)';
+export const MOBILE_SHELL_MEDIA_QUERY = MOBILE_MEDIA_QUERY;
 export const MOBILE_SHELL_CLASS = 'mobile-shell';
 export const MOBILE_SHEET_ATTR = 'data-mobile-sheet';
 
@@ -482,6 +483,62 @@ export function initMobileShell({
     event.preventDefault();
     returnFocus = tabFor(sheet) ?? returnFocus;
     setSheet(null);
+  });
+
+  /** Everything Tab may reach while a sheet covers the page. */
+  const sheetTabStops = (sheet) => {
+    const stops = [];
+    const scopes = [
+      ...MOBILE_SHEET_PANELS[sheet].map((panelId) => element(panelId)),
+      element('mobile-tab-bar'),
+    ];
+    for (const scope of scopes) {
+      if (!scope?.querySelectorAll) continue;
+      for (const node of scope.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      )) {
+        if (node.closest('[inert]') || node.hidden) continue;
+        if (node.getClientRects().length === 0) continue;
+        // A borrowed panel can still hold rows the sheet hides (a CCTV list
+        // with no camera on, a street-level strip with no pano). They report
+        // rects but refuse focus, so counting them would put the end of the
+        // cycle past the last reachable control and leak one tab out.
+        if (
+          typeof node.checkVisibility === 'function' &&
+          !node.checkVisibility({
+            visibilityProperty: true,
+            opacityProperty: true,
+          })
+        ) {
+          continue;
+        }
+        stops.push(node);
+      }
+    }
+    return stops;
+  };
+
+  // The sheet covers the page, so Tab cycles through the sheet and the tab bar
+  // that closes it. Without this a keyboard user tabs into the chrome behind
+  // the cover and loses the sheet entirely.
+  listen(documentRef, 'keydown', (event) => {
+    if (event.key !== 'Tab' || event.defaultPrevented) return;
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    const sheet = currentSheetOf(body);
+    if (!sheet || documentRef.querySelector('dialog[open]')) return;
+    const stops = sheetTabStops(sheet);
+    if (!stops.length) return;
+    event.preventDefault();
+    const count = stops.length;
+    const at = stops.indexOf(documentRef.activeElement);
+    // Off-cycle focus (a floating control the sheet does not own) restarts the
+    // cycle from the end the keystroke was heading for.
+    let cursor = at === -1 ? (event.shiftKey ? 0 : -1) : at;
+    for (let tried = 0; tried < count; tried += 1) {
+      cursor = (cursor + (event.shiftKey ? -1 : 1) + count) % count;
+      stops[cursor].focus?.();
+      if (documentRef.activeElement === stops[cursor]) return;
+    }
   });
 
   if (typeof MutationObserverImpl === 'function') {

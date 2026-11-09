@@ -45,7 +45,8 @@ export function syncCollapsedA11y(panel, collapsed) {
   const toggle =
     (header && header.querySelector(TOGGLE_SEL)) ||
     panel.querySelector(TOGGLE_SEL);
-  if (toggle) toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+  if (toggle)
+    toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
   const state = collapsed ? 'true' : 'false';
   if (header) header.setAttribute('data-collapsed', state);
   for (const block of resolveContentBlocks(panel, header)) {
