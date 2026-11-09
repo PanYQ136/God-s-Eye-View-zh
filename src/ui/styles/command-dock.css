@@ -304,7 +304,7 @@ body.recording-mode #cesium-credits {
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 760px), (max-height: 480px) and (pointer: coarse) {
   #command-dock {
     bottom: 8px;
   }

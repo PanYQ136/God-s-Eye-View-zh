@@ -7,13 +7,17 @@ import { useDisplayStore } from '../../stores/display.js';
 // page when the shell first publishes, after the scene's credits, and leave
 // it when the shell is destroyed; desktop CSS hides them meanwhile.
 const { phoneShell: phone } = storeToRefs(useDisplayStore());
+
+// A tab discloses the sheet's first panel, which carries the sheet's name as
+// its landmark label while open (ui/mobileShell.js).
+const controlsFor = (sheet) => phone.value?.sheetPanels?.[sheet]?.[0];
 </script>
 
 <template>
   <Teleport v-if="phone" to="body">
     <div id="mobile-sheet-backdrop" :hidden="!phone.sheet"></div>
     <nav id="mobile-tab-bar" :aria-label="t('Panels')" :aria-hidden="String(!phone.enabled)">
-      <button v-for="tab in phone.tabs" :key="tab.sheet" type="button" class="mobile-tab" :data-mobile-sheet="tab.sheet" :aria-expanded="String(phone.sheet === tab.sheet)" :aria-current="phone.sheet === tab.sheet ? 'true' : undefined"><span class="material-symbols-outlined mobile-tab-icon" aria-hidden="true">{{ tab.icon }}</span><span class="mobile-tab-label">{{ t(tab.label) }}</span></button>
+      <button v-for="tab in phone.tabs" :key="tab.sheet" type="button" class="mobile-tab" :data-mobile-sheet="tab.sheet" :aria-controls="controlsFor(tab.sheet)" :aria-expanded="String(phone.sheet === tab.sheet)" :aria-current="phone.sheet === tab.sheet ? 'true' : undefined"><span class="material-symbols-outlined mobile-tab-icon" aria-hidden="true">{{ tab.icon }}</span><span class="mobile-tab-label">{{ t(tab.label) }}</span></button>
     </nav>
   </Teleport>
 </template>

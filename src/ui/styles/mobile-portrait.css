@@ -9,7 +9,7 @@
    生效会把面板推出视口。故凡与壳层重叠的规则均限定 body:not(.mobile-shell)。
    回滚：删 style.css 末尾本文件的 @import 一行 + boot-defer.js 对 mobile-ui.js 的导入。
    ════════════════════════════════════════════════════════════════ */
-  @media (max-width: 760px) {
+  @media (max-width: 760px), (max-height: 480px) and (pointer: coarse) {
     :root {
       --m-safe-t: env(safe-area-inset-top, 0px);
       --m-safe-b: env(safe-area-inset-bottom, 0px);

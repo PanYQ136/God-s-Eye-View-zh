@@ -64,7 +64,7 @@ html:lang(ar) :is(#intel-hud, #cockpit-hud) {
    `right` in layers.css because the attribution-clearance model
    (creditAttribution.test.mjs) reads that rule; the swap only applies above
    the 720px band, where the rail is not edge-to-edge. */
-@media (min-width: 761px) {
+@media (min-width: 761px) and (not ((max-height: 480px) and (pointer: coarse))) {
   html[dir='rtl'] #right-context-rail {
     right: auto;
     left: var(--right-rail-x);

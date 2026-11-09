@@ -693,7 +693,7 @@ html:not([lang='en']) .bhote-event-actions button {
   outline-offset: 4px;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 760px), (max-height: 480px) and (pointer: coarse) {
   #bhote-koshi-event-panel {
     right: 12px;
     bottom: 88px;

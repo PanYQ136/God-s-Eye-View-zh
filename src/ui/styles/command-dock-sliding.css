@@ -256,7 +256,7 @@
    narrow viewports (0 at 1000px high, −4px at 1200px). Carrying the 2vh back
    into the tray's own offset restores the same flat 12px the wider band gets.
    This block must stay AFTER the max-width:900px rules to win the cascade. */
-@media (max-width: 760px) {
+@media (max-width: 760px), (max-height: 480px) and (pointer: coarse) {
   #command-dock #location-bar .dock-popover-content,
   #command-dock #control-panel .dock-popover-content {
     bottom: calc(100% + 2vh + 2.5rem);

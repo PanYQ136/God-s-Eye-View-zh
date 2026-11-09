@@ -12,7 +12,7 @@
  */
 
 import { EXCLUSIVE_SURFACE_CLASSES } from '../exclusiveSurfaces.js';
-import { msg } from '../i18n/index.js';
+import { msg, t } from '../i18n/index.js';
 import {
   prefersCollapsed as prefersStateCollapsed,
   readPanelState,
@@ -224,11 +224,52 @@ export function initMobileShell({
       enabled: body.classList.contains(MOBILE_SHELL_CLASS),
       sheet: currentSheetOf(body),
       tabs: MOBILE_TABS,
+      // The panel each tab discloses; the tab bar is rendered outside this
+      // module and may not import it, so the mapping travels with the publish.
+      sheetPanels: MOBILE_SHEET_PANELS,
     });
+
+  // A sheet shows panels that normally live in the rails, unnamed. While it is
+  // open each one is a landmark with the sheet's name, so assistive tech can
+  // tell what the tab just revealed; closing puts every attribute back.
+  const sheetRegions = new Map();
+
+  const clearSheetRegions = () => {
+    for (const [panel, saved] of sheetRegions) {
+      for (const [name, value] of Object.entries(saved)) {
+        if (value === null) panel.removeAttribute(name);
+        else panel.setAttribute(name, value);
+      }
+    }
+    sheetRegions.clear();
+  };
+
+  const presentSheetRegions = (sheet) => {
+    clearSheetRegions();
+    if (!sheet) return;
+    const tab = MOBILE_TABS.find((item) => item.sheet === sheet);
+    const fallback = tab ? t(tab.label) : '';
+    for (const panelId of MOBILE_SHEET_PANELS[sheet]) {
+      const panel = element(panelId);
+      if (!panel) continue;
+      const saved = {
+        role: panel.getAttribute('role'),
+        'aria-label': panel.getAttribute('aria-label'),
+      };
+      sheetRegions.set(panel, saved);
+      const title = panel
+        .querySelector?.('.ui-panel__title, .panel-title')
+        ?.textContent?.trim();
+      if (!saved.role) panel.setAttribute('role', 'region');
+      if (!saved['aria-label'] && (title || fallback))
+        panel.setAttribute('aria-label', title || fallback);
+    }
+  };
 
   const present = (sheet) => {
     if (sheet) body.setAttribute(MOBILE_SHEET_ATTR, sheet);
     else body.removeAttribute(MOBILE_SHEET_ATTR);
+    presentSheetRegions(sheet);
     publishChrome();
     measureSheet();
   };
@@ -252,8 +293,71 @@ export function initMobileShell({
     );
   };
 
+  /**
+   * Sends focus to the sheet's first control. Returns false only when the
+   * control is not laid out yet, which is the case on the opening frame: the
+   * rail borrows its panels on that frame, so their rects land a frame later.
+   * Focus the user already moved elsewhere stays put.
+   */
+  const focusIntoSheet = (sheet) => {
+    const target = sheetFocusTarget(sheet);
+    if (!target) return false;
+    const active = documentRef.activeElement;
+    const fromTabBar = element('mobile-tab-bar')?.contains?.(active);
+    if (active && active !== body && !fromTabBar) return true;
+    target.focus?.();
+    return documentRef.activeElement === target;
+  };
+
+  /** How long an opening may take to settle its focus, in frames. */
+  const FOCUS_SETTLE_FRAMES = 10;
+
+  /**
+   * Keeps focus inside the sheet while it opens. The first focus is not the
+   * last word: the rail borrows its panels on the opening frame and re-lays
+   * them out for a few frames after, and re-laying out the focused subtree
+   * drops focus to the body — measured on every sheet, not just the slow ones.
+   * So this watches the next frames and puts focus back whenever the body
+   * swallowed it. Focus the user moved somewhere else on purpose stays there.
+   */
+  let focusSettleToken = 0;
+  const settleFocus = (sheet, opened, opening) => {
+    const token = (focusSettleToken += 1);
+    const panelIds = MOBILE_SHEET_PANELS[sheet] ?? [];
+    let insideFrames = 0;
+    let frames = 0;
+    const step = () => {
+      if (token !== focusSettleToken) return;
+      if (borrowed !== opened || opened.opening !== opening) return;
+      if (currentSheetOf(body) !== sheet) return;
+      frames += 1;
+      const active = documentRef.activeElement;
+      const inside = !!(
+        active &&
+        panelIds.some((panelId) => element(panelId)?.contains?.(active))
+      );
+      if (inside) {
+        // Two frames inside means the layout has stopped moving it.
+        insideFrames += 1;
+        if (insideFrames >= 2) return;
+      } else if (
+        !active ||
+        active === body ||
+        element('mobile-tab-bar')?.contains?.(active)
+      ) {
+        insideFrames = 0;
+        focusIntoSheet(sheet);
+      } else {
+        return;
+      }
+      if (frames < FOCUS_SETTLE_FRAMES) requestFrame?.(step);
+    };
+    requestFrame?.(step);
+  };
+
   const setSheet = (requested) => {
     swipe = null;
+    focusSettleToken += 1;
     if (!body.classList.contains(MOBILE_SHELL_CLASS)) return;
     const sheet = sheetBlocked(body) ? null : requested;
     const previous = currentSheetOf(body);
@@ -295,7 +399,8 @@ export function initMobileShell({
         opened.applied = panelStates();
     });
     measureSheet();
-    sheetFocusTarget(sheet)?.focus?.();
+    focusIntoSheet(sheet);
+    settleFocus(sheet, opened, opening);
   };
 
   const tabFor = (sheet) =>

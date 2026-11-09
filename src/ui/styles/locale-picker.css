@@ -256,7 +256,7 @@ body.cockpit-mode .cockpit-position-readout {
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 760px), (max-height: 480px) and (pointer: coarse) {
   /* Phone: the corner beside the dock, clear of the attribution above it.
      There is room for one button across, so the chip stacks on the globe. */
   #corner-actions {

@@ -22,11 +22,20 @@ const DESKTOP_MIN = 761;
 const PHONE_BAND = { min: 700, max: 800 };
 
 const CSS_MEDIA = /@media[^{]*?\((min|max)-width:\s*(\d+(?:\.\d+)?)px\)/g;
+const CSS_MEDIA_BLOCK = /@media([^{]+)\{/g;
 const RUNTIME_QUERY = /['"`]\((min|max)-width:\s*(\d+(?:\.\d+)?)px\)['"`]/g;
 const RUNTIME_ALLOWED = new Set([
   'src/ui/viewport.js',
   'scripts/check-breakpoints.mjs',
 ]);
+
+/**
+ * A sideways phone is wide but short, so width alone would hand it the desktop
+ * layout. Both sides of the gate must carry the landscape branch, or the two
+ * layouts overlap at 812x375.
+ */
+const LANDSCAPE_MARK = 'pointer: coarse';
+const DESKTOP_EXCLUSION = 'not (';
 
 function walk(dir, extensions) {
   const out = [];
@@ -56,6 +65,20 @@ for (const file of walk(SRC, ['.css'])) {
     if (inPhoneBand && !matchesGate) {
       problems.push(
         `${relative}: ${axis}-width ${raw}px sits inside the phone band but is not the ${PHONE_MAX}/${DESKTOP_MIN} gate from src/ui/viewport.js`,
+      );
+    }
+  }
+  for (const [match, condition] of source.matchAll(CSS_MEDIA_BLOCK)) {
+    const narrows = condition.includes(`max-width: ${PHONE_MAX}px`);
+    const widens = condition.includes(`min-width: ${DESKTOP_MIN}px`);
+    if (narrows && !condition.includes(LANDSCAPE_MARK)) {
+      problems.push(
+        `${relative}: phone query is width-only; add the landscape branch (max-height + ${LANDSCAPE_MARK}) so a sideways phone keeps the phone layout (${match.trim()})`,
+      );
+    }
+    if (widens && !condition.includes(DESKTOP_EXCLUSION)) {
+      problems.push(
+        `${relative}: desktop query does not exclude the landscape phone case; append and (${DESKTOP_EXCLUSION}…)) (${match.trim()})`,
       );
     }
   }
