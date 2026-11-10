@@ -2,7 +2,7 @@
    features and themes supply palette variables and retain their own layout. */
 .gev-field {
   min-width: 0;
-  background: var(--gev-field-background, var(--scroll-track));
+  background: var(--gev-field-background, var(--hairline-1));
   border: 1px solid var(--gev-field-border-color, rgba(255, 255, 255, 0.14));
   border-radius: 7px;
   color: var(--gev-field-color, var(--text-primary));

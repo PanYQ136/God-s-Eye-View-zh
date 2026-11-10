@@ -35,7 +35,7 @@
 #top-center-actions button:hover,
 #top-center-actions button:focus-visible {
   border-color: var(--glass-border-hover);
-  background: var(--scroll-track);
+  background: var(--hairline-1);
   transform: scale(1.1);
 }
 
