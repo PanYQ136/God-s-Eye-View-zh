@@ -24,9 +24,12 @@ test('Street Level is a collapsible right-rail panel that starts collapsed', () 
     html,
     /<button type="button" class="[^"]*\bpanel-collapse-btn\b[^"]*"[^>]*data-collapse-target="street-level-panel"/,
   );
+  // The heading is a span carrying role=heading level 2 (UiPanel's a11y shape:
+  // it gives the panel body's h3s a parent in the outline without a second h1),
+  // so match the attributes between the class and the text.
   assert.match(
     html,
-    /<span class="ui-panel__title panel-title">STREET LEVEL<\/span>/,
+    /<span class="ui-panel__title panel-title"[^>]*role="heading"[^>]*aria-level="2"[^>]*>STREET LEVEL<\/span>/,
   );
   // Provider-neutral header: no vendor mark; the inner restores its scroll.
   assert.doesNotMatch(html, /sl-mark|mly-mark/);
