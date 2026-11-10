@@ -25,7 +25,10 @@ export function warmupPlugin() {
         ].forEach((u, i) => {
           setTimeout(
             () => {
-              fetch(base + u)
+              // Warm-up ping: a provider that never answers must not leave a
+              // socket (and its promise) hanging for the life of the dev
+              // server. 10s is far longer than any cold provider takes.
+              fetch(base + u, { signal: AbortSignal.timeout(10_000) })
                 .then((r) => r.text())
                 .catch(() => {});
             },

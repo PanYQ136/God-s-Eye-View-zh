@@ -504,6 +504,42 @@ function shippedStacking(selector) {
   };
 }
 
+/**
+ * Resolve `var(--token, fallback)` against the same stylesheet's `:root`, so a
+ * z-ladder refactor (literal → token) moves these tests instead of turning
+ * every `Number(declaration)` into NaN. Real browsers resolve the custom
+ * property before the declaration is used; this keeps a text-level reader
+ * honest about the same value.
+ */
+function resolveCustomProperties(css, declarations) {
+  const root = {};
+  const withoutComments = css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const rulePattern = /([^{}]+)\{([^{}]*)\}/g;
+  let match = rulePattern.exec(withoutComments);
+  while (match !== null) {
+    if (match[1].split(',').some((selector) => selector.trim() === ':root')) {
+      for (const declaration of match[2].split(';')) {
+        const split = declaration.indexOf(':');
+        if (split < 0) continue;
+        root[declaration.slice(0, split).trim()] = declaration.slice(split + 1).trim();
+      }
+    }
+    match = rulePattern.exec(withoutComments);
+  }
+  const resolve = (value, depth = 0) => {
+    if (depth > 10 || !value.includes('var(')) return value;
+    return value.replace(
+      /var\(\s*(--[\w-]+)\s*(?:,\s*([^()]*))?\)/g,
+      (_, name, fallback) =>
+        resolve(root[name] ?? fallback ?? '', depth + 1).trim(),
+    );
+  };
+  for (const key of Object.keys(declarations)) {
+    declarations[key] = resolve(declarations[key]);
+  }
+  return declarations;
+}
+
 /** Collect every declaration the shipped stylesheet applies to a selector. */
 function cssDeclarationsFor(css, selector) {
   const declarations = {};
@@ -521,7 +557,7 @@ function cssDeclarationsFor(css, selector) {
     }
     match = rulePattern.exec(withoutComments);
   }
-  return declarations;
+  return resolveCustomProperties(css, declarations);
 }
 
 /**

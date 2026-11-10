@@ -69,8 +69,18 @@ function createOverpassAnswerer({
       running += 1;
       runningBy.set(owner, (runningBy.get(owner) || 0) + 1);
       const controller = new AbortController();
+      const budgetController = new AbortController();
       // The whole search, every configured endpoint in turn, gets one budget.
-      const budget = AbortSignal.timeout(upstreamBudgetMs);
+      // It is a referenced timer rather than `AbortSignal.timeout()`, whose
+      // timer is unref'ed in Node: a stalled search that is the only pending
+      // work would let the process exit before the budget fired. The `finally`
+      // below disarms it, so a settled search never holds the process open.
+      const budgetTimer = setTimeout(() => {
+        budgetController.abort(
+          new DOMException('The operation timed out', 'TimeoutError'),
+        );
+      }, upstreamBudgetMs);
+      const budget = budgetController.signal;
       operation = { controller, waiters: 0, settled: false, promise: null };
       const owned = operation;
       owned.promise = (async () => {
@@ -111,6 +121,7 @@ function createOverpassAnswerer({
             ? jsonError(504, 'OpenStreetMap took too long to answer.')
             : jsonError(502, 'OpenStreetMap search failed.');
         } finally {
+          clearTimeout(budgetTimer);
           owned.settled = true;
           running -= 1;
           const left = (runningBy.get(owner) || 1) - 1;

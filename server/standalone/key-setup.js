@@ -268,13 +268,20 @@ function keySetupEndpoint({ sourceRoot = defaultSourceRoot } = {}) {
         if (!admission.ok)
           return respond(res, admission.status, refusal(admission));
         let body = '';
+        let total = 0;
         let overflowed = false;
         req.on('data', (chunk) => {
-          body += chunk;
-          if (body.length > 8192) {
+          // Drain past the cap instead of destroying the request: destroying
+          // the socket kills the 413 below, so an oversized POST would reach
+          // the client as a connection reset rather than a readable refusal.
+          if (overflowed) return;
+          total += chunk.length;
+          if (total > 8192) {
             overflowed = true;
-            req.destroy();
+            body = '';
+            return;
           }
+          body += chunk;
         });
         req.on('end', () => {
           if (overflowed)

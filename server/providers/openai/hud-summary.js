@@ -13,6 +13,15 @@ import { enforceRateLimit, openAiRateLimiter } from './rate-limit.js';
 import { readRequestBody } from '../common/request.js';
 import { OPENAI_HUD_SUMMARY_MODEL_DEFAULT } from './constants.js';
 
+/**
+ * Hard ceiling on the upstream call. Without it a stalled OpenAI connection
+ * holds the request (and, on Vercel, a whole function instance) until the
+ * platform `maxDuration` cuts it at 60s — 4x the budget the HUD needs, and it
+ * reports as an opaque 504 rather than a clean 502. The HUD asks every 15s, so
+ * a slow answer is worth abandoning well before the platform limit.
+ */
+const HUD_SUMMARY_TIMEOUT_MS = 15_000;
+
 function extractOpenAiResponseText(data) {
   if (typeof data?.output_text === 'string' && data.output_text.trim()) {
     return data.output_text.trim();
@@ -120,6 +129,7 @@ async function handleHudSummary(req, res) {
     const context = JSON.parse(body || '{}');
     const response = await fetch('https://api.openai.com/v1/responses', {
       method: 'POST',
+      signal: AbortSignal.timeout(HUD_SUMMARY_TIMEOUT_MS),
       headers: {
         Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
@@ -154,8 +164,14 @@ async function handleHudSummary(req, res) {
         error: response.ok ? null : 'OpenAI HUD summary request failed',
       }),
     );
-  } catch {
-    console.warn('[hud-summary] request failed');
+  } catch (err) {
+    // Log only the failure class: the caught value can carry upstream detail
+    // (host, status text) that must not reach a client or a shared log sink.
+    console.warn(
+      `[hud-summary] request failed: ${err?.name || 'Error'}${
+        err?.name === 'TimeoutError' ? ` (${HUD_SUMMARY_TIMEOUT_MS}ms)` : ''
+      }`,
+    );
     res.statusCode = 502;
     res.setHeader('Content-Type', 'application/json');
     res.end(

@@ -87,6 +87,17 @@ function runTests(args) {
     env: process.env,
   });
   if (result.error) throw result.error;
+  // A child killed by the OS (signal, or a STATUS_* exit code) makes node:test
+  // print a whole file as `not ok`, which reads exactly like a real failure.
+  // Say so, or the next person debugs a red suite that is really a dead
+  // process — the usual cause on a loaded desktop is memory pressure.
+  if (result.signal) {
+    console.error(
+      `[unit] the test process was killed by ${result.signal}. Files reported as `
+        + '`not ok` alongside it may be collateral: re-run them on their own to '
+        + 'separate an environment crash from a real failure.',
+    );
+  }
   return result.status ?? 1;
 }
 

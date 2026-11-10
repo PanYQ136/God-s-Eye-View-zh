@@ -39,22 +39,33 @@ export function createGeocodePlaceService({
   }
   function start(key, name) {
     const controller = new AbortController();
+    // The deadline is a real timer, not `AbortSignal.timeout()`: that helper
+    // arms an unref'ed timer in Node, so when a stalled lookup is the only
+    // pending work the event loop empties before the deadline fires and the
+    // shared promise never settles. A referenced timer keeps the loop alive for
+    // exactly as long as the deadline needs it, and the settle handlers below
+    // disarm it so a finished lookup never waits out its own budget.
+    const deadline = setTimeout(() => {
+      controller.abort(
+        new DOMException('The operation timed out', 'TimeoutError'),
+      );
+    }, timeoutMs);
     const entry = {
       at: now(),
       controller,
       waiters: 0,
       settled: false,
-      place: lookup(
-        name,
-        AbortSignal.any([controller.signal, AbortSignal.timeout(timeoutMs)]),
-      ),
+      place: lookup(name, controller.signal),
     };
+    const disarm = () => clearTimeout(deadline);
     entry.place.then(
       () => {
         entry.settled = true;
+        disarm();
       },
       () => {
         entry.settled = true;
+        disarm();
         if (cache.get(key) === entry) cache.delete(key);
       },
     );

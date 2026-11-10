@@ -181,6 +181,23 @@ export function createApplicationTools({
   // loop burning behind a hidden tab. (perf wave 2 fix)
   syncVisibilitySuspension();
 
+  // Legacy global, on purpose and for the whole session.
+  //
+  // `src/boot-defer.js` loads gev-perf / gev-graphics / gev-dossier off the
+  // critical path, and each of them polls `window.__gevViewer` until it sees a
+  // viewer — gev-perf then builds the FPS badge, the perf-mode toggle and the
+  // adaptive-resolution loop. The upstream merge (e31d0042) dropped the
+  // assignment that used to live in `src/app/viewer.js`, so every one of those
+  // consumers polled a name that was never written: the perf UI silently never
+  // appeared and the adaptive loop never started. `__godsEyeView` cannot stand
+  // in for it — that object is deleted again on `defer` below, while these
+  // pollers keep looking for up to 150s.
+  //
+  // Do not delete this one. `public/gev-edge-lens.js` documents the same loss
+  // and carries its own fallback; new code should read `__godsEyeView` and this
+  // stays as the compatibility surface those deferred widgets were written for.
+  window.__gevViewer = viewer;
+
   window.__godsEyeView = {
     viewer,
     styleManager,

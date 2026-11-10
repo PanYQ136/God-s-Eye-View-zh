@@ -176,6 +176,7 @@
       "build/allowedHosts.js",
       "build/embed-framing.js",
       "build/panel.js",
+      "build/qa-probe-prune.js",
       "build/vueOptions.js",
       "build/registerVue.js",
       "build/vueLoader.js"

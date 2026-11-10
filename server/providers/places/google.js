@@ -71,6 +71,14 @@ const GEOCODE_UPSTREAM_TIMEOUT_MS = 10_000;
 
 const GEOCODE_MAX_RESPONSE_BYTES = 256 * 1024;
 
+/**
+ * Deadline for the two Places routes (searchNearby / searchText). They are
+ * cost endpoints like geocode and deserve the same ceiling: without it a
+ * stalled Places call holds the handler until the platform's maxDuration, which
+ * on Vercel is a 60s instance and an opaque 504 instead of a clean 502.
+ */
+const PLACES_UPSTREAM_TIMEOUT_MS = 10_000;
+
 /** Validate a free-text geocoder query before consuming request quota. */
 export function validateGeocodeAddress(searchParams) {
   const address = String(searchParams.get('address') || '').trim();
@@ -168,6 +176,7 @@ export function googlePlacesContextProxy({
           {
             method: 'POST',
             redirect: 'error',
+            signal: AbortSignal.timeout(PLACES_UPSTREAM_TIMEOUT_MS),
             headers: {
               'Content-Type': 'application/json',
               'X-Goog-Api-Key': apiKey,
@@ -290,6 +299,7 @@ export function googlePlacesContextProxy({
           {
             method: 'POST',
             redirect: 'error',
+            signal: AbortSignal.timeout(PLACES_UPSTREAM_TIMEOUT_MS),
             headers: {
               'Content-Type': 'application/json',
               'X-Goog-Api-Key': apiKey,

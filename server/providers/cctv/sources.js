@@ -2935,7 +2935,20 @@ export async function fetchKartverketHeights(
   for (let i = 0; i < unique.length; i += KARTVERKET_MAX_POINTS) {
     batches.push(unique.slice(i, i + KARTVERKET_MAX_POINTS));
   }
-  const deadline = AbortSignal.timeout(timeoutMs);
+  // AbortSignal.timeout() arms an unref'ed timer: if the hung upstream is the
+  // only pending work — a unit test awaiting one lookup, or a short-lived
+  // worker — the event loop can empty *before* the deadline fires, so the
+  // promise never settles and the process exits mid-await. A ref'ed timer
+  // keeps the loop alive for exactly as long as the deadline needs it, and the
+  // `finally` below disarms it so a finished lookup never holds the process
+  // open for the rest of the budget.
+  const deadlineController = new AbortController();
+  const deadlineTimer = setTimeout(() => {
+    deadlineController.abort(
+      new DOMException('The operation timed out', 'TimeoutError'),
+    );
+  }, timeoutMs);
+  const deadline = deadlineController.signal;
   const fetchBatch = async (batch) => {
     const asked = new Set(batch.map((p) => kartverketKey(p.lon, p.lat)));
     const url = new URL(KARTVERKET_HEIGHT_URL);
@@ -3032,12 +3045,16 @@ export async function fetchKartverketHeights(
       }
     }
   };
-  await Promise.all(
-    Array.from(
-      { length: Math.min(KARTVERKET_CONCURRENCY, batches.length) },
-      worker,
-    ),
-  );
+  try {
+    await Promise.all(
+      Array.from(
+        { length: Math.min(KARTVERKET_CONCURRENCY, batches.length) },
+        worker,
+      ),
+    );
+  } finally {
+    clearTimeout(deadlineTimer);
+  }
   return { heights, failure };
 }
 
