@@ -262,6 +262,29 @@
   color: rgba(54, 220, 255, 0.86);
 }
 
+/* The hit area is the ::before above (44px); the box itself is one line of
+   7.7px text, so :focus-visible drew a ~10px ring around the ESC label — much
+   smaller than what the control answers to. Paint the ring on the same 44px
+   box instead. The element's own outline is suppressed only here, where that
+   ring replaces it; forced-colors keeps a system-drawn one regardless, since
+   the platform paints outlines itself. */
+.first-run-dismiss:focus-visible {
+  /* !important because foundation.css paints the global ring with one; this
+     rule is the narrower replacement, not a competing one. */
+  outline: none !important;
+}
+
+.first-run-dismiss:focus-visible::before {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
+@media (forced-colors: active) {
+  .first-run-dismiss:focus-visible {
+    outline: 2px solid !important;
+  }
+}
+
 .first-run-dismiss-touch {
   display: none;
 }

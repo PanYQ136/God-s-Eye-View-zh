@@ -50,9 +50,17 @@ const emit = defineEmits(['update:collapsed']);
     >
       <div class="ui-panel__head panel-header">
         <slot name="title">
-          <span class="ui-panel__title panel-title" :title="props.hint">{{
-            props.title
-          }}</span>
+          <!-- Heading semantics without the element: the page's one h1 is the
+               brand mark, and the panel body's group headings are h3. A span
+               carrying role=heading level 2 gives those h3s their parent in the
+               outline, and leaves the chrome's tag and CSS untouched. -->
+          <span
+            class="ui-panel__title panel-title"
+            role="heading"
+            aria-level="2"
+            :title="props.hint"
+            >{{ props.title }}</span
+          >
         </slot>
         <slot name="badge" />
         <span class="panel-divider"></span>

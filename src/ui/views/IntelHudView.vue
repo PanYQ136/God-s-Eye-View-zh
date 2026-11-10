@@ -23,7 +23,7 @@ const view = computed(() => hud.value ?? EMPTY);
         <div class="hud-readout"><div class="hud-mode" id="hud-mode">{{ view.mode }}</div></div>
         <div class="hud-summary-wrap">
           <div class="hud-readout"><div class="hud-summary-label">{{ view.summaryLabel }}</div></div>
-          <div class="hud-readout"><div class="hud-summary" id="hud-summary">{{ view.summary }}</div></div>
+          <div class="hud-readout"><div class="hud-summary" id="hud-summary" :title="view.summary || undefined">{{ view.summary }}</div></div>
         </div>
       </div>
     </div>
