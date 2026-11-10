@@ -2210,6 +2210,10 @@ body.cockpit-mode #intel-hud .hud-right-edge {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .cockpit-live-dot,
+  .cockpit-signal-kicker i {
+    animation: none;
+  }
   .cockpit-altitude-rim-pointer .material-symbols-outlined {
     animation: none;
   }
