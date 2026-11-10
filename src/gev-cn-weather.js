@@ -95,7 +95,7 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
     display:flex; align-items:flex-start; gap:8px; z-index:var(--z-panel,100);
     pointer-events:none; font-family:var(--font-sans); box-sizing:border-box; }
   #gev-cn-band>*{ pointer-events:auto; }
-  /* 列表打开时抬到弹窗层，避免被侧栏（--z-panel:110）盖住 */
+  /* 列表打开时抬到弹窗层，避免被右 context rail（--z-rail:110）盖住 */
   #gev-cn-band.has-popover{ z-index:var(--z-popup,200); }
 
   .gev-wx-alerts{ max-width:560px; }
