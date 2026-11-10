@@ -104,7 +104,13 @@ export function normalizeAdsbLolPointResponse(payload) {
       : Math.floor(
           responseNow > 10_000_000_000 ? responseNow / 1000 : responseNow,
         );
-  const aircraft = Array.isArray(payload?.ac) ? payload.ac : [];
+  // adsb.lol v2 returns `ac`; adsb.fi's point endpoint returns `aircraft`.
+  // Both are readsB-shaped, so one normalizer serves both regional sources.
+  const aircraft = Array.isArray(payload?.ac)
+    ? payload.ac
+    : Array.isArray(payload?.aircraft)
+      ? payload.aircraft
+      : [];
   const states = [];
   // Keep the OpenSky vectors unchanged. The regional fallback's extra readsb
   // status travels alongside them, keyed only to admitted aircraft.

@@ -49,3 +49,26 @@ test('keeps grounded fallback contacts and rejects rows without positions', () =
   assert.equal(normalized.states[0][7], null);
   assert.equal(normalized.states[0][8], true);
 });
+
+
+// 2026-11-10: adsb.fi's /api/v2/lat/... returns `aircraft`, adsb.lol returns
+// `ac`. Both must feed the same OpenSky-shaped normalizer.
+test('normalizeAdsbLolPointResponse accepts adsb.fi aircraft[] as well as ac[]', () => {
+  const row = {
+    hex: '7817ff',
+    flight: 'CXA8704 ',
+    lat: 26.1,
+    lon: 119.2,
+    alt_baro: 32000,
+    gs: 487.3,
+    track: 46.08,
+    seen: 1.2,
+    seen_pos: 0.8,
+  };
+  const fromFi = normalizeAdsbLolPointResponse({ now: 1794308594, aircraft: [row] });
+  const fromLol = normalizeAdsbLolPointResponse({ now: 1794308594, ac: [row] });
+  assert.equal(fromFi.states.length, 1);
+  assert.deepEqual(fromFi.states, fromLol.states);
+  assert.equal(fromFi.states[0][0], '7817ff');
+  assert.equal(normalizeAdsbLolPointResponse({ now: 1, ac: 'bad' }).states.length, 0);
+});

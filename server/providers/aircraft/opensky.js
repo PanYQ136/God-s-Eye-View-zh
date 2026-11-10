@@ -35,7 +35,10 @@ const OPENSKY_CACHE_MS = 9000;
  * while the head answers in ~1.5 s, so the previous 10 s budget aborted every
  * attempt and the proxy answered 502 "OpenSky proxy error" on an upstream 200.
  */
-const OPENSKY_SNAPSHOT_TIMEOUT_MS = 60_000;
+const OPENSKY_SNAPSHOT_TIMEOUT_MS = process.env.VERCEL ? 12_000 : 60_000;
+// ^ Vercel egress cannot reach these upstreams at all; a 60s budget there only
+// stretches a failing 502 to 30-45s. Self-hosted keeps 60s for slow links
+// (see 076d9ec2: a throttled 0.8MB body needs >20s and used to be aborted).
 /** OAuth token endpoint budget; it answers in well under a second. */
 const OPENSKY_TOKEN_TIMEOUT_MS = 15_000;
 const OPENSKY_STATES_URL =
@@ -164,6 +167,11 @@ const ADSBLOL_POINT_CACHE_MS = 12000;
 const ADSBLOL_POINT_CACHE_MAX = 80;
 const ADSBLOL_POINT_RADIUS_NM = 250;
 const ADSBLOL_POINT_MAX_RESPONSE_BYTES = 8 * 1024 * 1024;
+/** adsb.fi is reachable from Vercel egress (200/~2.5s); adsb.lol fails in 13ms. */
+const ADSBFI_POINT_TIMEOUT_MS = 6_000;
+const ADSBLOL_POINT_TIMEOUT_MS = 3_000;
+const adsbFiPointUrl = (lat, lon) =>
+  `https://opendata.adsb.fi/api/v2/lat/${lat}/lon/${lon}/dist/${ADSBLOL_POINT_RADIUS_NM}`;
 // A 200 response can still contain an old OpenSky snapshot. Past this point
 // the viewport-scoped adsb.lol source is more honest and keeps local motion
 // current instead of coasting a stale worldwide frame indefinitely.
@@ -387,39 +395,62 @@ async function fetchAdsbLolPointFallback(req) {
     _adsbLolPointInFlight,
     cacheKey,
     async () => {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
-      try {
-        const upstream = await fetch(
-          `https://api.adsb.lol/v2/lat/${roundedLat}/lon/${roundedLon}/dist/${ADSBLOL_POINT_RADIUS_NM}`,
-          {
+      // Try adsb.lol first (3s), then adsb.fi (6s). Vercel egress fails the
+      // former in ~13ms; total fallback budget stays under 10s.
+      const sources = [
+        {
+          id: 'adsb.lol',
+          url: `https://api.adsb.lol/v2/lat/${roundedLat}/lon/${roundedLon}/dist/${ADSBLOL_POINT_RADIUS_NM}`,
+          timeoutMs: ADSBLOL_POINT_TIMEOUT_MS,
+        },
+        {
+          id: 'adsb.fi',
+          url: adsbFiPointUrl(roundedLat, roundedLon),
+          timeoutMs: ADSBFI_POINT_TIMEOUT_MS,
+        },
+      ];
+      for (const source of sources) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(
+          () => controller.abort(),
+          source.timeoutMs,
+        );
+        try {
+          const upstream = await fetch(source.url, {
             headers: {
               Accept: 'application/json',
-              'User-Agent': 'gods-eye-view-adsblol-regional-fallback/1.0',
+              'User-Agent': 'gods-eye-view-regional-fallback/1.0',
             },
             signal: controller.signal,
-          },
-        );
-        if (!upstream.ok) throw new Error(`upstream HTTP ${upstream.status}`);
-        const payload = await readResponseJsonCapped(
-          upstream,
-          ADSBLOL_POINT_MAX_RESPONSE_BYTES,
-        );
-        const normalized = normalizeAdsbLolPointResponse(payload);
-        const record = {
-          body: JSON.stringify(normalized),
-          cachedAt: Date.now(),
-          count: normalized.states.length,
-        };
-        _adsbLolPointCache.delete(cacheKey);
-        _adsbLolPointCache.set(cacheKey, record);
-        while (_adsbLolPointCache.size > ADSBLOL_POINT_CACHE_MAX) {
-          _adsbLolPointCache.delete(_adsbLolPointCache.keys().next().value);
+          });
+          if (!upstream.ok) throw new Error(`upstream HTTP ${upstream.status}`);
+          const payload = await readResponseJsonCapped(
+            upstream,
+            ADSBLOL_POINT_MAX_RESPONSE_BYTES,
+          );
+          const normalized = normalizeAdsbLolPointResponse(payload);
+          const record = {
+            body: JSON.stringify(normalized),
+            cachedAt: Date.now(),
+            count: normalized.states.length,
+            source: source.id,
+          };
+          _adsbLolPointCache.delete(cacheKey);
+          _adsbLolPointCache.set(cacheKey, record);
+          while (_adsbLolPointCache.size > ADSBLOL_POINT_CACHE_MAX) {
+            _adsbLolPointCache.delete(_adsbLolPointCache.keys().next().value);
+          }
+          return record;
+        } catch (error) {
+          console.warn(
+            `[${source.id} Flights Fallback]`,
+            error?.message || error,
+          );
+        } finally {
+          clearTimeout(timeoutId);
         }
-        return record;
-      } finally {
-        clearTimeout(timeoutId);
       }
+      throw new Error('all regional fallbacks failed');
     },
   );
   try {
@@ -443,7 +474,7 @@ async function serveAdsbLolPointFallback(req, res, requestedMode, reason) {
       usedMode: 'adsblol-regional',
       reason,
     }),
-    'X-Flight-Source': 'adsb.lol',
+    'X-Flight-Source': fallback.source || 'adsb.lol',
     'X-Flight-Coverage': `${ADSBLOL_POINT_RADIUS_NM}nm regional fallback`,
     'X-Flight-Count': String(fallback.count),
   });
