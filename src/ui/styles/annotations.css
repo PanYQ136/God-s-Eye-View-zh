@@ -23,3 +23,11 @@
 .gev-pulse { animation: gev-ring-pulse 1800ms ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
 @keyframes gev-ring-pulse { 0%,100% { opacity: 0.9; stroke-width: 2; } 50% { opacity: 0.35; stroke-width: 3.5; } }
 @keyframes gev-pop { from { opacity: 0; } to { opacity: 1; } }
+/* Reduced motion: the pulse settles to a static ring, the callout appears at
+   once (its base opacity is 0, so it must be forced visible here), and the
+   draw-on reveal lands on the finished stroke instead of sweeping. */
+@media (prefers-reduced-motion: reduce) {
+  .gev-pulse { animation: none; }
+  .gev-anno.gev-in .gev-anno-callout { animation: none; opacity: 1; }
+  .gev-anno.gev-in .gev-draw { transition: none; }
+}

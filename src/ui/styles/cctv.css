@@ -212,6 +212,15 @@ html:not([lang='en']) .cctv-controls .scene-btn {
   animation: cctv-frame-shimmer 1400ms linear infinite;
 }
 
+/* Reduced motion: drop the sweeping shimmer instead of freezing it. With no
+   animation the overlay rests at its base translateX(-100%), i.e. fully off
+   the frame; the "acquiring" caption still communicates the loading state. */
+@media (prefers-reduced-motion: reduce) {
+  .cctv-frame-wrap.loading::after {
+    animation: none;
+  }
+}
+
 /* "Acquiring" caption only when no previous frame is showing underneath.
    The text lives in the markup (data-i18n) so it is translated. */
 .cctv-frame-caption {
