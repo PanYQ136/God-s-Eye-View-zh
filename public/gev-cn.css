@@ -254,7 +254,7 @@ option {
   bottom: 220px;
   transform: translateX(-50%) translateY(10px);
   /* 高于 #loading-screen(1000)，冷启动遮罩不再吞掉定位溯源提示。 */
-  z-index: var(--z-toast, 1100);
+  z-index: var(--z-cn-toast, 1100);
   padding: 9px 16px;
   font-family: var(--font-sans);
   font-size: var(--fs-md);

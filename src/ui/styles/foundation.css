@@ -70,14 +70,14 @@
      contexts. The small 0–12 integers used inside a single container (rail
      cards, panel internals) stay literal on purpose: tokenising them would
      couple contexts that are meant to be independent.
-     Two names stay out of this block until their consumers move with them,
-     because defining them would change what those consumers resolve to:
-     --z-toast (public/gev-cn.css:257 reads var(--z-toast, 1100), so a 200 here
-     would drop that layer into the toast band) and --z-hud
-     (gev-cn-weather.js:95 reads var(--z-hud, 100), which is panel level, not
-     HUD level). ToS / test-locked layers get name-only aliases: --z-gpu-notice
-     is 210 and --z-clean-exit 300; when --z-toast lands it must be 200
-     (firstRunExperience.test.mjs asserts it). Never renumber them. */
+     Two names are PERMANENTLY excluded, not deferred: --z-toast was already
+     taken by gev-cn.css (var(--z-toast, 1100), deliberately above the 1000
+     loading screen) and --z-hud by gev-cn-weather.js (var(--z-hud, 100),
+     panel level rather than HUD). Defining either would silently renumber a
+     live layer. Their consumers now point at --z-cn-toast / --z-panel instead.
+     ToS / test-locked layers get name-only aliases: --z-gpu-notice is 210 and
+     --z-clean-exit 300; the 200 toast band stays a literal (asserted by
+     firstRunExperience.test.mjs:348). Never renumber them. */
   --z-base: 0;
   --z-panel: 100;
   --z-rail: 110;
@@ -89,6 +89,16 @@
   --z-overlay: 170;
   --z-gpu-notice: 210;
   --z-clean-exit: 300;
+
+  /* 等值语义别名（2026-11-10 裁定）：这三个名字的 fallback 值与定义完全相同，
+     落地零视觉变更。--z-toast / --z-hud 两个名字被不同语义的调用方占用
+     （gev-cn.css 读到 1100、gev-cn-weather.js 读到 100），永久不定义，
+     使用点改指向下面这些语义正确的名字。
+     --z-popup 与 200 红线层同值但语义独立，禁止互相 var() 引用；
+     --z-devtools 与 --z-fab 同层；--z-cn-toast 高于 #loading-screen(1000)。 */
+  --z-popup: 200;
+  --z-devtools: 160;
+  --z-cn-toast: 1100;
 }
 
 * {
