@@ -63,6 +63,32 @@
   --right-rail-width: 330px;
   --cockpit-radio-collapsed-width: 148px;
   --cockpit-radio-expanded-width: 232px;
+  /* Z-index ladder (audit #11, step 1). This step only *defines* the ladder:
+     no rule consumes these tokens yet, so the rendered cascade is unchanged.
+     Consumers move over one file per commit later, because equal numbers do
+     not mean equal layers — the same 100 can sit in two unrelated stacking
+     contexts. The small 0–12 integers used inside a single container (rail
+     cards, panel internals) stay literal on purpose: tokenising them would
+     couple contexts that are meant to be independent.
+     Two names stay out of this block until their consumers move with them,
+     because defining them would change what those consumers resolve to:
+     --z-toast (public/gev-cn.css:257 reads var(--z-toast, 1100), so a 200 here
+     would drop that layer into the toast band) and --z-hud
+     (gev-cn-weather.js:95 reads var(--z-hud, 100), which is panel level, not
+     HUD level). ToS / test-locked layers get name-only aliases: --z-gpu-notice
+     is 210 and --z-clean-exit 300; when --z-toast lands it must be 200
+     (firstRunExperience.test.mjs asserts it). Never renumber them. */
+  --z-base: 0;
+  --z-panel: 100;
+  --z-rail: 110;
+  --z-dock: 145;
+  /* .lc-stage already reads this one: var(--z-stage, 149) in lc/material.css. */
+  --z-stage: 149;
+  --z-fab: 160;
+  /* New floating layers land in the 160–180 band. */
+  --z-overlay: 170;
+  --z-gpu-notice: 210;
+  --z-clean-exit: 300;
 }
 
 * {
