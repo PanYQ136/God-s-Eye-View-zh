@@ -71,14 +71,14 @@ const CHANNELS = {
       kind: 'json',
       local: true,
       timeout: PROBE_TIMEOUT_HEAVY,
-      note: '主通道：本地 /api/adsblol/mil 代理（内部 adsb.lol→adsb.fi 自动兜底）',
+      note: '主通道：本地 /api/adsblol/mil 代理（仅 adsb.lol；失败时服务 STALE 缓存或 502，无自动 adsb.fi 兜底）',
     },
     {
       id: 'adsbfi-mil',
       label: 'adsb.fi 军机',
       url: 'https://opendata.adsb.fi/api/v2/mil',
       kind: 'json',
-      note: '备用：adsb.fi 军机快照（readsB 同构，实测 200/~155 架），adsb.lol 限流时自动切此',
+      note: '备用：adsb.fi 军机快照（readsB 同构）。health 仅探测通道可达性，不代表 /api/flights 会自动切换',
     },
   ],
   vessels: [
