@@ -100,7 +100,7 @@ p.first-run-note { font-size: var(--fs-xs); color: #b8c2cc; }
 #gev-voice-control #gev-voice-detail { color: #9aa6ad; }
 
 /* —— 中风险：B-1 场景列表卡片套卡片 → 扁平化(去内层卡片, 留分隔线) —— */
-#scene-panel .scene-shot-row { background: transparent; border: none; box-shadow: none; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+#scene-panel .scene-shot-row { background: transparent; border: none; box-shadow: none; border-radius: 0; border-bottom: 1px solid var(--scroll-track); }
 
 /* —— 中风险：A 功能字号下限 → 11px（按面板整块 scoped，避免撑破其它区域） —— */
 /* 场景面板 */

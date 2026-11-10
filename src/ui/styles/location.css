@@ -225,7 +225,7 @@
   font-size: var(--fs-3xs);
   letter-spacing: 1px;
   color: var(--text-dim);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--scroll-track);
   padding: 2px 5px;
   border-radius: 3px;
   flex-shrink: 0;
