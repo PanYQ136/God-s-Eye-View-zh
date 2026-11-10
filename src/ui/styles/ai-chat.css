@@ -1455,7 +1455,7 @@ body[data-assistant-docked='true'] #right-context-rail {
   --assistant-glass-border: var(--glass-border);
   --assistant-glass-shadow:
     0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.03) inset,
-    0 1px 0 var(--scroll-track) inset;
+    0 1px 0 var(--hairline-1) inset;
 }
 :root:not([data-ui-theme='cyber'])
   #command-dock
