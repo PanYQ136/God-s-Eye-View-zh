@@ -116,6 +116,12 @@
   visibility: visible;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  #intel-hud {
+    transition: none;
+  }
+}
+
 #intel-hud * {
   font-family: var(--font-mono);
   color: var(--hud-color);

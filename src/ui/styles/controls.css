@@ -1213,6 +1213,13 @@ body.ui-clean-view #scene-runtime.active {
   animation: detection-pulse 2s ease-in-out infinite;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  #detection-toggle.panoptic,
+  #detection-toggle.god {
+    animation: none;
+  }
+}
+
 @keyframes detection-pulse {
   0%,
   100% {
