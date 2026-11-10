@@ -33,7 +33,7 @@
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.5),
     0 0 0 1px rgba(255, 255, 255, 0.03) inset,
-    0 1px 0 rgba(255, 255, 255, 0.06) inset;
+    0 1px 0 var(--scroll-track) inset;
 }
 
 .panel-header {
@@ -276,7 +276,7 @@ html:not([lang='en']):not(:lang(zh)):not(:lang(ja))
   min-width: 78px;
   flex-shrink: 0;
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--scroll-track);
   border-radius: var(--btn-radius);
   cursor: pointer;
   /* Keep the keyboard focus outline immediate. */
@@ -311,7 +311,7 @@ html:not([lang='en']):not(:lang(zh)):not(:lang(ja))
 
 .style-btn:hover {
   border-color: var(--glass-border-hover);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--scroll-track);
   transform: translateY(-1px);
 }
 
@@ -612,7 +612,7 @@ html:not([lang='en']):not(:lang(zh)):not(:lang(ja))
 
 .pp-toggle-btn:hover {
   border-color: var(--glass-border-hover);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--scroll-track);
 }
 
 .pp-toggle-btn.active {
@@ -844,7 +844,7 @@ html:not([lang='en']) .pp-slider-row > .pp-slider-mini-label {
 .map-stack-chip:hover,
 .map-stack-chip:focus-visible {
   border-color: var(--glass-border-hover);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--scroll-track);
   color: var(--text-primary);
 }
 
@@ -988,7 +988,7 @@ html:not([lang='en']) .pp-slider-row > .pp-slider-mini-label {
 }
 .draw-mark-name:focus {
   border-color: var(--accent);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--scroll-track);
 }
 .draw-mark-row.hidden-mark .draw-mark-name,
 .draw-mark-row.hidden-mark .draw-mark-swatch {
