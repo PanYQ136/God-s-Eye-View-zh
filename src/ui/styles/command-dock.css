@@ -4,7 +4,7 @@
   right: auto;
   bottom: 2vh;
   left: 50%;
-  z-index: 145;
+  z-index: var(--z-dock, 145);
   display: grid;
   grid-template-areas: 'locations voice presets';
   grid-template-columns: minmax(300px, 1fr) minmax(230px, 270px) minmax(

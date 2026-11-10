@@ -4,7 +4,7 @@
   top: var(--left-stack-safe-top, var(--left-stack-top));
   bottom: var(--left-stack-safe-bottom, 4vh);
   inset-inline-start: var(--left-stack-x);
-  z-index: 100;
+  z-index: var(--z-panel, 100);
   width: 360px;
   display: flex;
   flex-direction: column;
@@ -138,7 +138,7 @@
   --right-display-collapsed-width: var(--left-collapsed-width);
   --right-context-collapsed-width: var(--left-collapsed-width);
   position: fixed;
-  z-index: 110;
+  z-index: var(--z-rail, 110);
   top: var(--right-stack-safe-top, 26vh);
   right: var(--right-rail-x);
   /* 与 foundation 的 --right-rail-width 同源；栏内卡片全部 width:100%，
