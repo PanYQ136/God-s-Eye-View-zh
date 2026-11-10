@@ -12,6 +12,9 @@ export const DEFAULT_PANEL_KEY_FILE = fileURLToPath(
 
 const KEY_PATTERN = /^[A-Za-z0-9_-]{43}$/;
 const newKey = () => randomBytes(32).toString('base64url');
+/** Windows refuses to replace a file another process holds open; POSIX swaps it. */
+const REPLACE_RETRYABLE = new Set(['EPERM', 'EACCES', 'EBUSY']);
+const REPLACE_ATTEMPTS = 5;
 const notShared = (error) =>
   `panel key not shared (${error.code || error.message}); using a key of this process`;
 
@@ -47,8 +50,25 @@ function repairKey(file, tmp, key) {
     // A repair completed between our earlier read and acquiring the lock.
     const winner = readKey(file);
     if (winner) return winner;
-    fs.renameSync(tmp, file);
-    return key;
+    // Windows refuses to replace a file another process holds open, where POSIX
+    // would swap it: retry briefly, taking the other repair's key as soon as it
+    // publishes one, so both processes still answer with the same key.
+    for (let attempt = 0; ; attempt += 1) {
+      try {
+        fs.renameSync(tmp, file);
+        return key;
+      } catch (error) {
+        if (
+          !REPLACE_RETRYABLE.has(error.code) ||
+          attempt + 1 >= REPLACE_ATTEMPTS
+        ) {
+          throw error;
+        }
+        const published = readKey(file);
+        if (published) return published;
+        Atomics.wait(pause, 0, 0, 20);
+      }
+    }
   } finally {
     fs.closeSync(fd);
     fs.rmSync(lock, { force: true });
