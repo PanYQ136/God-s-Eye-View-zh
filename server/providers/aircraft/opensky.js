@@ -28,8 +28,16 @@ let _openskyCacheMeta = null;
 let _openskyCacheSourceEpochMs = null;
 /** TTL for the OpenSky response cache (ms). */
 const OPENSKY_CACHE_MS = 9000;
-/** Per-attempt limit for the global snapshot; it normally arrives in ~1.5 s. */
-const OPENSKY_ATTEMPT_TIMEOUT_MS = 10_000;
+/**
+ * Lifetime budget for one global-snapshot attempt (head + ~0.7 MB body).
+ * undici ties the response body to the request signal, so head and body must
+ * share one budget. A throttled link trickles that payload at ~35 KB/s (>20 s)
+ * while the head answers in ~1.5 s, so the previous 10 s budget aborted every
+ * attempt and the proxy answered 502 "OpenSky proxy error" on an upstream 200.
+ */
+const OPENSKY_SNAPSHOT_TIMEOUT_MS = 60_000;
+/** OAuth token endpoint budget; it answers in well under a second. */
+const OPENSKY_TOKEN_TIMEOUT_MS = 15_000;
 const OPENSKY_STATES_URL =
   'https://opensky-network.org/api/states/all?extended=1';
 /** states/all?extended=1 measures ~0.8 MB anonymously; bounded, not budgeted. */
@@ -56,18 +64,17 @@ function openSkyRateLimitCooldownMs(upstream) {
 }
 
 /**
- * Fetch and read the global snapshot, giving each attempt
- * OPENSKY_ATTEMPT_TIMEOUT_MS and retrying once when an attempt times out or
- * the connection fails. An oversized body is not retried: it would fail again
- * and spend more credits. A second failure throws, which the proxy answers
- * from its stale cache or the regional fallback.
+ * Fetch and read the global snapshot under one lifetime budget, retrying once
+ * when the attempt fails. An oversized body is not retried: it would fail
+ * again and spend more credits. A second failure throws, which the proxy
+ * answers from its stale cache or the regional fallback.
  * @param {Record<string, string>} headers Request headers.
  * @returns {Promise<{upstream: Response, body: string}>}
  */
 async function fetchOpenSkyStates(headers) {
   for (let attempt = 1; ; attempt++) {
     try {
-      const signal = AbortSignal.timeout(OPENSKY_ATTEMPT_TIMEOUT_MS);
+      const signal = AbortSignal.timeout(OPENSKY_SNAPSHOT_TIMEOUT_MS);
       const upstream = await fetch(OPENSKY_STATES_URL, { headers, signal });
       if (upstream.status === 429 || upstream.status >= 500) {
         // Start the cooldown from the headers and drop the rejected body
@@ -234,7 +241,7 @@ export async function getOpenSkyToken() {
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          signal: AbortSignal.timeout(OPENSKY_ATTEMPT_TIMEOUT_MS),
+          signal: AbortSignal.timeout(OPENSKY_TOKEN_TIMEOUT_MS),
           body: `grant_type=client_credentials&client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}`,
         },
       );
