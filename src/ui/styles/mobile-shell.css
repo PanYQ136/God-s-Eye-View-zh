@@ -278,6 +278,33 @@ body.mobile-shell[data-mobile-sheet='more'] #command-dock {
   border-radius: 18px 18px 0 0;
 }
 
+/* Context is moved into the lc stage by the floating-panel layer, which leaves
+   desktop rail geometry inline (left/top/width/height). Without this rule the
+   sheet stayed a 320px floating column, and on a landscape phone its last
+   control sat under the tab bar. Only !important outranks an inline inset. */
+body.mobile-shell[data-mobile-sheet='context']
+  :is(#command-dock, .lc-stage)
+  > #global-context-panel {
+  position: fixed !important;
+  inset: auto !important;
+  right: 0 !important;
+  bottom: var(--mobile-tab-space) !important;
+  left: 0 !important;
+  z-index: 160 !important;
+  width: auto !important;
+  height: auto !important;
+  max-height: var(--mobile-sheet-max-height) !important;
+  padding: 14px 10px 10px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  pointer-events: auto;
+  background: rgba(8, 14, 22, 0.96);
+  border: 1px solid var(--glass-border);
+  border-bottom: 0;
+  border-radius: 18px 18px 0 0;
+  transform: none !important;
+}
+
 body.mobile-shell[data-mobile-sheet='more'] #right-context-rail {
   max-height: var(--mobile-rail-under-dock-max-height);
   padding-top: 4px;
