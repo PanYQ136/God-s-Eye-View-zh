@@ -92,7 +92,7 @@ import { announceNavigationAuthority } from './navigationPolicy.js';
   /* 左上锚定簇：天气胶囊 + 预警横幅并排，不再跨全宽，避免与右栏 / 顶中按钮行相撞 */
   #gev-cn-band{ position:fixed; top:64px; left:var(--left-stack-x,52px); right:auto;
     width:max-content; max-width:calc(100vw - 104px);
-    display:flex; align-items:flex-start; gap:8px; z-index:var(--z-hud,100);
+    display:flex; align-items:flex-start; gap:8px; z-index:var(--z-panel,100);
     pointer-events:none; font-family:var(--font-sans); box-sizing:border-box; }
   #gev-cn-band>*{ pointer-events:auto; }
   /* 列表打开时抬到弹窗层，避免被侧栏（--z-panel:110）盖住 */
