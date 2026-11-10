@@ -591,7 +591,7 @@ body.cockpit-mode #cockpit-cloud-effects.active {
   position: fixed;
   top: 32px;
   inset-inline-start: 36px;
-  z-index: 100;
+  z-index: var(--z-panel, 100);
   pointer-events: none;
   user-select: none;
 }
@@ -725,7 +725,7 @@ body.cockpit-mode #cockpit-cloud-effects.active {
   position: fixed;
   top: 32px;
   inset-inline-end: 36px;
-  z-index: 100;
+  z-index: var(--z-panel, 100);
   pointer-events: none;
   user-select: none;
   text-align: end;
