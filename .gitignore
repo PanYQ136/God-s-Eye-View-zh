@@ -60,3 +60,7 @@ vite.err
 
 # 2026-11-09 交互遗留挖掘：Puppeteer 探针与帧采样 JSON 属运行期诊断物，本地保留不入库。
 /temp/
+
+# 2026-11-10 ops: one-off backups (e.g. start-prod.cmd.bak-YYYYMMDD) stay local
+*.bak-*
+

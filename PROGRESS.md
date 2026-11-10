@@ -1537,3 +1537,11 @@ Win11 就地升级把 Tailscale 状态弄坏：`C:\ProgramData\Tailscale\` 无 `
 - **未做（有意）**：模型外置（`build/models.mjs` 已于 Phase8E 实现裁剪）、Cesium 212 文件迁移、
   帧率自适应治理、图层搜索、分享链接撤销提示——前三项需要真机验收或大范围迁移，
   后两项属于功能而非优化，均未擅自改动。
+
+## 2026-11-10 09:05 外网 natfrp 隧道恢复 + prod 服务绑定/Host 白名单修复
+
+- 现象: 日检发现 frpc 进程不在, 任务 GodsEye_natfrp_frpc 处于 Ready 未运行; frp-fly.com:11269 不可用。重启后发现 4174 只监听 [::1](手动起的 vite preview 缺 --host) → 隧道 502; 修正绑定后又 403 "Blocked request. This host is not allowed."
+- 根因: 1) 11-08 03:12 开机时 ClashMi(7890) 未就绪, frpc 走代理连 natfrp-api 失败后退出, 无重试; 2) 有人手动启动 prod 未带 --host 0.0.0.0, 仅 IPv6 回环; 3) start-prod.cmd 未设置 GEV_ALLOWED_HOSTS, build/allowedHosts.js 默认只放行 localhost/127.0.0.1, 外部域名 Host 被 hostCheckPlugin 拦截。
+- 改法: 重启 GodsEye_natfrp_frpc; 结束无 --host 的 preview 进程并用 GodsEye_ProdServer 任务重起; start-prod.cmd 增加 set "GEV_ALLOWED_HOSTS=frp-fly.com"(备份 start-prod.cmd.bak-20261110)。
+- 验证: frpc PID 5156, 日志 "隧道启动成功"; 4174 监听 0.0.0.0; http://frp-fly.com:11269/ = 200; LAN 与 127.0.0.1 均 200。
+- 遗留: /api/flights 返回 502(OpenSky 代理 timeout, 上游直连 200 但 Node 侧超时), 需单独排查; C: 仅剩 15G/10%, 低于 15% 阈值。
