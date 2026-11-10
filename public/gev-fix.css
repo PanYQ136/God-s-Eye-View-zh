@@ -200,4 +200,13 @@ label.radio-filter-label, #radio-station-meta, .radio-volume-row > span { color:
     html body #toast { bottom: 168px; }
     html body #gev-toast { bottom: 224px; }
   }
+
+  /* ── 两个语言入口同屏：汉化层开启时就收起 i18n 的 locale picker ──
+     药丸（#gev-lang-toggle 中/EN）和 picker（#locale-picker）都在切语言，
+     同时出现时用户无从判断哪个管用，实测两者还能互相打脸（picker 切 ja 后
+     汉化层的 lang=zh-CN 仍挂着）。这里让它们互斥：汉化层开着时只留药丸，
+     点回 EN 后 picker 自然复现 —— 11 种 locale 一个都没丢。
+     !important 是因为 locale-picker.css 经 style.css 的 @import 进来，
+     属于 unlayered 规则，层内声明不加 !important 压不住它。 */
+  body.gev-zh #locale-picker { display: none !important; }
 }

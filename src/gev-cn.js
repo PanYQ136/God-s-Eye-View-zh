@@ -336,6 +336,68 @@ let enabled = true;
 let seen = new WeakSet();
 const originals = new Map();
 
+/* ---- <html lang> / <title> ownership --------------------------------------
+   This layer used to assert lang=en on the way out, which is only right when
+   the i18n locale is en: entering through ?lang=ja or the picker, turning the
+   Chinese layer off rewrote the page to English while every string stayed
+   Japanese. Capture what the document declared before the layer took over and
+   put that back, whatever it was.
+
+   The title had the mirror-image problem — it only ever changed to Chinese
+   from inside translateTree(), so a non-English locale kept the English tab
+   title. Both now derive from one place: the layer's own switch OR an i18n
+   locale in the Chinese family (a Chinese page keeps a Chinese title whether
+   the Latin layer is on or off). */
+const TITLE_ZH = "上帝之眼 · God's Eye View";
+const TITLE_EN = "God's Eye View";
+let docLangBeforeZh = null;
+let docDirBeforeZh = null;
+let i18nGetLocale = null;
+
+function isZhLocale(locale) {
+  return typeof locale === 'string' && /^zh/i.test(locale);
+}
+
+/** The i18n locale once the bridge is up; null while the layer runs alone. */
+function currentLocale() {
+  return i18nGetLocale ? i18nGetLocale() : null;
+}
+
+function syncDocumentTitle() {
+  const locale = currentLocale();
+  document.title = enabled || isZhLocale(locale) ? TITLE_ZH : TITLE_EN;
+}
+
+function markDocumentLanguage(zh) {
+  const root = document.documentElement;
+  if (zh) {
+    if (docLangBeforeZh === null) {
+      docLangBeforeZh = root.lang || '';
+      docDirBeforeZh = root.getAttribute('dir');
+    }
+    /* Read the locale instead of hard-coding zh-CN: under zh-Hant the page
+       really is Traditional Chinese, and claiming zh-CN there makes screen
+       readers pick the wrong voice. dir must be ltr because the layer has just
+       swapped the copy to Chinese even when the chosen locale is Arabic. */
+    const locale = currentLocale();
+    root.lang = isZhLocale(locale) ? locale : 'zh-CN';
+    root.setAttribute('dir', 'ltr');
+    syncDocumentTitle();
+    return;
+  }
+  if (docLangBeforeZh !== null) {
+    /* The captured value can be stale: the bridge and the i18n boot race, so
+       ?lang=ja may land after mount and the snapshot still says "en". The
+       live locale is authoritative; the snapshot is only the fallback. */
+    root.lang = currentLocale() || docLangBeforeZh || 'en';
+    if (docDirBeforeZh === null) root.removeAttribute('dir');
+    else root.setAttribute('dir', docDirBeforeZh);
+    docLangBeforeZh = null;
+    docDirBeforeZh = null;
+  }
+  syncDocumentTitle();
+}
+
 function tr(value) {
   if (!value) return null;
   const key = value.trim();
@@ -425,10 +487,8 @@ function fitOptionBoxes() {
 function translateTree() {
   walk(document.body);
   fitOptionBoxes();
-  document.title = document.title.includes('God') /* i18n-ignore */
-    ? "上帝之眼 · God's Eye View"
-    : document.title;
-  document.documentElement.lang = 'zh-CN';
+  syncDocumentTitle();
+  markDocumentLanguage(true);
   document.body.classList.add('gev-zh');
 }
 
@@ -466,7 +526,7 @@ function setEnabled(on) {
     }
     originals.clear();
     seen = new WeakSet();
-    document.documentElement.lang = 'en';
+    markDocumentLanguage(false);
   }
   const pill = document.getElementById('gev-lang-toggle');
   if (pill) pill.dataset.on = on ? '1' : '0';
@@ -502,6 +562,24 @@ function mount() {
     pill.addEventListener('click', () => setEnabled(!enabled));
     document.body.appendChild(pill);
   }
+
+  /* Bridge to the i18n layer, loaded lazily so that a failure here can never
+     take the whole Latin layer down with it. It supplies two things the layer
+     cannot guess on its own: the active locale (for the tab title) and the
+     signal that the locale changed. There is no setLocale() call in either
+     direction — the picker still owns the locale, this layer owns the
+     English→Chinese dictionary, and the two only need to agree on the title. */
+  import('./i18n/index.js')
+    .then((mod) => {
+      if (typeof mod.getLocale === 'function') i18nGetLocale = mod.getLocale;
+      if (typeof mod.onLocaleChange === 'function') {
+        mod.onLocaleChange(() => syncDocumentTitle());
+      }
+      syncDocumentTitle();
+    })
+    .catch(() => {
+      /* i18n unavailable: the title stays on the layer's own switch */
+    });
 
   window.__gevCn = {
     on: () => setEnabled(true),

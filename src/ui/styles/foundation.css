@@ -17,6 +17,11 @@
   --text-primary: #e8eaed;
   --text-secondary: rgba(232, 234, 237, 0.5);
   --text-dim: rgba(232, 234, 237, 0.3);
+  /* --text-dim is 2.35:1 on the black chrome behind the title bar — fine for a
+     decorative hairline, unreadable for text. Kickers and unit labels that are
+     small by design (the brand subtitle, ACTIVE STYLE) take this step instead:
+     6.6:1 on black, so 4.5:1 holds at the 9–11px sizes those two use. */
+  --text-dim-strong: rgba(232, 234, 237, 0.62);
   /* Opaque surface for browser-painted menus, which cannot use --glass-bg. */
   --menu-bg: #12121c;
   --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
@@ -662,7 +667,7 @@ body.cockpit-mode #cockpit-cloud-effects.active {
   font-family: var(--font-mono);
   font-size: var(--fs-xs);
   letter-spacing: 5px;
-  color: var(--text-dim);
+  color: var(--text-dim-strong);
   margin-top: 8px;
   text-transform: uppercase;
 }
@@ -692,7 +697,7 @@ body.cockpit-mode #cockpit-cloud-effects.active {
   font-family: var(--font-mono);
   font-size: var(--fs-2xs);
   letter-spacing: 3px;
-  color: var(--text-dim);
+  color: var(--text-dim-strong);
   text-transform: uppercase;
 }
 

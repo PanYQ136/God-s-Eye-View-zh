@@ -410,7 +410,10 @@
 
 :root[data-scope-mask='off']:not([data-ui-theme='cyber'])
   :is(#title-bar .subtitle, #style-indicator .indicator-label) {
-  color: var(--text-secondary);
+  /* Same step as the base rule: this branch used to drop to --text-secondary
+     (4.5:1 exactly), so switching the scope mask off made the kicker darker
+     than with it on. */
+  color: var(--text-dim-strong);
 }
 
 :root[data-scope-mask='off']:not([data-ui-theme='cyber']) #title-bar .subtitle {
