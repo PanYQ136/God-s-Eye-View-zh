@@ -328,6 +328,14 @@ html:not([lang='en']) .sl-meta-row .sl-nearest-btn {
   }
 }
 
+/* Reduced motion: the spinner rests as a static ring; the placeholder wrapper
+   itself still marks the loading state. */
+@media (prefers-reduced-motion: reduce) {
+  .sl-viewer-placeholder::after {
+    animation: none;
+  }
+}
+
 .sl-viewer-bar {
   display: flex;
   align-items: center;
