@@ -106,7 +106,11 @@ async function fetchOpenSkyStates(headers) {
       );
       return { upstream, body };
     } catch (error) {
-      if (attempt >= 2 || error?.code === 'RESPONSE_TOO_LARGE') throw error;
+      // Vercel: a second 12s attempt only doubles a request that cannot reach
+      // the upstream (24s -> fallback). Self-hosted keeps one retry for blips.
+      const maxAttempts = process.env.VERCEL ? 1 : 2;
+      if (attempt >= maxAttempts || error?.code === 'RESPONSE_TOO_LARGE')
+        throw error;
       console.warn(
         '[OpenSky] global snapshot attempt failed, retrying:',
         error?.message || error,
