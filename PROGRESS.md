@@ -1545,3 +1545,14 @@ Win11 就地升级把 Tailscale 状态弄坏：`C:\ProgramData\Tailscale\` 无 `
 - 改法: 重启 GodsEye_natfrp_frpc; 结束无 --host 的 preview 进程并用 GodsEye_ProdServer 任务重起; start-prod.cmd 增加 set "GEV_ALLOWED_HOSTS=frp-fly.com"(备份 start-prod.cmd.bak-20261110)。
 - 验证: frpc PID 5156, 日志 "隧道启动成功"; 4174 监听 0.0.0.0; http://frp-fly.com:11269/ = 200; LAN 与 127.0.0.1 均 200。
 - 遗留: /api/flights 返回 502(OpenSky 代理 timeout, 上游直连 200 但 Node 侧超时), 需单独排查; C: 仅剩 15G/10%, 低于 15% 阈值。
+
+## 2026-11-11 · #9 `!important` 收口：改为分类登记，废止「清到个位数」
+
+- **裁定**：清单里「168 处清到个位数」不成立，目标废止。`!important` 在 GEV 承担三种不可移除职能：测试可见性契约、合规/a11y/状态语义、unlayered 压 layered 的层叠机制。**剩余不是技术债。**
+- **实测基线（复跑 EXIT=0）**：167 处 / 28 文件 = LOCKED 27（测试锁定）/ PROTECTED 64（合规·a11y·状态语义）/ REVIEW 54（待逐处核）/ REDUNDANT 22（静态候选）。全仓 grep 口径 173，差值 6 是 `*.test.*` 断言文本，口径不同不要混用。
+- **登记文档**：`docs/audit-important-20261111.md`（含 LOCKED 27 逐条 file:line、PROTECTED 64 判据与分布、REDUNDANT 反例、窄流程门槛）。
+- **禁止**据 REDUNDANT 22 批量删：已核实至少 4 处为有意层叠压制 —— `public/gev-cn.css:27`（压 Cesium 未分层）、`public/gev-material-override.css:55`（压补丁层）、`public/gev-cn.css:74-75`（隐藏滚动条）、`cyber.css:1475-1477`（主题变量覆盖）。
+- **误读纠正**：`creditAttribution.test.mjs:613` 只审 `style.css` 版权行 keep-out，不是「全仓禁 `!important`」。
+- **本轮改动**：仅新增本文档 + 本条目，**未改任何 CSS**。工具与基线留档 `D:\Hermes\backups\gev-important-audit-20261110\`（DECISION.txt / important-audit.mjs v2 / BASELINE.txt）。
+- **未做（有意）**：不启动数量清理；#8 CSS 链路、#12 local_data、颜色 Step C、flights 均未动；未 push、未部署。
+- **回滚**：删除 `docs/audit-important-20261111.md` 并删除本条目。
