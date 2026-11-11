@@ -117,8 +117,10 @@ export function runUnitTests() {
     }
     console.warn(
       `[unit] SKIPPED ${ALLOCATION_TEST_FILES.length} allocation microbenchmarks: `
-      + `budgets are calibrated for Node 24, running ${process.versions.node}. `
-      + 'Run under Node 24 (or set GEV_REQUIRE_ALLOCATION_GATE=1 to fail instead).',
+        + `budgets are calibrated for Node 24, running ${process.versions.node}. `
+        + 'Run them on a calibrated engine without switching the whole toolchain://n'
+        + `  npx node@24 --import=./build/registerVue.js --expose-gc --test --test-concurrency=1 ${ALLOCATION_TEST_FILES.join(' ')}`
+        + '\n(or set GEV_REQUIRE_ALLOCATION_GATE=1 to fail instead).',
     );
     return 0;
   }

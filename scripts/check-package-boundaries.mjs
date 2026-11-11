@@ -111,7 +111,9 @@ export async function checkPackageBoundaries(root) {
             const id = info.id.split('?')[0];
             if (!allowed.has(id)) {
               throw new Error(
-                `Package boundary ${name} imports an unowned module: ${path.relative(root, id)}`,
+                // Normalize the separator: a Windows backslash path reads as a
+                // different file than the forward-slash paths in the report on CI.
+                `Package boundary ${name} imports an unowned module: ${normalizePath(path.relative(root, id))}`,
               );
             }
             seen.add(id);
