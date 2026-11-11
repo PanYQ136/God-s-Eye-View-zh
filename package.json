@@ -51,7 +51,7 @@
     "qa:map-source-tray": "node scripts/qa-map-source-tray.mjs",
     "qa:street-level": "node scripts/qa-street-level.mjs",
     "qa:street-level:fixtures": "node scripts/qa-street-level.mjs --fixtures",
-    "check:boundaries": "node scripts/check-import-directions.mjs && node scripts/check-package-boundaries.mjs",
+    "check:boundaries": "node scripts/retry-on-crash.mjs scripts/check-import-directions.mjs && node scripts/retry-on-crash.mjs scripts/check-package-boundaries.mjs",
     "check:breakpoints": "node scripts/check-breakpoints.mjs",
     "qa:transit": "node scripts/qa-transit.mjs",
     "mcp": "node server/mcp/stdio.js"
