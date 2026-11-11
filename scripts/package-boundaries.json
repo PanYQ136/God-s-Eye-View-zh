@@ -2880,6 +2880,8 @@
       "src/voice/panelLayout.js",
       "src/voice/voiceMiniPreview.js",
       "src/voice/gevActions.js",
+      "src/voice/gevActionRadio.js",
+      "src/voice/voiceLocationIds.js",
       "src/agent/worldPacket.js",
       "src/voice/speech.js",
       "src/ui/layerNames.js",
